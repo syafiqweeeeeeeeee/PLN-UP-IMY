@@ -108,52 +108,43 @@
                 background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
             }
 
-            .search-form {
-                display: flex;
-                align-items: center;
-                background: rgba(255, 255, 255, 0.15);
-                border-radius: 25px;
-                padding: 0.2rem 0.25rem 0.2rem 0.75rem;
-                border: 1px solid rgba(255, 255, 255, 0.25);
-                transition: all 0.3s ease;
+            /* =============================================
+               DROPDOWN
+               ============================================= */
+            .navbar-pln .dropdown-menu {
+                background: var(--pln-dark);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                padding: 0.5rem 0;
+                margin-top: 0.5rem;
+                min-width: 200px;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+                animation: dropdownFade 0.2s ease;
             }
 
-            .search-form:focus-within {
-                background: rgba(255, 255, 255, 0.25);
-                border-color: var(--pln-yellow);
+            @keyframes dropdownFade {
+                from { opacity: 0; transform: translateY(-8px); }
+                to   { opacity: 1; transform: translateY(0); }
             }
 
-            .search-form input {
-                background: transparent;
-                border: none;
-                color: #fff;
+            .navbar-pln .dropdown-menu .dropdown-item {
+                color: rgba(255, 255, 255, 0.75);
                 font-size: 0.85rem;
-                outline: none;
-                width: 150px;
-                padding: 0.25rem 0;
+                font-weight: 400;
+                padding: 0.45rem 1.25rem;
+                transition: all 0.2s ease;
             }
 
-            .search-form input::placeholder {
-                color: rgba(255, 255, 255, 0.6);
+            .navbar-pln .dropdown-menu .dropdown-item:hover {
+                color: #fff;
+                background: rgba(255, 230, 0, 0.1);
+                padding-left: 1.5rem;
             }
 
-            .search-form .btn-search {
-                background: var(--pln-yellow);
-                color: var(--pln-blue);
-                border: none;
-                border-radius: 50%;
-                width: 32px;
-                height: 32px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 0.8rem;
-                cursor: pointer;
-                transition: transform 0.2s ease;
-            }
-
-            .search-form .btn-search:hover {
-                transform: scale(1.08);
+            .navbar-pln .dropdown-toggle::after {
+                font-size: 0.65rem;
+                margin-left: 0.35rem;
+                vertical-align: middle;
             }
 
             .btn-login {
@@ -472,12 +463,9 @@
                     font-size: 2.2rem;
                 }
 
-                .search-form {
-                    margin-top: 0.5rem;
-                }
-
-                .search-form input {
-                    width: 100%;
+                .navbar-pln .dropdown-menu {
+                    background: rgba(26, 26, 46, 0.95);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
                 }
             }
 

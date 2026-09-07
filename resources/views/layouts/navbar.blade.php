@@ -5,7 +5,7 @@
         <a class="navbar-brand" href="{{ route('home') }}">
             <img
                 src="{{ asset('assets/images/logo-pln.png') }}"
-                alt="Logo PLN Nusantara Power"
+                alt="Logo PLN"
                 class="logo-nav"
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
             />
@@ -21,52 +21,65 @@
 
         {{-- Nav Content --}}
         <div class="collapse navbar-collapse" id="navbarResponsive">
-            {{-- Main Nav Links --}}
-            <ul class="navbar-nav ms-auto me-2">
-                <li class="nav-item">
-                    <a class="nav-link active" href="{{ route('home') }}">
-                        <i class="fas fa-home me-1"></i> Beranda
+            <ul class="navbar-nav ms-auto">
+                
+
+                {{-- Tentang Kami --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-building me-1"></i> Tentang Kami
                     </a>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item" href="#">Profil Perusahaan</a></li>
+                        <li><a class="dropdown-item" href="#">Sejarah</a></li>
+                        <li><a class="dropdown-item" href="#">Visi &amp; Misi</a></li>
+                        <li><a class="dropdown-item" href="#">Struktur Organisasi</a></li>
+                    </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#ppid">
-                        <i class="fas fa-building me-1"></i> PPID
+
+                {{-- Informasi --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-book-open me-1"></i> Informasi
                     </a>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item" href="#">Berita</a></li>
+                        <li><a class="dropdown-item" href="#">Pengumuman</a></li>
+                        <li><a class="dropdown-item" href="#">Artikel</a></li>
+                        <li><a class="dropdown-item" href="#">Galeri</a></li>
+                    </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#informasi-publik">
-                        <i class="fas fa-book-open me-1"></i> Informasi Publik
+
+                {{-- Layanan --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-concierge-bell me-1"></i> Layanan
                     </a>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item" href="#">Daftar Layanan</a></li>
+                        <li><a class="dropdown-item" href="#">Informasi Layanan</a></li>
+                        <li><a class="dropdown-item" href="#">FAQ</a></li>
+                    </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#layanan">
-                        <i class="fas fa-concierge-bell me-1"></i> Layanan Informasi
+
+               
+
+                {{-- Kontak --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-envelope me-1"></i> Kontak
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#pengadaan">
-                        <i class="fas fa-shopping-cart me-1"></i> Pengadaan Barang/Jasa
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#faq">
-                        <i class="fas fa-question-circle me-1"></i> FAQ
-                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item" href="#">Hubungi Kami</a></li>
+                        <li><a class="dropdown-item" href="#">Lokasi</a></li>
+                        <li><a class="dropdown-item" href="#">Sosial Media</a></li>
+                    </ul>
                 </li>
             </ul>
 
-            {{-- Right Side: Search + Login --}}
-            <div class="d-flex align-items-center gap-2">
-                {{-- Search Form --}}
-                <form class="search-form d-none d-lg-flex" action="#" method="GET">
-                    <input type="text" name="q" placeholder="Cari informasi..." aria-label="Search" />
-                    <button type="submit" class="btn-search">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-
-                {{-- Login Button --}}
-                <a href="#" class="btn btn-login d-none d-lg-inline-block">
+            {{-- Right Side: Login --}}
+            <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
+                <a href="#" class="btn btn-login">
                     <i class="fas fa-sign-in-alt me-1"></i> Login
                 </a>
             </div>
