@@ -1,47 +1,74 @@
-<!-- Contact -->
-<section class="contact-section bg-black">
+<!-- Footer -->
+<footer class="footer-pln">
     <div class="container px-4 px-lg-5">
-        <div class="row gx-4 gx-lg-5">
-            <div class="col-md-4 mb-3 mb-md-0">
-                <div class="card py-4 h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-map-marked-alt text-primary mb-2"></i>
-                        <h4 class="text-uppercase m-0">Address</h4>
-                        <hr class="my-4 mx-auto" />
-                        <div class="small text-black-50">4923 Market Street, Orlando FL</div>
-                    </div>
+        <div class="row gx-5">
+            {{-- Info PLN --}}
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h6><i class="fas fa-bolt me-1" style="color: var(--pln-yellow)"></i> E-PPID PLN</h6>
+                <p style="line-height: 1.8">
+                    Pejabat Pengelola Informasi dan Dokumentasi (PPID) merupakan pejabat yang bertanggung jawab di bidang penyimpanan, pengelolaan, pemberian akses, serta penyimpanan informasi publik di lingkungan PT PLN (Persero).
+                </p>
+                <div class="social-links mt-3">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
                 </div>
             </div>
-            <div class="col-md-4 mb-3 mb-md-0">
-                <div class="card py-4 h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-envelope text-primary mb-2"></i>
-                        <h4 class="text-uppercase m-0">Email</h4>
-                        <hr class="my-4 mx-auto" />
-                        <div class="small text-black-50"><a href="mailto:hello@yourdomain.com">hello@yourdomain.com</a></div>
-                    </div>
-                </div>
+
+            {{-- Tautan Penting --}}
+            <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                <h6>Tautan Penting</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#">Beranda</a></li>
+                    <li><a href="#">Profil PPID</a></li>
+                    <li><a href="#">Informasi Publik</a></li>
+                    <li><a href="#">Layanan Informasi</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
             </div>
-            <div class="col-md-4 mb-3 mb-md-0">
-                <div class="card py-4 h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-mobile-alt text-primary mb-2"></i>
-                        <h4 class="text-uppercase m-0">Phone</h4>
-                        <hr class="my-4 mx-auto" />
-                        <div class="small text-black-50">+1 (555) 902-8832</div>
-                    </div>
-                </div>
+
+            {{-- Layanan --}}
+            <div class="col-lg-3 col-md-4 mb-4 mb-md-0">
+                <h6>Layanan</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#">Permohonan Informasi</a></li>
+                    <li><a href="#">Keberatan Informasi</a></li>
+                    <li><a href="#">Informasi Serta Merta</a></li>
+                    <li><a href="#">Informasi Dikecualikan</a></li>
+                </ul>
+            </div>
+
+            {{-- Hubungi Kami --}}
+            <div class="col-lg-3 col-md-4">
+                <h6>Hubungi Kami</h6>
+                <ul class="list-unstyled">
+                    <li>
+                        <i class="fas fa-map-marker-alt me-2" style="color: var(--pln-cyan)"></i>
+                        Jl. Trunojoyo No. 123, Jakarta Selatan
+                    </li>
+                    <li>
+                        <i class="fas fa-phone me-2" style="color: var(--pln-cyan)"></i>
+                        (021) 123-4567
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope me-2" style="color: var(--pln-cyan)"></i>
+                        ppid@pln.co.id
+                    </li>
+                    <li>
+                        <i class="fas fa-clock me-2" style="color: var(--pln-cyan)"></i>
+                        Senin - Jumat, 08.00 - 16.00 WIB
+                    </li>
+                </ul>
             </div>
         </div>
-        <div class="social d-flex justify-content-center">
-            <a class="mx-2" href="#"><i class="fab fa-twitter"></i></a>
-            <a class="mx-2" href="#"><i class="fab fa-facebook-f"></i></a>
-            <a class="mx-2" href="#"><i class="fab fa-github"></i></a>
+
+        {{-- Bottom --}}
+        <div class="footer-bottom">
+            <p class="mb-0">
+                &copy; {{ date('Y') }} PT PLN (Persero) — E-PPID. Hak Cipta Dilindungi.
+            </p>
         </div>
     </div>
-</section>
-
-<!-- Footer -->
-<footer class="footer bg-black small text-center text-white-50">
-    <div class="container px-4 px-lg-5">Copyright &copy; Your Website {{ date('Y') }}</div>
 </footer>
