@@ -443,6 +443,28 @@
             }
 
             /* =============================================
+               LOGO IMAGE HANDLING
+               ============================================= */
+            .logo-nav {
+                height: 42px;
+                width: auto;
+                max-width: 180px;
+                object-fit: contain;
+                transition: opacity 0.3s ease;
+            }
+
+            .logo-nav:hover {
+                opacity: 0.85;
+            }
+
+            .logo-hero {
+                height: 80px;
+                width: auto;
+                max-width: 240px;
+                object-fit: contain;
+            }
+
+            /* =============================================
                RESPONSIVE
                ============================================= */
             @media (max-width: 991.98px) {

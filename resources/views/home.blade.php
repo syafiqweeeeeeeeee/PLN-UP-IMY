@@ -26,26 +26,17 @@
                     </div>
                 </div>
                 <div class="col-lg-5 text-center mt-5 mt-lg-0">
-                    <div style="position: relative; z-index: 2;">
-                        <div style="
-                            width: 280px; height: 280px;
-                            background: linear-gradient(135deg, rgba(255,230,0,0.15), rgba(0,163,224,0.15));
-                            border-radius: 50%;
-                            display: flex; align-items: center; justify-content: center;
-                            margin: 0 auto;
-                            border: 2px solid rgba(255,255,255,0.1);
-                        ">
-                            <div style="
-                                width: 200px; height: 200px;
-                                background: linear-gradient(135deg, var(--pln-blue), var(--pln-cyan));
-                                border-radius: 50%;
-                                display: flex; align-items: center; justify-content: center;
-                                box-shadow: 0 20px 50px rgba(0,91,156,0.3);
-                            ">
-                                <i class="fas fa-bolt" style="font-size: 4rem; color: var(--pln-yellow)"></i>
-                            </div>
-                        </div>
-                    </div>
+                    <a href="{{ route('home') }}" class="d-inline-block">
+                        <img
+                            src="{{ asset('assets/images/logo-pln.png') }}"
+                            alt="Logo PLN Nusantara Power"
+                            class="logo-hero"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                        />
+                        <span class="d-none text-white fw-bold" style="font-size: 1.5rem;">
+                            <i class="fas fa-bolt" style="color: var(--pln-yellow)"></i> PLN
+                        </span>
+                    </a>
                 </div>
             </div>
         </div>

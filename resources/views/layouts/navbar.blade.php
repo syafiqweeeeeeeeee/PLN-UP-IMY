@@ -3,8 +3,15 @@
     <div class="container px-4 px-lg-5">
         {{-- Brand --}}
         <a class="navbar-brand" href="{{ route('home') }}">
-            <span class="brand-icon">⚡</span>
-            E-PPID PLN
+            <img
+                src="{{ asset('assets/images/logo-pln.png') }}"
+                alt="Logo PLN Nusantara Power"
+                class="logo-nav"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
+            />
+            <span class="d-none">
+                <i class="fas fa-bolt" style="color: var(--pln-yellow)"></i> E-PPID PLN
+            </span>
         </a>
 
         {{-- Toggler --}}
