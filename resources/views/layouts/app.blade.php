@@ -167,6 +167,93 @@
             }
 
             /* =============================================
+               LANGUAGE SWITCHER (GLOBE DROPDOWN)
+               ============================================= */
+            .lang-switcher {
+                position: relative;
+            }
+
+            .lang-switcher .lang-toggle {
+                color: rgba(255, 255, 255, 0.85);
+                font-weight: 500;
+                font-size: 0.88rem;
+                padding: 0.5rem 0.85rem !important;
+                border-radius: 6px;
+                border: none;
+                background: transparent;
+                transition: all 0.2s ease;
+            }
+
+            .lang-switcher .lang-toggle:hover {
+                color: #fff;
+                background: rgba(255, 255, 255, 0.12);
+            }
+
+            .lang-switcher .lang-toggle::after {
+                content: '\2304';
+                font-size: 0.65rem;
+                margin-left: 0.35rem;
+                vertical-align: middle;
+            }
+
+            .lang-switcher .lang-toggle[aria-expanded='true']::after {
+                transform: rotate(180deg);
+            }
+
+            /* Dropdown sendiri: display toggled oleh class .open */
+            .lang-switcher .lang-menu {
+                display: none;
+                position: absolute;
+                right: 0;
+                top: 100%;
+                margin-top: 0.5rem;
+                background: var(--pln-dark);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                padding: 0.5rem 0;
+                min-width: 200px;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+                animation: dropdownFade 0.2s ease;
+                z-index: 1050;
+            }
+
+            .lang-switcher.open .lang-menu {
+                display: block;
+            }
+
+            .lang-switcher .lang-option {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                width: 100%;
+                text-align: left;
+                color: rgba(255, 255, 255, 0.75);
+                font-size: 0.85rem;
+                font-weight: 500;
+                padding: 0.45rem 1.25rem;
+                background: transparent;
+                border: none;
+                transition: all 0.2s ease;
+            }
+
+            .lang-switcher .lang-option:hover {
+                color: #fff;
+                background: rgba(0, 163, 224, 0.12);
+            }
+
+            .lang-switcher .lang-option.active {
+                color: #fff;
+                background: rgba(0, 163, 224, 0.18);
+                font-weight: 700;
+            }
+
+            .lang-switcher .lang-option.active::after {
+                content: '\2713';
+                margin-left: auto;
+                color: var(--pln-cyan);
+            }
+
+            /* =============================================
                HERO SECTION
                ============================================= */
             .hero-section {
@@ -505,6 +592,9 @@
                 }
             });
         </script>
+
+        {{-- i18n: Alih Bahasa OTOMATIS (ID <-> EN) --}}
+        <script src="{{ asset('js/i18n.js') }}"></script>
 
         @stack('scripts')
     </body>

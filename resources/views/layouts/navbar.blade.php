@@ -7,6 +7,9 @@
                 src="{{ asset('assets/images/logo-pln.png') }}"
                 alt="Logo PLN"
                 class="logo-nav"
+                draggable="false"
+                ondragstart="return false;"
+                style="pointer-events: none; user-select: none; -webkit-user-drag: none;"
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
             />
             <span class="d-none">
@@ -22,57 +25,73 @@
         {{-- Nav Content --}}
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ms-auto">
-                
-
                 {{-- Tentang Kami --}}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-building me-1"></i> Tentang Kami
+                        <i class="fas fa-building me-1"></i> <span data-i18n="nav.about">Tentang Kami</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="#">Profil Perusahaan</a></li>
-                        <li><a class="dropdown-item" href="{{ route('sejarah') }}">Sejarah</a></li>
-                        <li><a class="dropdown-item" href="{{ route('visi-misi') }}">Visi &amp; Misi</a></li>
-                        <li><a class="dropdown-item" href="#">Struktur Organisasi</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.about_profile">Profil Perusahaan</a></li>
+                        <li><a class="dropdown-item" href="{{ route('sejarah') }}" data-i18n="nav.about_history">Sejarah</a></li>
+                        <li><a class="dropdown-item" href="{{ route('visi-misi') }}" data-i18n="nav.about_vision_mission">Visi &amp; Misi</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.about_structure">Struktur Organisasi</a></li>
                     </ul>
                 </li>
 
                 {{-- Informasi --}}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-book-open me-1"></i> Informasi
+                        <i class="fas fa-book-open me-1"></i> <span data-i18n="nav.information">Informasi</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="#">Berita</a></li>
-                        <li><a class="dropdown-item" href="#">Pengumuman</a></li>
-                        <li><a class="dropdown-item" href="#">Artikel</a></li>
-                        <li><a class="dropdown-item" href="#">Galeri</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.info_news">Berita</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.info_announcements">Pengumuman</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.info_articles">Artikel</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.info_gallery">Galeri</a></li>
                     </ul>
                 </li>
 
                 {{-- Layanan --}}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-concierge-bell me-1"></i> Layanan
+                        <i class="fas fa-concierge-bell me-1"></i> <span data-i18n="nav.services">Layanan</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="#">Daftar Layanan</a></li>
-                        <li><a class="dropdown-item" href="#">Informasi Layanan</a></li>
-                        <li><a class="dropdown-item" href="#">FAQ</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.services_list">Daftar Layanan</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.services_info">Informasi Layanan</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.services_faq">FAQ</a></li>
                     </ul>
                 </li>
-
-               
 
                 {{-- Kontak --}}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-envelope me-1"></i> Kontak
+                        <i class="fas fa-envelope me-1"></i> <span data-i18n="nav.contact">Kontak</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="#">Hubungi Kami</a></li>
-                        <li><a class="dropdown-item" href="#">Lokasi</a></li>
-                        <li><a class="dropdown-item" href="#">Sosial Media</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.contact_us">Hubungi Kami</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.contact_location">Lokasi</a></li>
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.contact_social">Sosial Media</a></li>
+                    </ul>
+                </li>
+
+                {{-- [ELEMEN BARU] Language Switcher (Globe) —
+                     persis di antara "Kontak" dan tombol "Login" --}}
+                <li class="nav-item dropdown lang-switcher" id="lang-switcher">
+                    <button class="nav-link dropdown-toggle lang-toggle" type="button" id="langToggle" aria-expanded="false" aria-haspopup="true" title="Bahasa / Language">
+                        <i class="fas fa-globe me-1"></i> <span id="lang-current">ID</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark lang-menu" id="langMenu">
+                        <li>
+                            <button class="dropdown-item lang-option {{ session('lang', 'id') === 'id' ? 'active' : '' }}" type="button" data-lang="id">
+                                <i class="fas fa-flag-usa me-2" style="width: 1.1em;"></i> <span data-i18n="lang.indonesian">Bahasa Indonesia</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item lang-option {{ session('lang', 'id') === 'en' ? 'active' : '' }}" type="button" data-lang="en">
+                                <i class="fas fa-globe me-2" style="width: 1.1em;"></i> <span data-i18n="lang.english">English</span>
+                            </button>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -80,7 +99,7 @@
             {{-- Right Side: Login --}}
             <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
                 <a href="#" class="btn btn-login">
-                    <i class="fas fa-sign-in-alt me-1"></i> Login
+                    <i class="fas fa-sign-in-alt me-1"></i> <span data-i18n="nav.login">Login</span>
                 </a>
             </div>
         </div>
