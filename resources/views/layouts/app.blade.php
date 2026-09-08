@@ -37,7 +37,9 @@
             body {
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 color: var(--pln-text);
-                overflow-x: hidden;
+                /* clip (bukan hidden): overflow hidden membuat body menjadi
+                   scroll container dan merusak position: sticky anak-anaknya */
+                overflow-x: clip;
             }
 
             a {
@@ -493,10 +495,8 @@
         {{-- Footer --}}
         @include('layouts.footer')
 
-        {{-- Bootstrap core JS --}}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
-        {{-- Navbar scroll effect --}}
         <script>
             window.addEventListener('scroll', function () {
                 const navbar = document.querySelector('.navbar-pln');

@@ -5,269 +5,228 @@
 @section('content')
 <style>
     /* =============================================
-       PAGE HEADER
+       PALETTE (spesifikasi halaman)
+       Primary   : #00A3E0 (Cyan Blue)
+       Secondary : #0A2540 / #102A43 (Deep Navy)
+       Background: #F8FAFC / #FFFFFF
+       Text      : #1E293B / #64748B
+       Border    : #E2E8F0
        ============================================= */
-    .vm-header {
-        background: linear-gradient(135deg, var(--pln-blue) 0%, #003d6b 50%, var(--pln-dark) 100%);
-        padding: 8rem 0 4rem;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
+    :root {
+        --vm-accent: #00A3E0;
+        --vm-navy: #0A2540;
+        --vm-navy-2: #102A43;
+        --vm-bg: #F8FAFC;
+        --vm-white: #FFFFFF;
+        --vm-text: #1E293B;
+        --vm-muted: #64748B;
+        --vm-border: #E2E8F0;
 
-    .vm-header::before {
-        content: '';
-        position: absolute;
-        top: -40%;
-        right: -15%;
-        width: 500px;
-        height: 500px;
-        background: radial-gradient(circle, rgba(0, 163, 224, 0.12) 0%, transparent 70%);
-        border-radius: 50%;
-    }
-
-    .vm-header h1 {
-        color: #fff;
-        font-weight: 800;
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-        position: relative;
-        z-index: 2;
-    }
-
-    .vm-header h1 span {
-        color: var(--pln-yellow);
-    }
-
-    .vm-header .subtitle {
-        color: rgba(255, 255, 255, 0.75);
-        font-size: 1rem;
-        line-height: 1.7;
-        max-width: 640px;
-        margin: 0.8rem auto 0;
-        position: relative;
-        z-index: 2;
+        /* Gradasi bersama: dipakai Card Visi & Card Misi agar 100% identik */
+        --vm-card-gradient: linear-gradient(135deg, #00A3E0 0%, #0A2540 100%);
     }
 
     /* =============================================
-       VISI SECTION
+       BREADCRUMB
        ============================================= */
-    .visi-section {
-        padding: 5rem 0;
-        background: #fff;
+    .vm-breadcrumb {
+        padding: 7.5rem 0 0;
+        background: var(--vm-bg);
     }
 
-    .visi-badge {
+    .vm-breadcrumb .crumb {
+        font-size: 0.85rem;
+        color: var(--vm-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .vm-breadcrumb .crumb a {
+        color: var(--vm-muted);
+        transition: color 0.2s ease;
+    }
+
+    .vm-breadcrumb .crumb a:hover {
+        color: var(--vm-accent);
+    }
+
+    .vm-breadcrumb .crumb .separator {
+        color: var(--vm-border);
+    }
+
+    .vm-breadcrumb .crumb .current {
+        color: var(--vm-accent);
+        font-weight: 600;
+    }
+
+    /* =============================================
+       HEADER SEKSI
+       ============================================= */
+    .vm-header {
+        background: var(--vm-bg);
+        padding: 2.5rem 0 3.5rem;
+        text-align: center;
+    }
+
+    .vm-header .eyebrow {
         display: inline-block;
-        background: var(--pln-cyan);
-        color: #fff;
+        background: rgba(0, 163, 224, 0.1);
+        color: var(--vm-accent);
         font-weight: 700;
-        font-size: 0.8rem;
-        letter-spacing: 1.5px;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
         text-transform: uppercase;
-        padding: 0.45rem 1.4rem;
+        padding: 0.4rem 1.2rem;
         border-radius: 30px;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.2rem;
     }
 
-    .visi-card {
-        background: linear-gradient(135deg, #0A2540 0%, #102A43 40%, #003d6b 100%);
+    .vm-header h1 {
+        color: var(--vm-text);
+        font-weight: 800;
+        font-size: 2.5rem;
+        line-height: 1.2;
+        margin-bottom: 0.9rem;
+    }
+
+    .vm-header .desc {
+        color: var(--vm-muted);
+        font-size: 1.05rem;
+        line-height: 1.75;
+        max-width: 640px;
+        margin: 0 auto;
+    }
+
+    /* =============================================
+       SEKSI VISI (HERO CARD)
+       ============================================= */
+    .vm-banners-section {
+        background: var(--vm-bg);
+        padding: 0 0 4rem;
+    }
+
+    .vm-visi-card {
+        background: var(--vm-card-gradient);
         border-radius: 20px;
         padding: 3.5rem 3rem;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 20px 60px rgba(10, 37, 64, 0.2);
+        box-shadow: 0 20px 50px rgba(10, 42, 67, 0.25);
     }
 
-    .visi-card::before {
-        content: '';
-        position: absolute;
-        top: -60px;
-        right: -60px;
-        width: 250px;
-        height: 250px;
-        background: radial-gradient(circle, rgba(0, 163, 224, 0.15) 0%, transparent 70%);
-        border-radius: 50%;
-    }
-
-    .visi-card::after {
-        content: '';
-        position: absolute;
-        bottom: -40px;
-        left: -40px;
-        width: 180px;
-        height: 180px;
-        background: radial-gradient(circle, rgba(255, 230, 0, 0.06) 0%, transparent 70%);
-        border-radius: 50%;
-    }
-
-    .visi-card .visi-icon {
-        width: 64px;
-        height: 64px;
-        background: rgba(0, 163, 224, 0.15);
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        color: var(--pln-cyan);
-        margin-bottom: 1.5rem;
-        position: relative;
-        z-index: 2;
-    }
-
-    .visi-card .visi-label {
+    .vm-visi-label {
         display: inline-block;
-        background: var(--pln-cyan);
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         color: #fff;
         font-weight: 700;
         font-size: 0.75rem;
-        letter-spacing: 1.5px;
+        letter-spacing: 2px;
         text-transform: uppercase;
-        padding: 0.35rem 1rem;
-        border-radius: 20px;
-        margin-bottom: 1.5rem;
-        position: relative;
-        z-index: 2;
-    }
-
-    .visi-card .visi-text {
-        color: #fff;
-        font-size: 1.55rem;
-        font-weight: 700;
-        line-height: 1.65;
-        position: relative;
-        z-index: 2;
-        max-width: 700px;
-    }
-
-    .visi-card .visi-text::before {
-        content: '\201C';
-        font-size: 4rem;
-        color: var(--pln-cyan);
-        opacity: 0.3;
-        position: absolute;
-        top: -1.5rem;
-        left: -0.5rem;
-        font-family: Georgia, serif;
-        line-height: 1;
-    }
-
-    /* =============================================
-       MISI SECTION
-       ============================================= */
-    .misi-section {
-        padding: 5rem 0;
-        background: var(--pln-gray);
-    }
-
-    .misi-badge {
-        display: inline-block;
-        background: var(--pln-blue);
-        color: #fff;
-        font-weight: 700;
-        font-size: 0.8rem;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        padding: 0.45rem 1.4rem;
+        padding: 0.4rem 1.2rem;
         border-radius: 30px;
         margin-bottom: 1.5rem;
     }
 
-    .misi-section .section-heading {
-        color: var(--pln-blue);
-        font-weight: 800;
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .misi-section .section-sub {
-        color: #64748b;
-        font-size: 0.95rem;
-        margin-bottom: 3rem;
-        max-width: 520px;
-    }
-
-    .misi-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 2.2rem 1.8rem;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-    }
-
-    .misi-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 4px;
-        height: 0;
-        background: var(--pln-cyan);
-        transition: height 0.3s ease;
-        border-radius: 0 0 4px 0;
-    }
-
-    .misi-card:hover {
-        transform: translateY(-6px);
-        border-color: var(--pln-cyan);
-        box-shadow: 0 12px 36px rgba(0, 163, 224, 0.12);
-    }
-
-    .misi-card:hover::before {
-        height: 100%;
-    }
-
-    .misi-number {
-        width: 52px;
-        height: 52px;
-        background: var(--pln-cyan);
+    .vm-visi-text {
         color: #fff;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        font-weight: 800;
-        margin-bottom: 1.2rem;
-    }
-
-    .misi-card h5 {
-        color: #1e293b;
+        font-size: 1.9rem;
         font-weight: 700;
-        font-size: 1.05rem;
-        margin-bottom: 0.7rem;
+        line-height: 1.5;
+        margin: 0;
+        max-width: 760px;
     }
 
-    .misi-card p {
-        color: #64748b;
-        font-size: 0.92rem;
-        line-height: 1.75;
-        margin-bottom: 0;
+    /* =============================================
+       CARD MISI (satu banner, seragam dengan Card Visi)
+       ============================================= */
+    .vm-misi-card {
+        background: var(--vm-card-gradient);
+        border-radius: 20px;
+        padding: 3.5rem 3rem;
+        margin-top: 2.5rem;
+        box-shadow: 0 20px 50px rgba(10, 42, 67, 0.25);
+    }
+
+    .vm-misi-label {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 0.4rem 1.2rem;
+        border-radius: 30px;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Daftar misi: penomoran minimalis, teks putih tebal */
+    .vm-misi-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .vm-misi-item {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        padding: 1.1rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .vm-misi-item:first-child {
+        padding-top: 0;
+    }
+
+    .vm-misi-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .vm-misi-num {
+        color: #FFFFFF;
+        font-weight: 800;
+        font-size: 0.95rem;
+        letter-spacing: 1px;
+        flex: 0 0 auto;
+    }
+
+    .vm-misi-point {
+        color: #FFFFFF;
+        font-weight: 700;
+        font-size: 1.15rem;
+        line-height: 1.6;
+        margin: 0;
     }
 
     /* =============================================
        BACK BUTTON
        ============================================= */
-    .btn-back-vm {
-        background: var(--pln-blue);
+    .vm-back-wrap {
+        text-align: center;
+        margin-top: 3rem;
+    }
+
+    .vm-btn-back {
+        background: var(--vm-navy);
         color: #fff;
         font-weight: 600;
         font-size: 0.95rem;
         padding: 0.7rem 2rem;
         border-radius: 30px;
         border: none;
-        transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .btn-back-vm:hover {
-        background: var(--pln-cyan);
+    .vm-btn-back:hover {
+        background: var(--vm-accent);
         color: #fff;
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(0, 163, 224, 0.3);
@@ -275,137 +234,140 @@
 
     /* =============================================
        RESPONSIVE
+       (kontainer Bootstrap .container sudah memberi
+       padding sisi >= 16px di layar kecil)
        ============================================= */
+    @media (max-width: 991.98px) {
+        .vm-visi-text {
+            font-size: 1.5rem;
+        }
+
+        .vm-misi-point {
+            font-size: 1.08rem;
+        }
+    }
+
     @media (max-width: 767.98px) {
+        .vm-breadcrumb {
+            padding-top: 6.5rem;
+        }
+
         .vm-header {
-            padding: 7rem 0 3rem;
+            padding: 1.5rem 0 2.5rem;
         }
 
         .vm-header h1 {
-            font-size: 1.8rem;
-        }
-
-        .vm-header .subtitle {
-            font-size: 0.9rem;
-        }
-
-        .visi-card {
-            padding: 2.5rem 1.8rem;
-        }
-
-        .visi-card .visi-text {
-            font-size: 1.2rem;
-        }
-
-        .misi-section .section-heading {
             font-size: 1.5rem;
+            line-height: 1.35;
+        }
+
+        .vm-header .desc {
+            font-size: 0.88rem;
+        }
+
+        .vm-visi-card {
+            padding: 2.2rem 1.5rem;
+            border-radius: 16px;
+        }
+
+        .vm-visi-text {
+            font-size: 1.25rem;
+            line-height: 1.55;
+        }
+
+        .vm-misi-card {
+            padding: 2.2rem 1.5rem;
+            border-radius: 16px;
+            margin-top: 1.75rem;
+        }
+
+        .vm-misi-label {
+            margin-bottom: 1.2rem;
+        }
+
+        .vm-misi-item {
+            gap: 0.75rem;
+            padding: 0.9rem 0;
+        }
+
+        .vm-misi-point {
+            font-size: 1rem;
+        }
+
+        .vm-misi-num {
+            font-size: 0.85rem;
         }
     }
 </style>
 
 {{-- =============================================
-     HEADER
+     BREADCRUMB
      ============================================= --}}
-<section class="vm-header">
+<div class="vm-breadcrumb">
     <div class="container">
-        <h1><span>Visi & Misi</span> Perusahaan</h1>
-        <p class="subtitle">
+        <nav class="crumb" aria-label="breadcrumb">
+            <a href="{{ route('home') }}">Tentang Kami</a>
+            <span class="separator">/</span>
+            <span class="current">Visi &amp; Misi</span>
+        </nav>
+    </div>
+</div>
+
+{{-- =============================================
+     HEADER SEKSI
+     ============================================= --}}
+<header class="vm-header">
+    <div class="container">
+        <span class="eyebrow">Tentang Kami</span>
+        <h1>Visi &amp; Misi Perusahaan</h1>
+        <p class="desc">
             Landasan utama dan komitmen PT PLN Nusantara Power dalam menerangi Indonesia
-            dan mendorong transisi energi global.
+            serta mendorong transisi energi global.
         </p>
     </div>
-</section>
+</header>
 
 {{-- =============================================
-     VISI SECTION
+     SEKSI VISI (HERO CARD)
      ============================================= --}}
-<section class="visi-section">
+<section class="vm-banners-section">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-9">
-                <div class="text-center mb-4">
-                    <span class="visi-badge">Visi</span>
-                </div>
-                <div class="visi-card">
-                    <div class="visi-icon">
-                        <i class="fas fa-eye"></i>
-                    </div>
-                    <span class="visi-label">VISI PERUSAHAAN</span>
-                    <p class="visi-text">
-                        Menjadi Perusahaan Pembangkitan yang Terdepan dan Terpercaya
-                        untuk Energi Berkelanjutan di Indonesia dan Pasar Global.
-                    </p>
-                </div>
-            </div>
+        <div class="vm-visi-card">
+            <span class="vm-visi-label">Visi Perusahaan</span>
+            <p class="vm-visi-text">
+                Menjadi Perusahaan Pembangkitan yang Terdepan dan Terpercaya
+                untuk Energi Berkelanjutan di Indonesia dan Pasar Global.
+            </p>
         </div>
-    </div>
-</section>
 
-{{-- =============================================
-     MISI SECTION
-     ============================================= --}}
-<section class="misi-section">
-    <div class="container">
-        <div class="text-center mb-2">
-            <span class="misi-badge">Misi Perusahaan</span>
-        </div>
-        <h2 class="section-heading text-center">Langkah Strategis Kami</h2>
-        <p class="section-sub text-center mx-auto">
-            Empat pilar utama yang menjadi fondasi operasional dan pertumbuhan perusahaan.
-        </p>
-
-        <div class="row g-4">
-            {{-- Card Misi 01 --}}
-            <div class="col-lg-6">
-                <div class="misi-card">
-                    <div class="misi-number">01</div>
-                    <h5>Keunggulan Operasional</h5>
-                    <p>
-                        Menjaga Kinerja Pembangkit Listrik yang Unggul Sebagai Kompetensi Inti.
-                    </p>
-                </div>
-            </div>
-
-            {{-- Card Misi 02 --}}
-            <div class="col-lg-6">
-                <div class="misi-card">
-                    <div class="misi-number">02</div>
-                    <h5>Diversifikasi & Inovasi</h5>
-                    <p>
-                        Membangun Bisnis Inovatif yang terdepan untuk melakukan Diversifikasi
-                        dan Pertumbuhan yang Berkelanjutan.
-                    </p>
-                </div>
-            </div>
-
-            {{-- Card Misi 03 --}}
-            <div class="col-lg-6">
-                <div class="misi-card">
-                    <div class="misi-number">03</div>
-                    <h5>Transisi Energi & EBT</h5>
-                    <p>
-                        Mengakselerasi Portofolio Bisnis EBT Untuk Mendukung Tercapainya
-                        Nol Emisi Karbon.
-                    </p>
-                </div>
-            </div>
-
-            {{-- Card Misi 04 --}}
-            <div class="col-lg-6">
-                <div class="misi-card">
-                    <div class="misi-number">04</div>
-                    <h5>Pengembangan SDM</h5>
-                    <p>
-                        Mengakuisisi dan Membangun Talenta Terbaik Untuk Menjalankan
-                        Organisasi yang Responsif dan Adaptif.
-                    </p>
-                </div>
-            </div>
+        {{-- =============================================
+             CARD MISI — satu banner seragam dengan Card Visi
+             ============================================= --}}
+        <div class="vm-misi-card">
+            <span class="vm-misi-label">Misi Perusahaan</span>
+            <ol class="vm-misi-list">
+                <li class="vm-misi-item">
+                    <span class="vm-misi-num">01</span>
+                    <p class="vm-misi-point">Menjaga Kinerja Pembangkit Listrik yang Unggul Sebagai Kompetensi Inti.</p>
+                </li>
+                <li class="vm-misi-item">
+                    <span class="vm-misi-num">02</span>
+                    <p class="vm-misi-point">Membangun Bisnis Inovatif yang terdepan untuk melakukan Diversifikasi dan Pertumbuhan yang Berkelanjutan.</p>
+                </li>
+                <li class="vm-misi-item">
+                    <span class="vm-misi-num">03</span>
+                    <p class="vm-misi-point">Mengakselerasi Portofolio Bisnis EBT Untuk Mendukung Tercapainya Nol Emisi Karbon.</p>
+                </li>
+                <li class="vm-misi-item">
+                    <span class="vm-misi-num">04</span>
+                    <p class="vm-misi-point">Mengakuisisi dan Membangun Talenta Terbaik Untuk Menjalankan Organisasi yang Responsif dan Adaptif.</p>
+                </li>
+            </ol>
         </div>
 
         {{-- Back Button --}}
-        <div class="text-center mt-5">
-            <a href="{{ route('home') }}" class="btn btn-back-vm">
+        <div class="vm-back-wrap">
+            <a href="{{ route('home') }}" class="vm-btn-back">
                 <i class="fas fa-arrow-left"></i> Kembali ke Tentang Kami
             </a>
         </div>
