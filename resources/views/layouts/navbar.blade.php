@@ -31,8 +31,8 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item" href="#">Profil Perusahaan</a></li>
-                        <li><a class="dropdown-item" href="#">Sejarah</a></li>
-                        <li><a class="dropdown-item" href="#">Visi &amp; Misi</a></li>
+                        <li><a class="dropdown-item" href="{{ route('sejarah') }}">Sejarah</a></li>
+                        <li><a class="dropdown-item" href="{{ route('visi-misi') }}">Visi &amp; Misi</a></li>
                         <li><a class="dropdown-item" href="#">Struktur Organisasi</a></li>
                     </ul>
                 </li>

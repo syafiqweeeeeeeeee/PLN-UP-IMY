@@ -15,4 +15,24 @@ class HomeController extends Controller
     {
         return view('home');
     }
+
+    /**
+     * Show the company history page.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function sejarah()
+    {
+        return view('tentang_kami.sejarah');
+    }
+
+    /**
+     * Show the vision & mission page.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function visiMisi()
+    {
+        return view('tentang_kami.visi_misi');
+    }
 }
