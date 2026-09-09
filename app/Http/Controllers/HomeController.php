@@ -35,4 +35,14 @@ class HomeController extends Controller
     {
         return view('tentang_kami.visi_misi');
     }
+
+    /**
+     * Show the company profile page.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function profilPerusahaan()
+    {
+        return view('tentang_kami.profil_perusahaan');
+    }
 }

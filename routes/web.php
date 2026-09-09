@@ -8,6 +8,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/tentang-kami/sejarah', [HomeController::class, 'sejarah'])->name('sejarah');
 Route::get('/tentang-kami/visi-misi', [HomeController::class, 'visiMisi'])->name('visi-misi');
+Route::get('/tentang-kami/profil-perusahaan', [HomeController::class, 'profilPerusahaan'])->name('profil-perusahaan');
 
 // Admin Dashboard
 Route::prefix('admin')->name('admin.')->group(function () {

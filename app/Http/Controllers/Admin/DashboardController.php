@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -13,22 +14,29 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Dummy data — replace with real DB queries when models exist
+        // Statistics from database
         $stats = [
-            'total_users'    => 128,
-            'total_pages'    => 42,
-            'total_news'     => 85,
-            'pending_content' => 7,
+            'total_users'    => User::count(),
+            'total_pages'    => 0, // Belum ada model Page
+            'total_news'     => 0, // Belum ada model News
+            'pending_content' => 0, // Belum ada model Content
         ];
 
-        $activities = [
-            ['user' => 'Budi Santoso',    'action' => 'Membuat berita',        'object' => 'Pemeliharaan Trafo 22/35 kV',       'time' => '5 menit lalu',   'icon' => 'fas fa-newspaper',        'color' => '#00A3E0'],
-            ['user' => 'Siti Aminah',     'action' => 'Mengedit halaman',       'object' => 'Profil Perusahaan',                 'time' => '18 menit lalu',  'icon' => 'fas fa-file-pen',          'color' => '#005B9C'],
-            ['user' => 'Ahmad Hidayat',   'action' => 'Menerbitkan pengumuman', 'object' => 'Jadwal Maintenance Bulanan',        'time' => '32 menit lalu',  'icon' => 'fas fa-bullhorn',          'color' => '#FFE600'],
-            ['user' => 'Dewi Lestari',    'action' => 'Menambahkan pengguna',   'object' => 'operator.baru@pln.co.id',           'time' => '1 jam lalu',     'icon' => 'fas fa-user-plus',         'color' => '#22c55e'],
-            ['user' => 'Rizky Pratama',   'action' => 'Login',                  'object' => 'Dashboard Admin',                   'time' => '1 jam lalu',     'icon' => 'fas fa-right-to-bracket', 'color' => '#8b5cf6'],
-            ['user' => 'Nina Sari',       'action' => 'Mengedit berita',        'object' => 'Capaian Produksi Q3 2026',          'time' => '2 jam lalu',     'icon' => 'fas fa-newspaper',        'color' => '#00A3E0'],
-        ];
+        // Get recent users for activity (if any)
+        $recentUsers = User::latest()->take(5)->get()->map(function ($user) {
+            return [
+                'user' => $user->name,
+                'action' => 'Mendaftar',
+                'object' => $user->email,
+                'time' => $user->created_at->diffForHumans(),
+                'icon' => 'fas fa-user-plus',
+                'color' => '#22c55e',
+            ];
+        })->toArray();
+
+        $activities = array_merge($recentUsers, [
+            ['user' => 'Admin PLN',       'action' => 'Login',              'object' => 'Dashboard Admin',               'time' => '5 menit lalu',    'icon' => 'fas fa-right-to-bracket', 'color' => '#8b5cf6'],
+        ]);
 
         $latest_content = [
             ['title' => 'Pemeliharaan Trafo 22/35 kV',           'type' => 'Berita',   'status' => 'Published', 'date' => '08 Sep 2026'],
