@@ -132,7 +132,7 @@
                         </a>
                     </div>
                     <div class="col-xl-3 col-md-6">
-                        <a href="#" class="quick-action-btn">
+                        <a href="{{ route('admin.users.create') }}" class="quick-action-btn">
                             <div class="quick-action-icon" style="background: #f3e8ff; color: #7c3aed;">
                                 <i class="fas fa-user-plus"></i>
                             </div>

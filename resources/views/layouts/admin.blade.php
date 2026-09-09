@@ -67,7 +67,7 @@
                 </a>
 
                 <div class="sidebar-section-label">Manajemen</div>
-                <a href="#" class="sidebar-link">
+                <a href="users" class="sidebar-link">
                     <span class="link-icon"><i class="fas fa-users"></i></span>
                     Pengguna
                 </a>

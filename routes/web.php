@@ -12,4 +12,7 @@ Route::get('/tentang-kami/visi-misi', [HomeController::class, 'visiMisi'])->name
 // Admin Dashboard
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // CRUD Pengguna
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
 });
