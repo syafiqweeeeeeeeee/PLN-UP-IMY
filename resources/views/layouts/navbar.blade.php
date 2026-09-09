@@ -34,7 +34,7 @@
                         <li><a class="dropdown-item" href="{{ route('profil-perusahaan') }}" data-i18n="nav.about_profile">Profil Perusahaan</a></li>
                         <li><a class="dropdown-item" href="{{ route('sejarah') }}" data-i18n="nav.about_history">Sejarah</a></li>
                         <li><a class="dropdown-item" href="{{ route('visi-misi') }}" data-i18n="nav.about_vision_mission">Visi &amp; Misi</a></li>
-                        <li><a class="dropdown-item" href="#" data-i18n="nav.about_structure">Struktur Organisasi</a></li>
+                        <li><a class="dropdown-item" href="{{ route('struktur-organisasi') }}" data-i18n="nav.about_structure">Struktur Organisasi</a></li>
                     </ul>
                 </li>
 
@@ -46,7 +46,12 @@
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item" href="#" data-i18n="nav.info_news">Berita</a></li>
                         <li><a class="dropdown-item" href="#" data-i18n="nav.info_announcements">Pengumuman</a></li>
+<<<<<<< HEAD
                         <li><a class="dropdown-item" href="#" data-i18n="nav.info_gallery">Galeri</a></li>
+=======
+                        <li><a class="dropdown-item" href="#" data-i18n="nav.info_articles">Artikel</a></li>
+                        <li><a class="dropdown-item" href="{{ route('galeri') }}" data-i18n="nav.info_gallery">Galeri</a></li>
+>>>>>>> 6cf8eef (update halaman galeri dan halaman struktural organisasi)
                     </ul>
                 </li>
 
