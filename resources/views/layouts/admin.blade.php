@@ -6,22 +6,16 @@
         <meta name="description" content="E-PPID PLN — Dashboard Admin" />
         <title>@yield('title', 'Admin — E-PPID PLN')</title>
 
-        {{-- Favicon --}}
         <link rel="icon" type="image/x-icon" href="{{ asset('startbootstrap-grayscale-gh-pages/assets/favicon.ico') }}" />
 
-        {{-- Font Awesome --}}
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 
-        {{-- Google Fonts: Inter --}}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
-        {{-- Bootstrap 5 CSS --}}
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-        {{-- Admin Panel CSS --}}
         <link href="{{ asset('css/admin.css') }}" rel="stylesheet" />
 
-        {{-- Page Transition — Ultra Fast (micro-interaction 60ms) --}}
         <style>
             @keyframes pt-fade-slide-in {
                 from { opacity: 0; transform: translateX(4px); }
