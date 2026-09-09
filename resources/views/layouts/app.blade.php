@@ -13,6 +13,9 @@
         {{-- Font Awesome icons --}}
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 
+        {{-- Feather Icons --}}
+        <script src="https://unpkg.com/feather-icons"></script>
+
         {{-- Google fonts: Inter --}}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
@@ -122,6 +125,11 @@
                 min-width: 200px;
                 box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
                 animation: dropdownFade 0.2s ease;
+                z-index: 1055;
+            }
+
+            .navbar-pln .dropdown {
+                position: relative;
             }
 
             @keyframes dropdownFade {
@@ -171,16 +179,21 @@
                ============================================= */
             .lang-switcher {
                 position: relative;
+                z-index: 1060;
             }
 
             .lang-switcher .lang-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.35rem;
                 color: rgba(255, 255, 255, 0.85);
                 font-weight: 500;
                 font-size: 0.88rem;
-                padding: 0.5rem 0.85rem !important;
+                padding: 0.5rem 0.85rem;
                 border-radius: 6px;
                 border: none;
                 background: transparent;
+                cursor: pointer;
                 transition: all 0.2s ease;
             }
 
@@ -189,24 +202,31 @@
                 background: rgba(255, 255, 255, 0.12);
             }
 
-            .lang-switcher .lang-toggle::after {
-                content: '\2304';
-                font-size: 0.65rem;
-                margin-left: 0.35rem;
+            .lang-switcher .caret {
+                display: inline-block;
+                width: 0;
+                height: 0;
+                margin-left: 0.25rem;
                 vertical-align: middle;
+                border-top: 4px dashed;
+                border-top: 4px solid \\9;
+                border-right: 4px solid transparent;
+                border-left: 4px solid transparent;
+                transition: transform 0.2s ease;
             }
 
-            .lang-switcher .lang-toggle[aria-expanded='true']::after {
+            .lang-switcher.open .caret {
                 transform: rotate(180deg);
             }
 
-            /* Dropdown sendiri: display toggled oleh class .open */
+            /* Dropdown menu */
             .lang-switcher .lang-menu {
                 display: none;
                 position: absolute;
                 right: 0;
                 top: 100%;
                 margin-top: 0.5rem;
+                list-style: none;
                 background: var(--pln-dark);
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 10px;
@@ -214,11 +234,15 @@
                 min-width: 200px;
                 box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
                 animation: dropdownFade 0.2s ease;
-                z-index: 1050;
+                z-index: 1070;
             }
 
             .lang-switcher.open .lang-menu {
-                display: block;
+                display: block !important;
+            }
+
+            .lang-switcher .lang-menu li {
+                list-style: none;
             }
 
             .lang-switcher .lang-option {
@@ -233,6 +257,7 @@
                 padding: 0.45rem 1.25rem;
                 background: transparent;
                 border: none;
+                cursor: pointer;
                 transition: all 0.2s ease;
             }
 
@@ -496,6 +521,52 @@
                 color: var(--pln-yellow);
             }
 
+            .footer-pln .footer-links li {
+                margin-bottom: 0.4rem;
+            }
+
+            .footer-pln .footer-links li a {
+                display: inline-block;
+                position: relative;
+                transition: all 0.25s ease;
+            }
+
+            .footer-pln .footer-links li a:hover {
+                color: #fff;
+                padding-left: 4px;
+            }
+
+            .footer-pln .footer-links li a::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 0;
+                width: 0;
+                height: 1px;
+                background: var(--pln-yellow);
+                transition: width 0.3s ease;
+            }
+
+            .footer-pln .footer-links li a:hover::after {
+                width: 100%;
+            }
+
+            .footer-pln .address-link {
+                display: inline-flex;
+                align-items: flex-start;
+                transition: all 0.25s ease;
+                text-decoration: none;
+            }
+
+            .footer-pln .address-link:hover {
+                color: var(--pln-yellow);
+            }
+
+            .footer-pln .address-link:hover span {
+                text-decoration: underline;
+                text-underline-offset: 3px;
+            }
+
             .footer-pln .footer-bottom {
                 border-top: 1px solid rgba(255, 255, 255, 0.15);
                 padding-top: 1.5rem;
@@ -504,22 +575,37 @@
                 font-size: 0.82rem;
             }
 
+            .footer-pln .social-links {
+                display: flex;
+                gap: 0.6rem;
+            }
+
             .footer-pln .social-links a {
-                width: 36px;
-                height: 36px;
-                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
                 background: rgba(255, 255, 255, 0.1);
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 color: #fff;
-                margin-right: 0.5rem;
-                transition: all 0.2s ease;
+                font-size: 1rem;
+                transition: all 0.3s ease;
             }
 
             .footer-pln .social-links a:hover {
-                background: var(--pln-yellow);
-                color: var(--pln-blue);
+                transform: translateY(-3px) scale(1.08);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            }
+
+            .footer-pln .social-links a[href*="instagram"]:hover {
+                background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+                color: #fff;
+            }
+
+            .footer-pln .social-links a[href*="youtube"]:hover {
+                background: #FF0000;
+                color: #fff;
             }
 
             /* =============================================
@@ -545,6 +631,31 @@
             }
 
             /* =============================================
+               FLAG IMAGES — LANGUAGE SWITCHER
+               ============================================= */
+            .flag-img {
+                width: 20px;
+                height: 14px;
+                object-fit: cover;
+                border-radius: 2px;
+                flex-shrink: 0;
+            }
+
+            /* =============================================
+               GOOGLE TRANSLATE — HIDE TOOLBAR
+               ============================================= */
+            body .skiptranslate,
+            .goog-te-banner-frame,
+            .goog-te-menu-frame {
+                display: none !important;
+                height: 0 !important;
+            }
+
+            body {
+                top: 0 !important;
+            }
+
+            /* =============================================
                RESPONSIVE
                ============================================= */
             @media (max-width: 991.98px) {
@@ -566,6 +677,22 @@
 
                 .hero-section h1 {
                     font-size: 1.8rem;
+                }
+
+                .footer-pln .social-links {
+                    justify-content: flex-start;
+                }
+
+                .footer-pln .address-link {
+                    font-size: 0.85rem;
+                }
+            }
+
+            @media (min-width: 768px) and (max-width: 991.98px) {
+                .footer-pln .col-lg-2,
+                .footer-pln .col-lg-3 {
+                    flex: 0 0 auto;
+                    width: 50%;
                 }
             }
         </style>
@@ -595,6 +722,20 @@
 
         {{-- i18n: Alih Bahasa OTOMATIS (ID <-> EN) --}}
         <script src="{{ asset('js/i18n.js') }}"></script>
+
+        {{-- Google Translate Widget (hidden) --}}
+        <div id="google_translate_element" style="display:none;"></div>
+        <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'id',
+                includedLanguages: 'en,id',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+        </script>
+        <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
         @stack('scripts')
     </body>

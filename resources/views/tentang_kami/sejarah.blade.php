@@ -393,9 +393,9 @@
 <div class="sj-breadcrumb">
     <div class="container">
         <nav class="crumb" aria-label="breadcrumb">
-            <a href="{{ route('home') }}">Tentang Kami</a>
+            <a href="{{ route('home') }}" data-i18n="sejarah.breadcrumb_about">Tentang Kami</a>
             <span class="separator">/</span>
-            <span class="current">Sejarah Perusahaan</span>
+            <span class="current" data-i18n="sejarah.breadcrumb_current">Sejarah Perusahaan</span>
         </nav>
     </div>
 </div>
@@ -405,9 +405,9 @@
      ============================================= --}}
 <header class="sj-header">
     <div class="container">
-        <span class="eyebrow">Tentang Kami</span>
-        <h1>Sejarah &amp; <span>Jejak Langkah</span> Perusahaan</h1>
-        <p class="subtitle">
+        <span class="eyebrow" data-i18n="sejarah.eyebrow">Tentang Kami</span>
+        <h1 data-i18n="sejarah.title">Sejarah &amp; <span>Jejak Langkah</span> Perusahaan</h1>
+        <p class="subtitle" data-i18n="sejarah.subtitle">
             Perjalanan Transformasi PT PLN Nusantara Power dalam Membangun Negeri dari Masa ke Masa.
         </p>
     </div>
@@ -437,11 +437,11 @@
             <article class="sj-entry" id="section1995">
                 <span class="sj-badge">1995</span>
                 <div class="sj-card">
-                    <h3>
+                    <h3 data-i18n="sejarah.s1_title">
                         Pendirian Perusahaan &amp; Fondasi Awal
-                        <small>Company Establishment</small>
+                        <small data-i18n="sejarah.s1_sub">Company Establishment</small>
                     </h3>
-                    <p>
+                    <p data-i18n="sejarah.s1_desc">
                         Perjalanan resmi perusahaan dimulai pada tahun 1995 ketika PT PLN (Persero)
                         mendirikan anak perusahaan ini untuk mengelola aset-aset pembangkitan listrik
                         di wilayah Indonesia. Pada awal berdirinya, perusahaan langsung dipercayakan
@@ -460,11 +460,11 @@
             <article class="sj-entry" id="section2000">
                 <span class="sj-badge">2000 – 2010</span>
                 <div class="sj-card">
-                    <h3>
+                    <h3 data-i18n="sejarah.s2_title">
                         Dekade Pertumbuhan dan Ekspansi Bisnis
-                        <small>Stable Growth</small>
+                        <small data-i18n="sejarah.s2_sub">Stable Growth</small>
                     </h3>
-                    <p>
+                    <p data-i18n="sejarah.s2_desc">
                         Memasuki rentang tahun 2000 hingga 2010, perusahaan mengalami pertumbuhan yang
                         stabil dan ekspansif. Kapasitas total meningkat secara signifikan dari
                         <strong>5.068 MW menjadi 6.469 MW</strong> seiring dengan pelimpahan aset
@@ -483,11 +483,11 @@
             <article class="sj-entry" id="section2011">
                 <span class="sj-badge">2011 – 2015</span>
                 <div class="sj-card">
-                    <h3>
+                    <h3 data-i18n="sejarah.s3_title">
                         Pencapaian Standar Internasional &amp; Keunggulan Operasional
-                        <small>Operational Excellence</small>
+                        <small data-i18n="sejarah.s3_sub">Operational Excellence</small>
                     </h3>
-                    <p>
+                    <p data-i18n="sejarah.s3_desc">
                         Pada kurun waktu 2011 hingga 2015, perusahaan mencatatkan sejarah sebagai
                         <strong>entitas pertama di Asia Pasifik</strong> yang meraih sertifikasi
                         <strong>ISO 55001 Sistem Manajemen Aset</strong>. Keunggulan operasional ini
@@ -507,11 +507,11 @@
             <article class="sj-entry" id="section2016">
                 <span class="sj-badge">2016 – 2024</span>
                 <div class="sj-card">
-                    <h3>
+                    <h3 data-i18n="sejarah.s4_title">
                         Transformasi Korporasi Berkelanjutan &amp; Era Sub-Holding
-                        <small>Corporate Transformation I &amp; II</small>
+                        <small data-i18n="sejarah.s4_sub">Corporate Transformation I &amp; II</small>
                     </h3>
-                    <p>
+                    <p data-i18n="sejarah.s4_desc">
                         Dalam rentang tahun 2016 hingga 2024, perusahaan melewati dua gelombang
                         transformasi besar. Pada fase <strong>Corporate Transformation I</strong>,
                         perusahaan mengonsolidasikan PJB Group berbasis aset <strong>(Asset Based)</strong>
@@ -531,11 +531,11 @@
             <article class="sj-entry" id="section2024">
                 <span class="sj-badge">2024 – 2028</span>
                 <div class="sj-card">
-                    <h3>
+                    <h3 data-i18n="sejarah.s5_title">
                         Penguatan Basis, Ekspansi Pasar, dan Keberlanjutan
-                        <small>Strengthening The Base, Expanding The Business</small>
+                        <small data-i18n="sejarah.s5_sub">Strengthening The Base, Expanding The Business</small>
                     </h3>
-                    <p>
+                    <p data-i18n="sejarah.s5_desc">
                         Untuk periode tahun 2024 hingga 2028, perusahaan memfokuskan strategi pada
                         penguatan basis operasional sekaligus ekspansi bisnis secara berkelanjutan.
                         Langkah ini dijalankan melalui <strong>akselerasi transformasi digital</strong>

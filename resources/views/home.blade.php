@@ -180,7 +180,7 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fas fa-bolt"></i></div>
-                        <div class="stat-value" data-i18n="stats.value_capacity">3 &times; 330 <small data-i18n="stats.unit_mw">MW</small></div>
+                        <div class="stat-value" data-i18n="stats.value_capacity">3 &times; 330 <small>MW</small></div>
                         <div class="stat-label" data-i18n="stats.label_capacity">Kapasitas Terpasang</div>
                         <p class="stat-desc" data-i18n="stats.desc_capacity">Total 990 MW kapasitas pembangkitan terpasang.</p>
                     </div>
@@ -200,7 +200,7 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fas fa-industry"></i></div>
-                        <div class="stat-value" data-i18n="stats.value_total">23.000+ <small data-i18n="stats.unit_mw">MW</small></div>
+                        <div class="stat-value" data-i18n="stats.value_total">23.000+ <small>MW</small></div>
                         <div class="stat-label" data-i18n="stats.label_total">Total Kapasitas PLN NP</div>
                         <p class="stat-desc" data-i18n="stats.desc_total">Kapasitas pembangkitan PT PLN Nusantara Power.</p>
                     </div>
@@ -210,7 +210,7 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fas fa-leaf"></i></div>
-                        <div class="stat-value" data-i18n="stats.value_ebt">6,3+ <small data-i18n="stats.unit_gw">GW</small></div>
+                        <div class="stat-value" data-i18n="stats.value_ebt">6,3+ <small>GW</small></div>
                         <div class="stat-label" data-i18n="stats.label_ebt">Proyek Energi Terbarukan (EBT)</div>
                         <p class="stat-desc" data-i18n="stats.desc_ebt">Portofolio energi terbarukan yang terus berkembang.</p>
                     </div>

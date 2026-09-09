@@ -77,19 +77,19 @@
 
                 {{-- [ELEMEN BARU] Language Switcher (Globe) —
                      persis di antara "Kontak" dan tombol "Login" --}}
-                <li class="nav-item dropdown lang-switcher" id="lang-switcher">
-                    <button class="nav-link dropdown-toggle lang-toggle" type="button" id="langToggle" aria-expanded="false" aria-haspopup="true" title="Bahasa / Language">
-                        <i class="fas fa-globe me-1"></i> <span id="lang-current">ID</span>
+                <li class="nav-item lang-switcher" id="lang-switcher">
+                    <button class="nav-link lang-toggle" type="button" id="langToggle" aria-expanded="false" aria-haspopup="true" title="Bahasa / Language">
+                        <i data-feather="globe" style="width:16px;height:16px;"></i> <span id="lang-current">ID</span>
+                        <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-dark lang-menu" id="langMenu">
-                        <li>
-                            <button class="dropdown-item lang-option {{ session('lang', 'id') === 'id' ? 'active' : '' }}" type="button" data-lang="id">
-                                <i class="fas fa-flag-usa me-2" style="width: 1.1em;"></i> <span data-i18n="lang.indonesian">Bahasa Indonesia</span>
+                    <ul class="lang-menu" id="langMenu">
+                        <li>                                <button class="lang-option {{ session('lang', 'id') === 'id' ? 'active' : '' }}" type="button" data-lang="id">
+                                <img src="{{ asset('assets/images/flag-indonesia.svg') }}" alt="ID" class="flag-img me-2"> <span data-i18n="lang.indonesian">Bahasa Indonesia</span>
                             </button>
                         </li>
                         <li>
-                            <button class="dropdown-item lang-option {{ session('lang', 'id') === 'en' ? 'active' : '' }}" type="button" data-lang="en">
-                                <i class="fas fa-globe me-2" style="width: 1.1em;"></i> <span data-i18n="lang.english">English</span>
+                            <button class="lang-option {{ session('lang', 'id') === 'en' ? 'active' : '' }}" type="button" data-lang="en">
+                                <img src="{{ asset('assets/images/flag-usa.svg') }}" alt="EN" class="flag-img me-2"> <span data-i18n="lang.english">English</span>
                             </button>
                         </li>
                     </ul>

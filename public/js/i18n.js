@@ -44,28 +44,26 @@
             'lang.english': 'English',
 
             /* ---------- HERO BANNER ---------- */
-            'hero.title_plain': 'PLN Nusantara Power Indramayu',
+            'hero.title_plain': 'PLN Nusantara Power <span>Indramayu</span>',
             'hero.title_1': 'PLN Nusantara Power',
             'hero.title_2': 'Indramayu',
             'hero.subtitle': 'Unit Pembangkitan Tenaga Uap (PLTU) Indramayu berkapasitas 3 x 330 MW yang beroperasi 24 jam nonstop untuk mendukung ketahanan energi nasional dan penyediaan layanan informasi publik yang transparan.',
-            'hero.btn_request': 'Permohonan Informasi',
-            'hero.btn_learn': 'Pelajari Lebih Lanjut',
+            'hero.btn_request': '<i class="fas fa-file-alt me-2"></i> Permohonan Informasi',
+            'hero.btn_learn': '<i class="fas fa-info-circle me-2"></i> Pelajari Lebih Lanjut',
 
             /* ---------- STATISTIK & KINERJA TEKNIS ---------- */
             'stats.title': 'Statistik & Kinerja Teknis',
             'stats.subtitle': 'Ringkasan kapasitas dan kontribusi unit pembangkitan',
-            'stats.value_capacity': '3 × 330',
-            'stats.unit_mw': 'MW',
+            'stats.value_capacity': '3 \u00d7 330 <small>MW</small>',
             'stats.label_capacity': 'Kapasitas Terpasang',
             'stats.desc_capacity': 'Total 990 MW kapasitas pembangkitan terpasang.',
             'stats.value_coverage': 'Jamali',
             'stats.label_coverage': 'Cakupan Suplai',
             'stats.desc_coverage': 'Sistem Interkoneksi Jawa–Madura–Bali (Jamali).',
-            'stats.value_total': '23.000+',
+            'stats.value_total': '23.000+ <small>MW</small>',
             'stats.label_total': 'Total Kapasitas PLN NP',
             'stats.desc_total': 'Kapasitas pembangkitan PT PLN Nusantara Power.',
-            'stats.value_ebt': '6,3+',
-            'stats.unit_gw': 'GW',
+            'stats.value_ebt': '6,3+ <small>GW</small>',
             'stats.label_ebt': 'Proyek Energi Terbarukan (EBT)',
             'stats.desc_ebt': 'Portofolio energi terbarukan yang terus berkembang.',
 
@@ -116,7 +114,44 @@
             'footer.email': 'upid@plnnusantarapower.co.id',
             'footer.label_hours': 'Jam Layanan',
             'footer.hours': 'Senin – Jumat (08.00 – 16.00 WIB)',
-            'footer.copyright': '© 2026 PT PLN Nusantara Power UP PLTU Indramayu — Hak Cipta Dilindungi.'
+            'footer.copyright': '© 2026 PT PLN Nusantara Power UP PLTU Indramayu — Hak Cipta Dilindungi.',
+
+            /* ---------- HALAMAN SEJARAH ---------- */
+            'sejarah.breadcrumb_about': 'Tentang Kami',
+            'sejarah.breadcrumb_current': 'Sejarah Perusahaan',
+            'sejarah.eyebrow': 'Tentang Kami',
+            'sejarah.title': 'Sejarah & <span>Jejak Langkah</span> Perusahaan',
+            'sejarah.subtitle': 'Perjalanan Transformasi PT PLN Nusantara Power dalam Membangun Negeri dari Masa ke Masa.',
+            'sejarah.s1_title': 'Pendirian Perusahaan & Fondasi Awal',
+            'sejarah.s1_sub': 'Company Establishment',
+            'sejarah.s1_desc': 'Perjalanan resmi perusahaan dimulai pada tahun 1995 ketika PT PLN (Persero) mendirikan anak perusahaan ini untuk mengelola aset-aset pembangkitan listrik di wilayah Indonesia. Pada awal berdirinya, perusahaan langsung dipercayakan mengoperasikan <strong>5 Unit Pembangkitan (UP) utama</strong> dengan total kapasitas terpasang sebesar <strong>5.068 MW</strong>. Sebagai bagian dari komitmen tata kelola pembangkit modern sejak hari pertama, perusahaan mengadopsi sistem <strong>Computerized Maintenance Management Systems (CMMS)</strong>.',
+            'sejarah.s2_title': 'Dekade Pertumbuhan dan Ekspansi Bisnis',
+            'sejarah.s2_sub': 'Stable Growth',
+            'sejarah.s2_desc': 'Memasuki rentang tahun 2000 hingga 2010, perusahaan mengalami pertumbuhan yang stabil dan ekspansif. Kapasitas total meningkat secara signifikan dari <strong>5.068 MW menjadi 6.469 MW</strong> seiring dengan pelimpahan aset strategis berupa <strong>PLTA Cirata Unit 5–8</strong> dan <strong>PLTGU Muara Tawar</strong>.',
+            'sejarah.s3_title': 'Pencapaian Standar Internasional & Keunggulan Operasional',
+            'sejarah.s3_sub': 'Operational Excellence',
+            'sejarah.s3_desc': 'Pada kurun waktu 2011 hingga 2015, perusahaan mencatatkan sejarah sebagai <strong>entitas pertama di Asia Pasifik</strong> yang meraih sertifikasi <strong>ISO 55001 Sistem Manajemen Aset</strong>. Keunggulan operasional ini mengantarkan perusahaan meraih predikat <strong>Emerging Industry Leader Band</strong>.',
+            'sejarah.s4_title': 'Transformasi Korporasi Berkelanjutan & Era Sub-Holding',
+            'sejarah.s4_sub': 'Corporate Transformation I & II',
+            'sejarah.s4_desc': 'Dalam rentang tahun 2016 hingga 2024, perusahaan melewati dua gelombang transformasi besar. Pada fase <strong>Corporate Transformation I</strong>, perusahaan mengonsolidasikan PJB Group berbasis aset <strong>(Asset Based)</strong> dengan memadukan keunggulan operasional dan bisnis.',
+            'sejarah.s5_title': 'Penguatan Basis, Ekspansi Pasar, dan Keberlanjutan',
+            'sejarah.s5_sub': 'Strengthening The Base, Expanding The Business',
+            'sejarah.s5_desc': 'Untuk periode tahun 2024 hingga 2028, perusahaan memfokuskan strategi pada penguatan basis operasional sekaligus ekspansi bisnis secara berkelanjutan. Langkah ini dijalankan melalui <strong>akselerasi transformasi digital</strong>.',
+
+            /* ---------- HALAMAN VISI & MISI ---------- */
+            'visi.breadcrumb_about': 'Tentang Kami',
+            'visi.breadcrumb_current': 'Visi & Misi',
+            'visi.eyebrow': 'Tentang Kami',
+            'visi.title': 'Visi & Misi Perusahaan',
+            'visi.desc': 'Landasan utama dan komitmen PT PLN Nusantara Power dalam menerangi Indonesia serta mendorong transisi energi global.',
+            'visi.visi_label': 'Visi Perusahaan',
+            'visi.visi_text': 'Menjadi Perusahaan Pembangkitan yang Terdepan dan Terpercaya untuk Energi Berkelanjutan di Indonesia dan Pasar Global.',
+            'visi.misi_label': 'Misi Perusahaan',
+            'visi.misi1': 'Menjaga Kinerja Pembangkit Listrik yang Unggul Sebagai Kompetensi Inti.',
+            'visi.misi2': 'Membangun Bisnis Inovatif yang terdepan untuk melakukan Diversifikasi dan Pertumbuhan yang Berkelanjutan.',
+            'visi.misi3': 'Mengakselerasi Portofolio Bisnis EBT Untuk Mendukung Tercapainya Nol Emisi Karbon.',
+            'visi.misi4': 'Mengakuisisi dan Membangun Talenta Terbaik Untuk Menjalankan Organisasi yang Responsif dan Adaptif.',
+            'visi.back_btn': 'Kembali ke Tentang Kami'
         },
 
         en: {
@@ -144,28 +179,26 @@
             'lang.english': 'English',
 
             /* ---------- HERO BANNER ---------- */
-            'hero.title_plain': 'PLN Nusantara Power Indramayu',
+            'hero.title_plain': 'PLN Nusantara Power <span>Indramayu</span>',
             'hero.title_1': 'PLN Nusantara Power',
             'hero.title_2': 'Indramayu',
             'hero.subtitle': 'The Indramayu Steam Power Plant (PLTU) with an installed capacity of 3 x 330 MW, operating 24 hours nonstop to support national energy security and provide transparent public information services.',
-            'hero.btn_request': 'Information Request',
-            'hero.btn_learn': 'Learn More',
+            'hero.btn_request': '<i class="fas fa-file-alt me-2"></i> Information Request',
+            'hero.btn_learn': '<i class="fas fa-info-circle me-2"></i> Learn More',
 
             /* ---------- STATISTIK & KINERJA TEKNIS ---------- */
             'stats.title': 'Statistics & Technical Performance',
             'stats.subtitle': 'An overview of the generating unit\u2019s capacity and contribution',
-            'stats.value_capacity': '3 \u00d7 330',
-            'stats.unit_mw': 'MW',
+            'stats.value_capacity': '3 \u00d7 330 <small>MW</small>',
             'stats.label_capacity': 'Installed Capacity',
             'stats.desc_capacity': 'A total of 990 MW of installed generating capacity.',
             'stats.value_coverage': 'Jamali',
             'stats.label_coverage': 'Supply Coverage',
             'stats.desc_coverage': 'Java\u2013Madura\u2013Bali (Jamali) interconnected system.',
-            'stats.value_total': '23,000+',
+            'stats.value_total': '23,000+ <small>MW</small>',
             'stats.label_total': 'Total PLN NP Capacity',
             'stats.desc_total': 'Generating capacity of PT PLN Nusantara Power.',
-            'stats.value_ebt': '6.3+',
-            'stats.unit_gw': 'GW',
+            'stats.value_ebt': '6.3+ <small>GW</small>',
             'stats.label_ebt': 'Renewable Energy Projects',
             'stats.desc_ebt': 'A continuously growing renewable energy portfolio.',
 
@@ -216,7 +249,44 @@
             'footer.email': 'upid@plnnusantarapower.co.id',
             'footer.label_hours': 'Service Hours',
             'footer.hours': 'Monday \u2013 Friday (08.00 \u2013 16.00 WIB)',
-            'footer.copyright': '\u00a9 2026 PT PLN Nusantara Power UP PLTU Indramayu \u2014 All Rights Reserved.'
+            'footer.copyright': '\u00a9 2026 PT PLN Nusantara Power UP PLTU Indramayu \u2014 All Rights Reserved.',
+
+            /* ---------- SEJARAH PAGE ---------- */
+            'sejarah.breadcrumb_about': 'About Us',
+            'sejarah.breadcrumb_current': 'Company History',
+            'sejarah.eyebrow': 'About Us',
+            'sejarah.title': 'History & <span>Company Milestones</span>',
+            'sejarah.subtitle': 'The Transformation Journey of PT PLN Nusantara Power in Building the Nation Through the Ages.',
+            'sejarah.s1_title': 'Company Establishment & Early Foundation',
+            'sejarah.s1_sub': 'Company Establishment',
+            'sejarah.s1_desc': 'The company officially began its journey in 1995 when PT PLN (Persero) established this subsidiary to manage power generation assets across Indonesia. From its inception, the company was entrusted to operate <strong>5 main Generation Units (UP)</strong> with a total installed capacity of <strong>5,068 MW</strong>.',
+            'sejarah.s2_title': 'Decade of Growth and Business Expansion',
+            'sejarah.s2_sub': 'Stable Growth',
+            'sejarah.s2_desc': 'Entering the period from 2000 to 2010, the company experienced stable and expansive growth. Total capacity increased significantly from <strong>5,068 MW to 6,469 MW</strong> along with the transfer of strategic assets including <strong>Cirata PLTA Units 5–8</strong> and <strong>Muara Tawar PLTGU</strong>.',
+            'sejarah.s3_title': 'International Standards Achievement & Operational Excellence',
+            'sejarah.s3_sub': 'Operational Excellence',
+            'sejarah.s3_desc': 'During 2011 to 2015, the company made history as the <strong>first entity in Asia Pacific</strong> to achieve <strong>ISO 55001 Asset Management System</strong> certification. This operational excellence led the company to earn the <strong>Emerging Industry Leader Band</strong> designation.',
+            'sejarah.s4_title': 'Sustainable Corporate Transformation & Sub-Holding Era',
+            'sejarah.s4_sub': 'Corporate Transformation I & II',
+            'sejarah.s4_desc': 'During 2016 to 2024, the company went through two major transformation waves. In the <strong>Corporate Transformation I</strong> phase, the company consolidated the asset-based PJB Group by combining operational and business excellence.',
+            'sejarah.s5_title': 'Strengthening the Base, Market Expansion & Sustainability',
+            'sejarah.s5_sub': 'Strengthening The Base, Expanding The Business',
+            'sejarah.s5_desc': 'For the 2024–2028 period, the company focuses its strategy on strengthening operational foundations while expanding business sustainably. This is executed through <strong>accelerated digital transformation</strong>.',
+
+            /* ---------- VISI & MISI PAGE ---------- */
+            'visi.breadcrumb_about': 'About Us',
+            'visi.breadcrumb_current': 'Vision & Mission',
+            'visi.eyebrow': 'About Us',
+            'visi.title': 'Company Vision & Mission',
+            'visi.desc': 'The core foundation and commitment of PT PLN Nusantara Power in illuminating Indonesia and driving the global energy transition.',
+            'visi.visi_label': 'Company Vision',
+            'visi.visi_text': 'To become a leading and trusted power generation company for sustainable energy in Indonesia and the global market.',
+            'visi.misi_label': 'Company Mission',
+            'visi.misi1': 'Maintaining excellent power plant performance as the core competence.',
+            'visi.misi2': 'Building innovative leading businesses to diversify and achieve sustainable growth.',
+            'visi.misi3': 'Accelerating the RE Business Portfolio to Support Achieving Zero Carbon Emissions.',
+            'visi.misi4': 'Acquiring and developing the best talent to run a responsive and adaptive organization.',
+            'visi.back_btn': 'Back to About Us'
         }
     };
 
@@ -257,7 +327,10 @@
             const key = el.getAttribute('data-i18n');
             const text = getTranslation(lang, key);
             if (text !== null) {
-                el.textContent = text;
+                /* Gunakan innerHTML agar struktur HTML (mis. <span>, <small>)
+                   dalam terjemahan tetap terjaga. Karena dictionary dikontrol
+                   oleh developer (bukan user input), ini aman dari XSS. */
+                el.innerHTML = text;
             }
         });
 
@@ -274,6 +347,9 @@
 
         /* Bahasa dokumen (aksesibilitas) */
         document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'id');
+
+        /* Trigger Google Translate untuk konten halaman lainnya */
+        triggerGoogleTranslate(lang);
 
         saveLanguage(lang);
     }
@@ -294,8 +370,16 @@
         toggle.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
+            const isOpening = !switcher.classList.contains('open');
             switcher.classList.toggle('open');
             toggle.setAttribute('aria-expanded', switcher.classList.contains('open') ? 'true' : 'false');
+            /* Tutup semua Bootstrap dropdown saat membuka language switcher */
+            if (isOpening) {
+                document.querySelectorAll('.navbar-pln .dropdown.show').forEach(function (dd) {
+                    dd.classList.remove('show');
+                    dd.querySelector('.dropdown-menu')?.classList.remove('show');
+                });
+            }
         });
 
         /* Tutup jika mengklik di luar menu */
@@ -304,6 +388,14 @@
                 switcher.classList.remove('open');
                 toggle.setAttribute('aria-expanded', 'false');
             }
+        });
+
+        /* Tutup language switcher saat Bootstrap dropdown dibuka */
+        document.querySelectorAll('.navbar-pln .dropdown-toggle').forEach(function (ddToggle) {
+            ddToggle.addEventListener('click', function () {
+                switcher.classList.remove('open');
+                toggle.setAttribute('aria-expanded', 'false');
+            });
         });
 
         /* Tutup saat menekan Escape */
@@ -328,11 +420,38 @@
     }
 
     /* =====================================================
-       5. INISIALISASI
+       5. FEATHER ICONS — inisialisasi ikon SVG
+       ===================================================== */
+    function initFeatherIcons() {
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    }
+
+    /* =====================================================
+       6. GOOGLE TRANSLATE — trigger penerjemahan halaman
+       ===================================================== */
+    function initGoogleTranslate() {
+        /* Widget Google Translate dimuat via script di app.blade.php.
+           Fungsi ini bisa dipakai untuk setup tambahan jika diperlukan. */
+    }
+
+    function triggerGoogleTranslate(lang) {
+        var combo = document.querySelector('.goog-te-combo');
+        if (combo) {
+            combo.value = lang;
+            combo.dispatchEvent(new Event('change'));
+        }
+    }
+
+    /* =====================================================
+       7. INISIALISASI
        ===================================================== */
     function init() {
         applyLanguage(getSavedLanguage());
         initLangDropdown();
+        initFeatherIcons();
+        initGoogleTranslate();
     }
 
     if (document.readyState === 'loading') {

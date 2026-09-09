@@ -306,9 +306,9 @@
 <div class="vm-breadcrumb">
     <div class="container">
         <nav class="crumb" aria-label="breadcrumb">
-            <a href="{{ route('home') }}">Tentang Kami</a>
+            <a href="{{ route('home') }}" data-i18n="visi.breadcrumb_about">Tentang Kami</a>
             <span class="separator">/</span>
-            <span class="current">Visi &amp; Misi</span>
+            <span class="current" data-i18n="visi.breadcrumb_current">Visi &amp; Misi</span>
         </nav>
     </div>
 </div>
@@ -318,9 +318,9 @@
      ============================================= --}}
 <header class="vm-header">
     <div class="container">
-        <span class="eyebrow">Tentang Kami</span>
-        <h1>Visi &amp; Misi Perusahaan</h1>
-        <p class="desc">
+        <span class="eyebrow" data-i18n="visi.eyebrow">Tentang Kami</span>
+        <h1 data-i18n="visi.title">Visi &amp; Misi Perusahaan</h1>
+        <p class="desc" data-i18n="visi.desc">
             Landasan utama dan komitmen PT PLN Nusantara Power dalam menerangi Indonesia
             serta mendorong transisi energi global.
         </p>
@@ -333,8 +333,8 @@
 <section class="vm-banners-section">
     <div class="container">
         <div class="vm-visi-card">
-            <span class="vm-visi-label">Visi Perusahaan</span>
-            <p class="vm-visi-text">
+            <span class="vm-visi-label" data-i18n="visi.visi_label">Visi Perusahaan</span>
+            <p class="vm-visi-text" data-i18n="visi.visi_text">
                 Menjadi Perusahaan Pembangkitan yang Terdepan dan Terpercaya
                 untuk Energi Berkelanjutan di Indonesia dan Pasar Global.
             </p>
@@ -344,23 +344,23 @@
              CARD MISI — satu banner seragam dengan Card Visi
              ============================================= --}}
         <div class="vm-misi-card">
-            <span class="vm-misi-label">Misi Perusahaan</span>
+            <span class="vm-misi-label" data-i18n="visi.misi_label">Misi Perusahaan</span>
             <ol class="vm-misi-list">
                 <li class="vm-misi-item">
                     <span class="vm-misi-num">01</span>
-                    <p class="vm-misi-point">Menjaga Kinerja Pembangkit Listrik yang Unggul Sebagai Kompetensi Inti.</p>
+                    <p class="vm-misi-point" data-i18n="visi.misi1">Menjaga Kinerja Pembangkit Listrik yang Unggul Sebagai Kompetensi Inti.</p>
                 </li>
                 <li class="vm-misi-item">
                     <span class="vm-misi-num">02</span>
-                    <p class="vm-misi-point">Membangun Bisnis Inovatif yang terdepan untuk melakukan Diversifikasi dan Pertumbuhan yang Berkelanjutan.</p>
+                    <p class="vm-misi-point" data-i18n="visi.misi2">Membangun Bisnis Inovatif yang terdepan untuk melakukan Diversifikasi dan Pertumbuhan yang Berkelanjutan.</p>
                 </li>
                 <li class="vm-misi-item">
                     <span class="vm-misi-num">03</span>
-                    <p class="vm-misi-point">Mengakselerasi Portofolio Bisnis EBT Untuk Mendukung Tercapainya Nol Emisi Karbon.</p>
+                    <p class="vm-misi-point" data-i18n="visi.misi3">Mengakselerasi Portofolio Bisnis EBT Untuk Mendukung Tercapainya Nol Emisi Karbon.</p>
                 </li>
                 <li class="vm-misi-item">
                     <span class="vm-misi-num">04</span>
-                    <p class="vm-misi-point">Mengakuisisi dan Membangun Talenta Terbaik Untuk Menjalankan Organisasi yang Responsif dan Adaptif.</p>
+                    <p class="vm-misi-point" data-i18n="visi.misi4">Mengakuisisi dan Membangun Talenta Terbaik Untuk Menjalankan Organisasi yang Responsif dan Adaptif.</p>
                 </li>
             </ol>
         </div>
@@ -368,7 +368,7 @@
         {{-- Back Button --}}
         <div class="vm-back-wrap">
             <a href="{{ route('home') }}" class="vm-btn-back">
-                <i class="fas fa-arrow-left"></i> Kembali ke Tentang Kami
+                <i class="fas fa-arrow-left"></i> <span data-i18n="visi.back_btn">Kembali ke Tentang Kami</span>
             </a>
         </div>
     </div>
