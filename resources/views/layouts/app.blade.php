@@ -656,6 +656,30 @@
             }
 
             /* =============================================
+               PAGE TRANSITION — Ultra Fast (micro-interaction)
+               - Hanya main content (.pt-main) dianimasikan;
+                 navbar & footer tetap stabil.
+               - Fade (0 → 1) + slide mikro (4px → 0),
+                 60ms ease-out — GPU-friendly (opacity+transform).
+               - Navigasi sesungguhnya ditangani router.js
+                 (client-side, tanpa reload layout).
+               ============================================= */
+            @keyframes pt-fade-slide-in {
+                from { opacity: 0; transform: translateX(4px); }
+                to   { opacity: 1; transform: translateX(0); }
+            }
+
+            .pt-main.pt-animating {
+                animation: pt-fade-slide-in 0.06s ease-out both;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .pt-main.pt-animating {
+                    animation: none;
+                }
+            }
+
+            /* =============================================
                RESPONSIVE
                ============================================= */
             @media (max-width: 991.98px) {
@@ -699,12 +723,14 @@
 
         @stack('styles')
     </head>
-    <body id="page-top">
+    <body id="page-top" data-partial-content=".pt-main">
         {{-- Navbar --}}
         @include('layouts.navbar')
 
-        {{-- Main Content --}}
-        @yield('content')
+        {{-- Main Content — container transisi (navbar & footer tetap statis) --}}
+        <main class="pt-main" data-pt-animate>
+            @yield('content')
+        </main>
 
         {{-- Footer --}}
         @include('layouts.footer')
@@ -722,6 +748,10 @@
 
         {{-- i18n: Alih Bahasa OTOMATIS (ID <-> EN) --}}
         <script src="{{ asset('js/i18n.js') }}"></script>
+
+        {{-- Client-side router: pindah halaman tanpa reload layout,
+             cache memori per halaman, micro-transition 60ms --}}
+        <script src="{{ asset('js/router.js') }}" defer></script>
 
         {{-- Google Translate Widget (hidden) --}}
         <div id="google_translate_element" style="display:none;"></div>

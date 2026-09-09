@@ -21,9 +21,29 @@
         {{-- Admin Panel CSS --}}
         <link href="{{ asset('css/admin.css') }}" rel="stylesheet" />
 
+        {{-- Page Transition — Ultra Fast (micro-interaction 60ms) --}}
+        <style>
+            @keyframes pt-fade-slide-in {
+                from { opacity: 0; transform: translateX(4px); }
+                to   { opacity: 1; transform: translateX(0); }
+            }
+
+            /* Hanya main content yang dianimasikan — sidebar & topbar tetap statis.
+               Navigasi sesungguhnya ditangani router.js (client-side). */
+            .admin-content.pt-animating {
+                animation: pt-fade-slide-in 0.06s ease-out both;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .admin-content.pt-animating {
+                    animation: none;
+                }
+            }
+        </style>
+
         @stack('styles')
     </head>
-    <body>
+    <body data-partial-content=".admin-content">
 
         {{-- ============================================
              SIDEBAR OVERLAY (mobile)
@@ -136,8 +156,8 @@
                 </div>
             </header>
 
-            {{-- PAGE CONTENT --}}
-            <main class="admin-content">
+            {{-- PAGE CONTENT (container transisi) --}}
+            <main class="admin-content" data-pt-animate>
                 @yield('content')
             </main>
 
@@ -145,6 +165,10 @@
 
         {{-- Bootstrap JS --}}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+        {{-- Client-side router: pindah halaman tanpa reload layout,
+             cache memori per halaman, micro-transition 60ms --}}
+        <script src="{{ asset('js/router.js') }}" defer></script>
 
         <script>
             function toggleSidebar() {

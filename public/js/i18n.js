@@ -454,6 +454,19 @@
         initGoogleTranslate();
     }
 
+    /* =====================================================
+       8. API PUBLIK — dipakai router (public/js/router.js)
+          untuk re-apply bahasa pada konten hasil swap AJAX
+       ===================================================== */
+    window.PLNI18N = {
+        apply: function () {
+            applyLanguage(getSavedLanguage());
+            initFeatherIcons();
+        },
+        applyLanguage: applyLanguage,
+        getLanguage: getSavedLanguage
+    };
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
