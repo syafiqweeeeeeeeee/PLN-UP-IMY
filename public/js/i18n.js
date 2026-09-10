@@ -366,20 +366,35 @@
             return;
         }
 
-        /* Buka/tutup saat ikon globe diklik */
+        /* Tutup semua dropdown Bootstrap yang sedang terbuka.
+           Gunakan API resmi Bootstrap (bukan menghapus class .show manual)
+           agar aria-expanded, state internal & Popper ikut dibersihkan. */
+        function closeBootstrapDropdowns() {
+            document.querySelectorAll('.navbar-pln .dropdown-toggle[aria-expanded="true"]').forEach(function (ddToggle) {
+                if (window.bootstrap && window.bootstrap.Dropdown) {
+                    window.bootstrap.Dropdown.getOrCreateInstance(ddToggle).hide();
+                } else {
+                    ddToggle.parentElement?.classList.remove('show');
+                    ddToggle.nextElementSibling?.classList.remove('show');
+                    ddToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+
+        /* Buka/tutup saat ikon globe diklik.
+           PENTING: event TIDAK di-stopPropagation() agar tetap sampai ke
+           listener "clearMenus" milik Bootstrap di document — sehingga
+           dropdown Bootstrap lain (mis. Kontak) otomatis tertutup saat
+           language switcher diklik. */
         toggle.addEventListener('click', function (e) {
             e.preventDefault();
-            e.stopPropagation();
             const isOpening = !switcher.classList.contains('open');
+            /* Aturan 1 dropdown aktif: saat membuka globe, tutup dropdown lain */
+            if (isOpening) {
+                closeBootstrapDropdowns();
+            }
             switcher.classList.toggle('open');
             toggle.setAttribute('aria-expanded', switcher.classList.contains('open') ? 'true' : 'false');
-            /* Tutup semua Bootstrap dropdown saat membuka language switcher */
-            if (isOpening) {
-                document.querySelectorAll('.navbar-pln .dropdown.show').forEach(function (dd) {
-                    dd.classList.remove('show');
-                    dd.querySelector('.dropdown-menu')?.classList.remove('show');
-                });
-            }
         });
 
         /* Tutup jika mengklik di luar menu */
@@ -390,12 +405,12 @@
             }
         });
 
-        /* Tutup language switcher saat Bootstrap dropdown dibuka */
-        document.querySelectorAll('.navbar-pln .dropdown-toggle').forEach(function (ddToggle) {
-            ddToggle.addEventListener('click', function () {
-                switcher.classList.remove('open');
-                toggle.setAttribute('aria-expanded', 'false');
-            });
+        /* Tutup language switcher saat dropdown Bootstrap dibuka.
+           Pakai event "show.bs.dropdown" (bubble dari elemen toggle)
+           agar tetap berlaku untuk dropdown yang ditambahkan belakangan. */
+        document.addEventListener('show.bs.dropdown', function () {
+            switcher.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
         });
 
         /* Tutup saat menekan Escape */
@@ -410,7 +425,6 @@
         menu.querySelectorAll('.lang-option').forEach(function (option) {
             option.addEventListener('click', function (e) {
                 e.preventDefault();
-                e.stopPropagation();
                 const lang = option.getAttribute('data-lang');
                 switcher.classList.remove('open');
                 toggle.setAttribute('aria-expanded', 'false');
@@ -423,8 +437,8 @@
        5. FEATHER ICONS — inisialisasi ikon SVG
        ===================================================== */
     function initFeatherIcons() {
-        if (typeof feather !== 'undefined') {
-            feather.replace();
+        if (window.feather) {
+            try { feather.replace(); } catch (e) { /* script defer belum siap */ }
         }
     }
 
@@ -452,6 +466,9 @@
         initLangDropdown();
         initFeatherIcons();
         initGoogleTranslate();
+        /* feather-icons dimuat dengan defer: saat i18n.js (non-defer) jalan,
+           window.feather belum tentu ada. Coba lagi setelah semua defer selesai. */
+        window.addEventListener('load', initFeatherIcons);
     }
 
     /* =====================================================

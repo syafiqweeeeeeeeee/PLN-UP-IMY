@@ -3,6 +3,8 @@
 @section('title', 'E-PPID PLN — Galeri & Dokumentasi')
 
 @section('content')
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+<link rel="dns-prefetch" href="https://images.unsplash.com">
 <style>
     /* =============================================
        GALERI — DARK MINIMALIST THEME
@@ -191,6 +193,30 @@
 
     .gallery-card:hover .img-wrapper img {
         transform: scale(1.05);
+    }
+
+    /* --- Stagger animasi filter: CSS murni, GPU (opacity+transform),
+       delay di-drive via JS var --stagger-i (tanpa setTimeout) --- */
+    .gallery-item.filter-anim {
+        animation: galleryIn 0.4s ease both;
+        animation-delay: calc(var(--stagger-i, 0) * 60ms);
+    }
+
+    @keyframes galleryIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Crossfade gambar lightbox: CSS transition di compositor
+       (opacity saja) — tanpa setTimeout, terasa instan (<100ms) --- */
+    #lightboxImage {
+        opacity: 1;
+        transition: opacity 0.25s ease;
+        will-change: opacity;
+    }
+
+    #lightboxImage:not(.is-loaded) {
+        opacity: 0;
     }
 
     .gallery-card .img-overlay {
@@ -563,10 +589,10 @@
 
                 {{-- Card 1 --}}
                 <div class="col-lg-4 col-md-6 gallery-item" data-kategori="operasional">
-                    <div class="gallery-card" onclick="openLightbox(0)">
+                    <div class="gallery-card" data-index="0">
                         <div class="img-wrapper">
                             <span class="badge-kategori badge-operasional">Operasional</span>
-                            <img src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=600&h=450&fit=crop" alt="Operasional PLTU Indramayu" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=600&h=450&fit=crop&fm=auto&q=75" alt="Operasional PLTU Indramayu" loading="lazy" width="600" height="450" decoding="async">
                             <div class="img-overlay">
                                 <div class="zoom-icon"><i class="fas fa-expand"></i></div>
                             </div>
@@ -582,10 +608,10 @@
 
                 {{-- Card 2 --}}
                 <div class="col-lg-4 col-md-6 gallery-item" data-kategori="pemeliharaan">
-                    <div class="gallery-card" onclick="openLightbox(1)">
+                    <div class="gallery-card" data-index="1">
                         <div class="img-wrapper">
                             <span class="badge-kategori badge-pemeliharaan">Pemeliharaan</span>
-                            <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&h=450&fit=crop" alt="Pemeliharaan Turbin" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&h=450&fit=crop&fm=auto&q=75" alt="Pemeliharaan Turbin" loading="lazy" width="600" height="450" decoding="async">
                             <div class="img-overlay">
                                 <div class="zoom-icon"><i class="fas fa-expand"></i></div>
                             </div>
@@ -601,10 +627,10 @@
 
                 {{-- Card 3 --}}
                 <div class="col-lg-4 col-md-6 gallery-item" data-kategori="k3">
-                    <div class="gallery-card" onclick="openLightbox(2)">
+                    <div class="gallery-card" data-index="2">
                         <div class="img-wrapper">
                             <span class="badge-kategori badge-k3">K3 & Lingkungan</span>
-                            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&h=450&fit=crop" alt="Sosialisasi K3" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&h=450&fit=crop&fm=auto&q=75" alt="Sosialisasi K3" loading="lazy" width="600" height="450" decoding="async">
                             <div class="img-overlay">
                                 <div class="zoom-icon"><i class="fas fa-expand"></i></div>
                             </div>
@@ -620,10 +646,10 @@
 
                 {{-- Card 4 --}}
                 <div class="col-lg-4 col-md-6 gallery-item" data-kategori="sosial">
-                    <div class="gallery-card" onclick="openLightbox(3)">
+                    <div class="gallery-card" data-index="3">
                         <div class="img-wrapper">
                             <span class="badge-kategori badge-sosial">Kegiatan Sosial</span>
-                            <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&h=450&fit=crop" alt="Bakti Sosial" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&h=450&fit=crop&fm=auto&q=75" alt="Bakti Sosial" loading="lazy" width="600" height="450" decoding="async">
                             <div class="img-overlay">
                                 <div class="zoom-icon"><i class="fas fa-expand"></i></div>
                             </div>
@@ -639,10 +665,10 @@
 
                 {{-- Card 5 --}}
                 <div class="col-lg-4 col-md-6 gallery-item" data-kategori="operasional">
-                    <div class="gallery-card" onclick="openLightbox(4)">
+                    <div class="gallery-card" data-index="4">
                         <div class="img-wrapper">
                             <span class="badge-kategori badge-operasional">Operasional</span>
-                            <img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=450&fit=crop" alt="Control Room" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=450&fit=crop&fm=auto&q=75" alt="Control Room" loading="lazy" width="600" height="450" decoding="async">
                             <div class="img-overlay">
                                 <div class="zoom-icon"><i class="fas fa-expand"></i></div>
                             </div>
@@ -658,10 +684,10 @@
 
                 {{-- Card 6 --}}
                 <div class="col-lg-4 col-md-6 gallery-item" data-kategori="pemeliharaan">
-                    <div class="gallery-card" onclick="openLightbox(5)">
+                    <div class="gallery-card" data-index="5">
                         <div class="img-wrapper">
                             <span class="badge-kategori badge-pemeliharaan">Pemeliharaan</span>
-                            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&h=450&fit=crop" alt="Inspeksi Boiler" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&h=450&fit=crop&fm=auto&q=75" alt="Inspeksi Boiler" loading="lazy" width="600" height="450" decoding="async">
                             <div class="img-overlay">
                                 <div class="zoom-icon"><i class="fas fa-expand"></i></div>
                             </div>
@@ -677,10 +703,10 @@
 
                 {{-- Card 7 --}}
                 <div class="col-lg-4 col-md-6 gallery-item" data-kategori="k3">
-                    <div class="gallery-card" onclick="openLightbox(6)">
+                    <div class="gallery-card" data-index="6">
                         <div class="img-wrapper">
                             <span class="badge-kategori badge-k3">K3 & Lingkungan</span>
-                            <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600&h=450&fit=crop" alt="Simulasi Darurat" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600&h=450&fit=crop&fm=auto&q=75" alt="Simulasi Darurat" loading="lazy" width="600" height="450" decoding="async">
                             <div class="img-overlay">
                                 <div class="zoom-icon"><i class="fas fa-expand"></i></div>
                             </div>
@@ -696,10 +722,10 @@
 
                 {{-- Card 8 --}}
                 <div class="col-lg-4 col-md-6 gallery-item" data-kategori="sosial">
-                    <div class="gallery-card" onclick="openLightbox(7)">
+                    <div class="gallery-card" data-index="7">
                         <div class="img-wrapper">
                             <span class="badge-kategori badge-sosial">Kegiatan Sosial</span>
-                            <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&h=450&fit=crop" alt="Donasi Pendidikan" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&h=450&fit=crop&fm=auto&q=75" alt="Donasi Pendidikan" loading="lazy" width="600" height="450" decoding="async">
                             <div class="img-overlay">
                                 <div class="zoom-icon"><i class="fas fa-expand"></i></div>
                             </div>
@@ -715,10 +741,10 @@
 
                 {{-- Card 9 --}}
                 <div class="col-lg-4 col-md-6 gallery-item" data-kategori="operasional">
-                    <div class="gallery-card" onclick="openLightbox(8)">
+                    <div class="gallery-card" data-index="8">
                         <div class="img-wrapper">
                             <span class="badge-kategori badge-operasional">Operasional</span>
-                            <img src="https://images.unsplash.com/photo-1513828583688-c52646db42da?w=600&h=450&fit=crop" alt="Pencemaran Udara" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1513828583688-c52646db42da?w=600&h=450&fit=crop&fm=auto&q=75" alt="Pencemaran Udara" loading="lazy" width="600" height="450" decoding="async">
                             <div class="img-overlay">
                                 <div class="zoom-icon"><i class="fas fa-expand"></i></div>
                             </div>
@@ -769,29 +795,41 @@
 {{-- ============================================
      6. LIGHTBOX MODAL
      ============================================ --}}
-<div class="modal fade lightbox-modal" id="lightboxModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="lightboxTitle">Preview Foto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-            </div>
-            <div class="modal-body position-relative">
-                <button class="lightbox-nav prev" onclick="navigateLightbox(-1)" aria-label="Foto Sebelumnya">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <img id="lightboxImage" src="" alt="Preview" class="d-block mx-auto">
-                <button class="lightbox-nav next" onclick="navigateLightbox(1)" aria-label="Foto Berikutnya">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-            <div class="lightbox-caption">
-                <h6 id="lightboxCaptionTitle"></h6>
-                <p id="lightboxCaptionDate"></p>
+
+{{-- ============================================================
+     LIGHTBOX — ON-DEMAND RENDER (lazy)
+     Modal TIDAK dirender ke DOM saat halaman dimuat. Struktur
+     disimpan di <template> (inert, tidak di-parse sebagai node
+     aktif) dan baru di-clone sekali saat pengguna pertama kali
+     klik kartu galeri. Inline onclick dihapus total → interaksi
+     ditangani SATU event delegation di #galleryGrid.
+     ============================================================ --}}
+<template id="lightboxTemplate">
+    <div class="modal fade lightbox-modal" id="lightboxModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="lightboxTitle">Preview Foto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body position-relative">
+                    <button class="lightbox-nav prev" data-lightbox-nav="-1" aria-label="Foto Sebelumnya">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <img id="lightboxImage" alt="Preview" class="d-block mx-auto" width="1200" height="900" decoding="async">
+                    <button class="lightbox-nav next" data-lightbox-nav="1" aria-label="Foto Berikutnya">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="lightbox-caption">
+                    <h6 id="lightboxCaptionTitle"></h6>
+      
+              <p id="lightboxCaptionDate"></p>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</template>
 
 @endsection
 
@@ -805,47 +843,47 @@
        ============================================= */
     const galleryData = [
         {
-            src: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=1200&h=900&fit=crop',
+            src: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=1200&h=900&fit=crop&fm=auto&q=80',
             title: 'Operasional Unit Pembangkitan Unit 1',
             date: '5 September 2026'
         },
         {
-            src: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=1200&h=900&fit=crop',
+            src: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=1200&h=900&fit=crop&fm=auto&q=80',
             title: 'Pemeliharaan Berkala Turbin Uap',
             date: '3 September 2026'
         },
         {
-            src: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1200&h=900&fit=crop',
+            src: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1200&h=900&fit=crop&fm=auto&q=80',
             title: 'Sosialisasi Keselamatan Kerja Lingkungan',
             date: '1 September 2026'
         },
         {
-            src: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1200&h=900&fit=crop',
+            src: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1200&h=900&fit=crop&fm=auto&q=80',
             title: 'Bakti Sosial ke Masyarakat Desa Sumur Adem',
             date: '28 Agustus 2026'
         },
         {
-            src: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&h=900&fit=crop',
+            src: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&h=900&fit=crop&fm=auto&q=80',
             title: 'Monitoring Control Room PLTU Indramayu',
             date: '25 Agustus 2026'
         },
         {
-            src: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1200&h=900&fit=crop',
+            src: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1200&h=900&fit=crop&fm=auto&q=80',
             title: 'Inspeksi & Pembersihan Boiler',
             date: '22 Agustus 2026'
         },
         {
-            src: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=1200&h=900&fit=crop',
+            src: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=1200&h=900&fit=crop&fm=auto&q=80',
             title: 'Simulasi Tanggap Darurat & Evakuasi',
             date: '18 Agustus 2026'
         },
         {
-            src: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&h=900&fit=crop',
+            src: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&h=900&fit=crop&fm=auto&q=80',
             title: 'Program Bantuan Pendidikan Anak',
             date: '15 Agustus 2026'
         },
         {
-            src: 'https://images.unsplash.com/photo-1513828583688-c52646db42da?w=1200&h=900&fit=crop',
+            src: 'https://images.unsplash.com/photo-1513828583688-c52646db42da?w=1200&h=900&fit=crop&fm=auto&q=80',
             title: 'Pengoperasian Unit Pembangkitan 24 Jam',
             date: '12 Agustus 2026'
         }
@@ -855,62 +893,101 @@
     let filteredIndices = [];
 
     /* =============================================
-       FILTER CHIPS
+       EVENT DELEGATION — satu listener untuk semua interaksi
+       (Klik kartu → buka lightbox, klik chip → filter).
+       Tidak ada onclick inline per kartu (main-thread friendly).
        ============================================= */
+    const grid = document.getElementById('galleryGrid');
+
+    /* --- Filter chips --- */
     const filterChips = document.querySelectorAll('.filter-chip');
     const galleryItems = document.querySelectorAll('.gallery-item');
 
     filterChips.forEach(function(chip) {
         chip.addEventListener('click', function() {
-            /* Update active state */
             filterChips.forEach(function(c) { c.classList.remove('active'); });
             chip.classList.add('active');
 
             const filter = chip.getAttribute('data-filter');
             filteredIndices = [];
 
+            let shownIdx = 0;
             galleryItems.forEach(function(item, index) {
                 const kategori = item.getAttribute('data-kategori');
                 if (filter === 'semua' || kategori === filter) {
                     item.style.display = '';
-                    item.style.opacity = '0';
-                    item.style.transform = 'translateY(20px)';
-                    /* Stagger animation */
-                    setTimeout(function() {
-                        item.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-                        item.style.opacity = '1';
-                        item.style.transform = 'translateY(0)';
-                    }, index * 60);
+                    /* Stagger murni CSS: delay via --stagger-i, tanpa setTimeout */
+                    item.style.setProperty('--stagger-i', shownIdx);
+                    item.classList.remove('filter-anim');
+                    void item.offsetWidth; /* reflow sekali utk restart animasi */
+                    item.classList.add('filter-anim');
+                    shownIdx++;
                     filteredIndices.push(index);
                 } else {
                     item.style.display = 'none';
                 }
             });
 
-            /* Default: show all indices */
             if (filter === 'semua') {
                 filteredIndices = galleryData.map(function(_, i) { return i; });
             }
         });
     });
 
-    /* Initialize filteredIndices with all */
     filteredIndices = galleryData.map(function(_, i) { return i; });
 
-    /* =============================================
-       LIGHTBOX
-       ============================================= */
-    window.openLightbox = function(index) {
-        currentIndex = index;
-        var data = galleryData[index];
-        var modal = document.getElementById('lightboxModal');
-        document.getElementById('lightboxImage').src = data.src;
-        document.getElementById('lightboxTitle').textContent = data.title;
-        document.getElementById('lightboxCaptionTitle').textContent = data.title;
-        document.getElementById('lightboxCaptionDate').textContent = data.date;
+    /* --- Kartu galeri + tombol nav lightbox (delegated) --- */
+    if (grid) {
+        grid.addEventListener('click', function(e) {
+            const card = e.target.closest('.gallery-card');
+            if (card) {
+                const idx = parseInt(card.getAttribute('data-index'), 10);
+                if (!isNaN(idx)) openLightbox(idx);
+            }
+        });
+    }
 
-        var bsModal = new bootstrap.Modal(modal);
-        bsModal.show();
+    document.addEventListener('click', function(e) {
+        const navBtn = e.target.closest('[data-lightbox-nav]');
+        if (navBtn) navigateLightbox(parseInt(navBtn.getAttribute('data-lightbox-nav'), 10));
+    });
+
+    /* =============================================
+       LIGHTBOX — lazy render (sekali, on-demand)
+       ============================================= */
+    var lightboxModal = null;
+    var lightboxImage = null;
+    var lightboxTitle = null;
+    var lightboxCapTitle = null;
+    var lightboxCapDate = null;
+
+    function ensureLightbox() {
+        if (lightboxModal) return;
+        var tpl = document.getElementById('lightboxTemplate');
+        if (tpl && tpl.content) {
+            document.body.appendChild(tpl.content.firstElementChild);
+        }
+        lightboxModal    = document.getElementById('lightboxModal');
+        lightboxImage    = document.getElementById('lightboxImage');
+        lightboxTitle    = document.getElementById('lightboxTitle');
+        lightboxCapTitle = document.getElementById('lightboxCaptionTitle');
+        lightboxCapDate  = document.getElementById('lightboxCaptionDate');
+    }
+
+    function fillLightbox(data) {
+        lightboxImage.src = data.src;
+        lightboxImage.alt = data.title;
+        lightboxTitle.textContent = data.title;
+        lightboxCapTitle.textContent = data.title;
+        lightboxCapDate.textContent = data.date;
+    }
+
+    window.openLightbox = function(index) {
+        ensureLightbox();
+        currentIndex = index;
+        fillLightbox(galleryData[index]);
+        /* Instance di-CACHE — jangan new bootstrap.Modal() tiap klik */
+        bootstrap.Modal.getOrCreateInstance(lightboxModal).show();
     };
 
     window.navigateLightbox = function(direction) {
@@ -924,28 +1001,30 @@
         currentIndex = filteredIndices[newPos];
         var data = galleryData[currentIndex];
 
-        document.getElementById('lightboxImage').style.opacity = '0';
-        setTimeout(function() {
-            document.getElementById('lightboxImage').src = data.src;
-            document.getElementById('lightboxTitle').textContent = data.title;
-            document.getElementById('lightboxCaptionTitle').textContent = data.title;
-            document.getElementById('lightboxCaptionDate').textContent = data.date;
-            document.getElementById('lightboxImage').style.transition = 'opacity 0.3s ease';
-            document.getElementById('lightboxImage').style.opacity = '1';
-        }, 150);
+        /* Crossfade CSS-murni via class (GPU: opacity saja).
+           Jika gambar belum selesai dimuat, tampilkan begitu ready —
+           tidak ada setTimeout yang menggeser waktu respons. */
+        lightboxImage.classList.remove('is-loaded');
+        var pre = new Image();
+        pre.onload = function () {
+            fillLightbox(data);
+            requestAnimationFrame(function () {
+                lightboxImage.classList.add('is-loaded');
+            });
+        };
+        pre.src = data.src;
     };
 
     /* Keyboard navigation */
     document.addEventListener('keydown', function(e) {
-        var modal = document.getElementById('lightboxModal');
-        if (!modal.classList.contains('show')) return;
+        if (!lightboxModal || !lightboxModal.classList.contains('show')) return;
 
         if (e.key === 'ArrowLeft') {
             navigateLightbox(-1);
         } else if (e.key === 'ArrowRight') {
             navigateLightbox(1);
         } else if (e.key === 'Escape') {
-            bootstrap.Modal.getInstance(modal).hide();
+            bootstrap.Modal.getInstance(lightboxModal).hide();
         }
     });
 

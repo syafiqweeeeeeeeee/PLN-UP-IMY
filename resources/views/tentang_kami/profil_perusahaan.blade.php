@@ -8,159 +8,182 @@
        PROFIL PERUSAHAAN — PLN UP INDRAMAYU
        ============================================= */
 
-    /* --- Hero --- */
+    /* =============================================
+       HERO — OVERVIEW UNIT PEMBANGKITAN (light, clean)
+       Tema selaras dengan card kanan: bg #F8FAFC,
+       border #E2E8F0, aksen cyan. Tanpa dekorasi
+       radial-gradient yang menutupi teks.
+       ============================================= */
     .profile-hero {
-        background: linear-gradient(135deg, var(--pln-blue) 0%, #003d6b 50%, var(--pln-dark) 100%);
-        min-height: 480px;
+        background: #F8FAFC;
         position: relative;
         overflow: hidden;
+        /* Offset navbar fixed-top (±76px) + ruang napas, agar badge
+           & judul tidak tertutup navbar */
+        padding: calc(76px + 2.75rem) 0 3.5rem;
     }
 
+    /* Aksen garis atas cyan→blue, pengganti blob animasi */
     .profile-hero::before {
         content: '';
         position: absolute;
-        top: -60%;
-        right: -30%;
-        width: 700px;
-        height: 700px;
-        background: radial-gradient(circle, rgba(255, 230, 0, 0.12) 0%, transparent 65%);
-        border-radius: 50%;
-        animation: heroGlow 8s ease-in-out infinite alternate;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--pln-cyan), var(--pln-blue));
     }
 
-    .profile-hero::after {
-        content: '';
-        position: absolute;
-        bottom: -40%;
-        left: -20%;
-        width: 500px;
-        height: 500px;
-        background: radial-gradient(circle, rgba(0, 163, 224, 0.1) 0%, transparent 65%);
-        border-radius: 50%;
-        animation: heroGlow2 10s ease-in-out infinite alternate;
+    .hero-content {
+        display: flex;
+        flex-direction: column;
+        /* Rata tengah vertikal: seluruh konten (teks + stats)
+           menyatu di tengah tinggi kolom, seimbang dgn kolom kanan */
+        justify-content: center;
+        /* Gap antar grup = jarak deskripsi → stat-cards (32px) */
+        gap: 2rem;
+        flex: 1;
     }
 
-    @keyframes heroGlow {
-        0%   { transform: translate(0, 0) scale(1); }
-        100% { transform: translate(-40px, 30px) scale(1.1); }
+    /* Grup atas: badge + judul/logo + deskripsi.
+       gap 1rem (16px) → badge→judul & judul→deskripsi */
+    .hero-top {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
     }
 
-    @keyframes heroGlow2 {
-        0%   { transform: translate(0, 0) scale(1); }
-        100% { transform: translate(30px, -40px) scale(1.15); }
-    }
-
-    .hero-content { position: relative; z-index: 2; }
-
+    /* Badge pill cyan (#00A3E0), latar lembut, tanpa animasi */
     .company-badge {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.45rem 1.2rem;
-        border-radius: 50px;
-        font-size: 0.8rem;
+        gap: 0.45rem;
+        align-self: flex-start;
+        padding: 0.4rem 1rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--pln-blue);
-        background: var(--pln-yellow);
-        box-shadow: 0 4px 15px rgba(255, 230, 0, 0.3);
-        animation: fadeInDown 0.6s ease;
+        letter-spacing: 1.5px;
+        color: var(--pln-cyan);
+        background: rgba(0, 163, 224, 0.1);
+        border: 1px solid rgba(0, 163, 224, 0.25);
     }
 
+    /* Logo lingkaran "UP" — proporsional & menyatu dengan judul */
     .company-logo-ring {
-        width: 140px;
-        height: 140px;
+        width: 88px;
+        height: 88px;
         border-radius: 50%;
         background: var(--pln-yellow);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 3rem;
+        font-size: 1.75rem;
         font-weight: 900;
         color: var(--pln-blue);
-        box-shadow: 0 15px 50px rgba(0, 91, 156, 0.35);
-        border: 5px solid rgba(255, 255, 255, 0.25);
-        animation: logoPulse 3s ease-in-out infinite;
+        border: 4px solid #fff;
+        box-shadow: 0 6px 20px rgba(0, 91, 156, 0.18);
         flex-shrink: 0;
     }
 
-    @keyframes logoPulse {
-        0%, 100% { box-shadow: 0 15px 50px rgba(0, 91, 156, 0.35); }
-        50%      { box-shadow: 0 15px 60px rgba(0, 91, 156, 0.55); }
+    .hero-head {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
     }
 
     .hero-title {
-        font-size: 2.8rem;
-        font-weight: 900;
-        color: #fff;
-        line-height: 1.15;
-        margin-bottom: 0.75rem;
+        font-size: 2.15rem;
+        font-weight: 800;
+        color: #0A2540;
+        line-height: 1.25;
+        margin: 0;
     }
 
-    .hero-title span { color: var(--pln-yellow); }
+    .hero-title span { color: var(--pln-cyan); }
 
+    /* Deskripsi polos: Dark Slate, tanpa background highlight */
     .hero-subtitle {
-        font-size: 1.05rem;
-        color: rgba(255, 255, 255, 0.75);
-        line-height: 1.7;
-        max-width: 550px;
+        font-size: 1rem;
+        color: #334155;
+        line-height: 1.65;
+        max-width: 560px;
+        margin: 0;
     }
 
+    /* --- Key metrics: 3 mini stat-cards flex row --- */
     .hero-stats {
         display: flex;
-        gap: 1.5rem;
+        gap: 1rem;
         flex-wrap: wrap;
-        margin-top: 2rem;
+        align-items: stretch;
     }
 
     .hero-stat {
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        flex: 1 1 150px;
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
         border-radius: 14px;
-        padding: 1rem 1.25rem;
+        padding: 1rem 1.1rem;
         text-align: center;
-        min-width: 100px;
-        transition: all 0.3s ease;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
     }
 
     .hero-stat:hover {
-        background: rgba(255, 255, 255, 0.14);
-        transform: translateY(-2px);
-        border-color: var(--pln-yellow);
+        border-color: rgba(0, 163, 224, 0.45);
+        box-shadow: 0 8px 22px rgba(0, 91, 156, 0.08);
     }
 
     .hero-stat .number {
-        font-size: 1.6rem;
-        font-weight: 900;
-        color: var(--pln-yellow);
+        display: block;
+        font-size: 1.65rem;
+        font-weight: 800;
+        color: #00A3E0;
         line-height: 1.2;
     }
 
     .hero-stat .label {
-        font-size: 0.7rem;
-        color: rgba(255, 255, 255, 0.6);
+        display: block;
+        font-size: 0.68rem;
+        color: #64748B;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-top: 0.25rem;
+        letter-spacing: 0.6px;
+        margin-top: 0.35rem;
+        line-height: 1.45;
     }
 
     /* --- Info Cards --- */
+    /* Info-grid umum (dipakai section bawah) */
     .info-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: 1fr;
         gap: 1.5rem;
         margin-top: 3rem;
     }
 
+    /* Di dalam hero: 1 kolom stack — sejajar dengan kolom kiri,
+       tanpa auto-fit cramming, tinggi kartu seimbang.
+       Kedua kolom dibuat flex agar tinggi kiri = tinggi kanan
+       (row stretch) secara andal, tanpa trik height:100%. */
+    .profile-hero .col-lg-7,
+    .profile-hero .col-lg-5 {
+        display: flex;
+    }
+
+    .profile-hero .info-grid {
+        margin-top: 0;
+        flex: 1;
+        align-content: center;
+    }
+
     .info-card {
-        background: #fff;
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
         border-radius: 16px;
-        padding: 1.75rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        border: 1px solid #f3f4f6;
-        transition: all 0.35s ease;
+        padding: 1.6rem 1.75rem;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+        transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
         cursor: default;
         position: relative;
         overflow: hidden;
@@ -182,9 +205,9 @@
     .info-card:hover::before { transform: scaleX(1); }
 
     .info-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 16px 48px rgba(0, 91, 156, 0.15);
-        border-color: rgba(0, 163, 224, 0.2);
+        transform: translateY(-3px);
+        box-shadow: 0 14px 36px rgba(0, 91, 156, 0.12);
+        border-color: rgba(0, 163, 224, 0.35);
     }
 
     .info-card .card-icon {
@@ -207,16 +230,16 @@
     }
 
     .info-card h3 {
-        color: var(--pln-blue);
+        color: #0A2540;
         font-weight: 800;
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         margin: 0 0 0.75rem;
     }
 
     .info-card p {
-        color: #555;
+        color: #334155;
         font-size: 0.92rem;
-        line-height: 1.8;
+        line-height: 1.6;
         margin: 0;
     }
 
@@ -297,9 +320,11 @@
     .location-box {
         background: linear-gradient(135deg, var(--pln-blue) 0%, #003d6b 100%);
         border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-top: 2rem;
+        /* Radius & padding disamakan dgn .capacity-section agar
+           kedua kotak terlihat sebagai satu keluarga komponen.
+           margin-top dihapus — tinggi dikontrol row-eq-height */
+        border-radius: 20px;
+        padding: 2.5rem;
         transition: border-color 0.3s ease;
     }
 
@@ -307,11 +332,18 @@
         border-color: rgba(255, 230, 0, 0.4);
     }
 
+    /* Teks rata kiri: section memakai tk-section-header yang
+       mewarisi text-align:center — override di sini agar label &
+       nilai tidak ke-tengah, lalu perapikan spacing antar item */
+    .location-box {
+        text-align: left;
+    }
+
     .loc-item {
         display: flex;
         align-items: flex-start;
         gap: 1rem;
-        padding: 0.6rem 0;
+        padding: 0.9rem 0;
     }
 
     .loc-item:not(:last-child) { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
@@ -331,16 +363,17 @@
 
     .loc-item .loc-label {
         font-size: 0.7rem;
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(255, 255, 255, 0.55);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.15rem;
+        letter-spacing: 0.8px;
+        margin-bottom: 0.2rem;
     }
 
     .loc-item .loc-value {
         color: #fff;
         font-weight: 600;
         font-size: 0.95rem;
+        line-height: 1.5;
     }
 
     /* --- Business / Role Cards --- */
@@ -565,6 +598,28 @@
         color: var(--pln-blue);
     }
 
+    /* =============================================
+       EQUAL-HEIGHT ROWS — semua kotak dalam satu baris
+       otomatis satu ukuran tinggi (stretch), konten di-
+       center vertikal agar rapi & simetris
+       ============================================= */
+    .row.row-eq-height > [class*='col-'] {
+        display: flex;
+    }
+
+    .row.row-eq-height > [class*='col-'] > * {
+        flex: 1;
+    }
+
+    /* Kotak gradient (kapasitas & lokasi): konten di-center
+       secara vertikal supaya tinggi sama = tampilan seragam */
+    .row.row-eq-height .capacity-section,
+    .row.row-eq-height .location-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
     /* --- Animations --- */
     @keyframes fadeInUp {
         to { opacity: 1; transform: translateY(0); }
@@ -586,9 +641,34 @@
         transform: translateY(0);
     }
 
+    /* Aksesibilitas + performa: hormati preferensi reduce-motion.
+       Semua animasi dekoratif (glow, reveal, hero) dimatikan →
+       hemat main thread & compositor, teks langsung tampil. */
+    @media (prefers-reduced-motion: reduce) {
+        .reveal {
+            opacity: 1 !important;
+            transform: none !important;
+            transition: none !important;
+        }
+
+        .timeline-item {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+        }
+    }
+
+    /* Safety net: jika JS gagal, .reveal TIDAK boleh menyembunyikan
+       konten (SEO & no-JS). Class .reveal-ready dipasang via JS. */
+    html:not(.reveal-ready) .reveal {
+        opacity: 1;
+        transform: none;
+    }
+
     /* --- Responsive --- */
     @media (max-width: 991.98px) {
-        .hero-title { font-size: 2.2rem; }
+        .hero-title { font-size: 1.85rem; }
+        .company-logo-ring { width: 76px; height: 76px; font-size: 1.5rem; }
         .timeline-track { left: 24px; }
         .timeline-item {
             padding-left: 60px !important;
@@ -600,12 +680,13 @@
     }
 
     @media (max-width: 767.98px) {
-        .profile-hero { min-height: 400px; }
-        .hero-title { font-size: 1.8rem; }
-        .company-logo-ring { width: 110px; height: 110px; font-size: 2.2rem; }
+        .profile-hero { padding: calc(76px + 1.75rem) 0 2.5rem; }
+        .hero-title { font-size: 1.55rem; }
+        .company-logo-ring { width: 64px; height: 64px; font-size: 1.3rem; }
+        .hero-head { gap: 1rem; }
         .hero-stats { gap: 0.75rem; }
-        .hero-stat { padding: 0.75rem 0.9rem; min-width: 70px; }
-        .hero-stat .number { font-size: 1.2rem; }
+        .hero-stat { padding: 0.85rem 0.9rem; }
+        .hero-stat .number { font-size: 1.4rem; }
         .section-title { font-size: 1.5rem; }
         .capacity-number { font-size: 2rem; }
     }
@@ -658,47 +739,51 @@
 <!-- ============================================
      HERO SECTION
      ============================================ -->
-<section class="profile-hero tk-section-header">
-    <div class="container position-relative" style="z-index: 2;">
-        <div class="row align-items-center">
-            <div class="col-lg-7 hero-content">
-                <div class="d-flex align-items-center gap-3 mb-4">
-                    <span class="company-badge tk-eyebrow">
-                        <i class="fas fa-bolt"></i>Unit Pembangkitan
-                    </span>
-                </div>
+<section class="profile-hero">
+    <div class="container">
+        <div class="row g-4">
+            {{-- Kolom kiri: badge, judul + logo, deskripsi, statistik --}}
+            <div class="col-lg-7">
+                <div class="hero-content">
+                    <div class="hero-top">
+                        <span class="company-badge">
+                            <i class="fas fa-bolt"></i>Unit Pembangkitan
+                        </span>
 
-                <div class="d-flex align-items-center gap-4 mb-4">
-                    <div class="company-logo-ring">UP</div>
-                    <div>
-                        <h1 class="hero-title tk-header-title">
-                            PLN Nusantara Power<br>
-                            <span>Unit Pembangkitan Indramayu</span>
-                        </h1>
-                        <p class="hero-subtitle tk-header-desc">
+                        <div class="hero-head">
+                            <div class="company-logo-ring">UP</div>
+                            <h1 class="hero-title">
+                                PLN Nusantara Power<br>
+                                <span>Unit Pembangkitan Indramayu</span>
+                            </h1>
+                        </div>
+
+                        <p class="hero-subtitle">
                             Satu dari unit pembangkitan PT PLN Nusantara Power, 
                             mengoperasikan <strong>PLTU di Sumuradem, Indramayu</strong> 
                             untuk mendukung penyediaan energi listrik di Indonesia.
                         </p>
-                        <div class="hero-stats">
-                            <div class="hero-stat">
-                                <span class="number">990</span>
-                                <span class="label">MW Kapasitas Terpasang</span>
-                            </div>
-                            <div class="hero-stat">
-                                <span class="number">3</span>
-                                <span class="label">Unit Pembangkit (330 MW)</span>
-                            </div>
-                            <div class="hero-stat">
-                                <span class="number">83 ha</span>
-                                <span class="label">Luas Area Pembangkit</span>
-                            </div>
+                    </div>
+
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <span class="number">990</span>
+                            <span class="label">MW Kapasitas Terpasang</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="number">3</span>
+                            <span class="label">Unit Pembangkit (330 MW)</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="number">83 ha</span>
+                            <span class="label">Luas Area Pembangkit</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-5 mt-5 mt-lg-0">
+            {{-- Kolom kanan: 3 card fitur --}}
+            <div class="col-lg-5">
                 <div class="info-grid">
                     <div class="info-card reveal">
                         <div class="card-icon">
@@ -759,7 +844,7 @@
             </div>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-4 row-eq-height">
             <div class="col-lg-6">
                 <div class="info-card reveal" style="border-top: 4px solid var(--pln-cyan);">
                     <div class="card-icon">
@@ -818,7 +903,7 @@
             </div>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-4 row-eq-height">
             {{-- Kapasitas --}}
             <div class="col-lg-6">
                 <div class="capacity-section reveal">
@@ -1087,7 +1172,14 @@
 </section>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    /* Tandai bahwa JS aktif → amankan pola .reveal (progressive enhancement)
+       dipasang SEBELUM paint pertama agar tidak terjadi flash konten */
+    document.documentElement.classList.add('reveal-ready');
+
+    /* IntersectionObserver untuk .reveal — dipasang saat parsing <script>
+       ini (bukan menunggu DOMContentLoaded) agar elemen sudah ter-observe
+       sebelum first paint, tanpa delay interaksi apapun */
+    (function () {
         var reveals = document.querySelectorAll('.reveal');
         if ('IntersectionObserver' in window) {
             var observer = new IntersectionObserver(function (entries) {
@@ -1102,6 +1194,6 @@
         } else {
             reveals.forEach(function (el) { el.classList.add('visible'); });
         }
-    });
+    })();
 </script>
 @endsection

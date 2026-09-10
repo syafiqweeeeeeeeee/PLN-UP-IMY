@@ -10,16 +10,21 @@
         {{-- Favicon --}}
         <link rel="icon" type="image/x-icon" href="{{ asset('startbootstrap-grayscale-gh-pages/assets/favicon.ico') }}" />
 
-        {{-- Font Awesome icons --}}
-        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        {{-- Font Awesome icons — dimuat DEFER (non-blocking render).
+             Ikon FA muncul progresif; layout dilindungi via CSS di bawah. --}}
+        <script defer src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 
-        {{-- Feather Icons --}}
-        <script src="https://unpkg.com/feather-icons"></script>
+        {{-- Feather Icons — defer juga; feather.replace() di i18n.js sudah dipanggil
+             setelah DOM ready, dan sekarang cek ketersediaan window.feather --}}
+        <script defer src="https://unpkg.com/feather-icons"></script>
 
-        {{-- Google fonts: Inter --}}
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+        {{-- Google fonts: Inter (display=swap, hindari invisible text) --}}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet" />
 
         {{-- Bootstrap 5 CSS --}}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
         {{-- Custom PLN Styles --}}
@@ -48,6 +53,14 @@
             a {
                 text-decoration: none;
                 transition: color 0.2s ease;
+            }
+
+            /* FA dimuat DEFER → reserve lebar ikon sejak awal agar teks
+               tidak bergeser saat ikon selesai dimuat (mencegah CLS) */
+            i[class^='fa-'], i[class*=' fa-'] {
+                display: inline-block;
+                width: 1em;
+                text-align: center;
             }
 
             /* =============================================
@@ -738,12 +751,21 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
-            window.addEventListener('scroll', function () {
-                const navbar = document.querySelector('.navbar-pln');
-                if (navbar) {
-                    navbar.classList.toggle('scrolled', window.scrollY > 50);
-                }
-            });
+            /* Scroll listener passive + throttled via rAF: tidak memblokir
+               main thread saat scroll (baik untuk INP). */
+            (function () {
+                var navbar = document.querySelector('.navbar-pln');
+                if (!navbar) return;
+                var ticking = false;
+                window.addEventListener('scroll', function () {
+                    if (ticking) return;
+                    ticking = true;
+                    requestAnimationFrame(function () {
+                        navbar.classList.toggle('scrolled', window.scrollY > 50);
+                        ticking = false;
+                    });
+                }, { passive: true });
+            })();
         </script>
 
         {{-- i18n: Alih Bahasa OTOMATIS (ID <-> EN) --}}
