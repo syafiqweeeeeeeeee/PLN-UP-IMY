@@ -3,6 +3,7 @@
 @section('title', 'Visi & Misi - E-PPID PLN')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/tentang-kami.css') }}">
 <style>
     /* =============================================
        PALETTE (spesifikasi halaman)
@@ -234,8 +235,6 @@
 
     /* =============================================
        RESPONSIVE
-       (kontainer Bootstrap .container sudah memberi
-       padding sisi >= 16px di layar kecil)
        ============================================= */
     @media (max-width: 991.98px) {
         .vm-visi-text {
@@ -373,4 +372,5 @@
         </div>
     </div>
 </section>
+
 @endsection

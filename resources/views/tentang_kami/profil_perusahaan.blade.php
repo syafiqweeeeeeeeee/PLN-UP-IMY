@@ -2,7 +2,9 @@
 
 @section('title', 'Profil Perusahaan — PLN Nusantara Power Unit Pembangkitan Indramayu')
 
-@push('styles')
+@section('content')
+<link rel="stylesheet" href="{{ asset('css/tentang-kami.css') }}">
+
 <style>
     /* =============================================
        PROFIL PERUSAHAAN — PLN UP INDRAMAYU
@@ -295,8 +297,7 @@
 
     /* --- Location Info Box --- */
     .location-box {
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(10px);
+        background: linear-gradient(135deg, var(--pln-blue) 0%, #003d6b 100%);
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 16px;
         padding: 1.5rem;
@@ -611,19 +612,16 @@
         .capacity-number { font-size: 2rem; }
     }
 </style>
-@endpush
-
-@section('content')
 
 <!-- ============================================
      HERO SECTION
      ============================================ -->
-<section class="profile-hero py-5">
+<section class="profile-hero tk-section-header">
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center">
             <div class="col-lg-7 hero-content">
                 <div class="d-flex align-items-center gap-3 mb-4">
-                    <span class="company-badge">
+                    <span class="company-badge tk-eyebrow">
                         <i class="fas fa-bolt"></i>Unit Pembangkitan
                     </span>
                 </div>
@@ -631,11 +629,11 @@
                 <div class="d-flex align-items-center gap-4 mb-4">
                     <div class="company-logo-ring">UP</div>
                     <div>
-                        <h1 class="hero-title">
+                        <h1 class="hero-title tk-header-title">
                             PLN Nusantara Power<br>
                             <span>Unit Pembangkitan Indramayu</span>
                         </h1>
-                        <p class="hero-subtitle">
+                        <p class="hero-subtitle tk-header-desc">
                             Satu dari unit pembangkitan PT PLN Nusantara Power, 
                             mengoperasikan <strong>PLTU di Sumuradem, Indramayu</strong> 
                             untuk mendukung penyediaan energi listrik di Indonesia.
@@ -711,8 +709,8 @@
     <div class="container">
         <div class="row justify-content-center mb-5">
             <div class="col-lg-8 text-center">
-                <h2 class="section-title">Tentang UP Indramayu</h2>
-                <p class="section-subtitle">
+                <h2 class="section-title tk-header-title">Tentang UP Indramayu</h2>
+                <p class="section-subtitle tk-header-desc">
                     Kenali lebih dekat Unit Pembangkitan Indramayu — peran strategisnya dalam 
                     sistem kelistrikan Jawa-Bali dan komitmen terhadap operasional yang andal, aman, dan berkelanjutan.
                 </p>
@@ -767,12 +765,12 @@
 <!-- ============================================
      KAPASITAS & LOKASI
      ============================================ -->
-<section class="py-5">
+<section class="py-5 tk-section-header">
     <div class="container">
         <div class="row justify-content-center mb-4">
             <div class="col-lg-8 text-center">
-                <h2 class="section-title">Kapasitas &amp; Lokasi</h2>
-                <p class="section-subtitle">
+                <h2 class="section-title tk-header-title">Kapasitas &amp; Lokasi</h2>
+                <p class="section-subtitle tk-header-desc">
                     Detail teknis dan lokasi PLTU Unit Pembangkitan Indramayu.
                 </p>
             </div>
@@ -864,12 +862,12 @@
 <!-- ============================================
      PERAN & KONTRIBUSI
      ============================================ -->
-<section class="py-5" style="background: var(--pln-gray);">
+<section class="py-5 tk-section-header" style="background: var(--pln-gray);">
     <div class="container">
         <div class="row justify-content-center mb-4">
             <div class="col-lg-8 text-center">
-                <h2 class="section-title">Peran &amp; Kontribusi</h2>
-                <p class="section-subtitle">
+                <h2 class="section-title tk-header-title">Peran &amp; Kontribusi</h2>
+                <p class="section-subtitle tk-header-desc">
                     UP Indramayu tidak hanya berperan sebagai pembangkit listrik, tetapi juga 
                     berkomitmen memberikan dampak positif bagi lingkungan dan masyarakat.
                 </p>
@@ -928,9 +926,9 @@
 <div class="container my-5"></div>
 
 <!-- ============================================
-     CNNMOTIVASI / FILOSOFI
+     FILOSOFI / KUTIPAN
      ============================================ -->
-<section class="py-5">
+<section class="py-5 tk-section-header">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
@@ -953,12 +951,12 @@
 <!-- ============================================
      TIMELINE PERJALANAN
      ============================================ -->
-<section class="py-5" style="background: var(--pln-gray);">
+<section class="py-5 tk-section-header" style="background: var(--pln-gray);">
     <div class="container">
         <div class="row justify-content-center mb-4">
             <div class="col-lg-8 text-center">
-                <h2 class="section-title">Perjalanan Unit Pembangkitan</h2>
-                <p class="section-subtitle">
+                <h2 class="section-title tk-header-title">Perjalanan Unit Pembangkitan</h2>
+                <p class="section-subtitle tk-header-desc">
                     Jejak kontribusi UP Indramayu dalam penyediaan energi listrik dan 
                     komitmen terhadap operasional yang dan lingkungan yang berkelanjutan.
                 </p>
@@ -1046,9 +1044,6 @@
     </div>
 </section>
 
-@endsection
-
-@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var reveals = document.querySelectorAll('.reveal');
@@ -1067,4 +1062,4 @@
         }
     });
 </script>
-@endpush
+@endsection

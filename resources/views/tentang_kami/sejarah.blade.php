@@ -3,6 +3,7 @@
 @section('title', 'Sejarah - E-PPID PLN')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/tentang-kami.css') }}">
 <style>
     /* =============================================
        PALETTE (spesifikasi halaman)
@@ -172,7 +173,7 @@
         content: '';
         position: absolute;
         left: 11px;
-        top: 18px; /* sejajar dengan pusat bulatan node pertama */
+        top: 18px;
         bottom: 0;
         width: 2px;
         background: var(--sj-border);
@@ -201,9 +202,6 @@
         box-shadow: 0 0 0 4px rgba(0, 163, 224, 0.15);
         z-index: 2;
     }
-
-    /* Pusat node (top 6px + setengah tinggi 18px = 15px)
-       harus persis di tengah garis vertikal (left 11px + 1px). */
 
     .sj-entry.is-active::before {
         background: var(--sj-accent);
@@ -279,10 +277,8 @@
        ============================================= */
     .sj-nav-wrap {
         position: sticky;
-        top: var(--sj-mainnav-h); /* tepat di bawah navbar utama */
-        z-index: 1020; /* di bawah navbar utama (1030), di atas konten */
-        /* Wrapper selebar layar: teruskan klik ke konten di
-           bawahnya kecuali pada pill itu sendiri */
+        top: var(--sj-mainnav-h);
+        z-index: 1020;
         pointer-events: none;
     }
 
@@ -387,10 +383,20 @@
     }
 </style>
 
+    
+
+    
+
+    
+
+    
+
+    
+
 {{-- =============================================
      BREADCRUMB
      ============================================= --}}
-<div class="sj-breadcrumb">
+<div class="sj-breadcrumb tk-breadcrumb">
     <div class="container">
         <nav class="crumb" aria-label="breadcrumb">
             <a href="{{ route('home') }}" data-i18n="sejarah.breadcrumb_about">Tentang Kami</a>
@@ -403,11 +409,11 @@
 {{-- =============================================
      HEADER SEJARAH
      ============================================= --}}
-<header class="sj-header">
+<header class="sj-header tk-section-header">
     <div class="container">
-        <span class="eyebrow" data-i18n="sejarah.eyebrow">Tentang Kami</span>
-        <h1 data-i18n="sejarah.title">Sejarah &amp; <span>Jejak Langkah</span> Perusahaan</h1>
-        <p class="subtitle" data-i18n="sejarah.subtitle">
+        <span class="eyebrow tk-eyebrow" data-i18n="sejarah.eyebrow">Tentang Kami</span>
+        <h1 class="tk-header-title" data-i18n="sejarah.title">Sejarah &amp; <span class="highlight">Jejak Langkah</span> Perusahaan</h1>
+        <p class="subtitle tk-header-desc" data-i18n="sejarah.subtitle">
             Perjalanan Transformasi PT PLN Nusantara Power dalam Membangun Negeri dari Masa ke Masa.
         </p>
     </div>
@@ -416,27 +422,27 @@
 {{-- =============================================
      NAVIGASI TIMELINE STICKY (PILL)
      ============================================= --}}
-<div class="sj-nav-wrap">
-    <div class="timeline fixed" id="timeline-navbar">
-        <div class="timeline-item" data-target="section1995">1995</div>
-        <div class="timeline-item" data-target="section2000">2000-2010</div>
-        <div class="timeline-item" data-target="section2011">2011-2015</div>
-        <div class="timeline-item" data-target="section2016">2016-2024</div>
-        <div class="timeline-item" data-target="section2024">2024-2028</div>
+<div class="sj-nav-wrap tk-timeline-pills-wrap">
+    <div class="timeline fixed tk-timeline-pills" id="timeline-navbar">
+        <div class="timeline-item tk-pill" data-target="section1995">1995</div>
+        <div class="timeline-item tk-pill" data-target="section2000">2000-2010</div>
+        <div class="timeline-item tk-pill" data-target="section2011">2011-2015</div>
+        <div class="timeline-item tk-pill" data-target="section2016">2016-2024</div>
+        <div class="timeline-item tk-pill" data-target="section2024">2024-2028</div>
     </div>
 </div>
 
 {{-- =============================================
      KONTEN TIMELINE
      ============================================= --}}
-<section class="sj-timeline-section">
+<section class="sj-timeline-section tk-timeline-section">
     <div class="container">
-        <div class="sj-timeline">
+        <div class="sj-timeline tk-timeline">
 
             {{-- 1995 --}}
-            <article class="sj-entry" id="section1995">
-                <span class="sj-badge">1995</span>
-                <div class="sj-card">
+            <article class="sj-entry tk-entry" id="section1995">
+                <span class="sj-badge tk-badge">1995</span>
+                <div class="sj-card tk-card">
                     <h3 data-i18n="sejarah.s1_title">
                         Pendirian Perusahaan &amp; Fondasi Awal
                         <small data-i18n="sejarah.s1_sub">Company Establishment</small>
@@ -457,9 +463,9 @@
             </article>
 
             {{-- 2000 – 2010 --}}
-            <article class="sj-entry" id="section2000">
-                <span class="sj-badge">2000 – 2010</span>
-                <div class="sj-card">
+            <article class="sj-entry tk-entry" id="section2000">
+                <span class="sj-badge tk-badge">2000 – 2010</span>
+                <div class="sj-card tk-card">
                     <h3 data-i18n="sejarah.s2_title">
                         Dekade Pertumbuhan dan Ekspansi Bisnis
                         <small data-i18n="sejarah.s2_sub">Stable Growth</small>
@@ -480,9 +486,9 @@
             </article>
 
             {{-- 2011 – 2015 --}}
-            <article class="sj-entry" id="section2011">
-                <span class="sj-badge">2011 – 2015</span>
-                <div class="sj-card">
+            <article class="sj-entry tk-entry" id="section2011">
+                <span class="sj-badge tk-badge">2011 – 2015</span>
+                <div class="sj-card tk-card">
                     <h3 data-i18n="sejarah.s3_title">
                         Pencapaian Standar Internasional &amp; Keunggulan Operasional
                         <small data-i18n="sejarah.s3_sub">Operational Excellence</small>
@@ -504,9 +510,9 @@
             </article>
 
             {{-- 2016 – 2024 --}}
-            <article class="sj-entry" id="section2016">
-                <span class="sj-badge">2016 – 2024</span>
-                <div class="sj-card">
+            <article class="sj-entry tk-entry" id="section2016">
+                <span class="sj-badge tk-badge">2016 – 2024</span>
+                <div class="sj-card tk-card">
                     <h3 data-i18n="sejarah.s4_title">
                         Transformasi Korporasi Berkelanjutan &amp; Era Sub-Holding
                         <small data-i18n="sejarah.s4_sub">Corporate Transformation I &amp; II</small>
@@ -528,9 +534,9 @@
             </article>
 
             {{-- 2024 – 2028 --}}
-            <article class="sj-entry" id="section2024">
-                <span class="sj-badge">2024 – 2028</span>
-                <div class="sj-card">
+            <article class="sj-entry tk-entry" id="section2024">
+                <span class="sj-badge tk-badge">2024 – 2028</span>
+                <div class="sj-card tk-card">
                     <h3 data-i18n="sejarah.s5_title">
                         Penguatan Basis, Ekspansi Pasar, dan Keberlanjutan
                         <small data-i18n="sejarah.s5_sub">Strengthening The Base, Expanding The Business</small>
@@ -552,9 +558,7 @@
         </div>
     </div>
 </section>
-@endsection
 
-@push('scripts')
 <script>
     (function () {
         'use strict';
@@ -646,4 +650,4 @@
         spyOnScroll();
     })();
 </script>
-@endpush
+@endsection

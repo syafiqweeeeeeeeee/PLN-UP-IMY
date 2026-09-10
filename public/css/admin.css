@@ -1,6 +1,54 @@
 /* ============================================
+   TENTANG KAMI — SHARE LAYOUT (var override)
+   Override variabel global di app.blade.php
+   agar halaman tentang_kami pakai palet
+   cyan-navy yang konsisten.
+   ============================================ */
+.tentang-kami-body :root {
+    --pln-blue:    #00A3E0;
+    --pln-cyan:    #00A3E0;
+    --pln-dark:    #0A2540;
+    --pln-gray:    #F8FAFC;
+    --pln-text:    #1E293B;
+}
+
+/* ============================================
    ADMIN PANEL STYLES - E-PPID PLN
    ============================================ */
+
+/* ============================================
+   TENTANG KAMI — RESET UTAMA (opsional scope)
+   Dipakai bila halaman di-wrap dengan kelas
+   .tentang-kami-body untuk konsistensi warna.
+   ============================================ */
+.tentang-kami-body {
+    background: var(--pln-gray);
+    color: var(--pln-text);
+}
+
+.tentang-kami-body h1,
+.tentang-kami-body h2,
+.tentang-kami-body h3,
+.tentang-kami-body h4,
+.tentang-kami-body h5,
+.tentang-kami-body h6 {
+    color: var(--pln-blue);
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.tentang-kami-body p {
+    color: #475569;
+    line-height: 1.7;
+}
+
+.tentang-kami-body a {
+    color: var(--pln-blue);
+}
+
+.tentang-kami-body a:hover {
+    color: var(--pln-cyan);
+}
 
 /* ============================================
    CSS VARIABLES - PALET WARNA PLN
@@ -32,17 +80,24 @@ body {
     overflow-x: hidden;
 }
 
+/* ============================================
+TENTANG KAMI — GLOBAL WRAPPER OVERRIDE
+Digunakan untuk scope warna halaman tentang_kami.
+Ini bersifat opsional dan hanya dipakai jika
+diinginkan konsistensi warna antar halaman.
+=========================================== */
+.tentang-kami-body .breadcrumb, 
+.tentang-kami-body .section-title,
+.tentang-kami-body .eyebrow {
+    color: var(--pln-blue);
+}
+
 a { text-decoration: none; transition: color 0.2s ease; }
 
 /* ============================================
    SIDEBAR
    ============================================ */
-.sidebar-brand-img {
-    height: 38px;
-    width: auto;
-    max-width: 120px;
-    object-fit: contain;
-}
+
 
 .admin-sidebar {
     position: fixed;

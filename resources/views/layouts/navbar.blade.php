@@ -46,12 +46,8 @@
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item" href="#" data-i18n="nav.info_news">Berita</a></li>
                         <li><a class="dropdown-item" href="#" data-i18n="nav.info_announcements">Pengumuman</a></li>
-<<<<<<< HEAD
-                        <li><a class="dropdown-item" href="#" data-i18n="nav.info_gallery">Galeri</a></li>
-=======
                         <li><a class="dropdown-item" href="#" data-i18n="nav.info_articles">Artikel</a></li>
                         <li><a class="dropdown-item" href="{{ route('galeri') }}" data-i18n="nav.info_gallery">Galeri</a></li>
->>>>>>> 6cf8eef (update halaman galeri dan halaman struktural organisasi)
                     </ul>
                 </li>
 
