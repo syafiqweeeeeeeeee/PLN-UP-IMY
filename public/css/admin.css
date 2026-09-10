@@ -1,54 +1,6 @@
 /* ============================================
-   TENTANG KAMI — SHARE LAYOUT (var override)
-   Override variabel global di app.blade.php
-   agar halaman tentang_kami pakai palet
-   cyan-navy yang konsisten.
-   ============================================ */
-.tentang-kami-body :root {
-    --pln-blue:    #00A3E0;
-    --pln-cyan:    #00A3E0;
-    --pln-dark:    #0A2540;
-    --pln-gray:    #F8FAFC;
-    --pln-text:    #1E293B;
-}
-
-/* ============================================
    ADMIN PANEL STYLES - E-PPID PLN
    ============================================ */
-
-/* ============================================
-   TENTANG KAMI — RESET UTAMA (opsional scope)
-   Dipakai bila halaman di-wrap dengan kelas
-   .tentang-kami-body untuk konsistensi warna.
-   ============================================ */
-.tentang-kami-body {
-    background: var(--pln-gray);
-    color: var(--pln-text);
-}
-
-.tentang-kami-body h1,
-.tentang-kami-body h2,
-.tentang-kami-body h3,
-.tentang-kami-body h4,
-.tentang-kami-body h5,
-.tentang-kami-body h6 {
-    color: var(--pln-blue);
-    font-weight: 700;
-    line-height: 1.3;
-}
-
-.tentang-kami-body p {
-    color: #475569;
-    line-height: 1.7;
-}
-
-.tentang-kami-body a {
-    color: var(--pln-blue);
-}
-
-.tentang-kami-body a:hover {
-    color: var(--pln-cyan);
-}
 
 /* ============================================
    CSS VARIABLES - PALET WARNA PLN
@@ -80,24 +32,11 @@ body {
     overflow-x: hidden;
 }
 
-/* ============================================
-TENTANG KAMI — GLOBAL WRAPPER OVERRIDE
-Digunakan untuk scope warna halaman tentang_kami.
-Ini bersifat opsional dan hanya dipakai jika
-diinginkan konsistensi warna antar halaman.
-=========================================== */
-.tentang-kami-body .breadcrumb, 
-.tentang-kami-body .section-title,
-.tentang-kami-body .eyebrow {
-    color: var(--pln-blue);
-}
-
 a { text-decoration: none; transition: color 0.2s ease; }
 
 /* ============================================
    SIDEBAR
    ============================================ */
-
 
 .admin-sidebar {
     position: fixed;
@@ -151,6 +90,14 @@ a { text-decoration: none; transition: color 0.2s ease; }
     letter-spacing: 0.5px;
     text-transform: uppercase;
     margin-top: 2px;
+}
+
+.sidebar-brand-img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    border-radius: 10px;
+    flex-shrink: 0;
 }
 
 .sidebar-nav {
@@ -301,7 +248,7 @@ a { text-decoration: none; transition: color 0.2s ease; }
     color: var(--pln-blue);
 }
 
-.topbar-icon-btn .notification-dot {
+.notification-dot {
     position: absolute;
     top: 7px;
     right: 7px;
@@ -649,6 +596,143 @@ a { text-decoration: none; transition: color 0.2s ease; }
 }
 
 /* ============================================
+   TABLE STYLES (User Management)
+   ============================================ */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b7280;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.admin-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--pln-text);
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+    background: #f9fafb;
+}
+
+/* ============================================
+   FORM STYLES
+   ============================================ */
+.admin-form .form-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--pln-text);
+    margin-bottom: 0.35rem;
+}
+
+.admin-form .form-control,
+.admin-form .form-select {
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 0.85rem;
+    font-size: 0.88rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-form .form-control:focus,
+.admin-form .form-select:focus {
+    border-color: var(--pln-cyan);
+    box-shadow: 0 0 0 3px rgba(0,163,224,0.15);
+}
+
+/* ============================================
+   BUTTON STYLES
+   ============================================ */
+.btn-admin-primary {
+    background: var(--pln-blue);
+    color: #fff;
+    border: none;
+    padding: 0.55rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-admin-primary:hover {
+    background: var(--pln-blue-dark);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.btn-admin-outline {
+    background: transparent;
+    color: var(--pln-blue);
+    border: 1px solid var(--pln-blue);
+    padding: 0.55rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-admin-outline:hover {
+    background: #f0f7ff;
+    color: var(--pln-blue);
+}
+
+.btn-admin-danger {
+    background: var(--pln-red);
+    color: #fff;
+    border: none;
+    padding: 0.55rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-admin-danger:hover {
+    background: #d1151e;
+    color: #fff;
+}
+
+/* ============================================
+   ALERT STYLES
+   ============================================ */
+.admin-alert {
+    padding: 0.85rem 1.15rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.admin-alert.success {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.admin-alert.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* ============================================
    MOBILE TOGGLE
    ============================================ */
 .sidebar-toggle {
@@ -669,6 +753,10 @@ a { text-decoration: none; transition: color 0.2s ease; }
     z-index: 999;
 }
 
+.sidebar-overlay.show {
+    display: block;
+}
+
 /* ============================================
    RESPONSIVE
    ============================================ */
@@ -679,10 +767,6 @@ a { text-decoration: none; transition: color 0.2s ease; }
 
     .admin-sidebar.show {
         transform: translateX(0);
-    }
-
-    .sidebar-overlay.show {
-        display: block;
     }
 
     .admin-main {

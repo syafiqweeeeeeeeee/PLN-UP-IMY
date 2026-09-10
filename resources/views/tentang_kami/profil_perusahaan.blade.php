@@ -3,8 +3,6 @@
 @section('title', 'Profil Perusahaan — PLN Nusantara Power Unit Pembangkitan Indramayu')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/tentang-kami.css') }}">
-
 <style>
     /* =============================================
        PROFIL PERUSAHAAN — PLN UP INDRAMAYU
@@ -610,6 +608,50 @@
         .hero-stat .number { font-size: 1.2rem; }
         .section-title { font-size: 1.5rem; }
         .capacity-number { font-size: 2rem; }
+    }
+
+    /* =============================================
+       SHARED TK CLASSES (inline dari tentang-kami.css)
+       ============================================= */
+    .tk-section-header {
+        background: #F8FAFC;
+        padding: 2.5rem 0 3rem;
+        text-align: center;
+    }
+    .tk-eyebrow {
+        display: inline-block;
+        background: rgba(0, 163, 224, 0.1);
+        color: #00A3E0;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 0.4rem 1.2rem;
+        border-radius: 30px;
+        margin-bottom: 1.2rem;
+    }
+    .tk-header-title {
+        color: #1E293B;
+        font-weight: 800;
+        font-size: 2.4rem;
+        line-height: 1.2;
+        margin-bottom: 0.9rem;
+    }
+    .tk-header-title .highlight { color: #00A3E0; }
+    .tk-header-desc {
+        color: #64748B;
+        font-size: 1.05rem;
+        line-height: 1.75;
+        max-width: 640px;
+        margin: 0 auto;
+    }
+    @media (max-width: 991.98px) {
+        .tk-header-title { font-size: 1.9rem; }
+    }
+    @media (max-width: 767.98px) {
+        .tk-section-header { padding: 1.5rem 0 2rem; }
+        .tk-header-title { font-size: 1.5rem; line-height: 1.35; }
+        .tk-header-desc { font-size: 0.88rem; }
     }
 </style>
 

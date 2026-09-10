@@ -3,7 +3,6 @@
 @section('title', 'Visi & Misi - E-PPID PLN')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/tentang-kami.css') }}">
 <style>
     /* =============================================
        PALETTE (spesifikasi halaman)

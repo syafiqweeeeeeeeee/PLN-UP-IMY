@@ -3,7 +3,6 @@
 @section('title', 'Sejarah - E-PPID PLN')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/tentang-kami.css') }}">
 <style>
     /* =============================================
        PALETTE (spesifikasi halaman)
@@ -380,6 +379,202 @@
         .sj-card h3 {
             font-size: 1.05rem;
         }
+    }
+
+    /* =============================================
+       SHARED TK CLASSES (inline dari tentang-kami.css)
+       ============================================= */
+    .tk-breadcrumb {
+        padding-top: 6.25rem;
+        padding-bottom: 0;
+        background: #F8FAFC;
+    }
+    .tk-breadcrumb .crumb {
+        font-size: 0.85rem;
+        color: #94A3B8;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .tk-breadcrumb .crumb a { color: #94A3B8; transition: color 0.2s ease; }
+    .tk-breadcrumb .crumb a:hover { color: #00A3E0; }
+    .tk-breadcrumb .crumb .separator { color: #CBD5E1; }
+    .tk-breadcrumb .crumb .current { color: #00A3E0; font-weight: 600; }
+
+    .tk-section-header {
+        background: #F8FAFC;
+        padding: 2.5rem 0 3rem;
+        text-align: center;
+    }
+    .tk-eyebrow {
+        display: inline-block;
+        background: rgba(0, 163, 224, 0.1);
+        color: #00A3E0;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 0.4rem 1.2rem;
+        border-radius: 30px;
+        margin-bottom: 1.2rem;
+    }
+    .tk-header-title {
+        color: #1E293B;
+        font-weight: 800;
+        font-size: 2.4rem;
+        line-height: 1.2;
+        margin-bottom: 0.9rem;
+    }
+    .tk-header-title .highlight { color: #00A3E0; }
+    .tk-header-desc {
+        color: #64748B;
+        font-size: 1.05rem;
+        line-height: 1.75;
+        max-width: 640px;
+        margin: 0 auto;
+    }
+
+    .tk-timeline-pills-wrap {
+        position: sticky;
+        top: 70px;
+        z-index: 1020;
+        pointer-events: none;
+    }
+    .tk-timeline-pills {
+        display: flex;
+        pointer-events: auto;
+        align-items: center;
+        gap: 0.25rem;
+        width: fit-content;
+        max-width: 100%;
+        margin: 0 auto 1.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid #E2E8F0;
+        border-radius: 50px;
+        padding: 0.35rem;
+        box-shadow: 0 4px 20px rgba(10, 42, 67, 0.08);
+    }
+    .tk-timeline-pills .tk-pill {
+        position: relative;
+        white-space: nowrap;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #64748B;
+        padding: 0.5rem 1.1rem;
+        border-radius: 50px;
+        cursor: pointer;
+        user-select: none;
+        transition: color 0.2s ease, background 0.2s ease;
+        text-decoration: none;
+    }
+    .tk-timeline-pills .tk-pill:hover { color: #0A2540; background: rgba(0, 163, 224, 0.08); }
+    .tk-timeline-pills .tk-pill.active {
+        color: #fff;
+        background: #00A3E0;
+        box-shadow: 0 2px 10px rgba(0, 163, 224, 0.35);
+    }
+
+    .tk-timeline-section {
+        background: #FFFFFF;
+        padding: 1rem 0 5rem;
+    }
+    .tk-timeline {
+        position: relative;
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 2rem 0 0;
+    }
+    .tk-timeline::before {
+        content: '';
+        position: absolute;
+        left: 11px;
+        top: 18px;
+        bottom: 0;
+        width: 2px;
+        background: #E2E8F0;
+    }
+    .tk-entry {
+        position: relative;
+        padding: 0 0 3.5rem 3.25rem;
+        scroll-margin-top: 130px;
+    }
+    .tk-entry:last-child { padding-bottom: 0.5rem; }
+    .tk-entry::before {
+        content: '';
+        position: absolute;
+        left: 3px;
+        top: 6px;
+        width: 18px;
+        height: 18px;
+        background: #FFFFFF;
+        border: 3px solid #00A3E0;
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px rgba(0, 163, 224, 0.15);
+        z-index: 2;
+    }
+    .tk-entry.is-active::before {
+        background: #00A3E0;
+        box-shadow: 0 0 0 6px rgba(0, 163, 224, 0.18);
+    }
+    .tk-badge {
+        display: inline-block;
+        background: #0A2540;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.78rem;
+        letter-spacing: 0.5px;
+        padding: 0.3rem 0.9rem;
+        border-radius: 20px;
+        margin-bottom: 0.9rem;
+    }
+    .tk-entry.is-active .tk-badge { background: #00A3E0; }
+    .tk-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 1.8rem 2rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .tk-entry.is-active .tk-card {
+        border-color: rgba(0, 163, 224, 0.45);
+        box-shadow: 0 10px 30px rgba(10, 42, 67, 0.07);
+    }
+    .tk-card h3 { color: #1E293B; font-weight: 700; font-size: 1.2rem; line-height: 1.45; margin-bottom: 0.9rem; }
+    .tk-card h3 small { display: block; color: #64748B; font-weight: 500; font-size: 0.82rem; letter-spacing: 0.3px; margin-top: 0.2rem; }
+    .tk-card p { color: #64748B; font-size: 0.93rem; line-height: 1.8; margin-bottom: 0; }
+    .tk-card p strong { color: #1E293B; font-weight: 600; }
+
+    @media (max-width: 991.98px) {
+        .tk-header-title { font-size: 1.9rem; }
+        .tk-timeline-pills {
+            width: auto;
+            max-width: 100%;
+            margin: 0;
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+            gap: 0.375rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            white-space: nowrap;
+            padding: 0.5rem 1rem;
+        }
+        .tk-timeline-pills .tk-pill { flex: 0 0 auto; font-size: 0.78rem; padding: 0.4rem 0.9rem; }
+    }
+    @media (max-width: 767.98px) {
+        .tk-breadcrumb { padding-top: 5.5rem; }
+        .tk-section-header { padding: 1.5rem 0 2rem; }
+        .tk-header-title { font-size: 1.5rem; line-height: 1.35; }
+        .tk-header-desc { font-size: 0.88rem; }
+        .tk-timeline-pills-wrap { top: 62px; }
+        .tk-timeline { padding: 1.5rem 0 0; }
+        .tk-card { padding: 1.4rem 1.2rem; }
+        .tk-card h3 { font-size: 1.05rem; }
+        .tk-entry { padding: 0 0 2.5rem 2.6rem; scroll-margin-top: 120px; }
+        .tk-entry::before { left: 3px; top: 6px; width: 16px; height: 16px; }
+        .tk-timeline::before { left: 10px; top: 16px; }
     }
 </style>
 
