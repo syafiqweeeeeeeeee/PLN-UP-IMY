@@ -16,6 +16,10 @@ Route::get('/informasi/galeri', function () {
     return view('informasi.galeri');
 })->name('galeri');
 
+Route::get('/informasi/berita', function () {
+    return view('informasi.berita');
+})->name('berita');
+
 // Admin Dashboard
 // Login
 Route::get('/admin/login', [\App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');

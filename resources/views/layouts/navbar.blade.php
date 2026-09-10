@@ -47,7 +47,7 @@
                         <i class="fas fa-book-open me-1"></i> <span data-i18n="nav.information">Informasi</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="#" data-i18n="nav.info_news">Berita</a></li>
+                        <li><a class="dropdown-item" href="{{ route('berita') }}" data-i18n="nav.info_news">Berita</a></li>
                         <li><a class="dropdown-item" href="#" data-i18n="nav.info_announcements">Pengumuman</a></li>
                         <li><a class="dropdown-item" href="#" data-i18n="nav.info_articles">Artikel</a></li>
                         <li><a class="dropdown-item" href="{{ route('galeri') }}" data-i18n="nav.info_gallery">Galeri</a></li>

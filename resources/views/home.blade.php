@@ -84,7 +84,7 @@
         object-fit: contain;
     }
 
-    .stats-section { padding: 4.5rem 0; background: #fff; }
+    .stats-section { padding: 4.5rem 0; background: var(--pln-gray); }
 
     .stat-card {
         background: #fff;
@@ -143,6 +143,10 @@
 
     .mekanisme-section { padding: 4.5rem 0; background: #fff; }
 
+    .section-title { margin-bottom: 0.4rem; }
+
+    .section-subtitle { margin-bottom: 2.5rem; }
+
     .step-card {
         background: #fff;
         border: 1px solid #E2E8F0;
@@ -179,7 +183,22 @@
 
     .step-icon { font-size: 2rem; color: var(--pln-cyan); margin-bottom: 0.75rem; }
 
-    .services-section { padding: 4.5rem 0; background: var(--pln-gray); }
+    .services-section { padding: 4.5rem 0; background: #fff; }
+
+    .wilayah-section { padding: 4.5rem 0; background: var(--pln-gray); }
+
+    .wilayah-section img {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+        border-radius: 10px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+        -webkit-user-drag: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
 
     .icon-circle {
         width: 58px;
@@ -203,7 +222,7 @@
         .hero-section { padding: 4rem 0 3rem; }
         .hero-title { font-size: 1.7rem; }
         .hero-subtitle { font-size: 0.95rem; }
-        .stats-section, .mekanisme-section, .services-section { padding: 3rem 0; }
+        .stats-section, .mekanisme-section, .services-section, .wilayah-section { padding: 3rem 0; }
         .stat-value { font-size: 1.3rem; }
     }
 </style>
@@ -350,7 +369,30 @@
 </section>
 
 <!-- ============================================
-     4. LAYANAN KAMI
+     4. WILAYAH OPERASIONAL
+     ============================================ -->
+<section class="wilayah-section" id="wilayah">
+    <div class="container px-4 px-lg-5">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Wilayah Operasional PT PLN Nusantara Power</h2>
+            <p class="section-subtitle">Cakupan area kerja dan pembangkitan di berbagai wilayah Indonesia</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center mb-4">
+                <img src="{{ asset('assets/halaman_utama/wilayah operasional1.png') }}" alt="Wilayah Operasional 1" draggable="false" ondragstart="return false;">
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                <img src="{{ asset('assets/halaman_utama/wilayah operasional2.png') }}" alt="Wilayah Operasional 2" draggable="false" ondragstart="return false;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     5. LAYANAN KAMI
      ============================================ -->
 <section class="services-section" id="layanan">
     <div class="container px-4 px-lg-5">
