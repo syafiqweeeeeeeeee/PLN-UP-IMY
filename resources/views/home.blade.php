@@ -117,6 +117,74 @@
             font-size: 1.35rem;
         }
     }
+
+    /* =============================================
+       WILAYAH OPERASIONAL — FOTO GALLERY
+       ============================================= */
+    .wilayah-section {
+        padding: 4rem 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .wilayah-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--pln-blue), var(--pln-cyan), var(--pln-yellow));
+    }
+
+    .wilayah-section .section-title {
+        color: var(--pln-blue);
+        font-weight: 800;
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .wilayah-section .section-subtitle {
+        color: #64748B;
+        font-size: 1rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .wilayah-image-card {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+        border: 1px solid #E2E8F0;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .wilayah-image-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 36px rgba(0, 163, 224, 0.12);
+    }
+
+    .wilayah-image-card img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+        -webkit-user-drag: none;
+        user-select: none;
+    }
+
+    @media (max-width: 767.98px) {
+        .wilayah-section {
+            padding: 3rem 0;
+        }
+
+        .wilayah-section .section-title {
+            font-size: 1.4rem;
+        }
+    }
 </style>
 
     {{-- ============================================
@@ -284,7 +352,42 @@
     </section>
 
     {{-- ============================================
-         4. QUICK MENU / LAYANAN KAMI
+         4. WILAYAH OPERASIONAL
+         ============================================ --}}
+    <section class="wilayah-section" id="wilayah">
+        <div class="container px-4 px-lg-5">
+            <div class="text-center mb-4">
+                <h2 class="section-title">Wilayah Operasional PLN Nusantara Power</h2>
+                <p class="section-subtitle">Peta dan cakupan wilayah operasional unit pembangkitan</p>
+            </div>
+
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-12">
+                    <div class="wilayah-image-card">
+                        <img
+                            src="{{ asset('assets/halaman_utama/wilayah operasional1.png') }}"
+                            alt="Wilayah Operasional 1"
+                            draggable="false"
+                            ondragstart="return false;"
+                        />
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="wilayah-image-card">
+                        <img
+                            src="{{ asset('assets/halaman_utama/wilayah operasional2.png') }}"
+                            alt="Wilayah Operasional 2"
+                            draggable="false"
+                            ondragstart="return false;"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- ============================================
+         5. QUICK MENU / LAYANAN KAMI
          ============================================ --}}
     <section class="quick-menu-section" id="layanan">
         <div class="container px-4 px-lg-5">

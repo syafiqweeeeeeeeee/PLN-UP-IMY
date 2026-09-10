@@ -78,7 +78,7 @@
 
     /* ---------- Header Section ---------- */
     .org-header {
-        padding: 2rem 0 2.5rem;
+        padding: 2.5rem 0 2rem;
         position: relative;
         z-index: 2;
     }
@@ -86,99 +86,30 @@
     .org-header-inner {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: center;
         flex-wrap: wrap;
         gap: 1.5rem;
     }
 
-    .org-header-left {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-    }
-
-    .org-logo-danantara {
-        width: 56px;
-        height: 56px;
-        background: var(--org-glass);
-        border: 1px solid var(--org-glass-border);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .org-logo-danantara img {
-        width: 36px;
-        height: 36px;
-        object-fit: contain;
-    }
-
-    .org-logo-danantara .fallback-text {
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: var(--org-accent);
+    .org-title {
         text-align: center;
-        line-height: 1.2;
     }
 
     .org-title h1 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--org-text-light);
-        letter-spacing: 2px;
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--org-white);
+        letter-spacing: 1.5px;
         text-transform: uppercase;
-        margin-bottom: 0.15rem;
+        margin-bottom: 0.5rem;
     }
 
     .org-title h2 {
-        font-size: 1.65rem;
-        font-weight: 800;
+        font-size: 1.5rem;
+        font-weight: 700;
         color: var(--org-accent);
         letter-spacing: 1px;
         margin-bottom: 0;
-    }
-
-    .org-header-right {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .org-logo-pln {
-        width: 48px;
-        height: 48px;
-        background: var(--org-accent);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .org-logo-pln img {
-        width: 32px;
-        height: 32px;
-        object-fit: contain;
-    }
-
-    .org-logo-pln .fallback-text {
-        font-size: 0.6rem;
-        font-weight: 800;
-        color: var(--org-deep-navy);
-    }
-
-    .org-logo-pln-text {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--org-text-light);
-        line-height: 1.3;
-    }
-
-    .org-logo-pln-text span {
-        color: var(--org-accent);
-        font-weight: 700;
     }
 
     /* ---------- Org Chart Image ---------- */
@@ -203,6 +134,10 @@
         height: auto;
         display: block;
         object-fit: contain;
+        -webkit-user-drag: none;
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
     }
 
     .org-chart-image .image-wrapper .fallback-box {
@@ -226,17 +161,13 @@
 
     /* ---------- Responsive ---------- */
     @media (max-width: 767.98px) {
-        .org-header-inner {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
         .org-title h1 {
-            font-size: 0.9rem;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
         }
 
         .org-title h2 {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
         }
 
         .org-chart-image .image-wrapper {
@@ -266,32 +197,9 @@
     <section class="org-header">
         <div class="container px-4 px-lg-5">
             <div class="org-header-inner">
-                <div class="org-header-left">
-                    <div class="org-logo-danantara">
-                        <img
-                            src="{{ asset('assets/images/logo-danantara.png') }}"
-                            alt="Logo Danantara"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                        />
-                        <span class="fallback-text d-none">DNI</span>
-                    </div>
-                    <div class="org-title">
-                        <h1>Bagan Struktur Organisasi</h1>
-                        <h2>UP Indramayu</h2>
-                    </div>
-                </div>
-                <div class="org-header-right">
-                    <div class="org-logo-pln">
-                        <img
-                            src="{{ asset('assets/images/logo-pln.png') }}"
-                            alt="Logo PLN"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                        />
-                        <span class="fallback-text d-none">PLN</span>
-                    </div>
-                    <div class="org-logo-pln-text">
-                        PT PLN Nusantara<br><span>Power</span>
-                    </div>
+                <div class="org-title">
+                    <h1>Bagan Struktur Organisasi</h1>
+                    <h2>UP Indramayu</h2>
                 </div>
             </div>
         </div>
@@ -306,6 +214,7 @@
                 <img
                     src="{{ asset('assets/images/struktur/struktural_organisasi.png') }}"
                     alt="Bagan Struktur Organisasi UP Indramayu"
+                    draggable="false"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
                 />
                 <div class="fallback-box">
