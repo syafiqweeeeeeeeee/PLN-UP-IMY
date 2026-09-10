@@ -174,9 +174,17 @@
                     <div class="col-md-4">
                         <div class="detail-info-item">
                             <div class="detail-label">Role</div>
-                            <span class="role-badge-lg role-{{ $user->role }}">
-                                <i class="fas fa-{{ $user->role === 'admin' ? 'shield-halved' : ($user->role === 'petugas' ? 'briefcase' : 'user') }}"></i>
-                                {{ ucfirst($user->role) }}
+                            @php
+                                $roleModel = $user->getRelationValue('role');
+                                $roleName = $roleModel && $roleModel instanceof App\Models\Role ? $roleModel->name : (is_string($user->role) ? $user->role : 'Pengguna');
+                                $roleStatus = $roleModel && $roleModel instanceof App\Models\Role ? $roleModel->status : true;
+                                $roleIcon = $roleName === 'Administrator' ? 'shield-halved' : ($roleName === 'Karyawan' ? 'briefcase' : 'user');
+                                $roleBadgeClass = $roleStatus ? 'role-badge-active' : 'role-badge-inactive';
+                                $inactiveLabel = $roleStatus ? '' : ' (Nonaktif)';
+                            @endphp
+                            <span class="role-badge-lg {{ $roleBadgeClass }}">
+                                <i class="fas fa-{{ $roleIcon }}"></i>
+                                {{ $roleName }}{{ $inactiveLabel }}
                             </span>
                         </div>
                     </div>

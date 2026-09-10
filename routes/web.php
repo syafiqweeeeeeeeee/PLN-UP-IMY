@@ -17,9 +17,24 @@ Route::get('/informasi/galeri', function () {
 })->name('galeri');
 
 // Admin Dashboard
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// Login
+Route::get('/admin/login', [\App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/admin/login', [\App\Http\Controllers\Auth\LoginController::class, 'login']);
+Route::post('/admin/logout', [\App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
-    // CRUD Pengguna
-    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+// Admin Dashboard
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // CRUD Pengguna
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+
+        // Role & Permission
+        Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->except(['show']);
+        Route::get('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');
+        Route::put('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])->name('roles.permissions.update');
+        Route::put('/roles/{role}/toggle-status', [\App\Http\Controllers\Admin\RoleController::class, 'toggleStatus'])->name('roles.toggle-status');
+    });
 });
+

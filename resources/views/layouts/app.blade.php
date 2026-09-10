@@ -1,24 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="E-PPID PLN - Layanan Informasi Publik" />
-        <meta name="author" content="PLN" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>@yield('title', 'E-PPID PLN')</title>
 
-        {{-- Favicon --}}
         <link rel="icon" type="image/x-icon" href="{{ asset('startbootstrap-grayscale-gh-pages/assets/favicon.ico') }}" />
 
-        {{-- Font Awesome icons — dimuat DEFER (non-blocking render).
-             Ikon FA muncul progresif; layout dilindungi via CSS di bawah. --}}
+        {{-- Font Awesome icons (defer) --}}
         <script defer src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 
-        {{-- Feather Icons — defer juga; feather.replace() di i18n.js sudah dipanggil
-             setelah DOM ready, dan sekarang cek ketersediaan window.feather --}}
-        <script defer src="https://unpkg.com/feather-icons"></script>
-
-        {{-- Google fonts: Inter (display=swap, hindari invisible text) --}}
+        {{-- Google fonts: Inter --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet" />
@@ -29,9 +21,6 @@
 
         {{-- Custom PLN Styles --}}
         <style>
-            /* =============================================
-               PALET WARNA PLN
-               ============================================= */
             :root {
                 --pln-blue:    #005B9C;
                 --pln-yellow:  #FFE600;
@@ -45,27 +34,18 @@
             body {
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 color: var(--pln-text);
-                /* clip (bukan hidden): overflow hidden membuat body menjadi
-                   scroll container dan merusak position: sticky anak-anaknya */
                 overflow-x: clip;
             }
 
-            a {
-                text-decoration: none;
-                transition: color 0.2s ease;
-            }
+            a { text-decoration: none; transition: color 0.2s ease; }
 
-            /* FA dimuat DEFER → reserve lebar ikon sejak awal agar teks
-               tidak bergeser saat ikon selesai dimuat (mencegah CLS) */
             i[class^='fa-'], i[class*=' fa-'] {
                 display: inline-block;
                 width: 1em;
                 text-align: center;
             }
 
-            /* =============================================
-               NAVBAR
-               ============================================= */
+            /* NAVBAR */
             .navbar-pln {
                 background: var(--pln-blue);
                 padding: 0.6rem 0;
@@ -74,7 +54,6 @@
             }
 
             .navbar-pln.scrolled {
-                background: var(--pln-blue);
                 padding: 0.35rem 0;
                 box-shadow: 0 4px 20px rgba(0, 91, 156, 0.35);
             }
@@ -126,9 +105,6 @@
                 background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
             }
 
-            /* =============================================
-               DROPDOWN
-               ============================================= */
             .navbar-pln .dropdown-menu {
                 background: var(--pln-dark);
                 border: 1px solid rgba(255, 255, 255, 0.1);
@@ -141,10 +117,6 @@
                 z-index: 1055;
             }
 
-            .navbar-pln .dropdown {
-                position: relative;
-            }
-
             @keyframes dropdownFade {
                 from { opacity: 0; transform: translateY(-8px); }
                 to   { opacity: 1; transform: translateY(0); }
@@ -153,7 +125,6 @@
             .navbar-pln .dropdown-menu .dropdown-item {
                 color: rgba(255, 255, 255, 0.75);
                 font-size: 0.85rem;
-                font-weight: 400;
                 padding: 0.45rem 1.25rem;
                 transition: all 0.2s ease;
             }
@@ -162,12 +133,6 @@
                 color: #fff;
                 background: rgba(255, 230, 0, 0.1);
                 padding-left: 1.5rem;
-            }
-
-            .navbar-pln .dropdown-toggle::after {
-                font-size: 0.65rem;
-                margin-left: 0.35rem;
-                vertical-align: middle;
             }
 
             .btn-login {
@@ -187,13 +152,8 @@
                 box-shadow: 0 4px 12px rgba(255, 230, 0, 0.4);
             }
 
-            /* =============================================
-               LANGUAGE SWITCHER (GLOBE DROPDOWN)
-               ============================================= */
-            .lang-switcher {
-                position: relative;
-                z-index: 1060;
-            }
+            /* LANGUAGE SWITCHER */
+            .lang-switcher { position: relative; z-index: 1060; }
 
             .lang-switcher .lang-toggle {
                 display: inline-flex;
@@ -222,17 +182,13 @@
                 margin-left: 0.25rem;
                 vertical-align: middle;
                 border-top: 4px dashed;
-                border-top: 4px solid \\9;
                 border-right: 4px solid transparent;
                 border-left: 4px solid transparent;
                 transition: transform 0.2s ease;
             }
 
-            .lang-switcher.open .caret {
-                transform: rotate(180deg);
-            }
+            .lang-switcher.open .caret { transform: rotate(180deg); }
 
-            /* Dropdown menu */
             .lang-switcher .lang-menu {
                 display: none;
                 position: absolute;
@@ -250,13 +206,9 @@
                 z-index: 1070;
             }
 
-            .lang-switcher.open .lang-menu {
-                display: block !important;
-            }
+            .lang-switcher.open .lang-menu { display: block !important; }
 
-            .lang-switcher .lang-menu li {
-                list-style: none;
-            }
+            .lang-switcher .lang-menu li { list-style: none; }
 
             .lang-switcher .lang-option {
                 display: flex;
@@ -266,7 +218,6 @@
                 text-align: left;
                 color: rgba(255, 255, 255, 0.75);
                 font-size: 0.85rem;
-                font-weight: 500;
                 padding: 0.45rem 1.25rem;
                 background: transparent;
                 border: none;
@@ -291,9 +242,7 @@
                 color: var(--pln-cyan);
             }
 
-            /* =============================================
-               HERO SECTION
-               ============================================= */
+            /* HERO */
             .hero-section {
                 background: linear-gradient(135deg, var(--pln-blue) 0%, #003d6b 50%, var(--pln-dark) 100%);
                 min-height: 100vh;
@@ -304,32 +253,7 @@
                 padding-top: 76px;
             }
 
-            .hero-section::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                right: -20%;
-                width: 700px;
-                height: 700px;
-                background: radial-gradient(circle, rgba(0, 163, 224, 0.15) 0%, transparent 70%);
-                border-radius: 50%;
-            }
-
-            .hero-section::after {
-                content: '';
-                position: absolute;
-                bottom: -30%;
-                left: -10%;
-                width: 500px;
-                height: 500px;
-                background: radial-gradient(circle, rgba(255, 230, 0, 0.08) 0%, transparent 70%);
-                border-radius: 50%;
-            }
-
-            .hero-content {
-                position: relative;
-                z-index: 2;
-            }
+            .hero-section .hero-content { position: relative; z-index: 2; }
 
             .hero-section h1 {
                 font-size: 3.2rem;
@@ -339,9 +263,7 @@
                 margin-bottom: 1rem;
             }
 
-            .hero-section h1 span {
-                color: var(--pln-yellow);
-            }
+            .hero-section h1 span { color: var(--pln-yellow); }
 
             .hero-section .hero-subtitle {
                 font-size: 1.05rem;
@@ -386,14 +308,7 @@
                 background: rgba(0, 163, 224, 0.08);
             }
 
-            /* =============================================
-               MEKANISME SECTION
-               ============================================= */
-            .mekanisme-section {
-                padding: 5rem 0;
-                background: #fff;
-            }
-
+            /* GENERAL */
             .section-title {
                 color: var(--pln-blue);
                 font-weight: 700;
@@ -407,63 +322,18 @@
                 margin-bottom: 3rem;
             }
 
-            .step-card {
+            .stat-card {
                 background: #fff;
                 border: 1px solid #e9ecef;
                 border-radius: 12px;
-                padding: 2rem 1.5rem;
-                text-align: center;
+                padding: 1.8rem 1.5rem;
                 transition: all 0.3s ease;
-                height: 100%;
-                position: relative;
             }
 
-            .step-card:hover {
-                transform: translateY(-6px);
+            .stat-card:hover {
+                transform: translateY(-5px);
                 box-shadow: 0 12px 30px rgba(0, 91, 156, 0.12);
                 border-color: var(--pln-cyan);
-            }
-
-            .step-number {
-                width: 52px;
-                height: 52px;
-                background: linear-gradient(135deg, var(--pln-blue), var(--pln-cyan));
-                color: #fff;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.2rem;
-                font-weight: 700;
-                margin: 0 auto 1rem;
-            }
-
-            .step-card h5 {
-                color: var(--pln-blue);
-                font-weight: 600;
-                font-size: 1rem;
-                margin-bottom: 0.75rem;
-            }
-
-            .step-card p {
-                color: #666;
-                font-size: 0.88rem;
-                line-height: 1.6;
-                margin-bottom: 0;
-            }
-
-            .step-icon {
-                font-size: 2rem;
-                color: var(--pln-cyan);
-                margin-bottom: 0.75rem;
-            }
-
-            /* =============================================
-               QUICK MENU SECTION
-               ============================================= */
-            .quick-menu-section {
-                padding: 4rem 0;
-                background: var(--pln-gray);
             }
 
             .menu-card {
@@ -474,7 +344,6 @@
                 text-align: center;
                 box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
                 transition: all 0.3s ease;
-                height: 100%;
             }
 
             .menu-card:hover {
@@ -482,103 +351,15 @@
                 box-shadow: 0 8px 24px rgba(0, 91, 156, 0.15);
             }
 
-            .menu-card .icon-circle {
-                width: 64px;
-                height: 64px;
-                border-radius: 16px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.5rem;
-                margin: 0 auto 1rem;
-                color: #fff;
-            }
-
-            .menu-card h5 {
-                font-weight: 600;
-                font-size: 0.95rem;
-                color: var(--pln-blue);
-                margin-bottom: 0.5rem;
-            }
-
-            .menu-card p {
-                color: #888;
-                font-size: 0.82rem;
-                margin-bottom: 0;
-            }
-
-            /* =============================================
-               FOOTER
-               ============================================= */
             .footer-pln {
                 background: var(--pln-blue);
                 color: rgba(255, 255, 255, 0.8);
                 padding: 3rem 0 1.5rem;
             }
 
-            .footer-pln h6 {
-                color: #fff;
-                font-weight: 600;
-                margin-bottom: 1rem;
-                font-size: 0.95rem;
-            }
-
-            .footer-pln p,
-            .footer-pln a {
-                color: rgba(255, 255, 255, 0.7);
-                font-size: 0.88rem;
-                line-height: 1.8;
-            }
-
-            .footer-pln a:hover {
-                color: var(--pln-yellow);
-            }
-
-            .footer-pln .footer-links li {
-                margin-bottom: 0.4rem;
-            }
-
-            .footer-pln .footer-links li a {
-                display: inline-block;
-                position: relative;
-                transition: all 0.25s ease;
-            }
-
-            .footer-pln .footer-links li a:hover {
-                color: #fff;
-                padding-left: 4px;
-            }
-
-            .footer-pln .footer-links li a::after {
-                content: '';
-                position: absolute;
-                bottom: -2px;
-                left: 0;
-                width: 0;
-                height: 1px;
-                background: var(--pln-yellow);
-                transition: width 0.3s ease;
-            }
-
-            .footer-pln .footer-links li a:hover::after {
-                width: 100%;
-            }
-
-            .footer-pln .address-link {
-                display: inline-flex;
-                align-items: flex-start;
-                transition: all 0.25s ease;
-                text-decoration: none;
-            }
-
-            .footer-pln .address-link:hover {
-                color: var(--pln-yellow);
-            }
-
-            .footer-pln .address-link:hover span {
-                text-decoration: underline;
-                text-underline-offset: 3px;
-            }
+            .footer-pln h6 { color: #fff; font-weight: 600; margin-bottom: 1rem; font-size: 0.95rem; }
+            .footer-pln p, .footer-pln a { color: rgba(255, 255, 255, 0.7); font-size: 0.88rem; line-height: 1.8; }
+            .footer-pln a:hover { color: var(--pln-yellow); }
 
             .footer-pln .footer-bottom {
                 border-top: 1px solid rgba(255, 255, 255, 0.15);
@@ -588,10 +369,7 @@
                 font-size: 0.82rem;
             }
 
-            .footer-pln .social-links {
-                display: flex;
-                gap: 0.6rem;
-            }
+            .footer-pln .social-links { display: flex; gap: 0.6rem; }
 
             .footer-pln .social-links a {
                 width: 40px;
@@ -621,19 +399,11 @@
                 color: #fff;
             }
 
-            /* =============================================
-               LOGO IMAGE HANDLING
-               ============================================= */
             .logo-nav {
                 height: 42px;
                 width: auto;
                 max-width: 180px;
                 object-fit: contain;
-                transition: opacity 0.3s ease;
-            }
-
-            .logo-nav:hover {
-                opacity: 0.85;
             }
 
             .logo-hero {
@@ -643,9 +413,6 @@
                 object-fit: contain;
             }
 
-            /* =============================================
-               FLAG IMAGES — LANGUAGE SWITCHER
-               ============================================= */
             .flag-img {
                 width: 20px;
                 height: 14px;
@@ -654,9 +421,6 @@
                 flex-shrink: 0;
             }
 
-            /* =============================================
-               GOOGLE TRANSLATE — HIDE TOOLBAR
-               ============================================= */
             body .skiptranslate,
             .goog-te-banner-frame,
             .goog-te-menu-frame {
@@ -664,46 +428,10 @@
                 height: 0 !important;
             }
 
-            body {
-                top: 0 !important;
-            }
+            .pt-main { min-height: 70vh; }
 
-            /* =============================================
-               PAGE TRANSITION — Ultra Fast (micro-interaction)
-               - Hanya main content (.pt-main) dianimasikan;
-                 navbar & footer tetap stabil.
-               - Fade (0 → 1) + slide mikro (4px → 0),
-                 60ms ease-out — GPU-friendly (opacity+transform).
-               - Navigasi sesungguhnya ditangani router.js
-                 (client-side, tanpa reload layout).
-               ============================================= */
-            @keyframes pt-fade-slide-in {
-                from { opacity: 0; transform: translateX(4px); }
-                to   { opacity: 1; transform: translateX(0); }
-            }
-
-            .pt-main.pt-animating {
-                animation: pt-fade-slide-in 0.06s ease-out both;
-            }
-
-            @media (prefers-reduced-motion: reduce) {
-                .pt-main.pt-animating {
-                    animation: none;
-                }
-            }
-
-            /* =============================================
-               RESPONSIVE
-               ============================================= */
             @media (max-width: 991.98px) {
-                .hero-section h1 {
-                    font-size: 2.2rem;
-                }
-
-                .navbar-pln .dropdown-menu {
-                    background: rgba(26, 26, 46, 0.95);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                }
+                .hero-section h1 { font-size: 2.2rem; }
             }
 
             @media (max-width: 767.98px) {
@@ -711,48 +439,24 @@
                     min-height: auto;
                     padding: 6rem 0 3rem;
                 }
-
-                .hero-section h1 {
-                    font-size: 1.8rem;
-                }
-
-                .footer-pln .social-links {
-                    justify-content: flex-start;
-                }
-
-                .footer-pln .address-link {
-                    font-size: 0.85rem;
-                }
-            }
-
-            @media (min-width: 768px) and (max-width: 991.98px) {
-                .footer-pln .col-lg-2,
-                .footer-pln .col-lg-3 {
-                    flex: 0 0 auto;
-                    width: 50%;
-                }
+                .hero-section h1 { font-size: 1.8rem; }
             }
         </style>
 
         @stack('styles')
     </head>
-    <body id="page-top" data-partial-content=".pt-main">
-        {{-- Navbar --}}
+    <body>
         @include('layouts.navbar')
 
-        {{-- Main Content — container transisi (navbar & footer tetap statis) --}}
-        <main class="pt-main" data-pt-animate>
+        <div class="pt-main">
             @yield('content')
-        </main>
+        </div>
 
-        {{-- Footer --}}
         @include('layouts.footer')
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
-            /* Scroll listener passive + throttled via rAF: tidak memblokir
-               main thread saat scroll (baik untuk INP). */
             (function () {
                 var navbar = document.querySelector('.navbar-pln');
                 if (!navbar) return;
@@ -767,27 +471,6 @@
                 }, { passive: true });
             })();
         </script>
-
-        {{-- i18n: Alih Bahasa OTOMATIS (ID <-> EN) --}}
-        <script src="{{ asset('js/i18n.js') }}"></script>
-
-        {{-- Client-side router: pindah halaman tanpa reload layout,
-             cache memori per halaman, micro-transition 60ms --}}
-        <script src="{{ asset('js/router.js') }}" defer></script>
-
-        {{-- Google Translate Widget (hidden) --}}
-        <div id="google_translate_element" style="display:none;"></div>
-        <script>
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'id',
-                includedLanguages: 'en,id',
-                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                autoDisplay: false
-            }, 'google_translate_element');
-        }
-        </script>
-        <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
         @stack('scripts')
     </body>

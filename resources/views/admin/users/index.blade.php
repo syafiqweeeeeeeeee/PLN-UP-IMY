@@ -152,9 +152,17 @@
                                 </div>
                             </td>
                             <td style="padding: 1rem;">
-                                <span class="role-badge role-{{ $user->role }}">
-                                    {{ ucfirst($user->role) }}
-                                </span>
+                                    @php
+                                        $roleModel = $user->getRelationValue('role');
+                                        $roleName = $roleModel && $roleModel instanceof App\Models\Role ? $roleModel->name : (is_string($user->role) ? $user->role : 'Pengguna');
+                                        $roleStatus = $roleModel && $roleModel instanceof App\Models\Role ? $roleModel->status : true;
+                                        $roleBadgeClass = $roleStatus ? 'role-badge-active' : 'role-badge-inactive';
+                                        $inactiveLabel = $roleStatus ? '' : ' (Nonaktif)';
+                                    @endphp
+                                    <span class="role-badge {{ $roleBadgeClass }}">
+                                        {{ $roleName }}{{ $inactiveLabel }}
+                                    </span>
+                                </td>
                             </td>
                             <td style="padding: 1rem;">
                                 <div class="d-flex align-items-center gap-2">

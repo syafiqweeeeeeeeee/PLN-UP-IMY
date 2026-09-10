@@ -3,79 +3,84 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $users = User::latest()->paginate(10);
+        $users = User::with('role')->latest()->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('admin.users.create');
+        $roles = Role::where('status', true)->orderBy('name')->get();
+        return view('admin.users.create', compact('roles'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
-            'role' => 'required|in:admin,user,petugas',
+            'role_id' => 'required|integer|exists:roles,id',
             'no_hp' => 'nullable|string|max:20',
             'alamat' => 'nullable|string|max:500',
         ]);
 
-        $validated['password'] = bcrypt($validated['password']);
+        $role = Role::findOrFail($validated['role_id']);
 
-        User::create($validated);
+        if (! $role->status) {
+            return back()->withErrors(['role_id' => 'Role yang dipilih sedang dinonaktifkan.'])->withInput();
+        }
+
+        $validated['password'] = bcrypt($validated['password']);
+        unset($validated['role_id']);
+
+        $user = User::create(array_merge($validated, [
+            'role_id' => $role->id,
+            'role' => $role->name,
+        ]));
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Pengguna berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(User $user)
     {
+        $user->load('role');
         return view('admin.users.show', compact('user'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(User $user)
     {
-        return view('admin.users.edit', compact('user'));
+        $user->load('role');
+        $roles = Role::where('status', true)->orderBy('name')->get();
+        return view('admin.users.edit', compact('user', 'roles'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|min:8|confirmed',
-            'role' => 'required|in:admin,user,petugas',
+            'role_id' => 'required|integer|exists:roles,id',
             'no_hp' => 'nullable|string|max:20',
             'alamat' => 'nullable|string|max:500',
         ]);
+
+        $role = Role::findOrFail($validated['role_id']);
+
+        if (! $role->status) {
+            return back()->withErrors(['role_id' => 'Role yang dipilih sedang dinonaktifkan.'])->withInput();
+        }
+
+        unset($validated['role_id']);
 
         if (!empty($validated['password'])) {
             $validated['password'] = bcrypt($validated['password']);
@@ -83,15 +88,15 @@ class UserController extends Controller
             unset($validated['password']);
         }
 
-        $user->update($validated);
+        $user->update(array_merge($validated, [
+            'role_id' => $role->id,
+            'role' => $role->name,
+        ]));
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Pengguna berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(User $user)
     {
         $user->delete();

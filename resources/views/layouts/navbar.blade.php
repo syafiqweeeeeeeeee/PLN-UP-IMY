@@ -101,7 +101,7 @@
 
             {{-- Right Side: Login --}}
             <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
-                <a href="#" class="btn btn-login">
+                <a href="{{ route('login') }}" class="btn btn-login">
                     <i class="fas fa-sign-in-alt me-1"></i> <span data-i18n="nav.login">Login</span>
                 </a>
             </div>
