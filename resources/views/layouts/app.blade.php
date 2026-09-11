@@ -7,16 +7,28 @@
 
         <link rel="icon" type="image/x-icon" href="{{ asset('startbootstrap-grayscale-gh-pages/assets/favicon.ico') }}" />
 
-        {{-- Font Awesome icons (defer) --}}
-        <script defer src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        {{-- Font Awesome 6.3.0 — webfont CSS via cdnjs (pengganti Kit JS all.js:
+             lebih ringan, tanpa JS icon-replacement, font di-download on-demand).
+             media="print" + onload akan mengubah media ke 'all' sehingga
+             load-nya non-blocking; <noscript> sebagai fallback. --}}
+        <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+        <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+        <link rel="stylesheet" media="print" onload="this.media='all'"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+        <noscript>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+        </noscript>
 
         {{-- Google fonts: Inter --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet" />
 
         {{-- Bootstrap 5 CSS --}}
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
         {{-- Custom PLN Styles --}}
@@ -369,7 +381,19 @@
                 font-size: 0.82rem;
             }
 
-            .footer-pln .social-links { display: flex; gap: 0.6rem; }
+            .footer-pln .social-links { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+            /* Ikon X (Twitter) — logo SVG inline (FA 6.3.0 belum punya fa-x-twitter).
+               Logo X full-bleed di viewBox-nya, jadi diperkecil ke 0.9em agar
+               ukuran optiknya sejajar dengan ikon Font Awesome di sebelahnya.
+               display:block menghindari gap baseline inline-SVG supaya
+               ter-center sempurna di dalam tombol flex. */
+            .x-logo {
+                width: 0.9em;
+                height: 0.9em;
+                display: block;
+                fill: currentColor;
+            }
 
             .footer-pln .social-links a {
                 width: 40px;
@@ -454,7 +478,9 @@
 
         @include('layouts.footer')
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        {{-- Bootstrap JS: non-kritis (hanya untuk dropdown/toggler) — diberi defer
+             agar tidak blocking parse; tetap di bagian bawah. --}}
+        <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
             (function () {

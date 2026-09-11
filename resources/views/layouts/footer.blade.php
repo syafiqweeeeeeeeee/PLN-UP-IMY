@@ -13,19 +13,49 @@
                     Pejabat Pengelola Informasi dan Dokumentasi (PPID) PT PLN Nusantara Power UP PLTU Indramayu bertugas memberikan layanan keterbukaan informasi publik secara transparan, cepat, dan akuntabel.
                 </p>
                 <div class="social-links mt-3">
-                    <a href="https://www.instagram.com/plnnp_upindramayu?stkn=dmtjZXlqeDFtamNq"
+                    <!-- Instagram -->
+                    <a href="https://instagram.com/plnnusantarapower"
                        target="_blank"
                        rel="noopener noreferrer"
-                       title="Instagram PLN NP UP Indramayu"
-                       aria-label="Kunjungi Instagram PLN NP UP Indramayu">
+                       title="Instagram PT PLN Nusantara Power"
+                       aria-label="Kunjungi Instagram PT PLN Nusantara Power">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a href="https://youtube.com/@plnnp_upindramayu?si=vNTyP9EqUQ6XPzPH"
+                    <!-- YouTube -->
+                    <a href="https://youtube.com/@plnnusantarapower"
                        target="_blank"
                        rel="noopener noreferrer"
-                       title="YouTube PLN NP UP Indramayu"
-                       aria-label="Kunjungi YouTube PLN NP UP Indramayu">
+                       title="YouTube PT PLN Nusantara Power"
+                       aria-label="Kunjungi YouTube PT PLN Nusantara Power">
                         <i class="fab fa-youtube"></i>
+                    </a>
+                    <!-- LinkedIn -->
+                    <a href="https://linkedin.com/company/plnnusantarapower"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       title="LinkedIn PT PLN Nusantara Power"
+                       aria-label="Kunjungi LinkedIn PT PLN Nusantara Power">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <!-- X / Twitter -->
+                    <a href="https://x.com/plnnusantarapw"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       title="X (Twitter) PT PLN Nusantara Power"
+                       aria-label="Kunjungi X (Twitter) PT PLN Nusantara Power">
+                        <span class="x-logo" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                <path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/>
+                            </svg>
+                        </span>
+                    </a>
+                    <!-- Facebook -->
+                    <a href="https://facebook.com/plnnusantarapower"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       title="Facebook PT PLN Nusantara Power"
+                       aria-label="Kunjungi Facebook PT PLN Nusantara Power">
+                        <i class="fab fa-facebook-f"></i>
                     </a>
                 </div>
             </div>

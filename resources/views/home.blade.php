@@ -380,12 +380,12 @@
 
         <div class="row justify-content-center">
             <div class="col-lg-10 text-center mb-4">
-                <img src="{{ asset('assets/halaman_utama/wilayah operasional1.png') }}" alt="Wilayah Operasional 1" draggable="false" ondragstart="return false;">
+                <img src="{{ asset('assets/halaman_utama/wilayah operasional1.png') }}" alt="Wilayah Operasional 1" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
             </div>
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-10 text-center">
-                <img src="{{ asset('assets/halaman_utama/wilayah operasional2.png') }}" alt="Wilayah Operasional 2" draggable="false" ondragstart="return false;">
+                <img src="{{ asset('assets/halaman_utama/wilayah operasional2.png') }}" alt="Wilayah Operasional 2" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
             </div>
         </div>
     </div>

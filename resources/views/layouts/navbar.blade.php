@@ -72,9 +72,9 @@
                         <i class="fas fa-envelope me-1"></i> <span data-i18n="nav.contact">Kontak</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="#" data-i18n="nav.contact_us">Hubungi Kami</a></li>
-                        <li><a class="dropdown-item" href="#" data-i18n="nav.contact_location">Lokasi</a></li>
-                        <li><a class="dropdown-item" href="#" data-i18n="nav.contact_social">Sosial Media</a></li>
+                        <li><a class="dropdown-item" href="{{ route('hubungi-kami') }}" data-i18n="nav.contact_us">Hubungi Kami</a></li>
+                        <li><a class="dropdown-item" href="{{ route('lokasi') }}" data-i18n="nav.contact_location">Lokasi</a></li>
+                        <li><a class="dropdown-item" href="{{ route('sosial-media') }}" data-i18n="nav.contact_social">Sosial Media</a></li>
                     </ul>
                 </li>
 
