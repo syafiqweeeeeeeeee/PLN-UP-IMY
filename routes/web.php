@@ -236,6 +236,11 @@ Route::post('/admin/logout', [\App\Http\Controllers\Auth\LoginController::class,
 // Admin Dashboard
 Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
+        // Button Showcase
+        Route::get('/button-showcase', function () {
+            return view('admin.button-showcase');
+        })->name('button-showcase');
+
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // CRUD Pengguna

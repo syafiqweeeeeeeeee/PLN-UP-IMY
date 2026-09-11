@@ -95,6 +95,31 @@
 
     .input-group-pln .form-control-pln { padding-left: 2.6rem; }
 
+    .password-toggle {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 0.25rem;
+        z-index: 5;
+        transition: color 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .password-toggle:hover {
+        color: var(--pln-blue);
+    }
+
+    .input-group-pln .form-control-pln.has-toggle {
+        padding-right: 2.6rem;
+    }
+
     .field-error {
         font-size: 0.78rem;
         color: #dc2626;
@@ -176,10 +201,7 @@
 @section('content')
 <div class="login-page">
     <div class="login-card">
-        {{-- Logo --}}
-        <div class="login-logo">
-            <i class="fas fa-bolt"></i>
-        </div>
+        {{-- Logo removed per request --}}
 
         {{-- Header --}}
         <div class="login-header">
@@ -229,11 +251,14 @@
                     <input
                         id="password"
                         type="password"
-                        class="form-control-pln"
+                        class="form-control-pln has-toggle"
                         name="password"
                         required
                         autocomplete="current-password"
                         placeholder="Masukkan password">
+                    <button type="button" class="password-toggle" onclick="togglePassword()" tabindex="-1">
+                        <i class="fas fa-eye" id="toggleIcon"></i>
+                    </button>
                 </div>
                 @error('password')
                 <div class="field-error">
@@ -255,3 +280,21 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function togglePassword() {
+        var field = document.getElementById('password');
+        var icon = document.getElementById('toggleIcon');
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>
+@endpush

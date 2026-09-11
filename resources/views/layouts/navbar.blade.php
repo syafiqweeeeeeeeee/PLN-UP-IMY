@@ -20,7 +20,7 @@
             </span>
         </a>
 
-        {{-- Toggler --}}
+        {{-- Toggler (mobile) --}}
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -99,12 +99,13 @@
                 </li>
             </ul>
 
-            {{-- Right Side: Login --}}
+            {{-- Login Button (right corner) --}}
             <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
                 <a href="{{ route('login') }}" class="btn btn-login">
-                    <i class="fas fa-sign-in-alt me-1"></i> <span data-i18n="nav.login">Login</span>
+                    <span data-i18n="nav.login">Login</span>
                 </a>
             </div>
+
         </div>
     </div>
 </nav>

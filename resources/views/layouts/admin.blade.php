@@ -60,6 +60,7 @@
                     src="{{ asset('assets/images/logo-pln.png') }}"
                     alt="Logo PLN"
                     class="sidebar-brand-img"
+                    width="158" height="42"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                 />
                 <div class="sidebar-brand-text d-none">
@@ -119,6 +120,10 @@
                     <span class="link-icon"><i class="fas fa-user-tag"></i></span>
                     Role
                 </a>
+                <a href="{{ route('admin.button-showcase') }}" class="sidebar-link">
+                    <span class="link-icon"><i class="fas fa-palette"></i></span>
+                    Button Set
+                </a>
                 <a href="{{ route('admin.roles.create') }}" class="sidebar-link">
                     <span class="link-icon"><i class="fas fa-plus-circle"></i></span>
                     Tambah Role
@@ -138,10 +143,9 @@
             </nav>
 
             <div class="sidebar-footer">
-                <a href="{{ route('home') }}">
-                    <i class="fas fa-arrow-left"></i>
-                    Kembali ke Situs
-                </a>
+                <button type="button" class="btn btn-sidebar-logout" onclick="document.getElementById('logoutConfirmModal').classList.add('show')">
+                    <i class="fas fa-right-from-bracket"></i> Logout
+                </button>
             </div>
         </aside>
 
@@ -202,7 +206,38 @@
                 sidebar.classList.toggle('show');
                 overlay.classList.toggle('show');
             }
+
+            function showLogoutModal() {
+                document.getElementById('logoutConfirmModal').classList.add('show');
+            }
+            function hideLogoutModal() {
+                document.getElementById('logoutConfirmModal').classList.remove('show');
+            }
         </script>
+
+        {{-- ============================================
+             LOGOUT CONFIRMATION MODAL
+             ============================================ --}}
+        <div id="logoutConfirmModal" class="modal-pln-overlay" onclick="if(event.target===this) hideLogoutModal()">
+            <div class="modal-pln-dialog">
+                <div class="modal-pln-icon">
+                    <i class="fas fa-right-from-bracket"></i>
+                </div>
+                <h6 class="modal-pln-title">Konfirmasi Logout</h6>
+                <p class="modal-pln-text">Apakah Anda yakin mau keluar dari halaman admin?</p>
+                <div class="modal-pln-actions">
+                    <button type="button" class="btn-corp btn-corp-cancel" onclick="hideLogoutModal()">
+                        <i class="fas fa-xmark"></i> Batal
+                    </button>
+                    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="btn-corp btn-corp-logout">
+                            <i class="fas fa-right-from-bracket"></i> Keluar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
 
         @stack('scripts')
     </body>

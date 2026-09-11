@@ -93,11 +93,13 @@ a { text-decoration: none; transition: color 0.2s ease; }
 }
 
 .sidebar-brand-img {
-    width: 38px;
-    height: 38px;
+    width: 158px;
+    height: 42px;
     object-fit: contain;
-    border-radius: 10px;
     flex-shrink: 0;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
 .sidebar-nav {
@@ -177,6 +179,36 @@ a { text-decoration: none; transition: color 0.2s ease; }
 }
 
 .sidebar-footer a:hover { color: #fff; }
+
+/* Sidebar Logout Button — Red, matches navbar btn-login style */
+.btn-sidebar-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    background: var(--pln-red);
+    color: #fff !important;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 25px;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.btn-sidebar-logout:hover {
+    background: #fff;
+    color: var(--pln-red) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(237, 28, 36, 0.4);
+}
+
+.btn-sidebar-logout i {
+    font-size: 0.9em;
+}
 
 /* ============================================
    MAIN CONTENT AREA
@@ -794,4 +826,593 @@ a { text-decoration: none; transition: color 0.2s ease; }
     .admin-content {
         padding: 1rem 0.75rem;
     }
+}
+
+/* ============================================
+   CORPORATE BUTTON SET — UI/UX MODERN
+   Material Design • Rounded • Shadows
+   ============================================ */
+
+/* --- Base Button --- */
+.btn-corp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.btn-corp:focus-visible {
+    outline: 2px solid var(--pln-cyan);
+    outline-offset: 2px;
+}
+
+.btn-corp:active {
+    transform: scale(0.97);
+}
+
+.btn-corp:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-corp i {
+    font-size: 0.85em;
+    line-height: 1;
+}
+
+/* --- Ripple effect --- */
+.btn-corp::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.4s, transform 0.4s;
+    pointer-events: none;
+}
+
+.btn-corp:hover::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* --- Login (Corporate Blue #035B71) --- */
+.btn-corp-login {
+    background: #035B71;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(3, 91, 113, 0.3);
+}
+
+.btn-corp-login:hover {
+    background: #024a5c;
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(3, 91, 113, 0.45);
+    transform: translateY(-1px);
+}
+
+.btn-corp-login:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 1px 4px rgba(3, 91, 113, 0.25);
+}
+
+/* --- Logout (Bright Red #FF0000) --- */
+.btn-corp-logout {
+    background: #FF0000;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.25);
+}
+
+.btn-corp-logout:hover {
+    background: #e60000;
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(255, 0, 0, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-corp-logout:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 1px 4px rgba(255, 0, 0, 0.2);
+}
+
+/* --- Hapus / Delete (Bright Red #FF0000) --- */
+.btn-corp-delete {
+    background: #FF0000;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.25);
+}
+
+.btn-corp-delete:hover {
+    background: #e60000;
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(255, 0, 0, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-corp-delete:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 1px 4px rgba(255, 0, 0, 0.2);
+}
+
+/* --- Edit (Golden Yellow Energy #FFC107) --- */
+.btn-corp-edit {
+    background: #FFC107;
+    color: #1a1a2e;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.btn-corp-edit:hover {
+    background: #ffb300;
+    color: #1a1a2e;
+    box-shadow: 0 4px 16px rgba(255, 193, 7, 0.45);
+    transform: translateY(-1px);
+}
+
+.btn-corp-edit:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 1px 4px rgba(255, 193, 7, 0.25);
+}
+
+/* --- Tambah / Add (Golden Yellow Energy #FFC107) --- */
+.btn-corp-add {
+    background: #FFC107;
+    color: #1a1a2e;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.btn-corp-add:hover {
+    background: #ffb300;
+    color: #1a1a2e;
+    box-shadow: 0 4px 16px rgba(255, 193, 7, 0.45);
+    transform: translateY(-1px);
+}
+
+.btn-corp-add:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 1px 4px rgba(255, 193, 7, 0.25);
+}
+
+/* --- Selengkapnya / More Info (Bright Cyan #00AFF0) --- */
+.btn-corp-more {
+    background: #00AFF0;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 175, 240, 0.3);
+}
+
+.btn-corp-more:hover {
+    background: #009de0;
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(0, 175, 240, 0.45);
+    transform: translateY(-1px);
+}
+
+.btn-corp-more:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 1px 4px rgba(0, 175, 240, 0.25);
+}
+
+/* --- Batal / Cancel (Light Neutral Gray) --- */
+.btn-corp-cancel {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.btn-corp-cancel:hover {
+    background: #e2e8f0;
+    color: #475569;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+.btn-corp-cancel:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: none;
+}
+
+/* --- Preview / Eye Icon (Transparent) --- */
+.btn-corp-preview {
+    background: transparent;
+    color: #3b82f6;
+    border: 1.5px solid #93c5fd;
+    box-shadow: none;
+}
+
+.btn-corp-preview:hover {
+    background: rgba(59, 130, 246, 0.08);
+    color: #2563eb;
+    border-color: #60a5fa;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+    transform: translateY(-1px);
+}
+
+.btn-corp-preview:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* --- Pengguna / User (Dark Blue) --- */
+.btn-corp-user {
+    background: #1e3a5f;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(30, 58, 95, 0.3);
+}
+
+.btn-corp-user:hover {
+    background: #162d4a;
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(30, 58, 95, 0.45);
+    transform: translateY(-1px);
+}
+
+.btn-corp-user:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 1px 4px rgba(30, 58, 95, 0.25);
+}
+
+/* --- Size Variants --- */
+.btn-corp.btn-corp-sm {
+    padding: 0.4rem 1rem;
+    font-size: 0.78rem;
+    border-radius: 8px;
+    gap: 0.35rem;
+}
+
+.btn-corp.btn-corp-sm i {
+    font-size: 0.8em;
+}
+
+.btn-corp.btn-corp-lg {
+    padding: 0.85rem 2rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    gap: 0.6rem;
+}
+
+.btn-corp.btn-corp-lg i {
+    font-size: 1.05em;
+}
+
+/* --- Icon-only variant (square) --- */
+.btn-corp-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.btn-corp-icon.btn-corp-sm {
+    width: 30px;
+    height: 30px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+}
+
+.btn-corp-icon.btn-corp-lg {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
+    border-radius: 10px;
+}
+
+/* --- Outline Variants --- */
+.btn-corp-outline-blue {
+    background: transparent;
+    color: #035B71;
+    border: 1.5px solid #035B71;
+    box-shadow: none;
+}
+
+.btn-corp-outline-blue:hover {
+    background: rgba(3, 91, 113, 0.06);
+    color: #024a5c;
+    border-color: #024a5c;
+    box-shadow: 0 2px 8px rgba(3, 91, 113, 0.12);
+    transform: translateY(-1px);
+}
+
+.btn-corp-outline-red {
+    background: transparent;
+    color: #FF0000;
+    border: 1.5px solid #FF0000;
+    box-shadow: none;
+}
+
+.btn-corp-outline-red:hover {
+    background: rgba(255, 0, 0, 0.06);
+    color: #e60000;
+    border-color: #e60000;
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.12);
+    transform: translateY(-1px);
+}
+
+.btn-corp-outline-yellow {
+    background: transparent;
+    color: #b8860b;
+    border: 1.5px solid #FFC107;
+    box-shadow: none;
+}
+
+.btn-corp-outline-yellow:hover {
+    background: rgba(255, 193, 7, 0.08);
+    color: #996d00;
+    border-color: #e6ac00;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.15);
+    transform: translateY(-1px);
+}
+
+.btn-corp-outline-cyan {
+    background: transparent;
+    color: #00AFF0;
+    border: 1.5px solid #00AFF0;
+    box-shadow: none;
+}
+
+.btn-corp-outline-cyan:hover {
+    background: rgba(0, 175, 240, 0.06);
+    color: #009de0;
+    border-color: #009de0;
+    box-shadow: 0 2px 8px rgba(0, 175, 240, 0.12);
+    transform: translateY(-1px);
+}
+
+/* --- Button Group --- */
+.btn-corp-group {
+    display: inline-flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* --- Responsive --- */
+@media (max-width: 575.98px) {
+    .btn-corp {
+        padding: 0.55rem 1.15rem;
+        font-size: 0.82rem;
+        border-radius: 8px;
+    }
+    .btn-corp.btn-corp-lg {
+        padding: 0.7rem 1.5rem;
+        font-size: 0.92rem;
+    }
+    .btn-corp-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+}
+
+/* ============================================
+   BUTTON SHOWCASE — Page Styles
+   (Moved here so router.js partial swap retains them)
+   ============================================ */
+.showcase-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.showcase-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--pln-text);
+    margin-bottom: 0.3rem;
+}
+
+.showcase-section-desc {
+    font-size: 0.78rem;
+    color: #9ca3af;
+    margin-bottom: 1.25rem;
+}
+
+.showcase-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.showcase-row:last-child {
+    margin-bottom: 0;
+}
+
+.showcase-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #9ca3af;
+    margin-bottom: 0.5rem;
+}
+
+.showcase-palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.palette-card {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.palette-swatch {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.82rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.palette-info {
+    padding: 0.5rem 0.65rem;
+    background: #fff;
+}
+
+.palette-name {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--pln-text);
+}
+
+.palette-hex {
+    font-size: 0.65rem;
+    color: #9ca3af;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.showcase-dark-bg {
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-top: 0.75rem;
+}
+
+/* --- Showcase Responsive --- */
+@media (max-width: 991.98px) {
+    .showcase-section {
+        padding: 1.25rem;
+    }
+    .showcase-palette {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .showcase-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .showcase-row .showcase-label {
+        margin-bottom: 0.25rem;
+    }
+    .showcase-palette {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.5rem;
+    }
+    .palette-swatch {
+        height: 44px;
+        font-size: 0.72rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .showcase-section {
+        padding: 1rem;
+        border-radius: 10px;
+    }
+    .showcase-section-title {
+        font-size: 0.88rem;
+    }
+    .showcase-section-desc {
+        font-size: 0.72rem;
+    }
+    .showcase-row {
+        gap: 0.4rem;
+    }
+    .showcase-palette {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .palette-info {
+        padding: 0.35rem 0.5rem;
+    }
+    .palette-name {
+        font-size: 0.65rem;
+    }
+    .palette-hex {
+        font-size: 0.58rem;
+    }
+}
+
+/* ============================================
+   LOGOUT CONFIRMATION MODAL
+   ============================================ */
+.modal-pln-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+}
+
+.modal-pln-overlay.show {
+    display: flex;
+}
+
+.modal-pln-dialog {
+    background: #fff;
+    border-radius: 16px;
+    padding: 2rem 1.75rem 1.5rem;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    animation: modalPlnIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalPlnIn {
+    from { opacity: 0; transform: scale(0.9) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-pln-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1rem;
+    background: #fee2e2;
+    color: #dc2626;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.modal-pln-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem;
+}
+
+.modal-pln-text {
+    font-size: 0.88rem;
+    color: #6b7280;
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+}
+
+.modal-pln-actions {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
 }
