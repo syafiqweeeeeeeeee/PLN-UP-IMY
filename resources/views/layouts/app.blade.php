@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>@yield('title', 'E-PPID PLN')</title>
+        <title>@yield('title', 'PLN Nusantara Power')</title>
 
         <link rel="icon" type="image/x-icon" href="{{ asset('startbootstrap-grayscale-gh-pages/assets/favicon.ico') }}" />
 

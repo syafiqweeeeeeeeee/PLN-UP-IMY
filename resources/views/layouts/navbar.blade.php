@@ -16,7 +16,7 @@
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
             />
             <span class="d-none">
-                <i class="fas fa-bolt" style="color: var(--pln-yellow)"></i> E-PPID PLN
+                <i class="fas fa-bolt" style="color: var(--pln-yellow)"></i> PLN Nusantara Power
             </span>
         </a>
 

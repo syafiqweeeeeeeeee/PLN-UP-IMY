@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'E-PPID PLN — Beranda')
+@section('title', 'PLN Nusantara Power')
 
 @push('styles')
 <style>
