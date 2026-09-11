@@ -539,17 +539,17 @@
             <div class="galeri-breadcrumb">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Beranda</a></li>
-                        <li class="breadcrumb-item"><a href="#">Informasi</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Galeri</li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}" data-i18n="galeri.bc_home">Beranda</a></li>
+                        <li class="breadcrumb-item"><a href="#" data-i18n="galeri.bc_info">Informasi</a></li>
+                        <li class="breadcrumb-item active" aria-current="page" data-i18n="galeri.bc_current">Galeri</li>
                     </ol>
                 </nav>
             </div>
 
-            <h1>
+            <h1 data-i18n="galeri.title">
                 Galeri & <span class="accent">Dokumentasi</span> Operasional
             </h1>
-            <p class="subtitle">
+            <p class="subtitle" data-i18n="galeri.subtitle">
                 Kumpulan foto dan dokumentasi kegiatan operasional, pemeliharaan, serta program K3 &amp; lingkungan di PT PLN Nusantara Power UP PLTU Indramayu.
             </p>
         </div>
@@ -562,19 +562,19 @@
         <div class="container px-4 px-lg-5">
             <div class="filter-chips" id="filterChips">
                 <button class="filter-chip active" data-filter="semua">
-                    <i class="fas fa-images"></i> Semua
+                    <i class="fas fa-images"></i> <span data-i18n="galeri.filter_all">Semua</span>
                 </button>
                 <button class="filter-chip" data-filter="operasional">
-                    <i class="fas fa-bolt"></i> Operasional PLTU
+                    <i class="fas fa-bolt"></i> <span data-i18n="galeri.filter_operational">Operasional PLTU</span>
                 </button>
                 <button class="filter-chip" data-filter="pemeliharaan">
-                    <i class="fas fa-wrench"></i> Pemeliharaan
+                    <i class="fas fa-wrench"></i> <span data-i18n="galeri.filter_maintenance">Pemeliharaan</span>
                 </button>
                 <button class="filter-chip" data-filter="k3">
-                    <i class="fas fa-shield-halved"></i> K3 &amp; Lingkungan
+                    <i class="fas fa-shield-halved"></i> <span data-i18n="galeri.filter_k3">K3 &amp; Lingkungan</span>
                 </button>
                 <button class="filter-chip" data-filter="sosial">
-                    <i class="fas fa-hand-holding-heart"></i> Kegiatan Sosial
+                    <i class="fas fa-hand-holding-heart"></i> <span data-i18n="galeri.filter_social">Kegiatan Sosial</span>
                 </button>
             </div>
         </div>

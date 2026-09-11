@@ -48,7 +48,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item" href="{{ route('berita') }}" data-i18n="nav.info_news">Berita</a></li>
-                        <li><a class="dropdown-item" href="#" data-i18n="nav.info_announcements">Pengumuman</a></li>
+                        <li><a class="dropdown-item" href="{{ route('pengumuman') }}" data-i18n="nav.info_announcements">Pengumuman</a></li>
       
                         <li><a class="dropdown-item" href="{{ route('galeri') }}" data-i18n="nav.info_gallery">Galeri</a></li>
                     </ul>
@@ -60,7 +60,7 @@
                         <i class="fas fa-concierge-bell me-1"></i> <span data-i18n="nav.services">Layanan</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="#" data-i18n="nav.services_list">Daftar Layanan</a></li>
+                        <li><a class="dropdown-item" href="{{ route('layanan.daftar') }}" data-i18n="nav.services_list">Daftar Layanan</a></li>
                         <li><a class="dropdown-item" href="#" data-i18n="nav.services_info">Informasi Layanan</a></li>
                         <li><a class="dropdown-item" href="#" data-i18n="nav.services_faq">FAQ</a></li>
                     </ul>

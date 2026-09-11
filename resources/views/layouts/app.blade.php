@@ -472,6 +472,7 @@
             })();
         </script>
 
+        <script src="{{ asset('js/i18n.js') }}"></script>
         @stack('scripts')
     </body>
 </html>

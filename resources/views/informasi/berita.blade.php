@@ -367,15 +367,15 @@
             <div class="berita-breadcrumb">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Beranda</a></li>
-                        <li class="breadcrumb-item"><a href="#">Informasi</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Berita</li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}" data-i18n="berita.bc_home">Beranda</a></li>
+                        <li class="breadcrumb-item"><a href="#" data-i18n="berita.bc_info">Informasi</a></li>
+                        <li class="breadcrumb-item active" aria-current="page" data-i18n="berita.bc_current">Berita</li>
                     </ol>
                 </nav>
             </div>
 
-            <h1>Berita & <span class="accent">Informasi</span> Terkini</h1>
-            <p class="subtitle">
+            <h1 data-i18n="berita.title">Berita & <span class="accent">Informasi</span> Terkini</h1>
+            <p class="subtitle" data-i18n="berita.subtitle">
                 Ikuti perkembangan terbaru seputar operasional, program kerja, dan kegiatan PT PLN Nusantara Power UP PLTU Indramayu.
             </p>
         </div>
@@ -386,7 +386,7 @@
          ============================================ --}}
     <section class="berita-section-header" style="background: var(--pln-gray);">
         <div class="container px-4 px-lg-5">
-            <h2 style="color: var(--pln-blue);">Berita & Informasi Terkini</h2>
+            <h2 style="color: var(--pln-blue);" data-i18n="berita.section_title">Berita & Informasi Terkini</h2>
             <div class="divider"></div>
         </div>
     </section>

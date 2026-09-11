@@ -184,9 +184,9 @@
     <div class="container px-4 px-lg-5 org-breadcrumb">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}">Beranda</a></li>
-                <li class="breadcrumb-item"><a href="#">Tentang Kami</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Struktur Organisasi</li>
+                <li class="breadcrumb-item"><a href="{{ route('home') }}" data-i18n="struktur.bc_home">Beranda</a></li>
+                <li class="breadcrumb-item"><a href="#" data-i18n="struktur.bc_about">Tentang Kami</a></li>
+                <li class="breadcrumb-item active" aria-current="page" data-i18n="struktur.bc_current">Struktur Organisasi</li>
             </ol>
         </nav>
     </div>
@@ -198,8 +198,8 @@
         <div class="container px-4 px-lg-5">
             <div class="org-header-inner">
                 <div class="org-title">
-                    <h1>Bagan Struktur Organisasi</h1>
-                    <h2>UP Indramayu</h2>
+                    <h1 data-i18n="struktur.title">Bagan Struktur Organisasi</h1>
+                    <h2 data-i18n="struktur.subtitle">UP Indramayu</h2>
                 </div>
             </div>
         </div>
@@ -219,7 +219,7 @@
                 />
                 <div class="fallback-box">
                     <i class="fas fa-sitemap"></i>
-                    <p>Bagan Struktur Organisasi UP Indramayu</p>
+                    <p data-i18n="struktur.fallback">Bagan Struktur Organisasi UP Indramayu</p>
                     <p style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 0.5rem;">
                         Letakkan gambar di: <code>public/assets/images/struktur/struktural_organisasi.png</code>
                     </p>

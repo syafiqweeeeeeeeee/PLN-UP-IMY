@@ -67,6 +67,10 @@
             'stats.label_ebt': 'Proyek Energi Terbarukan (EBT)',
             'stats.desc_ebt': 'Portofolio energi terbarukan yang terus berkembang.',
 
+            /* ---------- WILAYAH OPERASIONAL ---------- */
+            'region.title': 'Wilayah Operasional PT PLN Nusantara Power',
+            'region.subtitle': 'Cakupan area kerja dan pembangkitan di berbagai wilayah Indonesia',
+
             /* ---------- MEKANISME / ALUR ---------- */
             'flow.title': 'Mekanisme Pelayanan Informasi Publik',
             'flow.subtitle': 'Berikut adalah alur langkah pelayanan informasi publik di lingkungan PT PLN (Persero)',
@@ -151,7 +155,63 @@
             'visi.misi2': 'Membangun Bisnis Inovatif yang terdepan untuk melakukan Diversifikasi dan Pertumbuhan yang Berkelanjutan.',
             'visi.misi3': 'Mengakselerasi Portofolio Bisnis EBT Untuk Mendukung Tercapainya Nol Emisi Karbon.',
             'visi.misi4': 'Mengakuisisi dan Membangun Talenta Terbaik Untuk Menjalankan Organisasi yang Responsif dan Adaptif.',
-            'visi.back_btn': 'Kembali ke Tentang Kami'
+            'visi.back_btn': 'Kembali ke Tentang Kami',
+
+            /* ---------- HALAMAN PROFIL PERUSAHAAN ---------- */
+            'profil.badge': 'Unit Pembangkitan',
+            'profil.hero_subtitle': 'Satu dari unit pembangkitan PT PLN Nusantara Power, mengoperasikan <strong>PLTU di Sumuradem, Indramayu</strong> untuk mendukung penyediaan energi listrik di Indonesia.',
+            'profil.stat_capacity': 'MW Kapasitas Terpasang',
+            'profil.stat_units': 'Unit Pembangkit (330 MW)',
+            'profil.stat_area': 'Luas Area Pembangkit',
+            'profil.card1_title': 'Unit Pembangkitan',
+            'profil.card1_desc': '<strong>PLN Nusantara Power Unit Pembangkitan Indramayu (UP Indramayu)</strong> merupakan unit pembangkitan di bawah PT PLN Nusantara Power, bergerak dalam bidang penyediaan tenaga listrik melalui pengoperasian <strong>Pembangkit Listrik Tenaga Uap (PLTU)</strong>.',
+            'profil.card2_title': 'PLTU Batubara',
+            'profil.card2_desc': 'Pembangkit ini menggunakan <strong>batubara</strong> sebagai bahan bakar utama, dengan kapasitas terpasang sebesar <strong>990 MW</strong> yang terdiri dari <strong>tiga unit pembangkit</strong> masing-masing berkapasitas 330 MW.',
+            'profil.card3_title': 'Komitmen Keberlanjutan',
+            'profil.card3_desc': 'UP Indramayu terus berkomitmen menjaga keandalan dan efisiensi pembangkitan melalui pengelolaan operasional & pemeliharaan optimal, dengan tetap memperhatikan <strong>keselamatan, lingkungan, dan keberlanjutan</strong>.',
+            'profil.about_title': 'Tentang UP Indramayu',
+            'profil.about_desc': 'Kenali lebih dekat Unit Pembangkitan Indramayu — peran strategisnya dalam sistem kelistrikan Jawa-Bali dan komitmen terhadap operasional yang andal, aman, dan berkelanjutan.',
+            'profil.role1_title': 'Peran Strategis di Sistem Jawa-Bali',
+            'profil.role2_title': 'Komitmen Operasional & Lingkungan',
+            'profil.capacity_title': 'Kapasitas & Lokasi',
+            'profil.capacity_desc': 'Detail teknis dan lokasi PLTU Unit Pembangkitan Indramayu.',
+            'profil.contribution_title': 'Peran & Kontribusi',
+            'profil.contribution_desc': 'UP Indramayu tidak hanya berperan sebagai pembangkit listrik, tetapi juga berkomitmen memberikan dampak positif bagi lingkungan dan masyarakat.',
+            'profil.contrib1_title': 'Pembangkitan Listrik',
+            'profil.contrib2_title': 'Pengelolaan Lingkungan',
+            'profil.contrib3_title': 'Keselamatan & K3',
+            'profil.contrib4_title': 'CSR & Pemberdayaan Masyarakat',
+            'profil.timeline_title': 'Perjalanan Unit Pembangkitan',
+            'profil.timeline_desc': 'Jejak kontribusi UP Indramayu dalam penyediaan energi listrik dan komitmen terhadap operasional yang dan lingkungan yang berkelanjutan.',
+            'profil.cta_title': 'Menyediakan Energi untuk Indonesia',
+
+            /* ---------- HALAMAN STRUKTUR ORGANISASI ---------- */
+            'struktur.bc_home': 'Beranda',
+            'struktur.bc_about': 'Tentang Kami',
+            'struktur.bc_current': 'Struktur Organisasi',
+            'struktur.title': 'Bagan Struktur Organisasi',
+            'struktur.subtitle': 'UP Indramayu',
+            'struktur.fallback': 'Bagan Struktur Organisasi UP Indramayu',
+
+            /* ---------- HALAMAN BERITA ---------- */
+            'berita.bc_home': 'Beranda',
+            'berita.bc_info': 'Informasi',
+            'berita.bc_current': 'Berita',
+            'berita.title': 'Berita & <span class="accent">Informasi</span> Terkini',
+            'berita.subtitle': 'Ikuti perkembangan terbaru seputar operasional, program kerja, dan kegiatan PT PLN Nusantara Power UP PLTU Indramayu.',
+            'berita.section_title': 'Berita & Informasi Terkini',
+
+            /* ---------- HALAMAN GALERI ---------- */
+            'galeri.bc_home': 'Beranda',
+            'galeri.bc_info': 'Informasi',
+            'galeri.bc_current': 'Galeri',
+            'galeri.title': 'Galeri & <span class="accent">Dokumentasi</span> Operasional',
+            'galeri.subtitle': 'Kumpulan foto dan dokumentasi kegiatan operasional, pemeliharaan, serta program K3 & lingkungan di PT PLN Nusantara Power UP PLTU Indramayu.',
+            'galeri.filter_all': 'Semua',
+            'galeri.filter_operational': 'Operasional PLTU',
+            'galeri.filter_maintenance': 'Pemeliharaan',
+            'galeri.filter_k3': 'K3 & Lingkungan',
+            'galeri.filter_social': 'Kegiatan Sosial'
         },
 
         en: {
@@ -201,6 +261,10 @@
             'stats.value_ebt': '6.3+ <small>GW</small>',
             'stats.label_ebt': 'Renewable Energy Projects',
             'stats.desc_ebt': 'A continuously growing renewable energy portfolio.',
+
+            /* ---------- WILAYAH OPERASIONAL ---------- */
+            'region.title': 'PT PLN Nusantara Power Operational Region',
+            'region.subtitle': 'Work area and generation coverage across various regions of Indonesia',
 
             /* ---------- MEKANISME / ALUR ---------- */
             'flow.title': 'Public Information Service Mechanism',
@@ -286,7 +350,63 @@
             'visi.misi2': 'Building innovative leading businesses to diversify and achieve sustainable growth.',
             'visi.misi3': 'Accelerating the RE Business Portfolio to Support Achieving Zero Carbon Emissions.',
             'visi.misi4': 'Acquiring and developing the best talent to run a responsive and adaptive organization.',
-            'visi.back_btn': 'Back to About Us'
+            'visi.back_btn': 'Back to About Us',
+
+            /* ---------- PROFIL PERUSAHAAN PAGE ---------- */
+            'profil.badge': 'Generation Unit',
+            'profil.hero_subtitle': 'One of PT PLN Nusantara Power\u2019s generation units, operating <strong>PLTU in Sumuradem, Indramayu</strong> to support electricity supply in Indonesia.',
+            'profil.stat_capacity': 'MW Installed Capacity',
+            'profil.stat_units': 'Generation Units (330 MW)',
+            'profil.stat_area': 'Power Plant Area',
+            'profil.card1_title': 'Generation Unit',
+            'profil.card1_desc': '<strong>PLN Nusantara Power Generation Unit Indramayu (UP Indramayu)</strong> is a generation unit under PT PLN Nusantara Power, engaged in electricity supply through the operation of <strong>Steam Power Plant (PLTU)</strong>.',
+            'profil.card2_title': 'Coal-Fired PLTU',
+            'profil.card2_desc': 'This power plant uses <strong>coal</strong> as its primary fuel, with an installed capacity of <strong>990 MW</strong> consisting of <strong>three generation units</strong> each with a capacity of 330 MW.',
+            'profil.card3_title': 'Sustainability Commitment',
+            'profil.card3_desc': 'UP Indramayu remains committed to maintaining reliability and efficiency of power generation through optimal operational management & maintenance, while paying attention to <strong>safety, environment, and sustainability</strong>.',
+            'profil.about_title': 'About UP Indramayu',
+            'profil.about_desc': 'Get to know UP Indramayu better \u2014 its strategic role in the Java-Bali power system and commitment to reliable, safe, and sustainable operations.',
+            'profil.role1_title': 'Strategic Role in Java-Bali System',
+            'profil.role2_title': 'Operational & Environmental Commitment',
+            'profil.capacity_title': 'Capacity & Location',
+            'profil.capacity_desc': 'Technical details and location of UP Indramayu PLTU.',
+            'profil.contribution_title': 'Role & Contribution',
+            'profil.contribution_desc': 'UP Indramayu not only serves as a power plant, but is also committed to providing positive impact for the environment and community.',
+            'profil.contrib1_title': 'Power Generation',
+            'profil.contrib2_title': 'Environmental Management',
+            'profil.contrib3_title': 'Safety & OHS',
+            'profil.contrib4_title': 'CSR & Community Empowerment',
+            'profil.timeline_title': 'Generation Unit Journey',
+            'profil.timeline_desc': 'The contribution trail of UP Indramayu in electricity supply and commitment to sustainable operations and environment.',
+            'profil.cta_title': 'Providing Energy for Indonesia',
+
+            /* ---------- STRUKTUR ORGANISASI PAGE ---------- */
+            'struktur.bc_home': 'Home',
+            'struktur.bc_about': 'About Us',
+            'struktur.bc_current': 'Organizational Structure',
+            'struktur.title': 'Organizational Structure Chart',
+            'struktur.subtitle': 'UP Indramayu',
+            'struktur.fallback': 'UP Indramayu Organizational Structure Chart',
+
+            /* ---------- BERITA PAGE ---------- */
+            'berita.bc_home': 'Home',
+            'berita.bc_info': 'Information',
+            'berita.bc_current': 'News',
+            'berita.title': 'Latest News & <span class="accent">Information</span>',
+            'berita.subtitle': 'Follow the latest updates on operations, work programs, and activities of PT PLN Nusantara Power UP PLTU Indramayu.',
+            'berita.section_title': 'Latest News & Information',
+
+            /* ---------- GALERI PAGE ---------- */
+            'galeri.bc_home': 'Home',
+            'galeri.bc_info': 'Information',
+            'galeri.bc_current': 'Gallery',
+            'galeri.title': 'Gallery & Operational <span class="accent">Documentation</span>',
+            'galeri.subtitle': 'Collection of photos and documentation of operational activities, maintenance, and K3 & environmental programs at PT PLN Nusantara Power UP PLTU Indramayu.',
+            'galeri.filter_all': 'All',
+            'galeri.filter_operational': 'PLTU Operations',
+            'galeri.filter_maintenance': 'Maintenance',
+            'galeri.filter_k3': 'K3 & Environment',
+            'galeri.filter_social': 'Social Activities'
         }
     };
 
