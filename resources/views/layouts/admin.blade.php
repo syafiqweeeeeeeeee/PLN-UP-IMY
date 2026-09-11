@@ -70,11 +70,11 @@
 
             <nav class="sidebar-nav">
                 <div class="sidebar-section-label">Menu Utama</div>
-                <a href="{{ route('admin.dashboard') }}" class="sidebar-link active">
+                <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <span class="link-icon"><i class="fas fa-th-large"></i></span>
                     Dashboard
                 </a>
-                <a href="#" class="sidebar-link">
+                <a href="{{ route('admin.news.index') }}" class="sidebar-link {{ request()->routeIs('admin.news.*') ? 'active' : '' }}">
                     <span class="link-icon"><i class="fas fa-newspaper"></i></span>
                     Berita
                 </a>
@@ -88,7 +88,7 @@
                 </a>
 
                 <div class="sidebar-section-label">Manajemen</div>
-                <a href="users" class="sidebar-link">
+                <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <span class="link-icon"><i class="fas fa-users"></i></span>
                     Pengguna
                 </a>

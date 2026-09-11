@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\NewsController;
+use App\Models\News;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -17,8 +19,22 @@ Route::get('/informasi/galeri', function () {
 })->name('galeri');
 
 Route::get('/informasi/berita', function () {
-    return view('informasi.berita');
+    $news = News::where('is_published', true)
+        ->latest('published_at')
+        ->paginate(9);
+    return view('informasi.berita', compact('news'));
 })->name('berita');
+
+Route::get('/informasi/berita/{slug}', function ($slug) {
+    $news = News::where('slug', $slug)->where('is_published', true)->firstOrFail();
+    $related = News::where('is_published', true)
+        ->where('id', '!=', $news->id)
+        ->where('category', $news->category)
+        ->latest()
+        ->take(3)
+        ->get();
+    return view('informasi.berita_detail', compact('news', 'related'));
+})->name('berita.detail');
 
 Route::get('/informasi/pengumuman', function () {
     return view('informasi.pengumuman');
@@ -224,6 +240,10 @@ Route::middleware(['auth'])->group(function () {
 
         // CRUD Pengguna
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+
+        // Berita / News
+        Route::resource('news', NewsController::class);
+        Route::post('/news/{news}/publish', [NewsController::class, 'togglePublish'])->name('news.publish');
 
         // Role & Permission
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->except(['show']);

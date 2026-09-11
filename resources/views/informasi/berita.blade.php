@@ -97,13 +97,11 @@
     /* ---------- Section Title ---------- */
     .berita-section-header {
         padding: 3.5rem 0 2.5rem;
-        background: #fff;
     }
 
     .berita-section-header h2 {
         font-size: 1.75rem;
         font-weight: 800;
-        color: #fff;
         margin-bottom: 0.4rem;
     }
 
@@ -118,7 +116,6 @@
     /* ---------- News Grid ---------- */
     .berita-grid {
         padding: 0 0 4.5rem;
-        background: #fff;
     }
 
     .news-card {
@@ -156,6 +153,21 @@
 
     .news-card:hover .news-img-wrapper img {
         transform: scale(1.05);
+    }
+
+    /* Placeholder when no image */
+    .news-card .news-img-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #e2e8f0, #f1f5f9);
+        color: #94a3b8;
+    }
+
+    .news-card .news-img-placeholder i {
+        font-size: 2rem;
     }
 
     /* Badge Kategori */
@@ -286,7 +298,6 @@
     /* ---------- Pagination ---------- */
     .berita-pagination {
         padding: 2rem 0 4rem;
-        background: #fff;
     }
 
     .berita-pagination .pagination {
@@ -325,6 +336,15 @@
         border-color: #e2e8f0;
         color: #cbd5e1;
     }
+
+    /* Empty State */
+    .berita-empty {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #94a3b8;
+    }
+    .berita-empty i { font-size: 3rem; display: block; margin-bottom: 1rem; }
+    .berita-empty h5 { font-weight: 700; color: #64748b; margin-bottom: 0.25rem; }
 
     /* ---------- Responsive ---------- */
     @media (max-width: 991.98px) {
@@ -367,15 +387,15 @@
             <div class="berita-breadcrumb">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}" data-i18n="berita.bc_home">Beranda</a></li>
-                        <li class="breadcrumb-item"><a href="#" data-i18n="berita.bc_info">Informasi</a></li>
-                        <li class="breadcrumb-item active" aria-current="page" data-i18n="berita.bc_current">Berita</li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Beranda</a></li>
+                        <li class="breadcrumb-item"><a href="#">Informasi</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Berita</li>
                     </ol>
                 </nav>
             </div>
 
-            <h1 data-i18n="berita.title">Berita & <span class="accent">Informasi</span> Terkini</h1>
-            <p class="subtitle" data-i18n="berita.subtitle">
+            <h1>Berita & <span class="accent">Informasi</span> Terkini</h1>
+            <p class="subtitle">
                 Ikuti perkembangan terbaru seputar operasional, program kerja, dan kegiatan PT PLN Nusantara Power UP PLTU Indramayu.
             </p>
         </div>
@@ -386,162 +406,68 @@
          ============================================ --}}
     <section class="berita-section-header" style="background: var(--pln-gray);">
         <div class="container px-4 px-lg-5">
-            <h2 style="color: var(--pln-blue);" data-i18n="berita.section_title">Berita & Informasi Terkini</h2>
+            <h2 style="color: var(--pln-blue);">Berita & Informasi Terkini</h2>
             <div class="divider"></div>
         </div>
     </section>
 
     {{-- ============================================
-         3. NEWS GRID — 3 Columns
+         3. NEWS GRID — Dynamic from DB
          ============================================ --}}
     <section class="berita-grid" style="background: var(--pln-gray);">
         <div class="container px-4 px-lg-5">
+            @if ($news->count())
             <div class="row g-4">
-
-                {{-- Card 1 --}}
+                @foreach ($news as $item)
                 <div class="col-lg-4 col-md-6">
                     <div class="news-card">
                         <div class="news-img-wrapper">
-                            <span class="news-badge badge-umum">Umum</span>
-                            <img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=340&fit=crop&fm=auto&q=75" alt="PLTU Indramayu" loading="lazy" width="600" height="340">
+                            <span class="news-badge badge-{{ $item->category }}">{{ ucfirst($item->category) }}</span>
+                            @if ($item->image)
+                            <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}" loading="lazy">
+                            @else
+                            <div class="news-img-placeholder">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            @endif
                         </div>
                         <div class="news-body">
                             <div class="news-meta">
-                                <span><i class="fas fa-calendar-alt"></i> 8 September 2026</span>
-                                <span><i class="fas fa-user-pen"></i> Humas PLN NP</span>
+                                <span><i class="fas fa-calendar-alt"></i> {{ $item->published_at?->format('d M Y') ?? $item->created_at->format('d M Y') }}</span>
+                                @if ($item->author)
+                                <span><i class="fas fa-user-pen"></i> {{ $item->author }}</span>
+                                @endif
                             </div>
-                            <h3 class="news-title">PLTU Indramayu Catat Produksi Tertinggi Q3 2026</h3>
-                            <p class="news-excerpt">Unit Pembangkitan Tenaga Uap Indramayu berhasil mencatatkan angka produksi energi tertinggi sepanjang kuartal ketiga tahun 2026 dengan capaian 2.100 GWh.</p>
-                            <a href="#" class="news-btn">Selengkapnya <i class="fas fa-arrow-right"></i></a>
+                            <h3 class="news-title">{{ $item->title }}</h3>
+                            <p class="news-excerpt">{{ $item->excerpt }}</p>
+                            <a href="{{ route('berita.detail', $item->slug) }}" class="news-btn">Selengkapnya <i class="fas fa-arrow-right"></i></a>
                         </div>
                     </div>
                 </div>
-
-                {{-- Card 2 --}}
-                <div class="col-lg-4 col-md-6">
-                    <div class="news-card">
-                        <div class="news-img-wrapper">
-                            <span class="news-badge badge-teknis">Teknis</span>
-                            <img src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=600&h=340&fit=crop&fm=auto&q=75" alt="Pemeliharaan" loading="lazy" width="600" height="340">
-                        </div>
-                        <div class="news-body">
-                            <div class="news-meta">
-                                <span><i class="fas fa-calendar-alt"></i> 5 September 2026</span>
-                                <span><i class="fas fa-user-pen"></i> Dept. Teknik</span>
-                            </div>
-                            <h3 class="news-title">Pemeliharaan Berkala Unit 2 Berjalan Lancar</h3>
-                            <p class="news-excerpt">Tim teknis berhasil menyelesaikan pemeliharaan berkala Unit 2 lebih cepat dari jadwal yang ditetapkan dengan zero accident.</p>
-                            <a href="#" class="news-btn">Selengkapnya <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Card 3 --}}
-                <div class="col-lg-4 col-md-6">
-                    <div class="news-card">
-                        <div class="news-img-wrapper">
-                            <span class="news-badge badge-kegiatan">Kegiatan</span>
-                            <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&h=340&fit=crop&fm=auto&q=75" alt="Bakti Sosial" loading="lazy" width="600" height="340">
-                        </div>
-                        <div class="news-body">
-                            <div class="news-meta">
-                                <span><i class="fas fa-calendar-alt"></i> 1 September 2026</span>
-                                <span><i class="fas fa-user-pen"></i> Bagian CSR</span>
-                            </div>
-                            <h3 class="news-title">PLN NP Indramayu Salurkan Bantuan ke Desa Binaan</h3>
-                            <p class="news-excerpt">Program Corporate Social Responsibility berupa bantuan infrastruktur dan pendidikan disalurkan ke tiga desa binaan di sekitar wilayah operasional.</p>
-                            <a href="#" class="news-btn">Selengkapnya <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Card 4 --}}
-                <div class="col-lg-4 col-md-6">
-                    <div class="news-card">
-                        <div class="news-img-wrapper">
-                            <span class="news-badge badge-teknis">Teknis</span>
-                            <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600&h=340&fit=crop&fm=auto&q=75" alt="K3" loading="lazy" width="600" height="340">
-                        </div>
-                        <div class="news-body">
-                            <div class="news-meta">
-                                <span><i class="fas fa-calendar-alt"></i> 28 Agustus 2026</span>
-                                <span><i class="fas fa-user-pen"></i> Dept. K3</span>
-                            </div>
-                            <h3 class="news-title">Simulasi Tanggap Darurat Berhasil Dilaksanakan</h3>
-                            <p class="news-excerpt">Seluruh personel mengikuti simulasi tanggap darurat kebakaran dan evakuasi massal guna meningkatkan kesiapsiagaan operasional.</p>
-                            <a href="#" class="news-btn">Selengkapnya <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Card 5 --}}
-                <div class="col-lg-4 col-md-6">
-                    <div class="news-card">
-                        <div class="news-img-wrapper">
-                            <span class="news-badge badge-kepegawaian">Kepegawaian</span>
-                            <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&h=340&fit=crop&fm=auto&q=75" alt="Rekrutmen" loading="lazy" width="600" height="340">
-                        </div>
-                        <div class="news-body">
-                            <div class="news-meta">
-                                <span><i class="fas fa-calendar-alt"></i> 22 Agustus 2026</span>
-                                <span><i class="fas fa-user-pen"></i> Dept. SDM</span>
-                            </div>
-                            <h3 class="news-title">Penerimaan Calon Pegawai PLN NP Periode 2026 Dibuka</h3>
-                            <p class="news-excerpt">PT PLN Nusantara Power membuka kesempatan bagi lulusan terbaik untuk bergabung di berbagai posisi teknis dan non-teknis.</p>
-                            <a href="#" class="news-btn">Selengkapnya <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Card 6 --}}
-                <div class="col-lg-4 col-md-6">
-                    <div class="news-card">
-                        <div class="news-img-wrapper">
-                            <span class="news-badge badge-umum">Umum</span>
-                            <img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=340&fit=crop&fm=auto&q=75" alt="Energi" loading="lazy" width="600" height="340">
-                        </div>
-                        <div class="news-body">
-                            <div class="news-meta">
-                                <span><i class="fas fa-calendar-alt"></i> 18 Agustus 2026</span>
-                                <span><i class="fas fa-user-pen"></i> Humas PLN NP</span>
-                            </div>
-                            <h3 class="news-title">Kontribusi PLN NP terhadap Kelistrikan Nasional Terus Meningkat</h3>
-                            <p class="news-excerpt">PT PLN Nusantara Power mencatat peningkatan kontribusi pasokan listrik nasional sebesar 4,2% dibandingkan periode yang sama tahun lalu.</p>
-                            <a href="#" class="news-btn">Selengkapnya <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-
+                @endforeach
             </div>
+            @else
+            <div class="berita-empty">
+                <i class="fas fa-newspaper"></i>
+                <h5>Belum ada berita</h5>
+                <p>Berita akan segera tersedia. Silakan kunjungi kembali nanti.</p>
+            </div>
+            @endif
         </div>
     </section>
 
     {{-- ============================================
          4. PAGINATION
          ============================================ --}}
+    @if ($news->hasPages())
     <section class="berita-pagination" style="background: var(--pln-gray);">
         <div class="container px-4 px-lg-5">
             <nav aria-label="Navigasi berita">
-                <ul class="pagination justify-content-center mb-0">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-                    <li class="page-item active" aria-current="page">
-                        <a class="page-link" href="#">1</a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
+                {{ $news->links() }}
             </nav>
         </div>
     </section>
+    @endif
 
 </div>
 @endsection
