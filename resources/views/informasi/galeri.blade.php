@@ -5,37 +5,34 @@
 @section('content')
 <style>
     /* =============================================
-       GALERI — DARK MINIMALIST THEME (DB-driven)
+       GALERI PUBLIK — MODERN GRID (Bootstrap + scoped CSS)
+       Spesifikasi: grid 1/2/3-4 kolom, card rounded-xl
+       shadow, aspect-video, hover zoom 105%, badge kategori
+       melayang, line-clamp judul & deskripsi, lightbox detail.
        ============================================= */
 
     :root {
         --gallery-primary: #032B56;
-        --gallery-accent: #FFEB00;
         --gallery-border: #e2e8f0;
         --gallery-text: #1e293b;
         --gallery-text-muted: #64748b;
     }
 
-    /* ---------- Page Wrapper ---------- */
+    /* ---------- Page Wrapper ----------
+       SEAMLESS: tanpa padding-top putih — offset navbar dipindah
+       ke DALAM hero agar gradient biru menyatu mulus dengan
+       background navbar (tidak ada sela putih sama sekali). */
     .galeri-page {
         background: #fff;
         min-height: 100vh;
         color: var(--gallery-text);
-        padding-top: 76px;
+        padding-top: 0;
     }
 
     /* ---------- Breadcrumb ---------- */
-    .galeri-breadcrumb {
-        padding: 0 0 1.5rem;
-        position: relative;
-        z-index: 2;
-    }
+    .galeri-breadcrumb { padding: 0 0 1.5rem; position: relative; z-index: 2; }
 
-    .galeri-breadcrumb .breadcrumb {
-        background: transparent;
-        margin: 0;
-        padding: 0;
-    }
+    .galeri-breadcrumb .breadcrumb { background: transparent; margin: 0; padding: 0; }
 
     .galeri-breadcrumb .breadcrumb-item a {
         color: rgba(255, 255, 255, 0.7);
@@ -45,9 +42,7 @@
         transition: color 0.2s ease;
     }
 
-    .galeri-breadcrumb .breadcrumb-item a:hover {
-        color: var(--pln-yellow);
-    }
+    .galeri-breadcrumb .breadcrumb-item a:hover { color: var(--pln-yellow); }
 
     .galeri-breadcrumb .breadcrumb-item.active {
         color: rgba(255, 255, 255, 0.9);
@@ -61,9 +56,11 @@
         font-size: 0.75rem;
     }
 
-    /* ---------- Hero Header ---------- */
+    /* ---------- Hero Header ----------
+       padding-top = tinggi navbar (76px) + jarak konten;
+       hero memanjang ke belakang navbar → seamless dengan navbar biru. */
     .galeri-hero {
-        padding: 1.5rem 0 3.5rem;
+        padding: calc(76px + 1.75rem) 0 3.5rem;
         background: linear-gradient(135deg, var(--pln-blue) 0%, #003d6b 50%, var(--pln-dark) 100%);
         position: relative;
         overflow: hidden;
@@ -90,9 +87,7 @@
         z-index: 2;
     }
 
-    .galeri-hero h1 .accent {
-        color: var(--pln-yellow);
-    }
+    .galeri-hero h1 .accent { color: var(--pln-yellow); }
 
     .galeri-hero .subtitle {
         font-size: 1rem;
@@ -103,15 +98,17 @@
         z-index: 2;
     }
 
-    /* ---------- Filter Bar ---------- */
+    /* ---------- Filter Bar (sejajar di tengah) ---------- */
     .filter-section {
-        padding: 0 0 2.5rem;
+        padding: 1.75rem 0 0.5rem;
         background: #fff;
+        margin-bottom: 1.25rem;
     }
 
     .filter-chips {
         display: flex;
         flex-wrap: wrap;
+        justify-content: center;   /* sejajar di tengah */
         gap: 0.6rem;
     }
 
@@ -121,9 +118,9 @@
         gap: 0.4rem;
         padding: 0.5rem 1.15rem;
         border-radius: 50px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--gallery-border);
         background: #f8f9fa;
-        color: #64748b;
+        color: var(--gallery-text-muted);
         font-size: 0.84rem;
         font-weight: 500;
         cursor: pointer;
@@ -138,6 +135,7 @@
         background: #e9ecef;
     }
 
+    /* Active state yang jelas */
     .filter-chip.active {
         background: var(--pln-blue);
         color: #fff;
@@ -146,87 +144,83 @@
         box-shadow: 0 2px 12px rgba(0, 91, 156, 0.25);
     }
 
-    .filter-chip i {
+    .filter-chip i { font-size: 0.78rem; }
+
+    .gallery-count {
+        text-align: center;
         font-size: 0.78rem;
+        color: #94a3b8;
+        margin-top: 0.75rem;
     }
 
-    /* ---------- Gallery Grid ---------- */
+    /* ---------- Gallery Grid: 1 / 2 / 3 / 4 kolom ---------- */
     .gallery-grid-section {
-        padding: 3rem 0 4rem;
+        padding: 2rem 0 4rem;
         background: var(--pln-gray);
     }
 
+    /* Batasi lebar container agar kartu anggun & berisi di layar besar
+       (tidak kerdil), tetap centered. */
+    .gallery-max {
+        max-width: 1200px;
+        margin-inline: auto;
+    }
+
+    /* gap-6 (1.5rem), naik ke gap-8 (2rem) di lg+ */
+    .gallery-max.row {
+        --bs-gutter-x: 1.5rem;
+        --bs-gutter-y: 1.5rem;
+    }
+
+    @media (min-width: 992px) {
+        .gallery-max.row {
+            --bs-gutter-x: 2rem;
+            --bs-gutter-y: 2rem;
+        }
+    }
+
     .gallery-card {
-        background: #fff;
+        background: #fff;                              /* bg-white */
         border: 1px solid var(--gallery-border);
-        border-radius: 14px;
-        overflow: hidden;
-        transition: all 0.35s ease;
+        border-radius: 16px;                           /* rounded-xl */
+        overflow: hidden;                              /* overflow-hidden */
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.07); /* shadow-md */
+        transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
         cursor: pointer;
         position: relative;
-        box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
         height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     .gallery-card:hover {
-        transform: translateY(-6px);
-        border-color: var(--pln-cyan);
-        box-shadow: 0 14px 34px rgba(0, 163, 224, 0.16);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16); /* hover:shadow-xl */
+        transform: translateY(-4px);
+        border-color: rgba(0, 163, 224, 0.45);
     }
 
+    /* Area gambar: rasio 4:3 (lebih tinggi & jelas), zoom saat hover (500ms) */
     .gallery-card .img-wrapper {
         position: relative;
         overflow: hidden;
-        aspect-ratio: 4 / 3;
+        aspect-ratio: 4 / 3;                           /* aspect-[4/3] */
         background: #f1f5f9;
+        flex-shrink: 0;
     }
 
     .gallery-card .img-wrapper img {
-        width: 100%;
+        width: 100%;                                   /* w-full */
         height: 100%;
-        object-fit: cover;
-        transition: transform 0.45s ease;
+        object-fit: cover;                             /* object-cover */
+        transition: transform 0.5s ease;               /* duration-500 */
+        will-change: transform;
     }
 
     .gallery-card:hover .img-wrapper img {
-        transform: scale(1.05);
+        transform: scale(1.05);                        /* group-hover:scale-105 */
     }
 
-    .gallery-card .img-overlay {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.5) 100%);
-        opacity: 0;
-        transition: opacity 0.35s ease;
-        display: flex;
-        align-items: flex-end;
-        justify-content: flex-end;
-        padding: 1rem;
-    }
-
-    .gallery-card:hover .img-overlay {
-        opacity: 1;
-    }
-
-    .gallery-card .img-overlay .zoom-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        background: rgba(255, 230, 0, 0.95);
-        color: var(--pln-blue);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.9rem;
-        transform: scale(0.7);
-        transition: transform 0.3s ease;
-    }
-
-    .gallery-card:hover .img-overlay .zoom-icon {
-        transform: scale(1);
-    }
-
-    /* Badge Kategori */
+    /* Badge kategori melayang di pojok kiri atas */
     .gallery-card .badge-kategori {
         position: absolute;
         top: 0.75rem;
@@ -239,32 +233,70 @@
         letter-spacing: 0.5px;
         z-index: 2;
         backdrop-filter: blur(8px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     }
 
-    .badge-kategori.badge-kegiatan    { background: rgba(255, 230, 0, 0.9); color: var(--gallery-primary); }
-    .badge-kategori.badge-fasilitas   { background: rgba(0, 163, 224, 0.9); color: #fff; }
-    .badge-kategori.badge-dokumentasi { background: rgba(22, 163, 74, 0.9); color: #fff; }
-    .badge-kategori.badge-seremonial  { background: rgba(139, 92, 246, 0.9); color: #fff; }
+    .badge-kategori.badge-kegiatan    { background: rgba(255, 230, 0, 0.92); color: var(--gallery-primary); } /* kuning */
+    .badge-kategori.badge-fasilitas   { background: rgba(0, 163, 224, 0.92); color: #fff; }                   /* biru */
+    .badge-kategori.badge-dokumentasi { background: rgba(22, 163, 74, 0.92); color: #fff; }                   /* hijau */
+    .badge-kategori.badge-seremonial  { background: rgba(168, 85, 247, 0.92); color: #fff; }                  /* ungu */
 
-    /* Card Body */
+    /* Zoom icon saat hover */
+    .gallery-card .img-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.45) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+        padding: 1rem;
+    }
+
+    .gallery-card:hover .img-overlay { opacity: 1; }
+
+    .gallery-card .img-overlay .zoom-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 230, 0, 0.95);
+        color: var(--pln-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        transform: scale(0.7);
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-card:hover .img-overlay .zoom-icon { transform: scale(1); }
+
+    /* Area informasi di bawah gambar — padding p-5, hierarki teks rapi */
     .gallery-card .card-body-custom {
-        padding: 1rem 1.15rem 1.25rem;
+        padding: 1.5rem;                               /* p-5 */
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 1;
     }
 
+    /* Judul: text-lg font-bold, gelap — hierarki utama */
     .gallery-card .card-title {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--gallery-text);
-        margin-bottom: 0.35rem;
-        line-height: 1.35;
+        font-size: 1.125rem;                           /* text-lg */
+        font-weight: 700;                              /* font-bold */
+        color: #111827;                                /* text-gray-900 */
+        margin: 0;
+        line-height: 1.4;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
 
+    /* Tanggal: text-sm, ikon kalender kecil + teks abu lembut */
     .gallery-card .card-date {
-        font-size: 0.76rem;
+        font-size: 0.875rem;                           /* text-sm */
         color: var(--gallery-text-muted);
         display: flex;
         align-items: center;
@@ -272,8 +304,20 @@
     }
 
     .gallery-card .card-date i {
-        font-size: 0.7rem;
-        color: var(--pln-yellow);
+        font-size: 0.75rem;
+        color: #f59e0b;
+    }
+
+    /* Deskripsi singkat: text-sm, max 2 baris (line-clamp-2) */
+    .gallery-card .card-desc {
+        font-size: 0.875rem;                           /* text-sm */
+        color: var(--gallery-text-muted);
+        line-height: 1.55;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     /* ---------- Empty State ---------- */
@@ -282,14 +326,39 @@
         padding: 4rem 1rem;
         color: #9ca3af;
     }
-    .gallery-empty i { font-size: 2.8rem; display: block; margin-bottom: 1rem; }
-    .gallery-empty h6 { font-weight: 600; color: #6b7280; }
+    .gallery-empty .empty-icon {
+        width: 88px;
+        height: 88px;
+        margin: 0 auto 1.25rem;
+        border-radius: 50%;
+        background: #f1f5f9;
+        border: 1px dashed #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #94a3b8;
+    }
+    .gallery-empty h6 { font-weight: 700; color: var(--gallery-text); font-size: 1rem; }
+    .gallery-empty p  { font-size: 0.85rem; color: var(--gallery-text-muted); margin-bottom: 1.25rem; }
+
+    .btn-reset-filter {
+        border: none;
+        background: var(--pln-blue);
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.55rem 1.25rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    .btn-reset-filter:hover { background: #003d6b; color: #fff; transform: translateY(-1px); }
 
     /* ---------- Lightbox Modal ---------- */
     .lightbox-modal .modal-content {
         background: #fff;
         border: none;
-        border-radius: 12px;
+        border-radius: 16px;
         overflow: hidden;
     }
 
@@ -301,17 +370,15 @@
     .lightbox-modal .modal-title {
         color: var(--gallery-text);
         font-size: 0.95rem;
-        font-weight: 600;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        min-width: 0;
     }
 
-    .lightbox-modal .btn-close {
-        opacity: 0.5;
-        transition: opacity 0.2s ease;
-    }
-
-    .lightbox-modal .btn-close:hover {
-        opacity: 1;
-    }
+    .lightbox-modal .btn-close { opacity: 0.5; transition: opacity 0.2s ease; }
+    .lightbox-modal .btn-close:hover { opacity: 1; }
 
     .lightbox-modal .modal-body {
         padding: 1rem;
@@ -324,28 +391,42 @@
 
     .lightbox-modal .modal-body img {
         max-width: 100%;
-        max-height: 80vh;
+        max-height: 78vh;
         object-fit: contain;
         border-radius: 8px;
     }
 
     .lightbox-modal .lightbox-caption {
-        padding: 1rem 1.5rem;
+        padding: 1.1rem 1.5rem 1.25rem;
         border-top: 1px solid var(--gallery-border);
     }
 
     .lightbox-modal .lightbox-caption h6 {
         color: var(--gallery-text);
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 0.25rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin: 0.5rem 0 0.15rem;
     }
 
     .lightbox-modal .lightbox-caption p {
         color: var(--gallery-text-muted);
-        font-size: 0.8rem;
+        font-size: 0.82rem;
         margin: 0 0 0.35rem;
     }
+
+    .lightbox-modal .lightbox-caption .lb-badge {
+        display: inline-block;
+        padding: 0.25rem 0.65rem;
+        border-radius: 6px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .lb-badge.lb-kegiatan    { background: rgba(255, 230, 0, 0.92); color: var(--gallery-primary); }
+    .lb-badge.lb-fasilitas   { background: rgba(0, 163, 224, 0.92); color: #fff; }
+    .lb-badge.lb-dokumentasi { background: rgba(22, 163, 74, 0.92); color: #fff; }
+    .lb-badge.lb-seremonial  { background: rgba(168, 85, 247, 0.92); color: #fff; }
 
     /* Nav Arrows */
     .lightbox-nav {
@@ -355,7 +436,7 @@
         width: 48px;
         height: 48px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.92);
         border: 1px solid var(--gallery-border);
         color: var(--gallery-text);
         display: flex;
@@ -383,10 +464,7 @@
         background: #fff;
     }
 
-    .galeri-pagination .pagination {
-        gap: 0.4rem;
-        margin-bottom: 0;
-    }
+    .galeri-pagination .pagination { gap: 0.4rem; margin-bottom: 0; }
 
     .galeri-pagination .page-link {
         background: #fff;
@@ -448,12 +526,14 @@
     }
 
     @media (max-width: 767.98px) {
-        .galeri-hero { padding: 1.5rem 0 2rem; }
+        /* Mobile: navbar sedikit lebih pendek → sesuaikan offset hero */
+        .galeri-hero { padding: calc(66px + 1.5rem) 0 2.5rem; }
         .galeri-hero h1 { font-size: 1.65rem; }
 
         .filter-chips {
             overflow-x: auto;
             flex-wrap: nowrap;
+            justify-content: flex-start;   /* scroll horizontal di HP */
             padding-bottom: 0.5rem;
             -webkit-overflow-scrolling: touch;
         }
@@ -493,7 +573,7 @@
     </section>
 
     {{-- ============================================
-         2. FILTER BAR
+         2. FILTER KATEGORI (Tab Navigation, tengah)
          ============================================ --}}
     <section class="filter-section">
         <div class="container px-4 px-lg-5">
@@ -508,19 +588,22 @@
                 </button>
                 @endforeach
             </div>
-            <div class="mt-2 text-muted" style="font-size: 0.78rem;" id="galleryCount"></div>
+            <div class="gallery-count" id="galleryCount"></div>
         </div>
     </section>
 
     {{-- ============================================
-         3. RESPONSIVE PHOTO GRID
+         3. GRID GALERI: 1 kolom (HP) / 2 (tablet) /
+            3 (laptop) / 4 (desktop besar)
          ============================================ --}}
     <section class="gallery-grid-section">
         <div class="container px-4 px-lg-5">
-            <div class="row g-4" id="galleryGrid">
+            {{-- gallery-max: batasi lebar grid agar kartu tidak kerdil di desktop besar --}}
+            <div class="row g-4 gallery-max" id="galleryGrid">
 
                 @forelse ($galleries as $item)
-                <div class="col-lg-4 col-md-6 gallery-item" data-kategori="{{ strtolower($item->kategori) }}">
+                {{-- Grid 3 kolom di lg+: 1 (HP) / 2 (sm-md) / 3 (lg+) --}}
+                <div class="col-12 col-sm-6 col-lg-4 gallery-item" data-kategori="{{ strtolower($item->kategori) }}">
                     <div class="gallery-card" data-index="{{ $loop->index }}">
                         <div class="img-wrapper">
                             <span class="badge-kategori badge-{{ strtolower($item->kategori) }}">{{ strtolower($item->kategori) }}</span>
@@ -534,19 +617,32 @@
                             <div class="card-date">
                                 <i class="fas fa-calendar-alt"></i> {{ $item->tanggal_kegiatan->translatedFormat('d F Y') }}
                             </div>
+                            @if ($item->deskripsi)
+                            <p class="card-desc">{{ $item->deskripsi }}</p>
+                            @endif
                         </div>
                     </div>
                 </div>
                 @empty
                 <div class="col-12">
-                    <div class="gallery-empty" data-i18n="galeri.empty">
-                        <i class="fas fa-images"></i>
-                        <h6>Belum ada foto galeri</h6>
-                        <p>Foto akan segera ditambahkan. Silakan kembali lagi nanti.</p>
+                    <div class="gallery-empty">
+                        <div class="empty-icon"><i class="fas fa-images"></i></div>
+                        <h6 data-i18n="galeri.empty">Belum ada foto pada kategori ini</h6>
+                        <p>Dokumentasi foto akan segera ditambahkan. Silakan kembali lagi nanti.</p>
                     </div>
                 </div>
                 @endforelse
 
+            </div>
+
+            {{-- Empty state saat filter menghasilkan 0 foto (ditampilkan via JS) --}}
+            <div class="gallery-empty d-none" id="filterEmpty">
+                <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
+                <h6 data-i18n="galeri.empty">Belum ada foto pada kategori ini</h6>
+                <p>Coba pilih kategori lain untuk melihat dokumentasi yang tersedia.</p>
+                <button type="button" class="btn-reset-filter" id="resetFilterBtn">
+                    <i class="fas fa-rotate-left me-1"></i> Tampilkan Semua Foto
+                </button>
             </div>
         </div>
     </section>
@@ -567,9 +663,8 @@
 </div>
 
 {{-- ============================================================
-     LIGHTBOX — ON-DEMAND RENDER (lazy)
-     Data foto di-inject dari server (hanya foto berstatus
-     publikasi). Modal dirender dari <template> saat klik pertama.
+     5. LIGHTBOX — judul, tanggal, badge kategori, deskripsi
+     lengkap. On-demand render dari <template> saat klik pertama.
      ============================================================ --}}
 <template id="lightboxTemplate">
     <div class="modal fade lightbox-modal" id="lightboxModal" tabindex="-1" aria-hidden="true">
@@ -589,6 +684,7 @@
                     </button>
                 </div>
                 <div class="lightbox-caption">
+                    <span class="lb-badge" id="lightboxBadge"></span>
                     <h6 id="lightboxCaptionTitle"></h6>
                     <p id="lightboxCaptionDate"></p>
                     <p id="lightboxCaptionDesc"></p>
@@ -617,13 +713,15 @@
     const filterChips = document.querySelectorAll('.filter-chip');
     const galleryItems = document.querySelectorAll('.gallery-item');
     const countEl = document.getElementById('galleryCount');
+    const filterEmpty = document.getElementById('filterEmpty');
+    const resetFilterBtn = document.getElementById('resetFilterBtn');
 
     function updateCount(n) {
         if (countEl) countEl.textContent = n + ' foto ditampilkan';
     }
     updateCount(filteredIndices.length);
 
-    /* --- Filter chips --- */
+    /* --- Filter kategori --- */
     filterChips.forEach(function(chip) {
         chip.addEventListener('click', function() {
             filterChips.forEach(function(c) { c.classList.remove('active'); });
@@ -649,7 +747,15 @@
             });
 
             updateCount(filteredIndices.length);
+            /* Empty state bila kategori tidak punya foto */
+            if (filterEmpty) filterEmpty.classList.toggle('d-none', filteredIndices.length > 0);
         });
+    });
+
+    /* --- Reset filter dari empty state --- */
+    resetFilterBtn?.addEventListener('click', function() {
+        const allChip = document.querySelector('.filter-chip[data-filter="semua"]');
+        if (allChip) allChip.click();
     });
 
     /* --- Kartu galeri (delegated) → buka lightbox --- */
@@ -674,6 +780,7 @@
     var lightboxModal = null;
     var lightboxImage = null;
     var lightboxTitle = null;
+    var lightboxBadge = null;
     var lightboxCapTitle = null;
     var lightboxCapDate = null;
     var lightboxCapDesc = null;
@@ -687,6 +794,7 @@
         lightboxModal    = document.getElementById('lightboxModal');
         lightboxImage    = document.getElementById('lightboxImage');
         lightboxTitle    = document.getElementById('lightboxTitle');
+        lightboxBadge    = document.getElementById('lightboxBadge');
         lightboxCapTitle = document.getElementById('lightboxCaptionTitle');
         lightboxCapDate  = document.getElementById('lightboxCaptionDate');
         lightboxCapDesc  = document.getElementById('lightboxCaptionDesc');
@@ -698,8 +806,18 @@
         lightboxTitle.textContent = data.title;
         lightboxCapTitle.textContent = data.title;
         lightboxCapDate.textContent = data.date;
-        lightboxCapDesc.textContent = data.desc;
-        lightboxCapDesc.style.display = data.desc ? '' : 'none';
+
+        /* Badge kategori dengan warna sesuai kategori */
+        if (lightboxBadge) {
+            lightboxBadge.textContent = (data.kategori || '').toUpperCase();
+            lightboxBadge.className = 'lb-badge lb-' + (data.kategori || 'kegiatan');
+        }
+
+        /* Deskripsi lengkap (tidak dipotong di lightbox) */
+        if (lightboxCapDesc) {
+            lightboxCapDesc.textContent = data.desc;
+            lightboxCapDesc.style.display = data.desc ? '' : 'none';
+        }
     }
 
     window.openLightbox = function(index) {
@@ -721,8 +839,7 @@
 
         currentIndex = filteredIndices[newPos];
 
-        /* Crossfade CSS-murni via class (GPU: opacity saja) */
-        lightboxImage.classList.remove('is-loaded');
+        /* Crossfade CSS-murni (GPU: opacity saja) */
         lightboxImage.style.opacity = '0';
 
         var data = galleryData[currentIndex];
