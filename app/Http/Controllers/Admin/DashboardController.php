@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Models\News;
 
 class DashboardController extends Controller
 {
@@ -16,11 +17,14 @@ class DashboardController extends Controller
     public function index()
     {
         // Statistics from database
+        $totalPublishedNews = News::where('is_published', true)->count();
+        $totalDraftNews = News::where('is_published', false)->count();
+
         $stats = [
             'total_users'    => User::count(),
             'total_pages'    => 0, // Belum ada model Page
-            'total_news'     => 0, // Belum ada model News
-            'pending_content' => 0, // Belum ada model Content
+            'total_news'     => $totalPublishedNews,
+            'pending_content' => $totalDraftNews,
         ];
 
         // Aktivitas terbaru dari log aktivitas sungguhan (tabel activity_logs)
@@ -49,13 +53,27 @@ class DashboardController extends Controller
             })
             ->toArray();
 
-        $latest_content = [
-            ['title' => 'Pemeliharaan Trafo 22/35 kV',           'type' => 'Berita',   'status' => 'Published', 'date' => '08 Sep 2026'],
-            ['title' => 'Jadwal Maintenance Bulanan September',   'type' => 'Pengumuman','status' => 'Published', 'date' => '08 Sep 2026'],
-            ['title' => 'Profil Perusahaan — Update Struktur',    'type' => 'Halaman',  'status' => 'Draft',     'date' => '07 Sep 2026'],
-            ['title' => 'Laporan Keberlanjutan Lingkungan 2025',  'type' => 'Berita',   'status' => 'Pending',   'date' => '07 Sep 2026'],
-            ['title' => 'Pedoman Layanan Informasi Publik',       'type' => 'Halaman',  'status' => 'Published', 'date' => '06 Sep 2026'],
-        ];
+        // Get latest news from database
+        $latestNews = News::latest()->take(5)->get()->map(function ($item) {
+            return [
+                'title'  => $item->title,
+                'type'   => 'Berita',
+                'status' => $item->is_published ? 'Published' : 'Draft',
+                'date'   => $item->created_at->format('d M Y'),
+            ];
+        })->toArray();
+
+        // Add static placeholder content if no news yet
+        $latest_content = $latestNews;
+        if (count($latest_content) < 5) {
+            $placeholders = [
+                ['title' => 'Jadwal Maintenance Bulanan September',   'type' => 'Pengumuman', 'status' => 'Published', 'date' => '08 Sep 2026'],
+                ['title' => 'Profil Perusahaan — Update Struktur',    'type' => 'Halaman',   'status' => 'Draft',     'date' => '07 Sep 2026'],
+                ['title' => 'Pedoman Layanan Informasi Publik',       'type' => 'Halaman',   'status' => 'Published', 'date' => '06 Sep 2026'],
+            ];
+            $remaining = 5 - count($latest_content);
+            $latest_content = array_merge($latest_content, array_slice($placeholders, 0, $remaining));
+        }
 
         $notifications = [
             ['message' => '3 konten menunggu publikasi',  'type' => 'warning', 'time' => '10 menit lalu',  'icon' => 'fas fa-clock'],

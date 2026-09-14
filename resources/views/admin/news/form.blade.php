@@ -5,468 +5,827 @@
 
 @push('styles')
 <style>
-    .form-label {
+    /* ============================================
+       NEWS FORM — ELEGANT MINIMALIST
+       ============================================ */
+
+    /* Top Navigation Bar */
+    .form-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    .form-topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .form-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        color: #6b7280;
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    .form-back-btn:hover {
+        border-color: var(--pln-blue);
+        color: var(--pln-blue);
+        background: #f0f7ff;
+    }
+    .form-page-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--pln-text);
+        margin: 0;
+    }
+    .form-page-subtitle {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin: 0.15rem 0 0;
+    }
+    .form-topbar-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .form-btn-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.5rem;
+        background: var(--pln-blue);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+    .form-btn-save:hover {
+        background: #003d6b;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(0,91,156,0.3);
+    }
+    .form-btn-save:active { transform: translateY(0); }
+
+    /* Form Sections */
+    .form-section {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: box-shadow 0.2s ease;
+    }
+    .form-section:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+    .form-section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.85rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .form-section-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+    .form-section-icon.blue { background: rgba(0,91,156,0.1); color: var(--pln-blue); }
+    .form-section-icon.cyan { background: rgba(0,163,224,0.1); color: var(--pln-cyan); }
+    .form-section-icon.yellow { background: rgba(255,230,0,0.15); color: #b8860b; }
+    .form-section-icon.purple { background: rgba(139,92,246,0.1); color: #8b5cf6; }
+    .form-section-title {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: var(--pln-text);
+        margin: 0;
+    }
+    .form-section-desc {
+        font-size: 0.72rem;
+        color: #9ca3af;
+        margin: 0;
+    }
+
+    /* Form Fields */
+    .form-group {
+        margin-bottom: 1.15rem;
+    }
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+    .form-group-label {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
         font-weight: 600;
         font-size: 0.82rem;
         color: #374151;
-        margin-bottom: 0.4rem;
-        display: block;
+        margin-bottom: 0.45rem;
+    }
+    .form-group-label .required {
+        color: #dc2626;
+        font-size: 0.9em;
+    }
+    .form-group-label .optional {
+        font-weight: 400;
+        font-size: 0.75rem;
+        color: #9ca3af;
     }
 
-    .form-control-pln {
+    .form-input {
         width: 100%;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 0.62rem 0.9rem;
-        font-size: 0.9rem;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 0.65rem 0.95rem;
+        font-size: 0.88rem;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         transition: all 0.2s ease;
         background: #fff;
         color: #1f2937;
     }
-    .form-control-pln::placeholder { color: #9ca3af; }
-    .form-control-pln:focus {
+    .form-input::placeholder { color: #9ca3af; }
+    .form-input:focus {
         border-color: var(--pln-blue);
-        box-shadow: 0 0 0 3px rgba(0,91,156,0.1);
+        box-shadow: 0 0 0 3px rgba(0,91,156,0.08);
         outline: none;
     }
+    .form-input.is-invalid {
+        border-color: #dc2626;
+        background: #fef2f2;
+    }
 
-    textarea.form-control-pln { resize: vertical; min-height: 110px; }
+    textarea.form-input {
+        resize: vertical;
+        min-height: 100px;
+        line-height: 1.6;
+    }
 
-    .field-error {
-        font-size: 0.78rem;
-        color: #dc2626;
-        margin-top: 0.3rem;
+    .form-hint {
+        font-size: 0.72rem;
+        color: #9ca3af;
+        margin-top: 0.35rem;
         display: flex;
         align-items: center;
         gap: 0.3rem;
     }
 
-    .form-control-pln.is-invalid,
-    textarea.form-control-pln.is-invalid {
-        border-color: #dc2626;
-        background: #fef2f2;
-    }
-
-    .image-dropzone {
-        border: 2px dashed #d1d5db;
-        border-radius: 10px;
-        padding: 1rem;
-        text-align: center;
-        background: #fafafa;
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-    .image-dropzone:hover {
-        border-color: var(--pln-blue);
-        background: #f0f7ff;
-    }
-    .image-preview {
-        width: 100%;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #f1f5f9;
-        margin-top: 0.75rem;
-    }
-    .image-preview img {
-        width: 100%;
-        display: block;
-        max-height: 220px;
-        object-fit: cover;
-    }
-
-    .btn-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        color: #6b7280;
-        font-weight: 600;
-        font-size: 0.85rem;
-        text-decoration: none;
-        transition: color 0.2s ease;
-        padding: 0.4rem 0;
-    }
-    .btn-back:hover { color: var(--pln-blue); }
-
-    .btn-submit {
-        background: var(--pln-blue);
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        padding: 0.7rem 1.6rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-    }
-    .btn-submit:hover {
-        background: #003d6b;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(0,91,156,0.28);
-    }
-
-    .category-selector {
+    .form-error {
+        font-size: 0.75rem;
+        color: #dc2626;
+        margin-top: 0.35rem;
         display: flex;
-        gap: 0.6rem;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    /* Category Pills */
+    .category-pills {
+        display: flex;
+        gap: 0.5rem;
         flex-wrap: wrap;
     }
-    .category-selector label {
+    .category-pill {
+        position: relative;
+    }
+    .category-pill input { display: none; }
+    .category-pill-label {
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
         padding: 0.5rem 1rem;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        border: 1.5px solid #e5e7eb;
         background: #fff;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s ease;
-        color: #4b5563;
+        color: #6b7280;
     }
-    .category-selector input { display: none; }
-    .category-selector label:hover { border-color: #cbd5e1; }
-    .category-selector input:checked + span {
+    .category-pill-label:hover {
+        border-color: #cbd5e1;
+        background: #f9fafb;
+    }
+    .category-pill-label .pill-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .category-pill-label .pill-dot.dot-blue { background: var(--pln-blue); }
+    .category-pill-label .pill-dot.dot-cyan { background: var(--pln-cyan); }
+    .category-pill-label .pill-dot.dot-yellow { background: #eab308; }
+    .category-pill-label .pill-dot.dot-purple { background: #8b5cf6; }
+
+    .category-pill input:checked + .category-pill-label {
         color: #fff;
-    }
-    .category-selector label:has(input:checked) {
         border-color: transparent;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     }
-    .category-selector label:has(input:checked) {
-        background: var(--pln-blue);
-        color: #fff;
+    .category-pill input:checked + .category-pill-label.cat-umum { background: var(--pln-blue); }
+    .category-pill input:checked + .category-pill-label.cat-teknis { background: var(--pln-cyan); }
+    .category-pill input:checked + .category-pill-label.cat-kegiatan { background: #eab308; color: #1a1a2e; }
+    .category-pill input:checked + .category-pill-label.cat-kepegawaian { background: #8b5cf6; }
+
+    /* Image Upload — Compact Minimalist */
+    .image-upload-area {
+        border: 1.5px dashed #d1d5db;
+        border-radius: 10px;
+        padding: 1.25rem;
+        text-align: center;
+        background: #fafafa;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 120px;
+    }
+    .image-upload-area:hover {
         border-color: var(--pln-blue);
+        background: #f0f7ff;
     }
-    .category-selector .badge-umum:hover { background: #005b9c; }
-    .category-selector .badge-teknis:hover { background: #00a3e0; }
-    .category-selector .badge-kegiatan:hover { background: #eab900; color: #005b9c; }
-    .category-selector .badge-kepegawaian:hover { background: #8b5cf6; }
+    .image-upload-area.dragover {
+        border-color: var(--pln-blue);
+        background: #eff6ff;
+    }
+    .image-upload-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+    .image-upload-icon {
+        width: 40px;
+        height: 40px;
+        background: #f1f5f9;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 1rem;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+    }
+    .image-upload-area:hover .image-upload-icon {
+        background: #dbeafe;
+        color: var(--pln-blue);
+    }
+    .image-upload-info {
+        text-align: left;
+    }
+    .image-upload-text {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 0.1rem;
+    }
+    .image-upload-text span {
+        color: var(--pln-blue);
+    }
+    .image-upload-hint {
+        font-size: 0.7rem;
+        color: #9ca3af;
+    }
+
+    /* Image Upload Row — Side by side */
+    .image-upload-row-layout {
+        display: flex;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    .image-upload-row-layout .image-upload-area {
+        flex: 1;
+        min-height: 160px;
+    }
+    .image-upload-row-layout .image-preview-container {
+        flex: 1;
+        margin-top: 0;
+        min-height: 160px;
+    }
+
+    .image-preview-container {
+        border-radius: 10px;
+        overflow: hidden;
+        background: #f1f5f9;
+        position: relative;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .image-preview-container img {
+        width: 100%;
+        display: block;
+        max-height: 180px;
+        object-fit: cover;
+    }
+
+    .replace-image-check {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 0.5rem;
+        cursor: pointer;
+    }
+    .replace-image-check input {
+        accent-color: var(--pln-blue);
+        width: 14px;
+        height: 14px;
+    }
+    .replace-image-check span {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #6b7280;
+    }
+
+    /* Footer */
+    .form-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        margin-top: 0.5rem;
+    }
+    .form-footer-info {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .form-footer-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .form-btn-cancel {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.6rem 1.25rem;
+        background: #FEE2E2;
+        color: #DC2626;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+    .form-btn-cancel:hover {
+        background: #DC2626;
+        color: #fff;
+    }
 
     /* Responsive */
+    @media (max-width: 767.98px) {
+        .form-topbar { flex-direction: column; align-items: flex-start; }
+        .form-topbar-actions { width: 100%; }
+        .form-topbar-actions .form-btn-save { flex: 1; justify-content: center; }
+        .form-footer { flex-direction: column; gap: 0.75rem; }
+        .form-footer-actions { width: 100%; }
+        .form-footer-actions .form-btn-save { flex: 1; justify-content: center; }
+        .image-upload-row-layout { flex-direction: column; }
+        .category-pills { gap: 0.4rem; }
+        .category-pill-label { padding: 0.4rem 0.75rem; font-size: 0.78rem; }
+    }
     @media (max-width: 575.98px) {
-        .category-selector { gap: 0.4rem; }
-        .category-selector label { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+        .form-section { padding: 1.15rem; }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="row g-3 mb-4">
-    <div class="col-12">
-        <div class="dash-card">
-            <div class="dash-card-header">
-                <div>
-                    <h5 class="dash-card-title">{{ $news ? 'Edit Berita' : 'Tambah Berita' }}</h5>
-                    <p class="dash-card-subtitle">{{ $news ? 'Perbarui informasi berita' : 'Buat berita baru untuk publikasi' }}</p>
-                </div>
-                <a href="{{ route('admin.news.index') }}" class="btn-back">
-                    <i class="fas fa-arrow-left"></i> Kembali
-                </a>
+{{-- ============================================
+     TOP NAVIGATION
+     ============================================ --}}    <div class="form-topbar">
+        <div class="form-topbar-left">
+            <a href="{{ route('admin.news.index') }}" class="form-back-btn">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+            <div>
+                <h4 class="form-page-title">{{ $news ? 'Edit Berita' : 'Tambah Berita Baru' }}</h4>
+                <p class="form-page-subtitle">{{ $news ? 'Perbarui informasi berita yang sudah ada' : 'Buat dan publikasikan berita baru' }}</p>
             </div>
-
-            <form action="{{ $news ? route('admin.news.update', $news) : route('admin.news.store') }}" method="POST" enctype="multipart/form-data" id="newsForm">
-                @csrf
-                @if ($news)
-                    @method('PUT')
-                @endif
-
-                @if (session('success'))
-                <div class="alert alert-success" style="background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; margin-bottom: 1rem;">
-                    <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
-                </div>
-                @endif
-
-                @if ($errors->any())
-                <div class="alert" style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; margin-bottom: 1rem;">
-                    <i class="fas fa-circle-exclamation me-1"></i> Perbaiki data berikut.
-                </div>
-                @endif
-
-                <div class="row g-3">
-                    {{-- Judul --}}
-                    <div class="col-lg-8">
-                        <label for="title" class="form-label">Judul Berita <span style="color: #dc2626;">*</span></label>
-                        <input type="text"
-                               id="title"
-                               name="title"
-                               value="{{ old('title', $news?->title) }}"
-                               class="form-control-pln @error('title') is-invalid @enderror"
-                               placeholder="Judul berita..."
-                               maxlength="255">
-                        @error('title')
-                        <div class="field-error">
-                            <i class="fas fa-exclamation-circle"></i> {{ $message }}
-                        </div>
-                        @enderror
-                        <div class="field-error d-none" id="titleError">
-                            <i class="fas fa-exclamation-circle"></i> Judul berita wajib diisi.
-                        </div>
-                    </div>
-
-                    {{-- Kategori --}}
-                    <div class="col-lg-4">
-                        <label class="form-label">Kategori <span style="color: #dc2626;">*</span></label>
-                        <div class="category-selector">
-                            <label style="background: {{ old('category', $news?->category) === 'umum' ? 'var(--pln-blue)' : '#fff' }}; color: {{ old('category', $news?->category) === 'umum' ? '#fff' : '#4b5563' }}; border-color: {{ old('category', $news?->category) === 'umum' ? 'var(--pln-blue)' : '#e5e7eb' }};">
-                                <input type="radio" name="category" value="umum" {{ old('category', $news?->category) === 'umum' ? 'checked' : '' }}>
-                                <span style="background: rgba(0,91,156,0.88); color: #fff; border-radius: 4px; padding: 0.1rem 0.45rem; font-size: 0.65rem;">UMUM</span>
-                            </label>
-                            <label style="background: {{ old('category', $news?->category) === 'teknis' ? '#00a3e0' : '#fff' }}; color: {{ old('category', $news?->category) === 'teknis' ? '#fff' : '#4b5563' }}; border-color: {{ old('category', $news?->category) === 'teknis' ? '#00a3e0' : '#e5e7eb' }};">
-                                <input type="radio" name="category" value="teknis" {{ old('category', $news?->category) === 'teknis' ? 'checked' : '' }}>
-                                <span style="background: rgba(0,163,224,0.88); color: #fff; border-radius: 4px; padding: 0.1rem 0.45rem; font-size: 0.65rem;">TEKNIS</span>
-                            </label>
-                            <label style="background: {{ old('category', $news?->category) === 'kegiatan' ? '#ffe600' : '#fff' }}; color: {{ old('category', $news?->category) === 'kegiatan' ? '#005b9c' : '#4b5563' }}; border-color: {{ old('category', $news?->category) === 'kegiatan' ? '#ffe600' : '#e5e7eb' }};">
-                                <input type="radio" name="category" value="kegiatan" {{ old('category', $news?->category) === 'kegiatan' ? 'checked' : '' }}>
-                                <span style="background: rgba(255,230,0,0.92); color: #005b9c; border-radius: 4px; padding: 0.1rem 0.45rem; font-size: 0.65rem;">KEGIATAN</span>
-                            </label>
-                            <label style="background: {{ old('category', $news?->category) === 'kepegawaian' ? '#8b5cf6' : '#fff' }}; color: {{ old('category', $news?->category) === 'kepegawaian' ? '#fff' : '#4b5563' }}; border-color: {{ old('category', $news?->category) === 'kepegawaian' ? '#8b5cf6' : '#e5e7eb' }};">
-                                <input type="radio" name="category" value="kepegawaian" {{ old('category', $news?->category) === 'kepegawaian' ? 'checked' : '' }}>
-                                <span style="background: rgba(139,92,246,0.88); color: #fff; border-radius: 4px; padding: 0.1rem 0.45rem; font-size: 0.65rem;">KEPEGAWAIAN</span>
-                            </label>
-                        </div>
-                        @error('category')
-                        <div class="field-error">
-                            <i class="fas fa-exclamation-circle"></i> {{ $message }}
-                        </div>
-                        @enderror
-                        <div class="field-error d-none" id="categoryError">
-                            <i class="fas fa-exclamation-circle"></i> Kategori wajib dipilih — klik salah satu pill di atas.
-                        </div>
-                    </div>
-
-                    {{-- Author --}}
-                    <div class="col-lg-4">
-                        <label for="author" class="form-label">Penulis / Pengirim</label>
-                        <input type="text"
-                               id="author"
-                               name="author"
-                               value="{{ old('author', $news?->author) }}"
-                               class="form-control-pln"
-                               placeholder="Contoh: Humas PLN NP">
-                    </div>
-
-                    {{-- Ekcerpt --}}
-                    <div class="col-lg-8">
-                        <label for="excerpt" class="form-label">Ringkasan (Ekcerpt) <span style="color: #dc2626;">*</span></label>
-                        <textarea id="excerpt"
-                                  name="excerpt"
-                                  class="form-control-pln @error('excerpt') is-invalid @enderror"
-                                  placeholder="Tuliskan ringkasan singkat berita (maksimal 1000 karakter)..."
-                                  maxlength="1000">{{ old('excerpt', $news?->excerpt) }}</textarea>
-                        @error('excerpt')
-                        <div class="field-error">
-                            <i class="fas fa-exclamation-circle"></i> {{ $message }}
-                        </div>
-                        @enderror
-                        <div class="field-error d-none" id="excerptError">
-                            <i class="fas fa-exclamation-circle"></i> Ringkasan berita wajib diisi.
-                        </div>
-                    </div>
-
-                    {{-- Konten --}}
-                    <div class="col-lg-4">
-                        <label for="content" class="form-label">Konten Lengkap</label>
-                        <textarea id="content"
-                                  name="content"
-                                  class="form-control-pln"
-                                  placeholder="Konten berita secara lengkap (opsional)...">{{ old('content', $news?->content) }}</textarea>
-                        <div style="font-size: 0.72rem; color: #9ca3af; margin-top: 0.3rem;">
-                            <i class="far fa-lightbulb me-1"></i> Opsional — isi halaman detail berita
-                        </div>
-                    </div>
-
-                    {{-- Gambar --}}
-                    <div class="col-lg-4">
-                        <label class="form-label">Gambar Utama <span style="color: #dc2626;">*</span></label>
-                        <div class="image-dropzone" id="imageDropzone">
-                            <i class="fas fa-cloud-upload-alt" style="font-size: 1.6rem; color: #9ca3af; display: block; margin-bottom: 0.5rem;"></i>
-                            <div style="font-size: 0.85rem; color: #6b7280; font-weight: 500;">
-                                Klik atau drag gambar di sini
-                            </div>
-                            <div style="font-size: 0.72rem; color: #9ca3af; margin-top: 0.25rem;">
-                                PNG, JPG — maks 5MB
-                            </div>
-                            <input type="file"
-                                   id="imageInput"
-                                   name="image"
-                                   class="d-none"
-                                   accept="image/png,image/jpeg,image/webp">
-                        </div>
-                        <div class="field-error d-none" id="imageError">
-                            <i class="fas fa-exclamation-circle"></i> <span id="imageErrorText">Gambar utama wajib diunggah — klik area di atas untuk memilih gambar.</span>
-                        </div>
-                        @if ($news && $news->image)
-                        <div class="image-preview">
-                            <img src="{{ asset('storage/' . $news->image) }}" alt="Current image">
-                        </div>
-                        <div class="mt-2">
-                            <label class="form-label mb-0" style="font-size: 0.8rem;">
-                                <input type="checkbox" name="replace_image" style="margin-right: 0.4rem; accent-color: var(--pln-blue);">
-                                Ganti gambar
-                            </label>
-                        </div>
-                        @endif
-                        @error('image')
-                        <div class="field-error">
-                            <i class="fas fa-exclamation-circle"></i> {{ $message }}
-                        </div>
-                        @enderror
-                    </div>
-
-                    {{-- Status Publikasi --}}
-                    <div class="col-lg-4">
-                        <label class="form-label mb-2">Status Publikasi</label>
-                        <div class="d-flex align-items-center gap-3">
-                            <label class="form-label mb-0 d-flex align-items-center gap-2" style="cursor: pointer; font-weight: 500;">
-                                <input type="radio" name="is_published" value="1" {{ old('is_published', $news?->is_published ?? 1) == 1 ? 'checked' : '' }} style="accent-color: var(--pln-blue); width: 16px; height: 16px;">
-                                <span style="font-size: 0.9rem;">
-                                    <i class="fas fa-eye me-1" style="color: var(--pln-cyan);"></i> Publikasi
-                                </span>
-                            </label>
-                            <label class="form-label mb-0 d-flex align-items-center gap-2" style="cursor: pointer; font-weight: 500; color: #6b7280;">
-                                <input type="radio" name="is_published" value="0" {{ old('is_published', $news?->is_published ?? 1) != 1 ? 'checked' : '' }} style="accent-color: #9ca3af; width: 16px; height: 16px;">
-                                <span style="font-size: 0.9rem;">
-                                    <i class="fas fa-pen me-1" style="color: #9ca3af;"></i> Simpan sebagai Draft
-                                </span>
-                            </label>
-                        </div>
-                        <div style="font-size: 0.72rem; color: #9ca3af; margin-top: 0.3rem;">
-                            <i class="far fa-clock me-1"></i> Draft tidak akan tampil di halaman berita publik
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-3 mt-4">
-                    <div class="col-12 d-flex justify-content-end gap-2">
-                        <a href="{{ route('admin.news.index') }}" class="btn" style="background: #f3f4f6; color: #6b7280; border: none; border-radius: 8px; padding: 0.7rem 1.6rem; font-weight: 600; font-size: 0.9rem;">
-                            Batal
-                        </a>
-                        <button type="submit" class="btn-submit">
-                            <i class="fas fa-save me-1"></i> {{ $news ? 'Simpan Perubahan' : 'Simpan Berita' }}
-                        </button>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
+
+@if (session('success'))
+<div style="background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.85rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+    <i class="fas fa-check-circle"></i> {{ session('success') }}
 </div>
+@endif
+
+@if ($errors->any())
+<div style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.85rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+    <i class="fas fa-circle-exclamation"></i> Terdapat kesalahan pada form. Silakan periksa kembali.
+</div>
+@endif
+
+<form action="{{ $news ? route('admin.news.update', $news) : route('admin.news.store') }}" method="POST" enctype="multipart/form-data" id="newsForm">
+    @csrf
+    @if ($news)
+        @method('PUT')
+    @endif
+
+    {{-- ============================================
+         SECTION: Informasi Utama
+         ============================================ --}}
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon blue">
+                <i class="fas fa-file-lines"></i>
+            </div>
+            <div>
+                <h6 class="form-section-title">Informasi Utama</h6>
+                <p class="form-section-desc">Judul, kategori, dan penulis berita</p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <div class="form-group">
+                    <label class="form-group-label">
+                        Judul Berita <span class="required">*</span>
+                    </label>
+                    <input type="text"
+                           id="title"
+                           name="title"
+                           value="{{ old('title', $news?->title) }}"
+                           class="form-input @error('title') is-invalid @enderror"
+                           placeholder="Masukkan judul berita..."
+                           maxlength="255">
+                    @error('title')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                    <div class="form-error d-none" id="titleError">
+                        <i class="fas fa-exclamation-circle"></i> Judul berita wajib diisi.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label class="form-group-label">
+                        Penulis <span class="optional">(opsional)</span>
+                    </label>
+                    <input type="text"
+                           id="author"
+                           name="author"
+                           value="{{ old('author', $news?->author) }}"
+                           class="form-input"
+                           placeholder="Contoh: Humas PLN">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-group-label">
+                Kategori <span class="required">*</span>
+            </label>
+            <div class="category-pills">
+                <div class="category-pill">
+                    <input type="radio" name="category" value="umum" id="cat-umum" {{ old('category', $news?->category) === 'umum' ? 'checked' : '' }}>
+                    <label for="cat-umum" class="category-pill-label cat-umum">
+                        <span class="pill-dot dot-blue"></span> Umum
+                    </label>
+                </div>
+                <div class="category-pill">
+                    <input type="radio" name="category" value="teknis" id="cat-teknis" {{ old('category', $news?->category) === 'teknis' ? 'checked' : '' }}>
+                    <label for="cat-teknis" class="category-pill-label cat-teknis">
+                        <span class="pill-dot dot-cyan"></span> Teknis
+                    </label>
+                </div>
+                <div class="category-pill">
+                    <input type="radio" name="category" value="kegiatan" id="cat-kegiatan" {{ old('category', $news?->category) === 'kegiatan' ? 'checked' : '' }}>
+                    <label for="cat-kegiatan" class="category-pill-label cat-kegiatan">
+                        <span class="pill-dot dot-yellow"></span> Kegiatan
+                    </label>
+                </div>
+                <div class="category-pill">
+                    <input type="radio" name="category" value="kepegawaian" id="cat-kepegawaian" {{ old('category', $news?->category) === 'kepegawaian' ? 'checked' : '' }}>
+                    <label for="cat-kepegawaian" class="category-pill-label cat-kepegawaian">
+                        <span class="pill-dot dot-purple"></span> Kepegawaian
+                    </label>
+                </div>
+            </div>
+            @error('category')
+                <div class="form-error" style="margin-top: 0.4rem;"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+            @enderror
+            <div class="form-error d-none" id="categoryError" style="margin-top: 0.4rem;">
+                <i class="fas fa-exclamation-circle"></i> Pilih salah satu kategori.
+            </div>
+        </div>
+    </div>
+
+    {{-- ============================================
+         SECTION: Konten Berita
+         ============================================ --}}
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon cyan">
+                <i class="fas fa-align-left"></i>
+            </div>
+            <div>
+                <h6 class="form-section-title">Konten Berita</h6>
+                <p class="form-section-desc">Ringkasan dan isi lengkap berita</p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-group-label">
+                Ringkasan <span class="required">*</span>
+            </label>
+            <textarea id="excerpt"
+                      name="excerpt"
+                      class="form-input @error('excerpt') is-invalid @enderror"
+                      placeholder="Tuliskan ringkasan singkat berita yang akan ditampilkan di halaman utama..."
+                      maxlength="1000"
+                      rows="4">{{ old('excerpt', $news?->excerpt) }}</textarea>
+            <div class="form-hint">
+                <i class="far fa-lightbulb"></i> Maksimal 1000 karakter — tampil di kartu berita
+            </div>
+            @error('excerpt')
+                <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+            @enderror
+            <div class="form-error d-none" id="excerptError">
+                <i class="fas fa-exclamation-circle"></i> Ringkasan berita wajib diisi.
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-group-label">
+                Konten Lengkap <span class="optional">(opsional)</span>
+            </label>
+            <textarea id="content"
+                      name="content"
+                      class="form-input"
+                      placeholder="Tuliskan konten berita secara lengkap untuk halaman detail..."
+                      rows="5">{{ old('content', $news?->content) }}</textarea>
+            <div class="form-hint">
+                <i class="far fa-lightbulb"></i> Ditampilkan di halaman detail berita
+            </div>
+        </div>
+    </div>
+
+    {{-- ============================================
+         SECTION: Gambar
+         ============================================ --}}
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon yellow">
+                <i class="fas fa-image"></i>
+            </div>
+            <div>
+                <h6 class="form-section-title">Gambar Berita</h6>
+                <p class="form-section-desc">Unggah gambar utama untuk berita</p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-group-label">
+                Gambar Utama <span class="required">*</span>
+            </label>
+            <div class="image-upload-row-layout">
+                <div class="image-upload-area" id="imageDropzone">
+                    <div class="image-upload-row">
+                        <div class="image-upload-icon">
+                            <i class="fas fa-cloud-arrow-up"></i>
+                        </div>
+                        <div class="image-upload-info">
+                            <div class="image-upload-text">
+                                <span>Klik untuk upload</span> atau drag & drop
+                            </div>
+                            <div class="image-upload-hint">PNG, JPG, WebP — Maks 5MB</div>
+                        </div>
+                    </div>
+                    <input type="file"
+                           id="imageInput"
+                           name="image"
+                           class="d-none"
+                           accept="image/png,image/jpeg,image/webp">
+                </div>
+
+                @if ($news && $news->image)
+                <div class="image-preview-container" id="currentImagePreview">
+                    <img src="{{ asset('storage/' . $news->image) }}" alt="Gambar saat ini">
+                </div>
+                @endif
+            </div>
+
+            @if ($news && $news->image)
+            <label class="replace-image-check">
+                <input type="checkbox" name="replace_image" id="replaceImageCheck">
+                <span>Ganti gambar dengan yang baru</span>
+            </label>
+            @endif
+
+            <div class="form-error d-none" id="imageError">
+                <i class="fas fa-exclamation-circle"></i> <span id="imageErrorText">Gambar wajib diunggah.</span>
+            </div>
+            @error('image')
+                <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+            @enderror
+        </div>
+    </div>
+
+    {{-- ============================================
+         FOOTER
+         ============================================ --}}
+    <div class="form-footer">
+        <div class="form-footer-info">
+            <i class="fas fa-circle-info"></i> Field dengan <span style="color:#dc2626;">*</span> wajib diisi
+        </div>
+        <div class="form-footer-actions">
+            <a href="{{ route('admin.news.index') }}" class="form-btn-cancel">
+                Batal
+            </a>
+            <button type="submit" class="form-btn-save">
+                <i class="fas fa-save"></i> {{ $news ? 'Simpan Perubahan' : 'Publikasikan' }}
+            </button>
+        </div>
+    </div>
+</form>
+
 <script>
-    (function() {
-        const imageInput = document.getElementById('imageInput');
-        const imageDropzone = document.getElementById('imageDropzone');
-        const replaceCheckbox = document.querySelector('input[name="replace_image"]');
-        const fileLabel = imageDropzone?.querySelector('.d-flex > div');
+(function() {
+    const imageInput = document.getElementById('imageInput');
+    const imageDropzone = document.getElementById('imageDropzone');
+    const replaceCheckbox = document.getElementById('replaceImageCheck');
+    const hasExistingImage = '{{ $news?->image ?? "" }}' !== '';
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
-        if (imageDropzone && imageInput) {
-            imageDropzone.addEventListener('click', function(e) {
-                if (replaceCheckbox && !replaceCheckbox.checked && '{{ $news?->image ?? 'none' }}' !== 'none') {
-                    return;
+    if (imageDropzone && imageInput) {
+        // Click to upload
+        imageDropzone.addEventListener('click', function() {
+            if (replaceCheckbox && !replaceCheckbox.checked && hasExistingImage) return;
+            imageInput.click();
+        });
+
+        // Drag & Drop
+        imageDropzone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        imageDropzone.addEventListener('dragleave', function() {
+            this.classList.remove('dragover');
+        });
+        imageDropzone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                imageInput.files = e.dataTransfer.files;
+                imageInput.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // File selected
+        imageInput.addEventListener('change', function() {
+            if (!this.files || !this.files[0]) return;
+            const file = this.files[0];
+
+            if (file.size > MAX_IMAGE_SIZE) {
+                const mb = (file.size / 1024 / 1024).toFixed(1);
+                document.getElementById('imageErrorText').textContent = 'Ukuran gambar maksimal 5MB — file Anda ' + mb + 'MB.';
+                document.getElementById('imageError')?.classList.remove('d-none');
+                imageDropzone.style.borderColor = '#dc2626';
+                imageDropzone.style.background = '#fef2f2';
+                return;
+            }
+
+            document.getElementById('imageError')?.classList.add('d-none');
+            imageDropzone.style.borderColor = '#d1d5db';
+            imageDropzone.style.background = '#f9fafb';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let container = document.getElementById('newImagePreview');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'newImagePreview';
+                    container.className = 'image-preview-container';
+                    container.innerHTML = '<img src="" alt="Preview">';
+                    imageDropzone.parentNode.insertBefore(container, imageDropzone.nextSibling);
                 }
-                imageInput.click();
-            });
+                container.querySelector('img').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
 
-            const newsForm = document.getElementById('newsForm');
+        // Replace image checkbox
+        if (replaceCheckbox) {
+            replaceCheckbox.addEventListener('change', function() {
+                imageDropzone.style.borderColor = this.checked ? 'var(--pln-blue)' : '#d1d5db';
+                imageDropzone.style.background = this.checked ? '#f0f7ff' : '#f9fafb';
+            });
+        }
+    }
+
+    // Form validation
+    const form = document.getElementById('newsForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            let firstInvalid = null;
+
+            const titleInput = document.getElementById('title');
+            const titleError = document.getElementById('titleError');
+            const titleVal = (titleInput?.value ?? '').trim();
+            if (titleVal === '') {
+                titleError?.classList.remove('d-none');
+                titleInput?.classList.add('is-invalid');
+                firstInvalid = firstInvalid ?? titleInput;
+            } else {
+                titleError?.classList.add('d-none');
+                titleInput?.classList.remove('is-invalid');
+            }
+
+            const hasCategory = !!document.querySelector('input[name="category"]:checked');
+            const categoryError = document.getElementById('categoryError');
+            categoryError?.classList.toggle('d-none', hasCategory);
+            if (!hasCategory) firstInvalid = firstInvalid ?? document.querySelector('.category-pills');
+
+            const excerptInput = document.getElementById('excerpt');
+            const excerptError = document.getElementById('excerptError');
+            const excerptVal = (excerptInput?.value ?? '').trim();
+            if (excerptVal === '') {
+                excerptError?.classList.remove('d-none');
+                excerptInput?.classList.add('is-invalid');
+                firstInvalid = firstInvalid ?? excerptInput;
+            } else {
+                excerptError?.classList.add('d-none');
+                excerptInput?.classList.remove('is-invalid');
+            }
+
+            const hasFile = imageInput?.files && imageInput.files.length > 0;
             const imageError = document.getElementById('imageError');
             const imageErrorText = document.getElementById('imageErrorText');
-            const categoryError = document.getElementById('categoryError');
-            const titleError = document.getElementById('titleError');
-            const excerptError = document.getElementById('excerptError');
-            const titleInput = document.getElementById('title');
-            const excerptInput = document.getElementById('excerpt');
-            const hasExistingImage = '{{ $news?->image ?? "" }}' !== '';
-            const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-
-            function showFieldError(input, errEl, show) {
-                errEl?.classList.toggle('d-none', !show);
-                input?.classList.toggle('is-invalid', show);
+            let imageBad = false;
+            if (!hasFile && (!hasExistingImage || replaceCheckbox?.checked)) {
+                if (imageErrorText) imageErrorText.textContent = 'Gambar wajib diunggah — klik area upload.';
+                imageBad = true;
+            } else if (hasFile && imageInput.files[0].size > MAX_IMAGE_SIZE) {
+                if (imageErrorText) imageErrorText.textContent = 'Ukuran gambar maksimal 5MB.';
+                imageBad = true;
+            }
+            imageError?.classList.toggle('d-none', !imageBad);
+            if (imageBad) {
+                imageDropzone.style.borderColor = '#dc2626';
+                imageDropzone.style.background = '#fef2f2';
+                firstInvalid = firstInvalid ?? imageDropzone;
             }
 
-            // Validasi semua kolom wajib saat submit. Input yang tersembunyi
-            // (display:none) tidak boleh memakai atribut required HTML5 karena
-            // browser tidak bisa menampilkan pesan errornya dan submit terblokir
-            // tanpa feedback apa pun. Semua pesan error ditampilkan sekaligus.
-            newsForm?.addEventListener('submit', function(e) {
-                let firstInvalid = null;
-                const markInvalid = (el) => { firstInvalid = firstInvalid ?? el; };
-
-                const titleVal = (titleInput?.value ?? '').trim();
-                const titleBad = titleVal === '';
-                showFieldError(titleInput, titleError, titleBad);
-                if (titleBad) markInvalid(titleInput);
-
-                const hasCategory = !!document.querySelector('input[name="category"]:checked');
-                categoryError?.classList.toggle('d-none', hasCategory);
-                if (!hasCategory) markInvalid(document.querySelector('.category-selector'));
-
-                const excerptVal = (excerptInput?.value ?? '').trim();
-                const excerptBad = excerptVal === '';
-                showFieldError(excerptInput, excerptError, excerptBad);
-                if (excerptBad) markInvalid(excerptInput);
-
-                const hasFile = imageInput.files && imageInput.files.length > 0;
-                let imageBad = false;
-                if (!hasFile && (!hasExistingImage || replaceCheckbox?.checked)) {
-                    if (imageErrorText) imageErrorText.textContent = 'Gambar utama wajib diunggah — klik area di atas untuk memilih gambar.';
-                    imageBad = true;
-                } else if (hasFile && imageInput.files[0].size > MAX_IMAGE_SIZE) {
-                    if (imageErrorText) imageErrorText.textContent = 'Ukuran gambar maksimal 5MB — file Anda ' + (imageInput.files[0].size / 1024 / 1024).toFixed(1) + 'MB.';
-                    imageBad = true;
+            if (firstInvalid) {
+                e.preventDefault();
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (firstInvalid.tagName === 'INPUT' || firstInvalid.tagName === 'TEXTAREA') {
+                    firstInvalid.focus();
                 }
-                imageError?.classList.toggle('d-none', !imageBad);
-                imageDropzone.style.borderColor = imageBad ? '#dc2626' : '#d1d5db';
-                imageDropzone.style.background = imageBad ? '#fef2f2' : '#fafafa';
-                if (imageBad) markInvalid(imageDropzone);
-
-                if (firstInvalid) {
-                    e.preventDefault();
-                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    if (firstInvalid === titleInput || firstInvalid === excerptInput) firstInvalid.focus();
-                }
-            });
-
-            // Pesan error hilang otomatis begitu kolom diisi
-            titleInput?.addEventListener('input', function() {
-                showFieldError(titleInput, titleError, titleInput.value.trim() === '');
-            });
-            excerptInput?.addEventListener('input', function() {
-                showFieldError(excerptInput, excerptError, excerptInput.value.trim() === '');
-            });
-            document.querySelectorAll('input[name="category"]').forEach(function(radio) {
-                radio.addEventListener('change', function() {
-                    categoryError?.classList.add('d-none');
-                });
-            });
-
-            imageInput.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
-                    imageDropzone.style.borderColor = '#d1d5db';
-                    imageDropzone.style.background = '#fafafa';
-                    if (this.files[0].size > MAX_IMAGE_SIZE) {
-                        if (imageErrorText) imageErrorText.textContent = 'Ukuran gambar maksimal 5MB — file Anda ' + (this.files[0].size / 1024 / 1024).toFixed(1) + 'MB.';
-                        imageError?.classList.remove('d-none');
-                        imageDropzone.style.borderColor = '#dc2626';
-                        imageDropzone.style.background = '#fef2f2';
-                    } else {
-                        imageError?.classList.add('d-none');
-                    }
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        if (!imageDropzone.querySelector('.image-preview')) {
-                            const preview = document.createElement('div');
-                            preview.className = 'image-preview';
-                            preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
-                            imageDropzone.appendChild(preview);
-                        }
-                    };
-                    reader.readAsDataURL(this.files[0]);
-                }
-            });
-
-            if (replaceCheckbox) {
-                replaceCheckbox.addEventListener('change', function() {
-                    imageDropzone.style.borderColor = this.checked ? 'var(--pln-blue)' : '#d1d5db';
-                    imageDropzone.style.background = this.checked ? '#f0f7ff' : '#fafafa';
-                });
             }
-        }
-    })();
+        });
+
+        // Clear errors on input
+        document.getElementById('title')?.addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.getElementById('titleError')?.classList.add('d-none');
+                this.classList.remove('is-invalid');
+            }
+        });
+        document.getElementById('excerpt')?.addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.getElementById('excerptError')?.classList.add('d-none');
+                this.classList.remove('is-invalid');
+            }
+        });
+        document.querySelectorAll('input[name="category"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                document.getElementById('categoryError')?.classList.add('d-none');
+            });
+        });
+    }
+})();
 </script>
 @endsection

@@ -5,7 +5,7 @@
 
 @section('content')
     {{-- ============================================
-         1. WELCOME / GREETING
+         1. WELCOME / GREETING + SEARCH
          ============================================ --}}
     <div class="row g-3 mb-4">
         <div class="col-12">
@@ -19,15 +19,26 @@
                             Berikut ringkasan kondisi sistem E-PPID PLN hari ini.
                         </p>
                     </div>
-                    <div class="d-flex gap-3">
-                        <div class="text-center">
-                            <div style="font-size: 1.5rem; font-weight: 800;">{{ number_format($stats['pending_content']) }}</div>
-                            <div style="font-size: 0.72rem; opacity: 0.7;">Menunggu Review</div>
+                    <div class="d-flex gap-3 align-items-center">
+                        <div style="position: relative;">
+                            <input type="text"
+                                   id="dashboardSearchInput"
+                                   placeholder="Cari berita, pengumuman..."
+                                   style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; padding: 0.55rem 1rem 0.55rem 2.4rem; color: #fff; font-size: 0.85rem; width: 260px; transition: all 0.2s ease; outline: none;"
+                                   onfocus="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.5)';"
+                                   onblur="this.style.background='rgba(255,255,255,0.15)'; this.style.borderColor='rgba(255,255,255,0.25)';">
+                            <i class="fas fa-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); opacity: 0.6; font-size: 0.82rem;"></i>
                         </div>
-                        <div style="width:1px; background:rgba(255,255,255,0.2);"></div>
-                        <div class="text-center">
-                            <div style="font-size: 1.5rem; font-weight: 800;">3</div>
-                            <div style="font-size: 0.72rem; opacity: 0.7;">Notifikasi Baru</div>
+                        <div class="d-flex gap-3">
+                            <div class="text-center">
+                                <div style="font-size: 1.5rem; font-weight: 800;">{{ number_format($stats['pending_content']) }}</div>
+                                <div style="font-size: 0.72rem; opacity: 0.7;">Draft</div>
+                            </div>
+                            <div style="width:1px; background:rgba(255,255,255,0.2);"></div>
+                            <div class="text-center">
+                                <div style="font-size: 1.5rem; font-weight: 800;">{{ number_format($stats['total_news']) }}</div>
+                                <div style="font-size: 0.72rem; opacity: 0.7;">Berita Aktif</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -291,4 +302,26 @@
         </div>
     </div>
 
+@push('styles')
+<style>
+    #dashboardSearchInput::placeholder { color: rgba(255,255,255,0.6); }
+    #dashboardSearchInput:focus::placeholder { color: rgba(255,255,255,0.8); }
+    .search-hidden { display: none !important; }
+</style>
 @endsection
+
+@push('scripts')
+<script>
+(function() {
+    var searchInput = document.getElementById('dashboardSearchInput');
+    if (!searchInput) return;
+    searchInput.addEventListener('input', function() {
+        var q = this.value.toLowerCase().trim();
+        document.querySelectorAll('.content-row, .activity-item').forEach(function(el) {
+            var t = (el.querySelector('.content-title, .activity-text') || {}).textContent || '';
+            el.classList.toggle('search-hidden', q && !t.toLowerCase().includes(q));
+        });
+    });
+})();
+</script>
+@endpush

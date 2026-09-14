@@ -69,7 +69,7 @@
 
             <nav class="sidebar-nav">
                 <div class="sidebar-section-label">Menu Utama</div>
-                <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" data-no-router>
                     <span class="link-icon"><i class="fas fa-th-large"></i></span>
                     Dashboard
                 </a>
