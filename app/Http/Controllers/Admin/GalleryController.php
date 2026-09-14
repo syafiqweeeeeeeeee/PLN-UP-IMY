@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Gallery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -72,7 +73,9 @@ class GalleryController extends Controller
 
         $validated['file_gambar'] = $request->file('file_gambar')->store('galeri', 'public');
 
-        Gallery::create($validated);
+        $gallery = Gallery::create($validated);
+
+        ActivityLog::record('galeri', 'create', "menambahkan foto galeri \"{$gallery->judul}\"", $gallery);
 
         return redirect()
             ->route('admin.galeri.index')
@@ -129,6 +132,8 @@ class GalleryController extends Controller
 
         $gallery->update($validated);
 
+        ActivityLog::record('galeri', 'update', "mengubah foto galeri \"{$gallery->judul}\"", $gallery);
+
         return redirect()
             ->route('admin.galeri.index')
             ->with('success', 'Foto galeri berhasil diperbarui.');
@@ -145,6 +150,13 @@ class GalleryController extends Controller
 
         $gallery->update(['status' => $newStatus]);
 
+        ActivityLog::record(
+            'galeri',
+            $newStatus === 'publikasi' ? 'publish' : 'unpublish',
+            ($newStatus === 'publikasi' ? 'memublikasikan foto galeri "' : 'menarik foto galeri "') . $gallery->judul . '"',
+            $gallery
+        );
+
         return redirect()
             ->route('admin.galeri.index')
             ->with('success', $newStatus === 'publikasi'
@@ -159,6 +171,8 @@ class GalleryController extends Controller
     public function destroy($id)
     {
         $gallery = Gallery::findOrFail($id);
+
+        ActivityLog::record('galeri', 'delete', "menghapus foto galeri \"{$gallery->judul}\"", $gallery);
 
         if (!empty($gallery->file_gambar) && Storage::disk('public')->exists($gallery->file_gambar)) {
             Storage::disk('public')->delete($gallery->file_gambar);

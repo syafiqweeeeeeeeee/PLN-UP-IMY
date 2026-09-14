@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Permission;
+use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -15,6 +17,18 @@ class AuthServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Ability "activity_logs.view", "roles.view", dst. dicek lewat permission
+        // user (pivot role_user -> role_permission). Jika user punya permission
+        // dengan nama yang sama, ability tersebut diizinkan.
+        // Return null berarti lanjut ke pengecekan gate/policy normal (default: ditolak).
+        Gate::before(function ($user, string $ability) {
+            if (! $user instanceof User) {
+                return null;
+            }
+
+            return $user->hasPermission($ability) ? true : null;
+        });
+
         if (! $this->gatesRegistered) {
             static $bootStarted = false;
             if ($bootStarted) {

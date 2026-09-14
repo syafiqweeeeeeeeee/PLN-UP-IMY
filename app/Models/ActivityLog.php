@@ -95,6 +95,7 @@ class ActivityLog extends Model
         return [
             'berita'      => 'Berita',
             'pengumuman'  => 'Pengumuman',
+            'galeri'      => 'Galeri',
             'pengguna'    => 'Pengguna',
             'role'        => 'Role & Hak Akses',
             'autentikasi' => 'Autentikasi',

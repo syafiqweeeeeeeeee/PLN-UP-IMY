@@ -21,9 +21,10 @@ class DatabaseSeeder extends Seeder
             NewsSeeder::class,
         ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // firstOrCreate agar seeder aman dijalankan berulang (tidak error duplicate)
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            ['name' => 'Test User', 'password' => 'password123']
+        );
     }
 }

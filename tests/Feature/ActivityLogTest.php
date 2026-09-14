@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\ActivityLog;
+use App\Models\Gallery;
+use App\Models\Permission;
 use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
@@ -13,6 +15,30 @@ use Tests\TestCase;
 class ActivityLogTest extends TestCase
 {
     use RefreshDatabase;
+
+    /* =========================================================
+       HELPER — user dengan role Administrator + permission penuh
+       ========================================================= */
+    private function adminUser(): User
+    {
+        $role = Role::create([
+            'name'        => 'Administrator',
+            'description' => 'Akses penuh sistem',
+            'status'      => true,
+        ]);
+
+        $permissions = ['activity_logs.view', 'logout'];
+
+        foreach ($permissions as $name) {
+            $perm = Permission::create(['name' => $name, 'display_name' => $name, 'module' => 'Test']);
+            $role->permissions()->attach($perm->id);
+        }
+
+        $user = User::factory()->create();
+        $user->roles()->attach($role->id);
+
+        return $user;
+    }
 
     /* =========================================================
        PENCATATAN AKTIVITAS
@@ -151,6 +177,48 @@ class ActivityLogTest extends TestCase
         ]);
     }
 
+    public function test_gallery_create_publish_toggle_and_delete_are_logged(): void
+    {
+        $user = User::factory()->create();
+
+        // 1. Tambah foto galeri -> log create
+        $this->actingAs($user)->post(route('admin.galeri.store'), [
+            'judul'            => 'Foto Kegiatan Uji Log',
+            'kategori'         => 'KEGIATAN',
+            'deskripsi'        => 'Deskripsi foto uji.',
+            'file_gambar'      => UploadedFile::fake()->image('uji.png'),
+            'tanggal_kegiatan' => now()->toDateString(),
+            'status'           => 'publikasi',
+        ]);
+
+        $gallery = Gallery::where('judul', 'Foto Kegiatan Uji Log')->firstOrFail();
+
+        $this->assertDatabaseHas('activity_logs', [
+            'user_id'     => $user->id,
+            'module'      => 'galeri',
+            'action'      => 'create',
+            'subject_id'  => $gallery->id,
+            'description' => 'menambahkan foto galeri "Foto Kegiatan Uji Log"',
+        ]);
+
+        // 2. Tarik menjadi draft -> log unpublish
+        $this->actingAs($user)->patch(route('admin.galeri.toggle-status', $gallery->id));
+
+        $this->assertDatabaseHas('activity_logs', [
+            'module' => 'galeri',
+            'action' => 'unpublish',
+        ]);
+
+        // 3. Hapus -> log delete dengan judul tercatat
+        $this->actingAs($user)->delete(route('admin.galeri.destroy', $gallery->id));
+
+        $this->assertDatabaseHas('activity_logs', [
+            'module'      => 'galeri',
+            'action'      => 'delete',
+            'description' => 'menghapus foto galeri "Foto Kegiatan Uji Log"',
+        ]);
+    }
+
     /* =========================================================
        HALAMAN ADMIN LOG AKTIVITAS
        ========================================================= */
@@ -163,7 +231,7 @@ class ActivityLogTest extends TestCase
 
     public function test_activity_log_page_shows_entries_and_filters_work(): void
     {
-        $user = User::factory()->create();
+        $user = $this->adminUser();
 
         ActivityLog::record('berita', 'create', 'membuat berita "Uji Filter A"', null);
         ActivityLog::record('pengumuman', 'delete', 'menghapus pengumuman "Uji Filter B"', null);
@@ -189,7 +257,7 @@ class ActivityLogTest extends TestCase
 
     public function test_single_log_can_be_deleted(): void
     {
-        $user = User::factory()->create();
+        $user = $this->adminUser();
         $log  = ActivityLog::record('berita', 'create', 'membuat berita "Hapus Saya"', null);
 
         $this->actingAs($user)
@@ -201,7 +269,7 @@ class ActivityLogTest extends TestCase
 
     public function test_clear_all_deletes_logs_but_records_itself(): void
     {
-        $user = User::factory()->create();
+        $user = $this->adminUser();
 
         ActivityLog::record('berita', 'create', 'membuat berita "Lama A"', null);
         ActivityLog::record('pengumuman', 'create', 'membuat pengumuman "Lama B"', null);
@@ -217,6 +285,45 @@ class ActivityLogTest extends TestCase
             'action' => 'clear',
             'user_id' => $user->id,
         ]);
+    }
+
+    /* =========================================================
+       PERMISSION — hanya Administrator yang boleh akses log
+       ========================================================= */
+
+    public function test_user_without_permission_gets_403(): void
+    {
+        $user = User::factory()->create(); // tanpa role / permission
+
+        $this->actingAs($user)
+            ->get(route('admin.activity-logs.index'))
+            ->assertForbidden();
+
+        $log = ActivityLog::record('berita', 'create', 'membuat berita "X"', null);
+
+        $this->actingAs($user)
+            ->delete(route('admin.activity-logs.destroy', $log))
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->delete(route('admin.activity-logs.clear'))
+            ->assertForbidden();
+    }
+
+    public function test_sidebar_hides_log_menu_without_permission(): void
+    {
+        $admin = $this->adminUser();
+        $plain = User::factory()->create();
+
+        // Punya permission -> menu tampil
+        $this->actingAs($admin)->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('Log Aktivitas');
+
+        // Tidak punya permission -> menu disembunyikan
+        $this->actingAs($plain)->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertDontSee('Log Aktivitas');
     }
 
     /* =========================================================

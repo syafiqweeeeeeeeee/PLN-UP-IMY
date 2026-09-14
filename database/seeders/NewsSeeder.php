@@ -109,7 +109,15 @@ class NewsSeeder extends Seeder
             ],
         ];
 
+        $created = 0;
+
         foreach ($newsData as $data) {
+            // Lewati jika berita dengan judul sama sudah ada
+            // (seeder idempotent — aman dijalankan berulang)
+            if (News::where('title', $data['title'])->exists()) {
+                continue;
+            }
+
             $data['slug'] = News::generateSlug($data['title']);
             $data['author_user_id'] = null;
 
@@ -121,8 +129,9 @@ class NewsSeeder extends Seeder
             }
 
             News::create($data);
+            $created++;
         }
 
-        $this->command->info('✅ ' . count($newsData) . ' berita sample berhasil ditambahkan!');
+        $this->command->info("✅ {$created} berita sample berhasil ditambahkan!");
     }
 }
