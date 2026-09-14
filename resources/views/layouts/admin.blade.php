@@ -6,7 +6,7 @@
         <meta name="description" content="E-PPID PLN — Dashboard Admin" />
         <title>@yield('title', 'Admin — E-PPID PLN')</title>
 
-        <link rel="icon" type="image/x-icon" href="{{ asset('startbootstrap-grayscale-gh-pages/assets/favicon.ico') }}" />
+        <link rel="icon" type="image/png" href="{{ asset('assets/images/logo-pln1.png') }}" />
 
         {{-- Font Awesome 6.3.0 — webfont CSS via cdnjs (pengganti Kit JS all.js,
              tanpa JS icon-replacement); non-blocking via media=print trick. --}}
