@@ -52,6 +52,26 @@ class AnnouncementTest extends TestCase
             ->assertSee('Tambah Pengumuman');
     }
 
+    public function test_store_validation_shows_field_errors(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->from(route('admin.announcements.create'))
+            ->post(route('admin.announcements.store'), []);
+
+        $response->assertSessionHasErrors(['title', 'category', 'excerpt']);
+
+        $this->followingRedirects()
+            ->actingAs($user)
+            ->post(route('admin.announcements.store'), [])
+            ->assertOk()
+            ->assertSee('Perbaiki data berikut.')
+            ->assertSee('The title field is required.')
+            ->assertSee('The category field is required.')
+            ->assertSee('The excerpt field is required.');
+    }
+
     public function test_admin_can_create_and_publish_announcement(): void
     {
         $user = User::factory()->create();

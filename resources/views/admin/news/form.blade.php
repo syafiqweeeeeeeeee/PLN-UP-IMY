@@ -41,6 +41,12 @@
         gap: 0.3rem;
     }
 
+    .form-control-pln.is-invalid,
+    textarea.form-control-pln.is-invalid {
+        border-color: #dc2626;
+        background: #fef2f2;
+    }
+
     .image-dropzone {
         border: 2px dashed #d1d5db;
         border-radius: 10px;
@@ -184,13 +190,15 @@
                                value="{{ old('title', $news?->title) }}"
                                class="form-control-pln @error('title') is-invalid @enderror"
                                placeholder="Judul berita..."
-                               required
                                maxlength="255">
                         @error('title')
                         <div class="field-error">
                             <i class="fas fa-exclamation-circle"></i> {{ $message }}
                         </div>
                         @enderror
+                        <div class="field-error d-none" id="titleError">
+                            <i class="fas fa-exclamation-circle"></i> Judul berita wajib diisi.
+                        </div>
                     </div>
 
                     {{-- Kategori --}}
@@ -198,7 +206,7 @@
                         <label class="form-label">Kategori <span style="color: #dc2626;">*</span></label>
                         <div class="category-selector">
                             <label style="background: {{ old('category', $news?->category) === 'umum' ? 'var(--pln-blue)' : '#fff' }}; color: {{ old('category', $news?->category) === 'umum' ? '#fff' : '#4b5563' }}; border-color: {{ old('category', $news?->category) === 'umum' ? 'var(--pln-blue)' : '#e5e7eb' }};">
-                                <input type="radio" name="category" value="umum" {{ old('category', $news?->category) === 'umum' ? 'checked' : '' }} required>
+                                <input type="radio" name="category" value="umum" {{ old('category', $news?->category) === 'umum' ? 'checked' : '' }}>
                                 <span style="background: rgba(0,91,156,0.88); color: #fff; border-radius: 4px; padding: 0.1rem 0.45rem; font-size: 0.65rem;">UMUM</span>
                             </label>
                             <label style="background: {{ old('category', $news?->category) === 'teknis' ? '#00a3e0' : '#fff' }}; color: {{ old('category', $news?->category) === 'teknis' ? '#fff' : '#4b5563' }}; border-color: {{ old('category', $news?->category) === 'teknis' ? '#00a3e0' : '#e5e7eb' }};">
@@ -219,6 +227,9 @@
                             <i class="fas fa-exclamation-circle"></i> {{ $message }}
                         </div>
                         @enderror
+                        <div class="field-error d-none" id="categoryError">
+                            <i class="fas fa-exclamation-circle"></i> Kategori wajib dipilih — klik salah satu pill di atas.
+                        </div>
                     </div>
 
                     {{-- Author --}}
@@ -239,13 +250,15 @@
                                   name="excerpt"
                                   class="form-control-pln @error('excerpt') is-invalid @enderror"
                                   placeholder="Tuliskan ringkasan singkat berita (maksimal 1000 karakter)..."
-                                  required
                                   maxlength="1000">{{ old('excerpt', $news?->excerpt) }}</textarea>
                         @error('excerpt')
                         <div class="field-error">
                             <i class="fas fa-exclamation-circle"></i> {{ $message }}
                         </div>
                         @enderror
+                        <div class="field-error d-none" id="excerptError">
+                            <i class="fas fa-exclamation-circle"></i> Ringkasan berita wajib diisi.
+                        </div>
                     </div>
 
                     {{-- Konten --}}
@@ -275,8 +288,10 @@
                                    id="imageInput"
                                    name="image"
                                    class="d-none"
-                                   accept="image/png,image/jpeg,image/webp"
-                                   {{ $news ? '' : 'required' }}>
+                                   accept="image/png,image/jpeg,image/webp">
+                        </div>
+                        <div class="field-error d-none" id="imageError">
+                            <i class="fas fa-exclamation-circle"></i> <span id="imageErrorText">Gambar utama wajib diunggah — klik area di atas untuk memilih gambar.</span>
                         </div>
                         @if ($news && $news->image)
                         <div class="image-preview">
@@ -301,13 +316,13 @@
                         <label class="form-label mb-2">Status Publikasi</label>
                         <div class="d-flex align-items-center gap-3">
                             <label class="form-label mb-0 d-flex align-items-center gap-2" style="cursor: pointer; font-weight: 500;">
-                                <input type="radio" name="is_published" value="1" {{ old('is_published', $news?->is_published) == 1 ? 'checked' : '' }} style="accent-color: var(--pln-blue); width: 16px; height: 16px;">
+                                <input type="radio" name="is_published" value="1" {{ old('is_published', $news?->is_published ?? 1) == 1 ? 'checked' : '' }} style="accent-color: var(--pln-blue); width: 16px; height: 16px;">
                                 <span style="font-size: 0.9rem;">
                                     <i class="fas fa-eye me-1" style="color: var(--pln-cyan);"></i> Publikasi
                                 </span>
                             </label>
                             <label class="form-label mb-0 d-flex align-items-center gap-2" style="cursor: pointer; font-weight: 500; color: #6b7280;">
-                                <input type="radio" name="is_published" value="0" {{ old('is_published', $news?->is_published) != 1 ? 'checked' : '' }} style="accent-color: #9ca3af; width: 16px; height: 16px;">
+                                <input type="radio" name="is_published" value="0" {{ old('is_published', $news?->is_published ?? 1) != 1 ? 'checked' : '' }} style="accent-color: #9ca3af; width: 16px; height: 16px;">
                                 <span style="font-size: 0.9rem;">
                                     <i class="fas fa-pen me-1" style="color: #9ca3af;"></i> Simpan sebagai Draft
                                 </span>
@@ -348,8 +363,90 @@
                 imageInput.click();
             });
 
+            const newsForm = document.getElementById('newsForm');
+            const imageError = document.getElementById('imageError');
+            const imageErrorText = document.getElementById('imageErrorText');
+            const categoryError = document.getElementById('categoryError');
+            const titleError = document.getElementById('titleError');
+            const excerptError = document.getElementById('excerptError');
+            const titleInput = document.getElementById('title');
+            const excerptInput = document.getElementById('excerpt');
+            const hasExistingImage = '{{ $news?->image ?? "" }}' !== '';
+            const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+            function showFieldError(input, errEl, show) {
+                errEl?.classList.toggle('d-none', !show);
+                input?.classList.toggle('is-invalid', show);
+            }
+
+            // Validasi semua kolom wajib saat submit. Input yang tersembunyi
+            // (display:none) tidak boleh memakai atribut required HTML5 karena
+            // browser tidak bisa menampilkan pesan errornya dan submit terblokir
+            // tanpa feedback apa pun. Semua pesan error ditampilkan sekaligus.
+            newsForm?.addEventListener('submit', function(e) {
+                let firstInvalid = null;
+                const markInvalid = (el) => { firstInvalid = firstInvalid ?? el; };
+
+                const titleVal = (titleInput?.value ?? '').trim();
+                const titleBad = titleVal === '';
+                showFieldError(titleInput, titleError, titleBad);
+                if (titleBad) markInvalid(titleInput);
+
+                const hasCategory = !!document.querySelector('input[name="category"]:checked');
+                categoryError?.classList.toggle('d-none', hasCategory);
+                if (!hasCategory) markInvalid(document.querySelector('.category-selector'));
+
+                const excerptVal = (excerptInput?.value ?? '').trim();
+                const excerptBad = excerptVal === '';
+                showFieldError(excerptInput, excerptError, excerptBad);
+                if (excerptBad) markInvalid(excerptInput);
+
+                const hasFile = imageInput.files && imageInput.files.length > 0;
+                let imageBad = false;
+                if (!hasFile && (!hasExistingImage || replaceCheckbox?.checked)) {
+                    if (imageErrorText) imageErrorText.textContent = 'Gambar utama wajib diunggah — klik area di atas untuk memilih gambar.';
+                    imageBad = true;
+                } else if (hasFile && imageInput.files[0].size > MAX_IMAGE_SIZE) {
+                    if (imageErrorText) imageErrorText.textContent = 'Ukuran gambar maksimal 5MB — file Anda ' + (imageInput.files[0].size / 1024 / 1024).toFixed(1) + 'MB.';
+                    imageBad = true;
+                }
+                imageError?.classList.toggle('d-none', !imageBad);
+                imageDropzone.style.borderColor = imageBad ? '#dc2626' : '#d1d5db';
+                imageDropzone.style.background = imageBad ? '#fef2f2' : '#fafafa';
+                if (imageBad) markInvalid(imageDropzone);
+
+                if (firstInvalid) {
+                    e.preventDefault();
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (firstInvalid === titleInput || firstInvalid === excerptInput) firstInvalid.focus();
+                }
+            });
+
+            // Pesan error hilang otomatis begitu kolom diisi
+            titleInput?.addEventListener('input', function() {
+                showFieldError(titleInput, titleError, titleInput.value.trim() === '');
+            });
+            excerptInput?.addEventListener('input', function() {
+                showFieldError(excerptInput, excerptError, excerptInput.value.trim() === '');
+            });
+            document.querySelectorAll('input[name="category"]').forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    categoryError?.classList.add('d-none');
+                });
+            });
+
             imageInput.addEventListener('change', function() {
                 if (this.files && this.files[0]) {
+                    imageDropzone.style.borderColor = '#d1d5db';
+                    imageDropzone.style.background = '#fafafa';
+                    if (this.files[0].size > MAX_IMAGE_SIZE) {
+                        if (imageErrorText) imageErrorText.textContent = 'Ukuran gambar maksimal 5MB — file Anda ' + (this.files[0].size / 1024 / 1024).toFixed(1) + 'MB.';
+                        imageError?.classList.remove('d-none');
+                        imageDropzone.style.borderColor = '#dc2626';
+                        imageDropzone.style.background = '#fef2f2';
+                    } else {
+                        imageError?.classList.add('d-none');
+                    }
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         if (!imageDropzone.querySelector('.image-preview')) {
@@ -367,7 +464,6 @@
                 replaceCheckbox.addEventListener('change', function() {
                     imageDropzone.style.borderColor = this.checked ? 'var(--pln-blue)' : '#d1d5db';
                     imageDropzone.style.background = this.checked ? '#f0f7ff' : '#fafafa';
-                    imageInput.required = this.checked;
                 });
             }
         }
