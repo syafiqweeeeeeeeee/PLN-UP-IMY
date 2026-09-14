@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Models\ActivityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,8 @@ class LoginController extends Controller
 
         Auth::login($user, $request->boolean('remember'));
 
+        ActivityLog::record('autentikasi', 'login', "melakukan login ke panel admin", $user);
+
         $request->session()->regenerate();
 
         $intended = $request->session()->pull('url.intended', route('admin.dashboard'));
@@ -39,6 +42,12 @@ class LoginController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
+        $user = $request->user();
+
+        if ($user) {
+            ActivityLog::record('autentikasi', 'logout', "melakukan logout dari panel admin", $user);
+        }
+
         Auth::logout();
 
         $request->session()->invalidate();

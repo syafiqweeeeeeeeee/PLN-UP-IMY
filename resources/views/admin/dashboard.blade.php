@@ -121,7 +121,7 @@
                         </a>
                     </div>
                     <div class="col-xl-3 col-md-6">
-                        <a href="#" class="quick-action-btn">
+                        <a href="{{ route('admin.announcements.create') }}" class="quick-action-btn">
                             <div class="quick-action-icon" style="background: #fef3c7; color: #92400e;">
                                 <i class="fas fa-plus"></i>
                             </div>
@@ -160,12 +160,12 @@
                         <h5 class="dash-card-title">Aktivitas Terbaru</h5>
                         <p class="dash-card-subtitle">Aktivitas yang baru dilakukan oleh pengguna & admin</p>
                     </div>
-                    <a href="#" class="btn btn-sm btn-outline-secondary" style="border-radius:8px; font-size:0.75rem; font-weight:600;">
+                    <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-outline-secondary" style="border-radius:8px; font-size:0.75rem; font-weight:600;">
                         Lihat Semua
                     </a>
                 </div>
 
-                @foreach ($activities as $activity)
+                @forelse ($activities as $activity)
                     <div class="activity-item">
                         <div class="activity-icon" style="background: {{ $activity['color'] }}15; color: {{ $activity['color'] }};">
                             <i class="{{ $activity['icon'] }}"></i>
@@ -181,7 +181,13 @@
                             </div>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div style="padding: 2.5rem 1rem; text-align: center; color: #9ca3af;">
+                        <i class="fas fa-clipboard-list" style="font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
+                        <div style="font-size: 0.875rem; font-weight: 600; color: #6b7280;">Belum ada aktivitas</div>
+                        <div style="font-size: 0.8rem;">Aktivitas admin/karyawan akan tampil di sini.</div>
+                    </div>
+                @endforelse
             </div>
         </div>
 

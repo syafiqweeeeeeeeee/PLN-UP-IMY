@@ -287,6 +287,11 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class);
         Route::post('/announcements/{announcement}/publish', [\App\Http\Controllers\Admin\AnnouncementController::class, 'togglePublish'])->name('announcements.publish');
 
+        // Log Aktivitas
+        Route::get('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::delete('activity-logs/{activity_log}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'destroy'])->name('activity-logs.destroy');
+        Route::delete('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'clear'])->name('activity-logs.clear');
+
         // Role & Permission
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->except(['show']);
         Route::get('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');

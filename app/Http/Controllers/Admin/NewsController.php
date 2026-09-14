@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -46,7 +47,9 @@ class NewsController extends Controller
             $validated['published_at'] = now();
         }
 
-        News::create($validated);
+        $news = News::create($validated);
+
+        ActivityLog::record('berita', 'create', "membuat berita \"{$news->title}\"", $news);
 
         return redirect()->route('admin.news.index')
             ->with('success', 'Berita berhasil dibuat.');
@@ -94,6 +97,8 @@ class NewsController extends Controller
 
         $news->update($validated);
 
+        ActivityLog::record('berita', 'update', "mengubah berita \"{$news->title}\"", $news);
+
         return redirect()->route('admin.news.index')
             ->with('success', 'Berita berhasil diperbarui.');
     }
@@ -103,6 +108,8 @@ class NewsController extends Controller
         if ($news->image) {
             Storage::disk('public')->delete($news->image);
         }
+
+        ActivityLog::record('berita', 'delete', "menghapus berita \"{$news->title}\"", $news);
 
         $news->delete();
 
@@ -118,6 +125,13 @@ class NewsController extends Controller
             'is_published' => $published,
             'published_at' => $published ? now() : null,
         ]);
+
+        ActivityLog::record(
+            'berita',
+            $published ? 'publish' : 'unpublish',
+            ($published ? 'memublikasikan berita "' : 'menarik berita "') . $news->title . '"',
+            $news
+        );
 
         return back()
             ->with('success', $published

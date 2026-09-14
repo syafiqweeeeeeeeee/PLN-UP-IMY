@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\User;
 
 class DashboardController extends Controller
@@ -22,21 +23,31 @@ class DashboardController extends Controller
             'pending_content' => 0, // Belum ada model Content
         ];
 
-        // Get recent users for activity (if any)
-        $recentUsers = User::latest()->take(5)->get()->map(function ($user) {
-            return [
-                'user' => $user->name,
-                'action' => 'Mendaftar',
-                'object' => $user->email,
-                'time' => $user->created_at->diffForHumans(),
-                'icon' => 'fas fa-user-plus',
-                'color' => '#22c55e',
-            ];
-        })->toArray();
+        // Aktivitas terbaru dari log aktivitas sungguhan (tabel activity_logs)
+        $activities = ActivityLog::query()
+            ->latest()
+            ->take(6)
+            ->get()
+            ->map(function ($log) {
+                // Pecah deskripsi "membuat berita \"Judul\"" menjadi aksi + objek
+                $action = $log->description;
+                $object = '';
 
-        $activities = array_merge($recentUsers, [
-            ['user' => 'Admin PLN',       'action' => 'Login',              'object' => 'Dashboard Admin',               'time' => '5 menit lalu',    'icon' => 'fas fa-right-to-bracket', 'color' => '#8b5cf6'],
-        ]);
+                if (preg_match('/^(.*?)\s*"([^"]+)"\s*$/', $log->description, $m)) {
+                    $action = trim($m[1]);
+                    $object = $m[2];
+                }
+
+                return [
+                    'user'   => $log->user_name ?? 'Sistem',
+                    'action' => $action,
+                    'object' => $object !== '' ? $object : $log->module_label,
+                    'time'   => $log->created_at->locale('id')->diffForHumans(),
+                    'icon'   => 'fas ' . $log->action_icon,
+                    'color'  => $log->action_color,
+                ];
+            })
+            ->toArray();
 
         $latest_content = [
             ['title' => 'Pemeliharaan Trafo 22/35 kV',           'type' => 'Berita',   'status' => 'Published', 'date' => '08 Sep 2026'],

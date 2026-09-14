@@ -110,6 +110,10 @@
                     <span class="link-icon"><i class="fas fa-cog"></i></span>
                     Pengaturan
                 </a>
+                <a href="{{ route('admin.activity-logs.index') }}" class="sidebar-link {{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }}">
+                    <span class="link-icon"><i class="fas fa-clipboard-list"></i></span>
+                    Log Aktivitas
+                </a>
 
                 {{-- Role & Permission --}}
                 @can('roles.view')

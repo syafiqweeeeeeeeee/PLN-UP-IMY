@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Announcement;
 use Illuminate\Http\Request;
 
@@ -42,7 +43,9 @@ class AnnouncementController extends Controller
             $validated['published_at'] = now();
         }
 
-        Announcement::create($validated);
+        $announcement = Announcement::create($validated);
+
+        ActivityLog::record('pengumuman', 'create', "membuat pengumuman \"{$announcement->title}\"", $announcement);
 
         return redirect()->route('admin.announcements.index')
             ->with('success', 'Pengumuman berhasil dibuat.');
@@ -81,12 +84,16 @@ class AnnouncementController extends Controller
 
         $announcement->update($validated);
 
+        ActivityLog::record('pengumuman', 'update', "mengubah pengumuman \"{$announcement->title}\"", $announcement);
+
         return redirect()->route('admin.announcements.index')
             ->with('success', 'Pengumuman berhasil diperbarui.');
     }
 
     public function destroy(Announcement $announcement)
     {
+        ActivityLog::record('pengumuman', 'delete', "menghapus pengumuman \"{$announcement->title}\"", $announcement);
+
         $announcement->delete();
 
         return redirect()->route('admin.announcements.index')
@@ -101,6 +108,13 @@ class AnnouncementController extends Controller
             'is_published' => $published,
             'published_at' => $published ? now() : null,
         ]);
+
+        ActivityLog::record(
+            'pengumuman',
+            $published ? 'publish' : 'unpublish',
+            ($published ? 'memublikasikan pengumuman "' : 'menarik pengumuman "') . $announcement->title . '"',
+            $announcement
+        );
 
         return back()
             ->with('success', $published

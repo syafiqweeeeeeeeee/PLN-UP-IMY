@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -45,6 +46,8 @@ class UserController extends Controller
             'role_id' => $role->id,
             'role' => $role->name,
         ]));
+
+        ActivityLog::record('pengguna', 'create', "menambahkan akun pengguna \"{$user->name}\" ({$user->email})", $user);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Pengguna berhasil ditambahkan.');
@@ -99,6 +102,8 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        ActivityLog::record('pengguna', 'delete', "menghapus akun pengguna \"{$user->name}\" ({$user->email})", $user);
+
         $user->delete();
 
         return redirect()->route('admin.users.index')
