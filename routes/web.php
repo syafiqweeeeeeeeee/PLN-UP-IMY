@@ -44,6 +44,25 @@ Route::get('/informasi/pengumuman', function () {
     return view('informasi.pengumuman', compact('pengumuman'));
 })->name('pengumuman');
 
+Route::get('/informasi/pengumuman/{slug}', function ($slug) {
+    $pengumuman = App\Models\Announcement::where('slug', $slug)
+        ->where('is_published', true)
+        ->firstOrFail();
+
+    $related = App\Models\Announcement::where('is_published', true)
+        ->where('id', '!=', $pengumuman->id)
+        ->where('category', $pengumuman->category)
+        ->latest('published_at')
+        ->take(3)
+        ->get();
+
+    return view('informasi.pengumuman_detail', compact('pengumuman', 'related'));
+})->name('pengumuman.detail');
+
+Route::get('/informasi/layanan', function () {
+    return view('informasi.layanan');
+})->name('informasi.layanan');
+
 Route::get('/kontak/hubungi-kami', function () {
     return view('kontak.hubungi_kami');
 })->name('hubungi-kami');
@@ -237,6 +256,11 @@ Route::get('/layanan/{slug}', function ($slug) use ($layananData) {
 })->name('layanan.detail');
 
 // Admin Dashboard
+// Register: tidak ada pendaftaran mandiri — arahkan ke halaman login admin
+Route::get('/register', function () {
+    return redirect()->route('login');
+})->name('register');
+
 // Login
 Route::get('/admin/login', [\App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/admin/login', [\App\Http\Controllers\Auth\LoginController::class, 'login']);
