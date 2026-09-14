@@ -99,9 +99,16 @@
                     throw { layoutMismatch: true, url: url };
                 }
 
+                // Extract page-specific <style> tags from <head>
+                var styles = [];
+                Array.prototype.forEach.call(doc.querySelectorAll('head style, head link[rel="stylesheet"][data-page]'), function (el) {
+                    styles.push(el.outerHTML);
+                });
+
                 return {
                     title: doc.title || '',
-                    html: contentEl.innerHTML
+                    html: contentEl.innerHTML,
+                    styles: styles
                 };
             });
     }
@@ -124,6 +131,22 @@
         reexecuteScripts(container);
 
         if (entry.title) document.title = entry.title;
+
+        // Remove old page-specific styles and inject new ones
+        Array.prototype.forEach.call(document.querySelectorAll('head style[data-pt-page]'), function (el) {
+            el.parentNode.removeChild(el);
+        });
+        if (entry.styles && entry.styles.length) {
+            Array.prototype.forEach.call(entry.styles, function (html) {
+                var tmp = document.createElement('div');
+                tmp.innerHTML = html;
+                var styleEl = tmp.firstChild;
+                if (styleEl) {
+                    styleEl.setAttribute('data-pt-page', '1');
+                    document.head.appendChild(styleEl);
+                }
+            });
+        }
 
         // Re-apply perilaku interaktif pada konten baru
         if (window.PLNI18N && typeof window.PLNI18N.apply === 'function') {
