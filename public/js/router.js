@@ -1,30 +1,37 @@
 /* =============================================================
-   CLIENT-SIDE ROUTER — pjax-style (Ultra Fast Navigation)
+   CLIENT-SIDE ROUTER — pjax-style (Ultra Fast Navigation) v2
    -------------------------------------------------------------
-   - Link internal diklik → fetch halaman MODE PARSIAL
-     (hanya isi <main>, tanpa layout/navbar/footer).
-   - Layout (navbar/sidebar/footer) TIDAK direload — tetap
-     mounted. Hanya main content yang di-swap.
-   - Halaman yang sudah dimuat di-CACHE di memori (Map).
-     Navigasi ulang = INSTAN, tanpa fetch / request berulang.
-   - Setelah swap: <title>, scroll, i18n, feather icons, lalu
-     micro-animation enter 60ms (opacity + translateX 4px).
-   - popstate → back/forward browser tetap berfungsi.
-   - Prefetch: link navbar/sidebar di-prefetch saat idle, dan
-     link apapun saat di-hover → klik terasa instan.
-   - Fallback: link eksternal / modifier key / JS gagal →
-     navigasi full-load normal (progressive enhancement).
+   Perbaikan performa navigasi (v2):
+   - In-flight dedupe: request yang sama (prefetch vs klik) berbagi
+     SATU promise — tidak ada request ganda ke server.
+   - Fetch timeout (AbortController): request menggantung tidak
+     lagi membekukan navigasi (NAVIGATING selalu di-reset di
+     finally) — fallback full-load tetap jalan.
+   - Prefetch flood dihapus: bulk prefetch sidebar + prefetch di
+     setiap hover membanjiri server dengan render halaman penuh
+     (itulah sumber delay). Kini hanya hover pada LINK NAVIGASI
+     UTAMA yang di-prefetch, sekali per URL, dengan cooldown.
+   - Cache memori diberi TTL (stale → diambil ulang di background),
+     dan entri cache POST/filter dibersihkan otomatis.
+   - Sidebar active state di-sync setelah swap (tidak perlu reload
+     layout hanya untuk mengubah menu aktif).
+   - Render tetap non-blocking: swap konten + micro-animation 60ms.
    ============================================================= */
 (function () {
     'use strict';
 
     /* ================= KONFIG ================= */
-    var TRANSITION_MS = 60;   // durasi micro-interaction (50–80ms)
-    var SLIDE_PX      = 4;    // slide sangat kecil (3–5px)
-    var CACHE_LIMIT   = 20;   // maks halaman dalam cache memori
+    var TRANSITION_MS = 60;      // durasi micro-interaction (50–80ms)
+    var SLIDE_PX      = 4;       // slide sangat kecil (3–5px)
+    var CACHE_LIMIT   = 15;      // maks halaman dalam cache memori
+    var CACHE_TTL_MS  = 120000;  // 2 menit — setelah itu revalidate
+    var FETCH_TIMEOUT = 8000;    // 8s → fallback full-load
+    var HOVER_COOLDOWN = 400;    // ms antar prefetch hover
 
-    var CACHE = new Map();    // url -> { title, html }
+    var CACHE = new Map();       // url -> { title, html, styles, at, etag }
+    var INFLIGHT = new Map();    // url -> Promise (dedupe)
     var NAVIGATING = false;
+    var lastHoverPrefetch = 0;
 
     /* ================= UTIL ================= */
     function getContainer() {
@@ -66,7 +73,7 @@
         });
     }
 
-    /* ============== CACHE MEMORI ============== */
+    /* ============== CACHE MEMORI (TTL + FIFO) ============== */
     function cacheSet(url, entry) {
         CACHE.set(url, entry);
         if (CACHE.size > CACHE_LIMIT) {
@@ -74,12 +81,30 @@
         }
     }
 
-    /* ============== FETCH MODE PARSIAL ============== */
+    function cacheGet(url) {
+        var entry = CACHE.get(url);
+        if (!entry) return null;
+        if (Date.now() - entry.at > CACHE_TTL_MS) {
+            CACHE.delete(url); // stale → fetch ulang
+            return null;
+        }
+        return entry;
+    }
+
+    /* ============== FETCH MODE PARSIAL (timeout + dedupe) ============== */
     function fetchPartial(url) {
-        return fetch(url, {
+        // Dedupe: request identik yang sedang berjalan berbagi satu promise.
+        // (prefetch hover + klik yang berdekatan tidak lagi = 2 request)
+        if (INFLIGHT.has(url)) return INFLIGHT.get(url);
+
+        var controller = new AbortController();
+        var timer = setTimeout(function () { controller.abort(); }, FETCH_TIMEOUT);
+
+        var promise = fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Partial': '1' },
             credentials: 'same-origin',
-            redirect: 'follow'
+            redirect: 'follow',
+            signal: controller.signal
         })
             .then(function (res) {
                 if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -108,9 +133,17 @@
                 return {
                     title: doc.title || '',
                     html: contentEl.innerHTML,
-                    styles: styles
+                    styles: styles,
+                    at: Date.now()
                 };
+            })
+            .finally(function () {
+                clearTimeout(timer);
+                INFLIGHT.delete(url);
             });
+
+        INFLIGHT.set(url, promise);
+        return promise;
     }
 
     /* Re-eksekusi script inline yang ikut dalam konten halaman baru
@@ -121,6 +154,20 @@
             if (old.src) s.src = old.src;
             s.textContent = old.textContent;
             old.parentNode.replaceChild(s, old);
+        });
+    }
+
+    /* Sinkronkan active state sidebar/topbar tanpa reload layout —
+       menghapus kebingungan "menu tidak ikut berpindah" dan
+       re-render layout yang tidak perlu. */
+    function syncActiveState(url) {
+        var path = new URL(url, window.location.href).pathname;
+        Array.prototype.forEach.call(document.querySelectorAll('.sidebar-nav a[href], .admin-sidebar a[href]'), function (a) {
+            var linkPath;
+            try { linkPath = new URL(a.href, window.location.href).pathname; }
+            catch (e) { return; }
+            var isActive = linkPath === path;
+            a.classList.toggle('active', isActive);
         });
     }
 
@@ -156,6 +203,7 @@
             try { feather.replace(); } catch (e) { /* noop */ }
         }
 
+        syncActiveState(window.location.href);
         window.scrollTo(0, 0);
         animateIn(container);
     }
@@ -165,29 +213,33 @@
         if (NAVIGATING) return;
         NAVIGATING = true;
 
-        var finish = function (entry) {
-            cacheSet(url, entry);
-            swapContent(entry);
-            if (push) history.pushState({}, '', url);
-            NAVIGATING = false;
-        };
-
-        var cached = CACHE.get(url);
+        var cached = cacheGet(url);
         if (cached) {
             // Cache hit → INSTAN, tanpa network sama sekali
-            finish(cached);
+            try {
+                swapContent(cached);
+                if (push) history.pushState({}, '', url);
+            } finally {
+                NAVIGATING = false;
+            }
             return;
         }
 
         fetchPartial(url)
-            .then(function (entry) { finish(entry); })
+            .then(function (entry) {
+                cacheSet(url, entry);
+                swapContent(entry);
+                if (push) history.pushState({}, '', url);
+            })
             .catch(function (err) {
-                NAVIGATING = false;
                 if (err && err.layoutMismatch) {
                     window.location.href = err.url; // layout beda → full-load
                 } else {
                     window.location.href = url;     // fallback full-load
                 }
+            })
+            .finally(function () {
+                NAVIGATING = false;
             });
     }
 
@@ -220,14 +272,11 @@
         navigate(window.location.href, false);
     });
 
-    /* ============== PREFETCH ============== */
-    function prefetch(url) {
-        if (CACHE.has(url)) return;
-        fetchPartial(url)
-            .then(function (entry) { cacheSet(url, entry); })
-            .catch(function () { /* prefetch gagal → biarkan navigasi normal */ });
-    }
-
+    /* ============== PREFETCH (dibatasi, anti-flood) ==============
+       Hanya link navigasi utama yang di-prefetch saat hover, sekali
+       per URL, dengan cooldown antar prefetch. Bulk prefetch semua
+       link sidebar saat idle DIHAPUS — itulah yang membanjiri server
+       dengan render halaman penuh dan membuat server lambat. */
     function sameOriginInternal(a) {
         if (!a || !a.href) return false;
         if (a.protocol !== 'http:' && a.protocol !== 'https:') return false;
@@ -239,32 +288,26 @@
         } catch (e) { return false; }
     }
 
-    // 1) Prefetch semua link navbar/sidebar saat browser idle
-    function prefetchNav() {
-        var links = document.querySelectorAll(
-            '.navbar-pln a[href], .sidebar-nav a[href], .admin-sidebar a[href]'
-        );
-        Array.prototype.forEach.call(links, function (a) {
-            if (sameOriginInternal(a)) prefetch(new URL(a.href, window.location.href).href);
-        });
+    function prefetch(url) {
+        if (CACHE.has(url) || INFLIGHT.has(url)) return;
+        fetchPartial(url)
+            .then(function (entry) { cacheSet(url, entry); })
+            .catch(function () { /* prefetch gagal → biarkan navigasi normal */ });
     }
 
-    // 2) Prefetch saat hover link apapun (50ms delay agar tidak berlebihan)
     document.addEventListener('mouseover', function (event) {
         var link = event.target && event.target.closest
-            ? event.target.closest('a[href]')
+            ? event.target.closest('.sidebar-nav a[href], .admin-sidebar a[href], .navbar-pln a[href]')
             : null;
         if (!sameOriginInternal(link)) return;
-        setTimeout(function () {
-            prefetch(new URL(link.href, window.location.href).href);
-        }, 50);
+
+        var now = Date.now();
+        if (now - lastHoverPrefetch < HOVER_COOLDOWN) return;
+        lastHoverPrefetch = now;
+
+        prefetch(new URL(link.href, window.location.href).href);
     });
 
     /* ============== INIT ============== */
     injectStyles();
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(prefetchNav, { timeout: 1500 });
-    } else {
-        setTimeout(prefetchNav, 300);
-    }
 })();

@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\NewsController;
+use App\Models\Gallery;
 use App\Models\News;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -15,7 +17,22 @@ Route::get('/tentang-kami/struktur-organisasi', function () {
     return view('tentang_kami.struktur_organisasi');
 })->name('struktur-organisasi');
 Route::get('/informasi/galeri', function () {
-    return view('informasi.galeri');
+    $galleries = Gallery::published()
+        ->latest('tanggal_kegiatan')
+        ->orderByDesc('id')
+        ->paginate(9);
+
+    $galleryData = $galleries->getCollection()
+        ->map(fn ($g) => [
+            'src'      => $g->image_url,
+            'title'    => $g->judul,
+            'date'     => $g->tanggal_kegiatan->translatedFormat('d F Y'),
+            'desc'     => $g->deskripsi ?? '',
+            'kategori' => strtolower($g->kategori),
+        ])
+        ->values();
+
+    return view('informasi.galeri', compact('galleries', 'galleryData'));
 })->name('galeri');
 
 Route::get('/informasi/berita', function () {
@@ -282,6 +299,10 @@ Route::middleware(['auth'])->group(function () {
         // Berita / News
         Route::resource('news', NewsController::class);
         Route::post('/news/{news}/publish', [NewsController::class, 'togglePublish'])->name('news.publish');
+
+        // Galeri / Gallery
+        Route::resource('galeri', GalleryController::class)->except(['show']);
+        Route::patch('/galeri/{id}/toggle-status', [GalleryController::class, 'toggleStatus'])->name('galeri.toggle-status');
 
         // Pengumuman / Announcements
         Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class);

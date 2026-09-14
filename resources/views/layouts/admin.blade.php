@@ -91,7 +91,7 @@
                     <span class="link-icon"><i class="fas fa-users"></i></span>
                     Pengguna
                 </a>
-                <a href="#" class="sidebar-link">
+                <a href="{{ route('admin.galeri.index') }}" class="sidebar-link {{ request()->routeIs('admin.galeri.*') ? 'active' : '' }}">
                     <span class="link-icon"><i class="fas fa-images"></i></span>
                     Galeri
                 </a>

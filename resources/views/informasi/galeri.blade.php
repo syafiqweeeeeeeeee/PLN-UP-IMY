@@ -3,18 +3,14 @@
 @section('title', 'E-PPID PLN — Galeri & Dokumentasi')
 
 @section('content')
-<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
-<link rel="dns-prefetch" href="https://images.unsplash.com">
 <style>
     /* =============================================
-       GALERI — DARK MINIMALIST THEME
+       GALERI — DARK MINIMALIST THEME (DB-driven)
        ============================================= */
 
     :root {
         --gallery-primary: #032B56;
         --gallery-accent: #FFEB00;
-        --gallery-card: #fff;
-        --gallery-card-hover: #f8f9fa;
         --gallery-border: #e2e8f0;
         --gallery-text: #1e293b;
         --gallery-text-muted: #64748b;
@@ -155,20 +151,21 @@
     }
 
     /* ---------- Gallery Grid ---------- */
-    .gallery-grid {
+    .gallery-grid-section {
         padding: 3rem 0 4rem;
         background: var(--pln-gray);
     }
 
     .gallery-card {
         background: #fff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--gallery-border);
         border-radius: 14px;
         overflow: hidden;
         transition: all 0.35s ease;
         cursor: pointer;
         position: relative;
         box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+        height: 100%;
     }
 
     .gallery-card:hover {
@@ -193,30 +190,6 @@
 
     .gallery-card:hover .img-wrapper img {
         transform: scale(1.05);
-    }
-
-    /* --- Stagger animasi filter: CSS murni, GPU (opacity+transform),
-       delay di-drive via JS var --stagger-i (tanpa setTimeout) --- */
-    .gallery-item.filter-anim {
-        animation: galleryIn 0.4s ease both;
-        animation-delay: calc(var(--stagger-i, 0) * 60ms);
-    }
-
-    @keyframes galleryIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* --- Crossfade gambar lightbox: CSS transition di compositor
-       (opacity saja) — tanpa setTimeout, terasa instan (<100ms) --- */
-    #lightboxImage {
-        opacity: 1;
-        transition: opacity 0.25s ease;
-        will-change: opacity;
-    }
-
-    #lightboxImage:not(.is-loaded) {
-        opacity: 0;
     }
 
     .gallery-card .img-overlay {
@@ -268,25 +241,10 @@
         backdrop-filter: blur(8px);
     }
 
-    .badge-kategori.badge-operasional {
-        background: rgba(255, 235, 0, 0.85);
-        color: var(--gallery-primary);
-    }
-
-    .badge-kategori.badge-pemeliharaan {
-        background: rgba(0, 163, 224, 0.85);
-        color: #fff;
-    }
-
-    .badge-kategori.badge-k3 {
-        background: rgba(0, 180, 60, 0.85);
-        color: #fff;
-    }
-
-    .badge-kategori.badge-sosial {
-        background: rgba(139, 92, 246, 0.85);
-        color: #fff;
-    }
+    .badge-kategori.badge-kegiatan    { background: rgba(255, 230, 0, 0.9); color: var(--gallery-primary); }
+    .badge-kategori.badge-fasilitas   { background: rgba(0, 163, 224, 0.9); color: #fff; }
+    .badge-kategori.badge-dokumentasi { background: rgba(22, 163, 74, 0.9); color: #fff; }
+    .badge-kategori.badge-seremonial  { background: rgba(139, 92, 246, 0.9); color: #fff; }
 
     /* Card Body */
     .gallery-card .card-body-custom {
@@ -296,7 +254,7 @@
     .gallery-card .card-title {
         font-size: 0.9rem;
         font-weight: 700;
-        color: #1e293b;
+        color: var(--gallery-text);
         margin-bottom: 0.35rem;
         line-height: 1.35;
         display: -webkit-box;
@@ -307,7 +265,7 @@
 
     .gallery-card .card-date {
         font-size: 0.76rem;
-        color: #64748b;
+        color: var(--gallery-text-muted);
         display: flex;
         align-items: center;
         gap: 0.35rem;
@@ -318,6 +276,15 @@
         color: var(--pln-yellow);
     }
 
+    /* ---------- Empty State ---------- */
+    .gallery-empty {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #9ca3af;
+    }
+    .gallery-empty i { font-size: 2.8rem; display: block; margin-bottom: 1rem; }
+    .gallery-empty h6 { font-weight: 600; color: #6b7280; }
+
     /* ---------- Lightbox Modal ---------- */
     .lightbox-modal .modal-content {
         background: #fff;
@@ -327,12 +294,12 @@
     }
 
     .lightbox-modal .modal-header {
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--gallery-border);
         padding: 1rem 1.5rem;
     }
 
     .lightbox-modal .modal-title {
-        color: #1e293b;
+        color: var(--gallery-text);
         font-size: 0.95rem;
         font-weight: 600;
     }
@@ -364,20 +331,20 @@
 
     .lightbox-modal .lightbox-caption {
         padding: 1rem 1.5rem;
-        border-top: 1px solid #e2e8f0;
+        border-top: 1px solid var(--gallery-border);
     }
 
     .lightbox-modal .lightbox-caption h6 {
-        color: #1e293b;
+        color: var(--gallery-text);
         font-weight: 600;
         font-size: 0.9rem;
         margin-bottom: 0.25rem;
     }
 
     .lightbox-modal .lightbox-caption p {
-        color: #64748b;
+        color: var(--gallery-text-muted);
         font-size: 0.8rem;
-        margin: 0;
+        margin: 0 0 0.35rem;
     }
 
     /* Nav Arrows */
@@ -389,8 +356,8 @@
         height: 48px;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.9);
-        border: 1px solid #e2e8f0;
-        color: #1e293b;
+        border: 1px solid var(--gallery-border);
+        color: var(--gallery-text);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -407,13 +374,8 @@
         color: #fff;
     }
 
-    .lightbox-nav.prev {
-        left: 1rem;
-    }
-
-    .lightbox-nav.next {
-        right: 1rem;
-    }
+    .lightbox-nav.prev { left: 1rem; }
+    .lightbox-nav.next { right: 1rem; }
 
     /* ---------- Pagination ---------- */
     .galeri-pagination {
@@ -423,12 +385,13 @@
 
     .galeri-pagination .pagination {
         gap: 0.4rem;
+        margin-bottom: 0;
     }
 
     .galeri-pagination .page-link {
         background: #fff;
-        border: 1px solid #e2e8f0;
-        color: #64748b;
+        border: 1px solid var(--gallery-border);
+        color: var(--gallery-text-muted);
         font-size: 0.85rem;
         font-weight: 500;
         padding: 0.55rem 0.9rem;
@@ -454,25 +417,39 @@
 
     .galeri-pagination .page-item.disabled .page-link {
         background: transparent;
-        border-color: #e2e8f0;
+        border-color: var(--gallery-border);
         color: #cbd5e1;
+    }
+
+    /* ---------- Stagger Animation (filter) ---------- */
+    .gallery-item.filter-anim {
+        animation: galleryIn 0.4s ease both;
+        animation-delay: calc(var(--stagger-i, 0) * 60ms);
+    }
+
+    @keyframes galleryIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .gallery-item {
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
     }
 
     /* ---------- Responsive ---------- */
     @media (max-width: 991.98px) {
-        .galeri-hero h1 {
-            font-size: 2rem;
-        }
+        .galeri-hero h1 { font-size: 2rem; }
     }
 
     @media (max-width: 767.98px) {
-        .galeri-hero {
-            padding: 1.5rem 0 2rem;
-        }
-
-        .galeri-hero h1 {
-            font-size: 1.65rem;
-        }
+        .galeri-hero { padding: 1.5rem 0 2rem; }
+        .galeri-hero h1 { font-size: 1.65rem; }
 
         .filter-chips {
             overflow-x: auto;
@@ -481,51 +458,12 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        .filter-chip {
-            flex-shrink: 0;
-        }
+        .filter-chip { flex-shrink: 0; }
 
-        .lightbox-nav {
-            width: 40px;
-            height: 40px;
-            font-size: 0.9rem;
-        }
-
-        .lightbox-nav.prev {
-            left: 0.5rem;
-        }
-
-        .lightbox-nav.next {
-            right: 0.5rem;
-        }
+        .lightbox-nav { width: 40px; height: 40px; font-size: 0.9rem; }
+        .lightbox-nav.prev { left: 0.5rem; }
+        .lightbox-nav.next { right: 0.5rem; }
     }
-
-    /* ---------- Animation ---------- */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .gallery-card {
-        animation: fadeInUp 0.5s ease forwards;
-        opacity: 0;
-    }
-
-    .gallery-card:nth-child(1) { animation-delay: 0.05s; }
-    .gallery-card:nth-child(2) { animation-delay: 0.1s; }
-    .gallery-card:nth-child(3) { animation-delay: 0.15s; }
-    .gallery-card:nth-child(4) { animation-delay: 0.2s; }
-    .gallery-card:nth-child(5) { animation-delay: 0.25s; }
-    .gallery-card:nth-child(6) { animation-delay: 0.3s; }
-    .gallery-card:nth-child(7) { animation-delay: 0.35s; }
-    .gallery-card:nth-child(8) { animation-delay: 0.4s; }
-    .gallery-card:nth-child(9) { animation-delay: 0.45s; }
 </style>
 
 <div class="galeri-page">
@@ -535,7 +473,6 @@
          ============================================ --}}
     <section class="galeri-hero">
         <div class="container px-4 px-lg-5">
-            {{-- Breadcrumb inside hero --}}
             <div class="galeri-breadcrumb">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
@@ -550,13 +487,13 @@
                 Galeri & <span class="accent">Dokumentasi</span> Operasional
             </h1>
             <p class="subtitle" data-i18n="galeri.subtitle">
-                Kumpulan foto dan dokumentasi kegiatan operasional, pemeliharaan, serta program K3 &amp; lingkungan di PT PLN Nusantara Power UP PLTU Indramayu.
+                Kumpulan foto dan dokumentasi kegiatan operasional, fasilitas, serta seremonial di PT PLN Nusantara Power UP PLTU Indramayu.
             </p>
         </div>
     </section>
 
     {{-- ============================================
-         3. INTERACTIVE FILTER BAR
+         2. FILTER BAR
          ============================================ --}}
     <section class="filter-section">
         <div class="container px-4 px-lg-5">
@@ -564,245 +501,75 @@
                 <button class="filter-chip active" data-filter="semua">
                     <i class="fas fa-images"></i> <span data-i18n="galeri.filter_all">Semua</span>
                 </button>
-                <button class="filter-chip" data-filter="operasional">
-                    <i class="fas fa-bolt"></i> <span data-i18n="galeri.filter_operational">Operasional PLTU</span>
+                @foreach (\App\Models\Gallery::PUBLIC_FILTERS as $key => $label)
+                <button class="filter-chip" data-filter="{{ $key }}">
+                    <i class="fas fa-{{ ['kegiatan' => 'bolt', 'fasilitas' => 'industry', 'dokumentasi' => 'folder-open', 'seremonial' => 'award'][$key] }}"></i>
+                    <span data-i18n="galeri.filter_{{ $key }}">{{ $label }}</span>
                 </button>
-                <button class="filter-chip" data-filter="pemeliharaan">
-                    <i class="fas fa-wrench"></i> <span data-i18n="galeri.filter_maintenance">Pemeliharaan</span>
-                </button>
-                <button class="filter-chip" data-filter="k3">
-                    <i class="fas fa-shield-halved"></i> <span data-i18n="galeri.filter_k3">K3 &amp; Lingkungan</span>
-                </button>
-                <button class="filter-chip" data-filter="sosial">
-                    <i class="fas fa-hand-holding-heart"></i> <span data-i18n="galeri.filter_social">Kegiatan Sosial</span>
-                </button>
+                @endforeach
             </div>
+            <div class="mt-2 text-muted" style="font-size: 0.78rem;" id="galleryCount"></div>
         </div>
     </section>
 
     {{-- ============================================
-         4. RESPONSIVE PHOTO GRID
+         3. RESPONSIVE PHOTO GRID
          ============================================ --}}
-    <section class="gallery-grid">
+    <section class="gallery-grid-section">
         <div class="container px-4 px-lg-5">
             <div class="row g-4" id="galleryGrid">
 
-                {{-- Card 1 --}}
-                <div class="col-lg-4 col-md-6 gallery-item" data-kategori="operasional">
-                    <div class="gallery-card" data-index="0">
+                @forelse ($galleries as $item)
+                <div class="col-lg-4 col-md-6 gallery-item" data-kategori="{{ strtolower($item->kategori) }}">
+                    <div class="gallery-card" data-index="{{ $loop->index }}">
                         <div class="img-wrapper">
-                            <span class="badge-kategori badge-operasional">Operasional</span>
-                            <img src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=600&h=450&fit=crop&fm=auto&q=75" alt="Operasional PLTU Indramayu" loading="lazy" width="600" height="450" decoding="async">
+                            <span class="badge-kategori badge-{{ strtolower($item->kategori) }}">{{ strtolower($item->kategori) }}</span>
+                            <img src="{{ $item->image_url }}" alt="{{ $item->judul }}" loading="lazy" decoding="async">
                             <div class="img-overlay">
                                 <div class="zoom-icon"><i class="fas fa-expand"></i></div>
                             </div>
                         </div>
                         <div class="card-body-custom">
-                            <h6 class="card-title">Operasional Unit Pembangkitan Unit 1</h6>
+                            <h6 class="card-title">{{ $item->judul }}</h6>
                             <div class="card-date">
-                                <i class="fas fa-calendar-alt"></i> 5 September 2026
+                                <i class="fas fa-calendar-alt"></i> {{ $item->tanggal_kegiatan->translatedFormat('d F Y') }}
                             </div>
                         </div>
                     </div>
                 </div>
-
-                {{-- Card 2 --}}
-                <div class="col-lg-4 col-md-6 gallery-item" data-kategori="pemeliharaan">
-                    <div class="gallery-card" data-index="1">
-                        <div class="img-wrapper">
-                            <span class="badge-kategori badge-pemeliharaan">Pemeliharaan</span>
-                            <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&h=450&fit=crop&fm=auto&q=75" alt="Pemeliharaan Turbin" loading="lazy" width="600" height="450" decoding="async">
-                            <div class="img-overlay">
-                                <div class="zoom-icon"><i class="fas fa-expand"></i></div>
-                            </div>
-                        </div>
-                        <div class="card-body-custom">
-                            <h6 class="card-title">Pemeliharaan Berkala Turbin Uap</h6>
-                            <div class="card-date">
-                                <i class="fas fa-calendar-alt"></i> 3 September 2026
-                            </div>
-                        </div>
+                @empty
+                <div class="col-12">
+                    <div class="gallery-empty" data-i18n="galeri.empty">
+                        <i class="fas fa-images"></i>
+                        <h6>Belum ada foto galeri</h6>
+                        <p>Foto akan segera ditambahkan. Silakan kembali lagi nanti.</p>
                     </div>
                 </div>
-
-                {{-- Card 3 --}}
-                <div class="col-lg-4 col-md-6 gallery-item" data-kategori="k3">
-                    <div class="gallery-card" data-index="2">
-                        <div class="img-wrapper">
-                            <span class="badge-kategori badge-k3">K3 & Lingkungan</span>
-                            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&h=450&fit=crop&fm=auto&q=75" alt="Sosialisasi K3" loading="lazy" width="600" height="450" decoding="async">
-                            <div class="img-overlay">
-                                <div class="zoom-icon"><i class="fas fa-expand"></i></div>
-                            </div>
-                        </div>
-                        <div class="card-body-custom">
-                            <h6 class="card-title">Sosialisasi Keselamatan Kerja Lingkungan</h6>
-                            <div class="card-date">
-                                <i class="fas fa-calendar-alt"></i> 1 September 2026
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Card 4 --}}
-                <div class="col-lg-4 col-md-6 gallery-item" data-kategori="sosial">
-                    <div class="gallery-card" data-index="3">
-                        <div class="img-wrapper">
-                            <span class="badge-kategori badge-sosial">Kegiatan Sosial</span>
-                            <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&h=450&fit=crop&fm=auto&q=75" alt="Bakti Sosial" loading="lazy" width="600" height="450" decoding="async">
-                            <div class="img-overlay">
-                                <div class="zoom-icon"><i class="fas fa-expand"></i></div>
-                            </div>
-                        </div>
-                        <div class="card-body-custom">
-                            <h6 class="card-title">Bakti Sosial ke Masyarakat Desa Sumur Adem</h6>
-                            <div class="card-date">
-                                <i class="fas fa-calendar-alt"></i> 28 Agustus 2026
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Card 5 --}}
-                <div class="col-lg-4 col-md-6 gallery-item" data-kategori="operasional">
-                    <div class="gallery-card" data-index="4">
-                        <div class="img-wrapper">
-                            <span class="badge-kategori badge-operasional">Operasional</span>
-                            <img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=450&fit=crop&fm=auto&q=75" alt="Control Room" loading="lazy" width="600" height="450" decoding="async">
-                            <div class="img-overlay">
-                                <div class="zoom-icon"><i class="fas fa-expand"></i></div>
-                            </div>
-                        </div>
-                        <div class="card-body-custom">
-                            <h6 class="card-title">Monitoring Control Room PLTU Indramayu</h6>
-                            <div class="card-date">
-                                <i class="fas fa-calendar-alt"></i> 25 Agustus 2026
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Card 6 --}}
-                <div class="col-lg-4 col-md-6 gallery-item" data-kategori="pemeliharaan">
-                    <div class="gallery-card" data-index="5">
-                        <div class="img-wrapper">
-                            <span class="badge-kategori badge-pemeliharaan">Pemeliharaan</span>
-                            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&h=450&fit=crop&fm=auto&q=75" alt="Inspeksi Boiler" loading="lazy" width="600" height="450" decoding="async">
-                            <div class="img-overlay">
-                                <div class="zoom-icon"><i class="fas fa-expand"></i></div>
-                            </div>
-                        </div>
-                        <div class="card-body-custom">
-                            <h6 class="card-title">Inspeksi & Pembersihan Boiler</h6>
-                            <div class="card-date">
-                                <i class="fas fa-calendar-alt"></i> 22 Agustus 2026
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Card 7 --}}
-                <div class="col-lg-4 col-md-6 gallery-item" data-kategori="k3">
-                    <div class="gallery-card" data-index="6">
-                        <div class="img-wrapper">
-                            <span class="badge-kategori badge-k3">K3 & Lingkungan</span>
-                            <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600&h=450&fit=crop&fm=auto&q=75" alt="Simulasi Darurat" loading="lazy" width="600" height="450" decoding="async">
-                            <div class="img-overlay">
-                                <div class="zoom-icon"><i class="fas fa-expand"></i></div>
-                            </div>
-                        </div>
-                        <div class="card-body-custom">
-                            <h6 class="card-title">Simulasi Tanggap Darurat & Evakuasi</h6>
-                            <div class="card-date">
-                                <i class="fas fa-calendar-alt"></i> 18 Agustus 2026
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Card 8 --}}
-                <div class="col-lg-4 col-md-6 gallery-item" data-kategori="sosial">
-                    <div class="gallery-card" data-index="7">
-                        <div class="img-wrapper">
-                            <span class="badge-kategori badge-sosial">Kegiatan Sosial</span>
-                            <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&h=450&fit=crop&fm=auto&q=75" alt="Donasi Pendidikan" loading="lazy" width="600" height="450" decoding="async">
-                            <div class="img-overlay">
-                                <div class="zoom-icon"><i class="fas fa-expand"></i></div>
-                            </div>
-                        </div>
-                        <div class="card-body-custom">
-                            <h6 class="card-title">Program Bantuan Pendidikan Anak</h6>
-                            <div class="card-date">
-                                <i class="fas fa-calendar-alt"></i> 15 Agustus 2026
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Card 9 --}}
-                <div class="col-lg-4 col-md-6 gallery-item" data-kategori="operasional">
-                    <div class="gallery-card" data-index="8">
-                        <div class="img-wrapper">
-                            <span class="badge-kategori badge-operasional">Operasional</span>
-                            <img src="https://images.unsplash.com/photo-1513828583688-c52646db42da?w=600&h=450&fit=crop&fm=auto&q=75" alt="Pencemaran Udara" loading="lazy" width="600" height="450" decoding="async">
-                            <div class="img-overlay">
-                                <div class="zoom-icon"><i class="fas fa-expand"></i></div>
-                            </div>
-                        </div>
-                        <div class="card-body-custom">
-                            <h6 class="card-title">Pengoperasian Unit Pembangkitan 24 Jam</h6>
-                            <div class="card-date">
-                                <i class="fas fa-calendar-alt"></i> 12 Agustus 2026
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endforelse
 
             </div>
         </div>
     </section>
 
     {{-- ============================================
-         5. PAGINATION
+         4. PAGINATION
          ============================================ --}}
+    @if ($galleries->hasPages())
     <section class="galeri-pagination">
         <div class="container px-4 px-lg-5">
-            <nav aria-label="Navigasi galeri">
-                <ul class="pagination justify-content-center mb-0">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-                    <li class="page-item active" aria-current="page">
-                        <a class="page-link" href="#">1</a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">4</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+            <div class="d-flex justify-content-center">
+                {{ $galleries->links() }}
+            </div>
         </div>
     </section>
+    @endif
 
 </div>
 
-{{-- ============================================
-     6. LIGHTBOX MODAL
-     ============================================ --}}
-
 {{-- ============================================================
      LIGHTBOX — ON-DEMAND RENDER (lazy)
-     Modal TIDAK dirender ke DOM saat halaman dimuat. Struktur
-     disimpan di <template> (inert, tidak di-parse sebagai node
-     aktif) dan baru di-clone sekali saat pengguna pertama kali
-     klik kartu galeri. Inline onclick dihapus total → interaksi
-     ditangani SATU event delegation di #galleryGrid.
+     Data foto di-inject dari server (hanya foto berstatus
+     publikasi). Modal dirender dari <template> saat klik pertama.
      ============================================================ --}}
 <template id="lightboxTemplate">
     <div class="modal fade lightbox-modal" id="lightboxModal" tabindex="-1" aria-hidden="true">
@@ -816,15 +583,15 @@
                     <button class="lightbox-nav prev" data-lightbox-nav="-1" aria-label="Foto Sebelumnya">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <img id="lightboxImage" alt="Preview" class="d-block mx-auto" width="1200" height="900" decoding="async">
+                    <img id="lightboxImage" alt="Preview" class="d-block mx-auto" decoding="async">
                     <button class="lightbox-nav next" data-lightbox-nav="1" aria-label="Foto Berikutnya">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
                 <div class="lightbox-caption">
                     <h6 id="lightboxCaptionTitle"></h6>
-      
-              <p id="lightboxCaptionDate"></p>
+                    <p id="lightboxCaptionDate"></p>
+                    <p id="lightboxCaptionDesc"></p>
                 </div>
             </div>
         </div>
@@ -839,70 +606,24 @@
     'use strict';
 
     /* =============================================
-       GALLERY DATA (for lightbox navigation)
+       GALLERY DATA (dari server, status publikasi)
        ============================================= */
-    const galleryData = [
-        {
-            src: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=1200&h=900&fit=crop&fm=auto&q=80',
-            title: 'Operasional Unit Pembangkitan Unit 1',
-            date: '5 September 2026'
-        },
-        {
-            src: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=1200&h=900&fit=crop&fm=auto&q=80',
-            title: 'Pemeliharaan Berkala Turbin Uap',
-            date: '3 September 2026'
-        },
-        {
-            src: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1200&h=900&fit=crop&fm=auto&q=80',
-            title: 'Sosialisasi Keselamatan Kerja Lingkungan',
-            date: '1 September 2026'
-        },
-        {
-            src: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1200&h=900&fit=crop&fm=auto&q=80',
-            title: 'Bakti Sosial ke Masyarakat Desa Sumur Adem',
-            date: '28 Agustus 2026'
-        },
-        {
-            src: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&h=900&fit=crop&fm=auto&q=80',
-            title: 'Monitoring Control Room PLTU Indramayu',
-            date: '25 Agustus 2026'
-        },
-        {
-            src: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1200&h=900&fit=crop&fm=auto&q=80',
-            title: 'Inspeksi & Pembersihan Boiler',
-            date: '22 Agustus 2026'
-        },
-        {
-            src: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=1200&h=900&fit=crop&fm=auto&q=80',
-            title: 'Simulasi Tanggap Darurat & Evakuasi',
-            date: '18 Agustus 2026'
-        },
-        {
-            src: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&h=900&fit=crop&fm=auto&q=80',
-            title: 'Program Bantuan Pendidikan Anak',
-            date: '15 Agustus 2026'
-        },
-        {
-            src: 'https://images.unsplash.com/photo-1513828583688-c52646db42da?w=1200&h=900&fit=crop&fm=auto&q=80',
-            title: 'Pengoperasian Unit Pembangkitan 24 Jam',
-            date: '12 Agustus 2026'
-        }
-    ];
+    const galleryData = @json($galleryData);
 
     let currentIndex = 0;
-    let filteredIndices = [];
+    let filteredIndices = galleryData.map((_, i) => i);
 
-    /* =============================================
-       EVENT DELEGATION — satu listener untuk semua interaksi
-       (Klik kartu → buka lightbox, klik chip → filter).
-       Tidak ada onclick inline per kartu (main-thread friendly).
-       ============================================= */
     const grid = document.getElementById('galleryGrid');
-
-    /* --- Filter chips --- */
     const filterChips = document.querySelectorAll('.filter-chip');
     const galleryItems = document.querySelectorAll('.gallery-item');
+    const countEl = document.getElementById('galleryCount');
 
+    function updateCount(n) {
+        if (countEl) countEl.textContent = n + ' foto ditampilkan';
+    }
+    updateCount(filteredIndices.length);
+
+    /* --- Filter chips --- */
     filterChips.forEach(function(chip) {
         chip.addEventListener('click', function() {
             filterChips.forEach(function(c) { c.classList.remove('active'); });
@@ -916,10 +637,9 @@
                 const kategori = item.getAttribute('data-kategori');
                 if (filter === 'semua' || kategori === filter) {
                     item.style.display = '';
-                    /* Stagger murni CSS: delay via --stagger-i, tanpa setTimeout */
                     item.style.setProperty('--stagger-i', shownIdx);
                     item.classList.remove('filter-anim');
-                    void item.offsetWidth; /* reflow sekali utk restart animasi */
+                    void item.offsetWidth; /* reflow utk restart animasi */
                     item.classList.add('filter-anim');
                     shownIdx++;
                     filteredIndices.push(index);
@@ -928,15 +648,11 @@
                 }
             });
 
-            if (filter === 'semua') {
-                filteredIndices = galleryData.map(function(_, i) { return i; });
-            }
+            updateCount(filteredIndices.length);
         });
     });
 
-    filteredIndices = galleryData.map(function(_, i) { return i; });
-
-    /* --- Kartu galeri + tombol nav lightbox (delegated) --- */
+    /* --- Kartu galeri (delegated) → buka lightbox --- */
     if (grid) {
         grid.addEventListener('click', function(e) {
             const card = e.target.closest('.gallery-card');
@@ -960,6 +676,7 @@
     var lightboxTitle = null;
     var lightboxCapTitle = null;
     var lightboxCapDate = null;
+    var lightboxCapDesc = null;
 
     function ensureLightbox() {
         if (lightboxModal) return;
@@ -972,6 +689,7 @@
         lightboxTitle    = document.getElementById('lightboxTitle');
         lightboxCapTitle = document.getElementById('lightboxCaptionTitle');
         lightboxCapDate  = document.getElementById('lightboxCaptionDate');
+        lightboxCapDesc  = document.getElementById('lightboxCaptionDesc');
     }
 
     function fillLightbox(data) {
@@ -980,17 +698,20 @@
         lightboxTitle.textContent = data.title;
         lightboxCapTitle.textContent = data.title;
         lightboxCapDate.textContent = data.date;
+        lightboxCapDesc.textContent = data.desc;
+        lightboxCapDesc.style.display = data.desc ? '' : 'none';
     }
 
     window.openLightbox = function(index) {
         ensureLightbox();
         currentIndex = index;
         fillLightbox(galleryData[index]);
-        /* Instance di-CACHE — jangan new bootstrap.Modal() tiap klik */
         bootstrap.Modal.getOrCreateInstance(lightboxModal).show();
     };
 
     window.navigateLightbox = function(direction) {
+        if (filteredIndices.length <= 1) return;
+
         var posInFiltered = filteredIndices.indexOf(currentIndex);
         if (posInFiltered === -1) posInFiltered = 0;
 
@@ -999,18 +720,22 @@
         if (newPos >= filteredIndices.length) newPos = 0;
 
         currentIndex = filteredIndices[newPos];
-        var data = galleryData[currentIndex];
 
-        /* Crossfade CSS-murni via class (GPU: opacity saja).
-           Jika gambar belum selesai dimuat, tampilkan begitu ready —
-           tidak ada setTimeout yang menggeser waktu respons. */
+        /* Crossfade CSS-murni via class (GPU: opacity saja) */
         lightboxImage.classList.remove('is-loaded');
+        lightboxImage.style.opacity = '0';
+
+        var data = galleryData[currentIndex];
         var pre = new Image();
-        pre.onload = function () {
+        pre.onload = function() {
             fillLightbox(data);
-            requestAnimationFrame(function () {
-                lightboxImage.classList.add('is-loaded');
+            requestAnimationFrame(function() {
+                lightboxImage.style.opacity = '1';
             });
+        };
+        pre.onerror = function() {
+            fillLightbox(data);
+            lightboxImage.style.opacity = '1';
         };
         pre.src = data.src;
     };
@@ -1024,10 +749,9 @@
         } else if (e.key === 'ArrowRight') {
             navigateLightbox(1);
         } else if (e.key === 'Escape') {
-            bootstrap.Modal.getInstance(lightboxModal).hide();
+            bootstrap.Modal.getInstance(lightboxModal)?.hide();
         }
     });
-
 })();
 </script>
 @endpush

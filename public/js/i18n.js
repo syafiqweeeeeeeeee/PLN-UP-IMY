@@ -211,7 +211,13 @@
             'galeri.filter_operational': 'Operasional PLTU',
             'galeri.filter_maintenance': 'Pemeliharaan',
             'galeri.filter_k3': 'K3 & Lingkungan',
-            'galeri.filter_social': 'Kegiatan Sosial'
+            'galeri.filter_social': 'Kegiatan Sosial',
+            'galeri.filter_kegiatan': 'Kegiatan',
+            'galeri.filter_fasilitas': 'Fasilitas',
+            'galeri.filter_dokumentasi': 'Dokumentasi',
+            'galeri.filter_seremonial': 'Seremonial',
+            'galeri.empty': 'Belum ada foto pada kategori ini.',
+            'galeri.count': '{n} foto ditampilkan'
         },
 
         en: {
@@ -406,7 +412,13 @@
             'galeri.filter_operational': 'PLTU Operations',
             'galeri.filter_maintenance': 'Maintenance',
             'galeri.filter_k3': 'K3 & Environment',
-            'galeri.filter_social': 'Social Activities'
+            'galeri.filter_social': 'Social Activities',
+            'galeri.filter_kegiatan': 'Activities',
+            'galeri.filter_fasilitas': 'Facilities',
+            'galeri.filter_dokumentasi': 'Documentation',
+            'galeri.filter_seremonial': 'Ceremonial',
+            'galeri.empty': 'No photos in this category yet.',
+            'galeri.count': '{n} photos shown'
         }
     };
 
