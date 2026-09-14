@@ -120,24 +120,10 @@
                 {{-- Role & Permission --}}
                 @can('roles.view')
                 <div class="sidebar-section-label">Role & Hak Akses</div>
-                <a href="{{ route('admin.roles.index') }}" class="sidebar-link">
+                <a href="{{ route('admin.roles.index') }}" class="sidebar-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
                     <span class="link-icon"><i class="fas fa-user-tag"></i></span>
                     Role
                 </a>
-                <a href="{{ route('admin.button-showcase') }}" class="sidebar-link">
-                    <span class="link-icon"><i class="fas fa-palette"></i></span>
-                    Button Set
-                </a>
-                <a href="{{ route('admin.roles.create') }}" class="sidebar-link">
-                    <span class="link-icon"><i class="fas fa-plus-circle"></i></span>
-                    Tambah Role
-                </a>
-                @can('roles.assign_permission')
-                <a href="{{ route('admin.roles.index') }}" class="sidebar-link" title="Kelola Permission (pilih role di halaman Role)">
-                    <span class="link-icon"><i class="fas fa-lock-open"></i></span>
-                    Kelola Permission
-                </a>
-                @endcan
                 @endcan
 
                 <form id="permissionRoleForm" action="" method="GET" style="display:none;">
