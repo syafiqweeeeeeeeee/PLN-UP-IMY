@@ -79,7 +79,7 @@
                     <span class="link-icon"><i class="fas fa-newspaper"></i></span>
                     Berita
                 </a>
-                <a href="#" class="sidebar-link">
+                <a href="{{ route('admin.announcements.index') }}" class="sidebar-link {{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}">
                     <span class="link-icon"><i class="fas fa-bullhorn"></i></span>
                     Pengumuman
                 </a>

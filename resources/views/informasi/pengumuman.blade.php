@@ -559,173 +559,51 @@
     </section>
 
     {{-- ============================================
-         3. ANNOUNCEMENT LIST
+         3. ANNOUNCEMENT LIST (dari database)
          ============================================ --}}
     <section class="pengumuman-list">
         <div class="container px-4 px-lg-5">
 
-            {{-- Card 1 --}}
-            <div class="pengumuman-card" data-kategori="umum">
+            @forelse ($pengumuman as $item)
+            @php
+                $tgl = $item->published_at ?? $item->created_at;
+            @endphp
+            <div class="pengumuman-card" data-kategori="{{ $item->category }}">
                 <div class="date-box">
-                    <span class="date-day">08</span>
-                    <span class="date-month">Sep</span>
-                    <span class="date-year">2026</span>
+                    <span class="date-day">{{ $tgl->format('d') }}</span>
+                    <span class="date-month">{{ $tgl->translatedFormat('M') }}</span>
+                    <span class="date-year">{{ $tgl->format('Y') }}</span>
                 </div>
                 <div class="pengumuman-content">
-                    <span class="pengumuman-tag tag-umum"><i class="fas fa-circle" style="font-size:0.35rem;"></i> Umum</span>
-                    <h4 class="pengumuman-title">Jadwal Operasional Libur Nasional Hari Raya 2026</h4>
-                    <p class="pengumuman-excerpt">Diberitahukan kepada seluruh masyarakat bahwa jadwal pelayanan informasi publik mengalami penyesuaian selama masa libur nasional Hari Raya...</p>
+                    <span class="pengumuman-tag tag-{{ $item->category }}"><i class="fas fa-circle" style="font-size:0.35rem;"></i> {{ ucfirst($item->category) }}</span>
+                    <h4 class="pengumuman-title">{{ $item->title }}</h4>
+                    <p class="pengumuman-excerpt">{{ $item->excerpt }}</p>
                 </div>
                 <div class="pengumuman-action">
-                    <a href="#" class="btn-detail">Lihat Detail <i class="fas fa-arrow-right"></i></a>
+                    <a href="{{ route('pengumuman.detail', $item->slug) }}" class="btn-detail">Lihat Detail <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
-
-            {{-- Card 2 --}}
-            <div class="pengumuman-card" data-kategori="kepegawaian">
-                <div class="date-box">
-                    <span class="date-day">02</span>
-                    <span class="date-month">Sep</span>
-                    <span class="date-year">2026</span>
-                </div>
-                <div class="pengumuman-content">
-                    <span class="pengumuman-tag tag-kepegawaian"><i class="fas fa-circle" style="font-size:0.35rem;"></i> Kepegawaian</span>
-                    <h4 class="pengumuman-title">Pengumuman Penerimaan Calon Pegawai PLN NP Periode September 2026</h4>
-                    <p class="pengumuman-excerpt">PT PLN Nusantara Power membuka kesempatan bagi putra-putri terbaik bangsa untuk bergabung menjadi bagian dari keluarga besar PLN NP...</p>
-                </div>
-                <div class="pengumuman-action">
-                    <a href="#" class="btn-detail">Lihat Detail <i class="fas fa-arrow-right"></i></a>
-                </div>
+            @empty
+            <div class="empty-state">
+                <i class="fas fa-bullhorn"></i>
+                <h5>Belum ada pengumuman</h5>
+                <p>Pengumuman resmi akan ditampilkan di halaman ini.</p>
             </div>
-
-            {{-- Card 3 --}}
-            <div class="pengumuman-card" data-kategori="teknis">
-                <div class="date-box">
-                    <span class="date-day">28</span>
-                    <span class="date-month">Agu</span>
-                    <span class="date-year">2026</span>
-                </div>
-                <div class="pengumuman-content">
-                    <span class="pengumuman-tag tag-teknis"><i class="fas fa-circle" style="font-size:0.35rem;"></i> Teknis</span>
-                    <h4 class="pengumuman-title">Pemeliharaan Berkala Unit 2 — Gangguan Sementara Suplai Listrik</h4>
-                    <p class="pengumuman-excerpt">Akan dilaksanakan pemeliharaan berkala pada Unit 2 PLTU Indramayu yang berlangsung selama 14 hari. Potensi penurunan suplai sementara...</p>
-                </div>
-                <div class="pengumuman-action">
-                    <a href="#" class="btn-detail">Lihat Detail <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
-
-            {{-- Card 4 --}}
-            <div class="pengumuman-card" data-kategori="keuangan">
-                <div class="date-box">
-                    <span class="date-day">20</span>
-                    <span class="date-month">Agu</span>
-                    <span class="date-year">2026</span>
-                </div>
-                <div class="pengumuman-content">
-                    <span class="pengumuman-tag tag-keuangan"><i class="fas fa-circle" style="font-size:0.35rem;"></i> Keuangan</span>
-                    <h4 class="pengumuman-title">Penyesuaian Tarif Layanan Informasi Publik Tahun Anggaran 2026/2027</h4>
-                    <p class="pengumuman-excerpt">Berdasarkan Peraturan Menteri Badan Usaha Milik Negara dan kebijakan internal perusahaan, dilakukan penyesuaian tarif pelayanan informasi...</p>
-                </div>
-                <div class="pengumuman-action">
-                    <a href="#" class="btn-detail">Lihat Detail <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
-
-            {{-- Card 5 --}}
-            <div class="pengumuman-card" data-kategori="layanan">
-                <div class="date-box">
-                    <span class="date-day">15</span>
-                    <span class="date-month">Agu</span>
-                    <span class="date-year">2026</span>
-                </div>
-                <div class="pengumuman-content">
-                    <span class="pengumuman-tag tag-layanan"><i class="fas fa-circle" style="font-size:0.35rem;"></i> Layanan</span>
-                    <h4 class="pengumuman-title">Perubahan Jam Layanan PPID Mulai 1 September 2026</h4>
-                    <p class="pengumuman-excerpt">Pejabat Pengelola Informasi dan Dokumentasi (PPID) mengumumkan penyesuaian jam pelayanan permohonan informasi publik yang berlaku efektif...</p>
-                </div>
-                <div class="pengumuman-action">
-                    <a href="#" class="btn-detail">Lihat Detail <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
-
-            {{-- Card 6 --}}
-            <div class="pengumuman-card" data-kategori="umum">
-                <div class="date-box">
-                    <span class="date-day">10</span>
-                    <span class="date-month">Agu</span>
-                    <span class="date-year">2026</span>
-                </div>
-                <div class="pengumuman-content">
-                    <span class="pengumuman-tag tag-umum"><i class="fas fa-circle" style="font-size:0.35rem;"></i> Umum</span>
-                    <h4 class="pengumuman-title">Sosialisasi Implementasi Sistem Manajemen Aset ISO 55001:2024</h4>
-                    <p class="pengumuman-excerpt">PT PLN Nusantara Power UP PLTU Indramayu melaksanakan sosialisasi pembaruan standar sistem manajemen aset internasional kepada seluruh unit...</p>
-                </div>
-                <div class="pengumuman-action">
-                    <a href="#" class="btn-detail">Lihat Detail <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
-
-            {{-- Card 7 --}}
-            <div class="pengumuman-card" data-kategori="teknis">
-                <div class="date-box">
-                    <span class="date-day">01</span>
-                    <span class="date-month">Agu</span>
-                    <span class="date-year">2026</span>
-                </div>
-                <div class="pengumuman-content">
-                    <span class="pengumuman-tag tag-teknis"><i class="fas fa-circle" style="font-size:0.35rem;"></i> Teknis</span>
-                    <h4 class="pengumuman-title">Hasil Uji Emisi Gas Buang PLTU Indramayu Semester I Tahun 2026</h4>
-                    <p class="pengumuman-excerpt">Berdasarkan hasil pengukuran emisi gas buang yang dilakukan oleh lembaga surveyor independen, seluruh parameter emisi PLTU Indramayu...</p>
-                </div>
-                <div class="pengumuman-action">
-                    <a href="#" class="btn-detail">Lihat Detail <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
-
-            {{-- Card 8 --}}
-            <div class="pengumuman-card" data-kategori="kepegawaian">
-                <div class="date-box">
-                    <span class="date-day">25</span>
-                    <span class="date-month">Jul</span>
-                    <span class="date-year">2026</span>
-                </div>
-                <div class="pengumuman-content">
-                    <span class="pengumuman-tag tag-kepegawaian"><i class="fas fa-circle" style="font-size:0.35rem;"></i> Kepegawaian</span>
-                    <h4 class="pengumuman-title">Pengumuman Hasil Seleksi Kompetensi Calon Pegawai PLN NP T.A. 2026</h4>
-                    <p class="pengumuman-excerpt">Berdasarkan hasil seleksi kompetensi yang telah dilaksanakan pada tanggal 15–20 Juli 2026, bersama ini diumumkan daftar nama peserta yang dinyatakan...</p>
-                </div>
-                <div class="pengumuman-action">
-                    <a href="#" class="btn-detail">Lihat Detail <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
+            @endforelse
 
         </div>
     </section>
 
     {{-- ============================================
-         4. PAGINATION
+         4. PAGINATION (dinamis)
          ============================================ --}}
     <section class="pengumuman-pagination">
         <div class="container px-4 px-lg-5">
+            @if ($pengumuman->hasPages())
             <nav aria-label="Navigasi pengumuman">
-                <ul class="pagination justify-content-center mb-0">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-                    <li class="page-item active" aria-current="page">
-                        <a class="page-link" href="#">1</a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
+                {{ $pengumuman->links() }}
             </nav>
+            @endif
         </div>
     </section>
 

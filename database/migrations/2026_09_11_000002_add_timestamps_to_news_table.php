@@ -9,9 +9,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('news', function (Blueprint $table) {
-            $table->timestamps();
-        });
+        // Tambahkan timestamps hanya jika belum ada (aman untuk DB fresh
+        // karena create_news_table sudah membuat created_at & updated_at).
+        if (!Schema::hasColumn('news', 'created_at') && !Schema::hasColumn('news', 'updated_at')) {
+            Schema::table('news', function (Blueprint $table) {
+                $table->timestamps();
+            });
+        }
 
         // Set default values for existing rows
         DB::table('news')->whereNull('created_at')->update([

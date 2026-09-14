@@ -37,8 +37,27 @@ Route::get('/informasi/berita/{slug}', function ($slug) {
 })->name('berita.detail');
 
 Route::get('/informasi/pengumuman', function () {
-    return view('informasi.pengumuman');
+    $pengumuman = App\Models\Announcement::where('is_published', true)
+        ->latest('published_at')
+        ->paginate(8);
+
+    return view('informasi.pengumuman', compact('pengumuman'));
 })->name('pengumuman');
+
+Route::get('/informasi/pengumuman/{slug}', function (string $slug) {
+    $pengumuman = App\Models\Announcement::where('slug', $slug)
+        ->where('is_published', true)
+        ->firstOrFail();
+
+    $related = App\Models\Announcement::where('is_published', true)
+        ->where('id', '!=', $pengumuman->id)
+        ->where('category', $pengumuman->category)
+        ->latest('published_at')
+        ->take(3)
+        ->get();
+
+    return view('informasi.pengumuman_detail', compact('pengumuman', 'related'));
+})->name('pengumuman.detail');
 
 Route::get('/kontak/hubungi-kami', function () {
     return view('kontak.hubungi_kami');
@@ -249,6 +268,10 @@ Route::middleware(['auth'])->group(function () {
         // Berita / News
         Route::resource('news', NewsController::class);
         Route::post('/news/{news}/publish', [NewsController::class, 'togglePublish'])->name('news.publish');
+
+        // Pengumuman / Announcements
+        Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class);
+        Route::post('/announcements/{announcement}/publish', [\App\Http\Controllers\Admin\AnnouncementController::class, 'togglePublish'])->name('announcements.publish');
 
         // Role & Permission
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->except(['show']);
