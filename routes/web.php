@@ -44,21 +44,6 @@ Route::get('/informasi/pengumuman', function () {
     return view('informasi.pengumuman', compact('pengumuman'));
 })->name('pengumuman');
 
-Route::get('/informasi/pengumuman/{slug}', function (string $slug) {
-    $pengumuman = App\Models\Announcement::where('slug', $slug)
-        ->where('is_published', true)
-        ->firstOrFail();
-
-    $related = App\Models\Announcement::where('is_published', true)
-        ->where('id', '!=', $pengumuman->id)
-        ->where('category', $pengumuman->category)
-        ->latest('published_at')
-        ->take(3)
-        ->get();
-
-    return view('informasi.pengumuman_detail', compact('pengumuman', 'related'));
-})->name('pengumuman.detail');
-
 Route::get('/kontak/hubungi-kami', function () {
     return view('kontak.hubungi_kami');
 })->name('hubungi-kami');
@@ -74,6 +59,11 @@ Route::get('/kontak/sosial-media', function () {
 Route::get('/layanan/daftar', function () {
     return view('layanan.daftar_layanan');
 })->name('layanan.daftar');
+
+Route::get('/layanan/faq', function () {
+    return view('layanan.faq');
+})->name('layanan.faq');
+
 
 $layananData = [
     'pasang-baru' => [

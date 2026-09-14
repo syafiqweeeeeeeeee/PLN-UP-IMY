@@ -28,9 +28,7 @@
                 from { opacity: 0; transform: translateX(4px); }
                 to   { opacity: 1; transform: translateX(0); }
             }
-
-            /* Hanya main content yang dianimasikan — sidebar & topbar tetap statis.
-               Navigasi sesungguhnya ditangani router.js (client-side). */
+            
             .admin-content.pt-animating {
                 animation: pt-fade-slide-in 0.06s ease-out both;
             }
