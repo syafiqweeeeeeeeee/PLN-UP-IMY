@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>@yield('title', 'PLN Nusantara Power')</title>
 
-        <link rel="icon" type="image/x-icon" href="{{ asset('startbootstrap-grayscale-gh-pages/assets/favicon.ico') }}" />
+        <link rel="icon" type="image/png" href="{{ asset('assets/images/logo-pln1.png') }}" />
 
         {{-- Font Awesome 6.3.0 — webfont CSS via cdnjs (pengganti Kit JS all.js:
              lebih ringan, tanpa JS icon-replacement, font di-download on-demand).
