@@ -17,7 +17,7 @@
        ============================================ */
 
     /* Seam fix: hilangkan border/shadow navbar di sambungan navbar-hero
-       (hanya berlaku pada halaman yang punya hero banner ini) */
+       (hanya berlaku pada halaman yang punya hero banner ini) https://youtu.be/SL6lY62Uaj8?si=lYxEdtNCT_Qgp_yI*/
     body:has(.hero-header-banner) .navbar-pln:not(.scrolled) {
         border-bottom: none;
         margin-bottom: 0;
@@ -536,11 +536,11 @@
                          saat tombol diklik. Thumbnail WebP ringan dari i.ytimg.com
                          dengan loading=lazy + decoding=async + fallback jpg. --}}
                     <button type="button" class="video-facade video-facade-yt"
-                            data-videoid="ScMzIvxBSi4"
+                            data-videoid="SL6lY62Uaj8"
                             aria-label="Putar video profil PT PLN Nusantara Power">
                         <img class="yt-thumb"
-                             src="https://i.ytimg.com/vi_webp/ScMzIvxBSi4/maxresdefault.webp"
-                             onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/ScMzIvxBSi4/hqdefault.jpg';"
+                             src="https://i.ytimg.com/vi_webp/SL6lY62Uaj8/maxresdefault.webp"
+                             onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/SL6lY62Uaj8/hqdefault.jpg';"
                              alt="Thumbnail video profil PT PLN Nusantara Power"
                              width="1280" height="720"
                              loading="lazy" decoding="async">
