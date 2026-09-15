@@ -28,55 +28,41 @@
         {{-- Nav Content --}}
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ms-auto">
-                {{-- Tentang Kami --}}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-building me-1"></i> <span data-i18n="nav.about">Tentang Kami</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="{{ route('profil-perusahaan') }}" data-i18n="nav.about_profile">Profil Perusahaan</a></li>
-                        <li><a class="dropdown-item" href="{{ route('sejarah') }}" data-i18n="nav.about_history">Sejarah</a></li>
-                        <li><a class="dropdown-item" href="{{ route('visi-misi') }}" data-i18n="nav.about_vision_mission">Visi &amp; Misi</a></li>
-                        <li><a class="dropdown-item" href="{{ route('struktur-organisasi') }}" data-i18n="nav.about_structure">Struktur Organisasi</a></li>
-                    </ul>
-                </li>
-
-                {{-- Informasi --}}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-book-open me-1"></i> <span data-i18n="nav.information">Informasi</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="{{ route('berita') }}" data-i18n="nav.info_news">Berita</a></li>
-                        <li><a class="dropdown-item" href="{{ route('pengumuman') }}" data-i18n="nav.info_announcements">Pengumuman</a></li>
-                        <li><a class="dropdown-item" href="{{ route('informasi.layanan') }}">Informasi Layanan</a></li>
-      
-                        <li><a class="dropdown-item" href="{{ route('galeri') }}" data-i18n="nav.info_gallery">Galeri</a></li>
-                    </ul>
-                </li>
-
-                {{-- Layanan --}}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-concierge-bell me-1"></i> <span data-i18n="nav.services">Layanan</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="{{ route('layanan.daftar') }}" data-i18n="nav.services_list">Daftar Layanan</a></li>
-                        <li><a class="dropdown-item" href="{{ route('layanan.faq') }}" data-i18n="nav.services_faq">FAQ</a></li>
-                    </ul>
-                </li>
-
-                {{-- Kontak --}}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-envelope me-1"></i> <span data-i18n="nav.contact">Kontak</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="{{ route('hubungi-kami') }}" data-i18n="nav.contact_us">Hubungi Kami</a></li>
-                        <li><a class="dropdown-item" href="{{ route('lokasi') }}" data-i18n="nav.contact_location">Lokasi</a></li>
-                        <li><a class="dropdown-item" href="{{ route('sosial-media') }}" data-i18n="nav.contact_social">Sosial Media</a></li>
-                    </ul>
-                </li>
+                @foreach ($menuTree as $item)
+                    @if (count($item['children']) > 0)
+                        {{-- Dropdown group --}}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @if ($item['icon'])
+                                    <i class="fas {{ $item['icon'] }} me-1"></i>
+                                @endif
+                                <span @if (!empty($item['i18n'])) data-i18n="{{ $item['i18n'] }}" @endif>{{ $item['label'] }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                @foreach ($item['children'] as $child)
+                                    <li>
+                                        <a class="dropdown-item" href="{{ $child['url'] }}" @if (!empty($child['i18n'])) data-i18n="{{ $child['i18n'] }}" @endif>
+                                            @if ($child['icon'])
+                                                <i class="fas {{ $child['icon'] }} me-1"></i>
+                                            @endif
+                                            {{ $child['label'] }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </li>
+                    @elseif ($item['url'] !== null)
+                        {{-- Leaf item langsung --}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ $item['url'] }}">
+                                @if ($item['icon'])
+                                    <i class="fas {{ $item['icon'] }} me-1"></i>
+                                @endif
+                                <span @if (!empty($item['i18n'])) data-i18n="{{ $item['i18n'] }}" @endif>{{ $item['label'] }}</span>
+                            </a>
+                        </li>
+                    @endif
+                @endforeach
 
                 {{-- [ELEMEN BARU] Language Switcher (Globe) —
                      persis di antara "Kontak" dan tombol "Login" --}}

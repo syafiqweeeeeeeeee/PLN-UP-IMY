@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Services\MenuBuilderService;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,5 +27,16 @@ class AppServiceProvider extends ServiceProvider
         // (markup Bootstrap — layout app & admin memuat Bootstrap 5).
         Paginator::defaultView('pagination::bootstrap-5');
         Paginator::defaultSimpleView('pagination::simple-bootstrap-5');
+
+        // Navbar publik dirender dinamis dari Menu Builder.
+        // Menu ber-target halaman CMS disaring sesuai visibilitas per role;
+        // fallback ke struktur default bila DB belum di-seed.
+        View::composer('layouts.navbar', function ($view) {
+            $menuTree = Schema::hasTable('menus')
+                ? app(MenuBuilderService::class)->treeFor(auth()->user())
+                : [];
+
+            $view->with('menuTree', $menuTree);
+        });
     }
 }

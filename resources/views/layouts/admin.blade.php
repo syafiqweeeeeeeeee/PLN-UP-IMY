@@ -81,10 +81,19 @@
                     <span class="link-icon"><i class="fas fa-bullhorn"></i></span>
                     Pengumuman
                 </a>
-                <a href="#" class="sidebar-link">
+                @can('pages.view')
+                <a href="{{ route('admin.pages.index') }}" class="sidebar-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
                     <span class="link-icon"><i class="fas fa-file-lines"></i></span>
                     Halaman
                 </a>
+                @endcan
+
+                @can('menus.view')
+                <a href="{{ route('admin.menus.index') }}" class="sidebar-link {{ request()->routeIs('admin.menus.*') ? 'active' : '' }}">
+                    <span class="link-icon"><i class="fas fa-bars"></i></span>
+                    Menu
+                </a>
+                @endcan
 
                 <div class="sidebar-section-label">Manajemen</div>
                 <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">

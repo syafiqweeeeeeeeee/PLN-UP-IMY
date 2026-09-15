@@ -1,0 +1,167 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Menu;
+use App\Models\User;
+use Illuminate\Support\Facades\Route;
+
+/**
+ * MenuBuilderService
+ *
+ * Membangun tree menu untuk navbar publik:
+ * - Hanya menu aktif, terurut.
+ * - Menu yang target-nya halaman CMS disaring sesuai visibilitas halaman
+ *   (menu ikut hilang jika page tidak bisa dilihat user — keamanan di server,
+ *   bukan sekadar disembunyikan).
+ * - Menu dengan target tidak valid (route dihapus, page dihapus) disembunyikan.
+ * - Jika database belum punya menu sama sekali (belum di-seed), dipakai
+ *   struktur default hardcode — identik dengan navbar lama — sehingga
+ *   migrasi antar tampilan tidak mengubah apa pun.
+ *
+ * Bentuk item hasil build (konsisten untuk DB maupun fallback):
+ * ['menu' => ?Menu, 'label' => string, 'icon' => ?string, 'url' => ?string, 'children' => array]
+ */
+class MenuBuilderService
+{
+    /** Fallback identik dengan navbar hardcode lama (termasuk key i18n). */
+    private const DEFAULT_TREE = [
+        [
+            'label' => 'Tentang Kami',
+            'icon'  => 'fa-building',
+            'i18n'  => 'nav.about',
+            'children' => [
+                ['label' => 'Profil Perusahaan',   'route' => 'profil-perusahaan',   'i18n' => 'nav.about_profile'],
+                ['label' => 'Sejarah',             'route' => 'sejarah',             'i18n' => 'nav.about_history'],
+                ['label' => 'Visi & Misi',         'route' => 'visi-misi',           'i18n' => 'nav.about_vision_mission'],
+                ['label' => 'Struktur Organisasi', 'route' => 'struktur-organisasi', 'i18n' => 'nav.about_structure'],
+            ],
+        ],
+        [
+            'label' => 'Informasi',
+            'icon'  => 'fa-book-open',
+            'i18n'  => 'nav.information',
+            'children' => [
+                ['label' => 'Berita',            'route' => 'berita',             'i18n' => 'nav.info_news'],
+                ['label' => 'Pengumuman',        'route' => 'pengumuman',         'i18n' => 'nav.info_announcements'],
+                ['label' => 'Informasi Layanan', 'route' => 'informasi.layanan',  'i18n' => null],
+                ['label' => 'Galeri',            'route' => 'galeri',             'i18n' => 'nav.info_gallery'],
+            ],
+        ],
+        [
+            'label' => 'Layanan',
+            'icon'  => 'fa-concierge-bell',
+            'i18n'  => 'nav.services',
+            'children' => [
+                ['label' => 'Daftar Layanan', 'route' => 'layanan.daftar', 'i18n' => 'nav.services_list'],
+                ['label' => 'FAQ',            'route' => 'layanan.faq',    'i18n' => 'nav.services_faq'],
+            ],
+        ],
+        [
+            'label' => 'Kontak',
+            'icon'  => 'fa-envelope',
+            'i18n'  => 'nav.contact',
+            'children' => [
+                ['label' => 'Hubungi Kami', 'route' => 'hubungi-kami',  'i18n' => 'nav.contact_us'],
+                ['label' => 'Lokasi',       'route' => 'lokasi',        'i18n' => 'nav.contact_location'],
+                ['label' => 'Sosial Media', 'route' => 'sosial-media',  'i18n' => 'nav.contact_social'],
+            ],
+        ],
+    ];
+
+    public function treeFor(?User $user): array
+    {
+        $menus = Menu::query()
+            ->active()
+            ->ordered()
+            ->with(['page', 'children' => fn ($q) => $q->active()->ordered()->with('page')])
+            ->whereNull('parent_id')
+            ->get();
+
+        // Database belum di-seed → struktur default (navbar lama).
+        if ($menus->isEmpty()) {
+            return $this->defaultTree();
+        }
+
+        return $menus
+            ->map(fn (Menu $menu) => $this->mapMenu($menu, $user))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    /* =========================================================
+       INTERNAL
+       ========================================================= */
+
+    private function mapMenu(Menu $menu, ?User $user): ?array
+    {
+        $children = $menu->children
+            ->map(fn (Menu $child) => $this->mapMenu($child, $user))
+            ->filter()
+            ->values()
+            ->all();
+
+        $url = $menu->resolvedUrl();
+
+        // Grup dropdown (punya submenu tampil) tidak butuh target sendiri —
+        // dropdown dirender dengan href="#, yang penting isinya.
+        if ($children !== []) {
+            return [
+                'menu'     => $menu,
+                'label'    => $menu->label,
+                'icon'     => $menu->icon !== null && trim($menu->icon) !== '' ? $menu->icon : null,
+                'i18n'     => null,
+                'url'      => $url,
+                'children' => $children,
+            ];
+        }
+
+        // Menu daun (tanpa submenu): target page yang tidak dapat dilihat user → sembunyikan
+        if ($menu->type === Menu::TYPE_PAGE) {
+            if (! $menu->page || ! $menu->page->isAccessibleBy($user)) {
+                return null;
+            }
+        }
+
+        // Target tidak valid (route hilang / page hilang / url kosong) → sembunyikan
+        if ($url === null) {
+            return null;
+        }
+
+        return [
+            'menu'     => $menu,
+            'label'    => $menu->label,
+            'icon'     => $menu->icon !== null && trim($menu->icon) !== '' ? $menu->icon : null,
+            'i18n'     => null,
+            'url'      => $url,
+            'children' => $children,
+        ];
+    }
+
+    private function defaultTree(): array
+    {
+        return collect(self::DEFAULT_TREE)
+            ->map(fn (array $group) => [
+                'menu'     => null,
+                'label'    => $group['label'],
+                'icon'     => $group['icon'],
+                'i18n'     => $group['i18n'] ?? null,
+                'url'      => null, // grup dropdown: tidak punya target sendiri
+                'children' => collect($group['children'])
+                    ->filter(fn (array $child) => Route::has($child['route']))
+                    ->map(fn (array $child) => [
+                        'menu'     => null,
+                        'label'    => $child['label'],
+                        'icon'     => null,
+                        'i18n'     => $child['i18n'] ?? null,
+                        'url'      => route($child['route']),
+                        'children' => [],
+                    ])
+                    ->all(),
+            ])
+            ->filter(fn (array $group) => $group['children'] !== [])
+            ->values()
+            ->all();
+    }
+}
