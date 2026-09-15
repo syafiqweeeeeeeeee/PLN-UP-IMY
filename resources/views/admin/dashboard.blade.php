@@ -4,14 +4,19 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
+{{-- ============================================
+     MAIN WRAPPER — Fluid, max-width 100%, no overflow
+     ============================================ --}}
+<div class="container-fluid p-0" style="max-width: 100%; overflow-x: hidden;">
+
     {{-- ============================================
          1. WELCOME / GREETING + SEARCH
          ============================================ --}}
     <div class="row g-3 mb-4">
         <div class="col-12">
             <div class="dash-card" style="background: linear-gradient(135deg, var(--pln-blue) 0%, var(--pln-blue-dark) 100%); border: none; color: #fff;">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                    <div>
+                <div class="d-flex align-items-center justify-content-between flex-wrap w-100 gap-3">
+                    <div style="min-width: 200px;">
                         <h4 style="font-weight: 700; margin-bottom: 0.25rem;">
                             Selamat Datang, Admin 👋
                         </h4>
@@ -19,22 +24,22 @@
                             Berikut ringkasan kondisi sistem E-PPID PLN hari ini.
                         </p>
                     </div>
-                    <div class="d-flex gap-3 align-items-center">
-                        <div style="position: relative;">
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <div style="position: relative; flex-shrink: 0;">
                             <input type="text"
                                    id="dashboardSearchInput"
                                    placeholder="Cari berita, pengumuman..."
-                                   style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; padding: 0.55rem 1rem 0.55rem 2.4rem; color: #fff; font-size: 0.85rem; width: 260px; transition: all 0.2s ease; outline: none;"
+                                   style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; padding: 0.55rem 1rem 0.55rem 2.4rem; color: #fff; font-size: 0.85rem; width: 220px; max-width: 100%; transition: all 0.2s ease; outline: none;"
                                    onfocus="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.5)';"
                                    onblur="this.style.background='rgba(255,255,255,0.15)'; this.style.borderColor='rgba(255,255,255,0.25)';">
                             <i class="fas fa-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); opacity: 0.6; font-size: 0.82rem;"></i>
                         </div>
-                        <div class="d-flex gap-3">
+                        <div class="d-flex gap-3 align-items-center" style="flex-shrink: 0;">
                             <div class="text-center">
                                 <div style="font-size: 1.5rem; font-weight: 800;">{{ number_format($stats['pending_content']) }}</div>
                                 <div style="font-size: 0.72rem; opacity: 0.7;">Draft</div>
                             </div>
-                            <div style="width:1px; background:rgba(255,255,255,0.2);"></div>
+                            <div style="width:1px; height:30px; background:rgba(255,255,255,0.2);"></div>
                             <div class="text-center">
                                 <div style="font-size: 1.5rem; font-weight: 800;">{{ number_format($stats['total_news']) }}</div>
                                 <div style="font-size: 0.72rem; opacity: 0.7;">Berita Aktif</div>
@@ -50,45 +55,45 @@
          2. STATISTICS CARDS
          ============================================ --}}
     <div class="row g-3 mb-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="stat-card" style="min-width: 0;">
                 <div class="stat-icon" style="background: #dbeafe; color: #1d4ed8;">
                     <i class="fas fa-users"></i>
                 </div>
-                <div>
+                <div style="min-width: 0;">
                     <div class="stat-value" style="color: #1d4ed8;">{{ number_format($stats['total_users']) }}</div>
                     <div class="stat-label">Total Pengguna</div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="stat-card" style="min-width: 0;">
                 <div class="stat-icon" style="background: #dcfce7; color: #166534;">
                     <i class="fas fa-file-lines"></i>
                 </div>
-                <div>
+                <div style="min-width: 0;">
                     <div class="stat-value" style="color: #166534;">{{ number_format($stats['total_pages']) }}</div>
                     <div class="stat-label">Total Halaman</div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="stat-card" style="min-width: 0;">
                 <div class="stat-icon" style="background: #dbeafe; color: #005B9C;">
                     <i class="fas fa-newspaper"></i>
                 </div>
-                <div>
+                <div style="min-width: 0;">
                     <div class="stat-value" style="color: #005B9C;">{{ number_format($stats['total_news']) }}</div>
                     <div class="stat-label">Total Berita</div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="stat-card" style="min-width: 0;">
                 <div class="stat-icon" style="background: #fef3c7; color: #92400e;">
                     <i class="fas fa-clock"></i>
                 </div>
-                <div>
+                <div style="min-width: 0;">
                     <div class="stat-value" style="color: #92400e;">{{ number_format($stats['pending_content']) }}</div>
                     <div class="stat-label">Draft / Menunggu Publikasi</div>
                 </div>
@@ -109,45 +114,35 @@
                     </div>
                 </div>
                 <div class="row g-2">
-                    <div class="col-xl-3 col-md-6">
-                        <a href="#" class="quick-action-btn">
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                        <a href="{{ route('admin.news.create') }}" class="quick-action-btn">
                             <div class="quick-action-icon" style="background: #dbeafe; color: #1d4ed8;">
                                 <i class="fas fa-plus"></i>
                             </div>
-                            <div>
+                            <div style="min-width: 0;">
                                 <div style="font-weight: 600;">Buat Berita</div>
                                 <div style="font-size: 0.72rem; color: #9ca3af; font-weight: 400;">Publikasikan berita terbaru</div>
                             </div>
                         </a>
                     </div>
-                    <div class="col-xl-3 col-md-6">
-                        <a href="#" class="quick-action-btn">
-                            <div class="quick-action-icon" style="background: #dcfce7; color: #166534;">
-                                <i class="fas fa-plus"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 600;">Buat Halaman</div>
-                                <div style="font-size: 0.72rem; color: #9ca3af; font-weight: 400;">Tambah halaman baru</div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
                         <a href="{{ route('admin.announcements.create') }}" class="quick-action-btn">
                             <div class="quick-action-icon" style="background: #fef3c7; color: #92400e;">
                                 <i class="fas fa-plus"></i>
                             </div>
-                            <div>
+                            <div style="min-width: 0;">
                                 <div style="font-weight: 600;">Buat Pengumuman</div>
                                 <div style="font-size: 0.72rem; color: #9ca3af; font-weight: 400;">Sampaikan informasi penting</div>
                             </div>
                         </a>
                     </div>
-                    <div class="col-xl-3 col-md-6">
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
                         <a href="{{ route('admin.users.create') }}" class="quick-action-btn">
                             <div class="quick-action-icon" style="background: #f3e8ff; color: #7c3aed;">
                                 <i class="fas fa-user-plus"></i>
                             </div>
-                            <div>
+                            <div style="min-width: 0;">
                                 <div style="font-weight: 600;">Tambah Pengguna</div>
                                 <div style="font-size: 0.72rem; color: #9ca3af; font-weight: 400;">Daftarkan akun baru</div>
                             </div>
@@ -159,19 +154,19 @@
     </div>
 
     {{-- ============================================
-         4 & 5 & 6: ACTIVITY | CONTENT | STATUS
+         4 & 6: ACTIVITY | STATUS SISTEM
          ============================================ --}}
     <div class="row g-3 mb-4">
 
         {{-- 4. Aktivitas Terbaru --}}
-        <div class="col-xl-8">
-            <div class="dash-card h-100">
+        <div class="col-xl-8 col-lg-7 col-12">
+            <div class="dash-card h-100" style="min-width: 0; overflow: hidden;">
                 <div class="dash-card-header">
-                    <div>
+                    <div style="min-width: 0;">
                         <h5 class="dash-card-title">Aktivitas Terbaru</h5>
                         <p class="dash-card-subtitle">Aktivitas yang baru dilakukan oleh pengguna & admin</p>
                     </div>
-                    <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-outline-secondary" style="border-radius:8px; font-size:0.75rem; font-weight:600;">
+                    <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-outline-secondary" style="border-radius:8px; font-size:0.75rem; font-weight:600; white-space: nowrap; flex-shrink: 0;">
                         Lihat Semua
                     </a>
                 </div>
@@ -181,8 +176,8 @@
                         <div class="activity-icon" style="background: {{ $activity['color'] }}15; color: {{ $activity['color'] }};">
                             <i class="{{ $activity['icon'] }}"></i>
                         </div>
-                        <div style="flex: 1;">
-                            <div class="activity-text">
+                        <div style="flex: 1; min-width: 0;">
+                            <div class="activity-text" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                 <strong>{{ $activity['user'] }}</strong>
                                 {{ $activity['action'] }}
                                 <strong>{{ $activity['object'] }}</strong>
@@ -203,8 +198,8 @@
         </div>
 
         {{-- 6. Status Sistem --}}
-        <div class="col-xl-4">
-            <div class="dash-card h-100">
+        <div class="col-xl-4 col-lg-5 col-12">
+            <div class="dash-card h-100" style="min-width: 0; overflow: hidden;">
                 <div class="dash-card-header">
                     <div>
                         <h5 class="dash-card-title">Status Sistem</h5>
@@ -214,11 +209,11 @@
 
                 @foreach ($system_status as $sys)
                     <div class="sys-status-item">
-                        <div class="sys-status-left">
+                        <div class="sys-status-left" style="min-width: 0;">
                             <span class="sys-status-dot {{ strtolower($sys['status']) }}"></span>
                             <span class="sys-status-name">{{ $sys['name'] }}</span>
                         </div>
-                        <span class="sys-status-label {{ strtolower($sys['status']) }}">{{ $sys['status'] }}</span>
+                        <span class="sys-status-label {{ strtolower($sys['status']) }}" style="flex-shrink: 0;">{{ $sys['status'] }}</span>
                     </div>
                 @endforeach
 
@@ -245,29 +240,29 @@
     <div class="row g-3 mb-4">
 
         {{-- 5. Konten Terbaru --}}
-        <div class="col-xl-8">
-            <div class="dash-card h-100">
+        <div class="col-xl-8 col-lg-7 col-12">
+            <div class="dash-card h-100" style="min-width: 0; overflow: hidden;">
                 <div class="dash-card-header">
-                    <div>
+                    <div style="min-width: 0;">
                         <h5 class="dash-card-title">Konten Terbaru</h5>
                         <p class="dash-card-subtitle">Berita, pengumuman, dan halaman yang baru diterbitkan</p>
                     </div>
-                    <a href="#" class="btn btn-sm btn-outline-secondary" style="border-radius:8px; font-size:0.75rem; font-weight:600;">
+                    <a href="{{ route('admin.news.index') }}" class="btn btn-sm btn-outline-secondary" style="border-radius:8px; font-size:0.75rem; font-weight:600; white-space: nowrap; flex-shrink: 0;">
                         Kelola Konten
                     </a>
                 </div>
 
                 @foreach ($latest_content as $content)
                     <div class="content-row">
-                        <div style="flex: 1;">
-                            <div class="content-title">{{ $content['title'] }}</div>
-                            <div class="content-meta">
+                        <div style="flex: 1; min-width: 0;">
+                            <div class="content-title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $content['title'] }}</div>
+                            <div class="content-meta" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                 <i class="fas fa-tag me-1"></i>{{ $content['type'] }}
                                 <span class="mx-1">•</span>
                                 <i class="far fa-calendar me-1"></i>{{ $content['date'] }}
                             </div>
                         </div>
-                        <span class="status-badge {{ strtolower($content['status']) }}">
+                        <span class="status-badge {{ strtolower($content['status']) }}" style="flex-shrink: 0; margin-left: 0.75rem;">
                             {{ $content['status'] }}
                         </span>
                     </div>
@@ -276,8 +271,8 @@
         </div>
 
         {{-- 7. Notifikasi --}}
-        <div class="col-xl-4">
-            <div class="dash-card h-100">
+        <div class="col-xl-4 col-lg-5 col-12">
+            <div class="dash-card h-100" style="min-width: 0; overflow: hidden;">
                 <div class="dash-card-header">
                     <div>
                         <h5 class="dash-card-title">Notifikasi</h5>
@@ -290,8 +285,8 @@
                         <div class="notif-icon {{ $notif['type'] }}">
                             <i class="{{ $notif['icon'] }}"></i>
                         </div>
-                        <div>
-                            <div class="notif-text">{{ $notif['message'] }}</div>
+                        <div style="min-width: 0;">
+                            <div class="notif-text" style="overflow: hidden; text-overflow: ellipsis;">{{ $notif['message'] }}</div>
                             <div class="notif-time">
                                 <i class="far fa-clock me-1"></i>{{ $notif['time'] }}
                             </div>
@@ -302,13 +297,16 @@
         </div>
     </div>
 
+</div>
+@endsection
+
 @push('styles')
 <style>
     #dashboardSearchInput::placeholder { color: rgba(255,255,255,0.6); }
     #dashboardSearchInput:focus::placeholder { color: rgba(255,255,255,0.8); }
     .search-hidden { display: none !important; }
 </style>
-@endsection
+@endpush
 
 @push('scripts')
 <script>
