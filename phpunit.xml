@@ -36,5 +36,7 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- DNS email check dimatikan di test agar tidak flaky oleh lookup jaringan -->
+        <env name="CONTACT_VALIDATE_EMAIL_DNS" value="false" force="true"/>
     </php>
 </phpunit>

@@ -243,7 +243,97 @@ class PageTest extends TestCase
             ->get(route('admin.pages.create'))
             ->assertOk()
             ->assertSee('Tambah Halaman')
-            ->assertSee('Visibilitas');
+            ->assertSee('Visibilitas')
+            // Blok sections kini tampil juga di form Tambah (komponen seragam dgn Edit)
+            ->assertSee('Konten Halaman (Sections)')
+            ->assertSee('+ Tambah Section')
+            // Default: 1 section Teks kosong siap diisi
+            ->assertSee('name="sections[0][type]"', false);
+    }
+
+    public function test_store_creates_page_with_sections_in_one_submit(): void
+    {
+        $admin = $this->adminWithPermissions(['pages.create']);
+
+        $this->actingAs($admin)
+            ->post(route('admin.pages.store'), [
+                'title'      => 'Halaman Section Seragam',
+                'status'     => 'published',
+                'visibility' => 'public',
+                'sections'   => [
+                    ['type' => 'text', 'heading' => 'Tentang Kami', 'body' => 'Isi paragraf pembuka.'],
+                    ['type' => 'cards', 'heading' => 'Layanan', 'items' => "Kartu A | Desk A |\nKartu B | Desk B |"],
+                ],
+            ])
+            ->assertRedirect(route('admin.pages.index'))
+            ->assertSessionHas('success', '✅ Halaman berhasil disimpan!');
+
+        $page = Page::where('slug', 'halaman-section-seragam')->first();
+        $this->assertNotNull($page);
+        $this->assertSame(2, $page->sections()->count());
+
+        $text = $page->sections()->orderBy('sort_order')->first();
+        $this->assertSame('text', $text->type);
+        $this->assertSame('Tentang Kami', $text->data['heading']);
+        $this->assertSame('Isi paragraf pembuka.', $text->data['body']);
+
+        $cards = $page->sections()->where('type', 'cards')->first();
+        $this->assertSame('Kartu A', $cards->items()[0]['title']);
+        $this->assertSame('Desk B', $cards->items()[1]['description']);
+    }
+
+    public function test_update_syncs_sections_add_update_and_delete(): void
+    {
+        $admin  = $this->adminWithPermissions(['pages.edit']);
+        $page   = Page::create(['title' => 'Halaman Sync', 'slug' => 'halaman-sync', 'status' => 'published']);
+        $kept   = PageSection::create(['page_id' => $page->id, 'type' => 'text', 'data' => ['heading' => 'Lama', 'body' => 'Isi lama'], 'sort_order' => 1]);
+        $removed = PageSection::create(['page_id' => $page->id, 'type' => 'faq', 'data' => ['heading' => 'FAQ', 'items' => [['question' => 'Q', 'answer' => 'A']]], 'sort_order' => 2]);
+
+        $this->actingAs($admin)
+            ->put(route('admin.pages.update', $page), [
+                'title'      => 'Halaman Sync',
+                'status'     => 'published',
+                'visibility' => 'public',
+                'sections'   => [
+                    // section lama diubah isinya
+                    ['id' => $kept->id, 'type' => 'text', 'heading' => 'Baru', 'body' => 'Isi baru'],
+                    // section baru (banner)
+                    ['type' => 'banner', 'heading' => 'Selamat Datang', 'subheading' => 'Hero baru'],
+                    // $removed sengaja tidak dikirim → harus terhapus
+                ],
+            ])
+            ->assertRedirect(route('admin.pages.index'));
+
+        $page->refresh();
+        $this->assertSame(2, $page->sections()->count());
+        $this->assertNull($page->sections()->find($removed->id)); // terhapus
+
+        $keptFresh = $page->sections()->find($kept->id);
+        $this->assertSame('Baru', $keptFresh->data['heading']); // ter-update
+        $this->assertSame(1, $keptFresh->sort_order);
+
+        $banner = $page->sections()->where('type', 'banner')->first();
+        $this->assertNotNull($banner); // section baru dibuat
+        $this->assertSame('Selamat Datang', $banner->data['heading']);
+        $this->assertSame(2, $banner->sort_order);
+    }
+
+    public function test_update_without_sections_keeps_existing_sections(): void
+    {
+        // Kompatibilitas: form lama/submit tanpa field sections tidak menghapus konten yang ada
+        $admin = $this->adminWithPermissions(['pages.edit']);
+        $page  = Page::create(['title' => 'Halaman Aman', 'slug' => 'halaman-aman', 'status' => 'published']);
+        PageSection::create(['page_id' => $page->id, 'type' => 'text', 'data' => ['heading' => 'Tetap'], 'sort_order' => 1]);
+
+        $this->actingAs($admin)
+            ->put(route('admin.pages.update', $page), [
+                'title'      => 'Halaman Aman',
+                'status'     => 'published',
+                'visibility' => 'public',
+            ])
+            ->assertRedirect(route('admin.pages.index'));
+
+        $this->assertSame(1, $page->sections()->count());
     }
 
     public function test_admin_can_create_page(): void
@@ -257,13 +347,62 @@ class PageTest extends TestCase
             'show_in_list' => '1',
         ]);
 
-        $response->assertRedirect(route('admin.pages.edit', Page::where('slug', 'struktur-organisasi-2026')->first()));
+        // Redirect ke Daftar Halaman (bukan tetap di form) + notifikasi sukses
+        $response->assertRedirect(route('admin.pages.index'))
+            ->assertSessionHas('success', '✅ Halaman berhasil disimpan!');
 
         $this->assertDatabaseHas('pages', [
             'slug'       => 'struktur-organisasi-2026',
             'status'     => 'published',
             'created_by' => $admin->id,
         ]);
+    }
+
+    public function test_admin_update_redirects_to_index_with_success_flash(): void
+    {
+        $admin = $this->adminWithPermissions(['pages.edit']);
+        $page  = Page::create(['title' => 'Halaman Update', 'slug' => 'halaman-update', 'status' => 'draft']);
+
+        $this->actingAs($admin)
+            ->put(route('admin.pages.update', $page), [
+                'title'      => 'Halaman Update',
+                'status'     => 'published',
+                'visibility' => 'public',
+            ])
+            ->assertRedirect(route('admin.pages.index'))
+            ->assertSessionHas('success', '✅ Halaman berhasil disimpan!');
+
+        $this->assertSame('published', $page->fresh()->status);
+    }
+
+    public function test_cards_section_round_trips_through_database(): void
+    {
+        // Struktur data konten: cards tersimpan utuh di kolom data (JSON)
+        // dan terbaca kembali benar saat form edit dirender.
+        $admin = $this->adminWithPermissions(['pages.edit']);
+        $page  = Page::create(['title' => 'Halaman Kartu', 'slug' => 'halaman-kartu', 'status' => 'published']);
+        $card  = PageSection::create(['page_id' => $page->id, 'type' => 'cards', 'data' => [], 'sort_order' => 1]);
+
+        $this->actingAs($admin)
+            ->put(route('admin.pages.sections.update', [$page, $card]), [
+                'heading' => 'Layanan Kami',
+                'items'   => "Layanan A | Deskripsi A | /layanan/a\nLayanan B | Deskripsi B |",
+            ])
+            ->assertRedirect();
+
+        // Tersimpan utuh sebagai struktur array di kolom data (JSON)
+        $fresh = $card->fresh();
+        $this->assertSame('Layanan Kami', $fresh->data['heading']);
+        $this->assertCount(2, $fresh->items());
+        $this->assertSame('Layanan A', $fresh->items()[0]['title']);
+        $this->assertSame('Deskripsi B', $fresh->items()[1]['description']);
+
+        // Terbaca kembali dengan benar saat halaman edit dirender
+        $this->actingAs($admin)
+            ->get(route('admin.pages.edit', $page))
+            ->assertOk()
+            ->assertSee('Layanan A | Deskripsi A | /layanan/a', false)
+            ->assertSee('Layanan B | Deskripsi B', false);
     }
 
     public function test_admin_edit_form_renders_with_sections(): void

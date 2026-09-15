@@ -280,6 +280,98 @@ class MenuTest extends TestCase
         ]);
     }
 
+    public function test_admin_menu_index_lists_published_pages_for_modal(): void
+    {
+        // Modal Tambah Menu hanya dirender untuk yang punya menus.create
+        $admin = $this->adminWithPermissions(['menus.view', 'menus.create']);
+
+        $published = Page::create(['title' => 'Halaman Terbit Modal', 'slug' => 'halaman-terbit-modal', 'status' => 'published']);
+        Page::create(['title' => 'Halaman Draft Modal', 'slug' => 'halaman-draft-modal', 'status' => 'draft']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.menus.index'))
+            ->assertOk()
+            // Dropdown modal hanya memuat halaman TERBIT + slug-nya
+            ->assertSee('Halaman Terbit Modal (/halaman/halaman-terbit-modal)', false)
+            ->assertDontSee('Halaman Draft Modal');
+    }
+
+    public function test_store_page_menu_without_page_id_is_rejected(): void
+    {
+        $admin = $this->adminWithPermissions(['menus.create']);
+
+        $this->actingAs($admin)
+            ->post(route('admin.menus.store'), [
+                'label' => 'Tanpa Halaman',
+                'type'  => 'page',
+                'page_id' => '',
+            ])
+            ->assertSessionHasErrors(['page_id']);
+
+        $this->assertDatabaseMissing('menus', ['label' => 'Tanpa Halaman']);
+    }
+
+    public function test_store_url_menu_without_url_is_rejected(): void
+    {
+        $admin = $this->adminWithPermissions(['menus.create']);
+
+        $this->actingAs($admin)
+            ->post(route('admin.menus.store'), [
+                'label' => 'Tanpa Link',
+                'type'  => 'url',
+                'url'   => ' ',
+            ])
+            ->assertSessionHasErrors(['url']);
+
+        $this->assertDatabaseMissing('menus', ['label' => 'Tanpa Link']);
+    }
+
+    public function test_admin_can_create_menu_with_target_blank(): void
+    {
+        $admin = $this->adminWithPermissions(['menus.create']);
+
+        $this->actingAs($admin)
+            ->post(route('admin.menus.store'), [
+                'label'  => 'Situs PLN',
+                'type'   => 'url',
+                'url'    => 'https://web.pln.co.id',
+                'target' => '_blank',
+                'is_active' => '1',
+            ])
+            ->assertRedirect(route('admin.menus.index'));
+
+        $menu = Menu::where('label', 'Situs PLN')->first();
+        $this->assertSame('_blank', $menu->target);
+
+        // Navbar publik harus merender atribut target + rel noopener
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('target="_blank"', false)
+            ->assertSee('rel="noopener"', false);
+    }
+
+    public function test_menu_target_defaults_to_self(): void
+    {
+        $admin = $this->adminWithPermissions(['menus.create']);
+
+        // Tanpa input target → fallback '_self' (tab yang sama)
+        $this->actingAs($admin)
+            ->post(route('admin.menus.store'), [
+                'label' => 'Menu Default',
+                'type'  => 'url',
+                'url'   => '/kontak/lokasi',
+                'is_active' => '1',
+            ])
+            ->assertRedirect(route('admin.menus.index'));
+
+        $this->assertSame('_self', Menu::where('label', 'Menu Default')->first()->target);
+
+        // '_self' tidak merender atribut target sama sekali
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertDontSee('target="_self"', false);
+    }
+
     public function test_admin_can_reorder_menu(): void
     {
         $admin = $this->adminWithPermissions(['menus.edit']);

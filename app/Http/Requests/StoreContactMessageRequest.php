@@ -20,16 +20,18 @@ class StoreContactMessageRequest extends FormRequest
 
             // Validasi email ketat (2 lapis):
             // - email:rfc,dns → format RFC valid + domain punya record A/AAAA/MX aktif
-            //                   (tolak "user@gmail", "nama@", domain fiktif)
+            //                   (tolak "user@gmail", "nama@", domain fiktif).
+            //                   DNS check bisa dimatikan via config (dipakai test suite
+            //                   agar tidak flaky oleh lookup jaringan; production tetap ON).
             // - NotRandomEmail → tolak local-part berpola acak (xqzw@, asdf1234@)
-            'email'    => [
+            'email'    => array_values(array_filter([
                 'required',
                 'string',
-                'email:rfc,dns',
+                config('services.contact.validate_email_dns', true) ? 'email:rfc,dns' : 'email:rfc',
                 'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
                 new NotRandomEmail(),
                 'max:255',
-            ],
+            ])),
 
             'telepon'  => ['required', 'string', 'min:8', 'max:25', 'regex:/^[0-9+\-\s()]+$/'],
             'kategori' => ['required', 'in:' . implode(',', ContactMessage::KATEGORI)],

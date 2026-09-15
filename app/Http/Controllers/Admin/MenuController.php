@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route as RouteFacade;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class MenuController extends Controller
@@ -34,6 +35,8 @@ class MenuController extends Controller
             'menus'            => $menus,
             'typeLabels'       => Menu::TYPES,
             'typeDescriptions' => Menu::TYPE_DESCRIPTIONS,
+            'pages'            => $this->pageOptions(),
+            'routeOptions'     => $this->routeOptions(),
         ]);
     }
 
@@ -47,6 +50,7 @@ class MenuController extends Controller
             'typeLabels'       => Menu::TYPES,
             'typeDescriptions' => Menu::TYPE_DESCRIPTIONS,
             'iconChoices'      => self::ICON_CHOICES,
+            'targetLabels'     => Menu::TARGETS,
         ]);
     }
 
@@ -75,11 +79,12 @@ class MenuController extends Controller
         return view('admin.menus.form', [
             'menu'             => $menu,
             'parents'          => $this->parentOptions($menu->id),
-            'pages'            => $this->pageOptions(),
+            'pages'            => $this->pageOptions($menu->page_id),
             'routeOptions'     => $this->routeOptions(),
             'typeLabels'       => Menu::TYPES,
             'typeDescriptions' => Menu::TYPE_DESCRIPTIONS,
             'iconChoices'      => self::ICON_CHOICES,
+            'targetLabels'     => Menu::TARGETS,
         ]);
     }
 
@@ -172,6 +177,7 @@ class MenuController extends Controller
             'icon'       => ['nullable', 'string', 'max:60', 'regex:/^[a-z0-9\- ]+$/i'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_active'  => ['nullable', 'boolean'],
+            'target'     => ['nullable', 'in:' . Menu::TARGET_SELF . ',' . Menu::TARGET_BLANK],
         ], [
             'label.required' => 'Nama menu wajib diisi.',
             'type.required'  => 'Pilih salah satu jenis tujuan menu.',
@@ -185,12 +191,29 @@ class MenuController extends Controller
         } elseif ($validated['type'] === Menu::TYPE_PAGE) {
             $validated['route_name'] = null;
             $validated['url'] = null;
+
+            if (empty($validated['page_id'])) {
+                throw ValidationException::withMessages([
+                    'page_id' => 'Pilih halaman internal untuk jenis tujuan "Halaman Internal".',
+                ]);
+            }
         } else {
             $validated['route_name'] = null;
             $validated['page_id'] = null;
+
+            if (trim((string) ($validated['url'] ?? '')) === '') {
+                throw ValidationException::withMessages([
+                    'url' => 'Alamat link wajib diisi untuk jenis "Link / alamat lain".',
+                ]);
+            }
         }
 
         $validated['icon'] = $this->sanitizeIcon($validated['icon'] ?? null);
+
+        // Grup dropdown (punya submenu) tidak membuka tab baru — target hanya relevan untuk link daun
+        $validated['target'] = ($validated['target'] ?? Menu::TARGET_SELF) === Menu::TARGET_BLANK
+            ? Menu::TARGET_BLANK
+            : Menu::TARGET_SELF;
 
         return $validated;
     }
@@ -242,9 +265,22 @@ class MenuController extends Controller
             ->all();
     }
 
-    private function pageOptions(): array
+    /**
+     * Halaman CMS yang bisa dipilih sebagai tujuan menu — hanya yang TERBIT
+     * (draft belum boleh muncul di navbar publik).
+     * $includeId: halaman draft yang sedang terhubung ke menu yang diedit
+     * tetap disertakan agar nilainya tidak hilang saat form disimpan ulang.
+     */
+    private function pageOptions(?int $includeId = null): array
     {
         return Page::query()
+            ->where(function ($q) use ($includeId) {
+                $q->where('status', Page::STATUS_PUBLISHED);
+
+                if ($includeId) {
+                    $q->orWhere('id', $includeId);
+                }
+            })
             ->orderBy('title')
             ->get(['id', 'title', 'slug', 'status', 'visibility'])
             ->all();

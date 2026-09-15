@@ -128,7 +128,10 @@ class ContactMessageTest extends TestCase
 
     public function test_email_with_fictional_domain_is_rejected(): void
     {
-        // email:dns → domain tanpa record A/AAAA/MX harus ditolak
+        // email:dns → domain tanpa record A/AAAA/MX harus ditolak.
+        // Test ini butuh DNS check aktif → nyalakan hanya untuk kasus ini.
+        config(['services.contact.validate_email_dns' => true]);
+
         $this->post(route('kontak.store'), $this->validPayload(['email' => 'test@domainpalsu12345.xyz']))
             ->assertSessionHasErrors(['email']);
     }

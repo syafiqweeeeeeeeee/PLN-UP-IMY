@@ -41,7 +41,7 @@
                             <ul class="dropdown-menu dropdown-menu-dark">
                                 @foreach ($item['children'] as $child)
                                     <li>
-                                        <a class="dropdown-item" href="{{ $child['url'] }}" @if (!empty($child['i18n'])) data-i18n="{{ $child['i18n'] }}" @endif>
+                                        <a class="dropdown-item" href="{{ $child['url'] }}" @if (!empty($child['target'])) target="{{ $child['target'] }}" rel="noopener" @endif @if (!empty($child['i18n'])) data-i18n="{{ $child['i18n'] }}" @endif>
                                             @if ($child['icon'])
                                                 <i class="fas {{ $child['icon'] }} me-1"></i>
                                             @endif
@@ -54,7 +54,7 @@
                     @elseif ($item['url'] !== null)
                         {{-- Leaf item langsung --}}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ $item['url'] }}">
+                            <a class="nav-link" href="{{ $item['url'] }}" @if (!empty($item['target'])) target="{{ $item['target'] }}" rel="noopener" @endif>
                                 @if ($item['icon'])
                                     <i class="fas {{ $item['icon'] }} me-1"></i>
                                 @endif

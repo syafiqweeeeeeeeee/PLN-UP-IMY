@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Page;
+use App\Models\PageSection;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PageController extends Controller
@@ -41,13 +43,20 @@ class PageController extends Controller
         $validated['created_by'] = auth()->id();
         $validated['updated_by'] = auth()->id();
 
-        $page = Page::create($validated);
-        $page->roles()->sync($this->roleIds($request));
+        // Halaman + roles + seluruh sections tersimpan atomik dalam 1 submit
+        $page = DB::transaction(function () use ($validated, $request) {
+            $page = Page::create($validated);
+            $page->roles()->sync($this->roleIds($request));
+            $this->syncSections($request, $page);
 
-        ActivityLog::record('halaman', 'create', "membuat halaman \"{$page->title}\"", $page);
+            return $page;
+        });
 
-        return redirect()->route('admin.pages.edit', $page)
-            ->with('success', 'Halaman berhasil dibuat. Lanjutkan mengisi konten.');
+        ActivityLog::record('halaman', 'create', "membuat halaman \"{$page->title}\" (" . $page->sections()->count() . " section)", $page);
+
+        // Kembali ke Daftar Halaman (bukan tetap di form) + notifikasi sukses
+        return redirect()->route('admin.pages.index')
+            ->with('success', '✅ Halaman berhasil disimpan!');
     }
 
     public function edit(Page $page): View
@@ -71,13 +80,18 @@ class PageController extends Controller
 
         $validated['updated_by'] = auth()->id();
 
-        $page->update($validated);
-        $page->roles()->sync($this->roleIds($request));
+        // Halaman + roles + seluruh sections tersimpan atomik dalam 1 submit
+        DB::transaction(function () use ($page, $validated, $request) {
+            $page->update($validated);
+            $page->roles()->sync($this->roleIds($request));
+            $this->syncSections($request, $page);
+        });
 
-        ActivityLog::record('halaman', 'update', "mengubah halaman \"{$page->title}\"", $page);
+        ActivityLog::record('halaman', 'update', "mengubah halaman \"{$page->title}\" (" . $page->sections()->count() . " section)", $page);
 
-        return redirect()->route('admin.pages.edit', $page)
-            ->with('success', 'Halaman berhasil diperbarui.');
+        // Kembali ke Daftar Halaman (bukan tetap di form) + notifikasi sukses
+        return redirect()->route('admin.pages.index')
+            ->with('success', '✅ Halaman berhasil disimpan!');
     }
 
     public function destroy(Page $page): RedirectResponse
@@ -135,5 +149,67 @@ class PageController extends Controller
         return is_array($roleIds)
             ? array_map('intval', array_filter($roleIds, fn ($v) => (int) $v > 0))
             : [];
+    }
+
+    /**
+     * Sinkronkan seluruh array sections dari form utama (sections[n][...]):
+     * - Baris dengan id   → di-update (termasuk ganti jenis).
+     * - Baris tanpa id    → section baru.
+     * - Section lama yang tidak ikut terkirim → dihapus (admin menghapusnya di form).
+     * Nilai sort_order mengikuti urutan baris di form.
+     */
+    private function syncSections(Request $request, Page $page): void
+    {
+        // Field "sections" tidak dikirim sama sekali (form lama / API) → jangan sentuh section yang ada.
+        // Perbedaan penting: input('sections') tidak bisa membedakan "absen" vs "dikirim kosong".
+        if (! $request->has('sections')) {
+            return;
+        }
+
+        $rows = $request->input('sections', []);
+
+        if (! is_array($rows)) {
+            $rows = [];
+        }
+
+        $keptIds = [];
+        $order   = 0;
+
+        foreach ($rows as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+
+            $type = (string) ($row['type'] ?? '');
+
+            if (! array_key_exists($type, PageSection::TYPES)) {
+                continue;
+            }
+
+            $id = (int) ($row['id'] ?? 0);
+
+            if ($id > 0) {
+                $section = $page->sections()->where('id', $id)->first();
+
+                if ($section) {
+                    $section->update([
+                        'type'       => $type,
+                        'data'       => PageSection::buildData($type, $row),
+                        'sort_order' => ++$order,
+                    ]);
+                    $keptIds[] = $section->id;
+                    continue;
+                }
+            }
+
+            $section = $page->sections()->create([
+                'type'       => $type,
+                'data'       => PageSection::buildData($type, $row),
+                'sort_order' => ++$order,
+            ]);
+            $keptIds[] = $section->id;
+        }
+
+        $page->sections()->whereNotIn('id', $keptIds)->delete();
     }
 }

@@ -90,6 +90,8 @@
         font-size: 0.8rem; font-weight: 600; color: #4b5563; transition: all 0.15s ease;
     }
     .role-check:hover { border-color: var(--pln-blue); }
+    .role-check:has(input:disabled) { opacity: 0.45; cursor: not-allowed; }
+    .role-check:has(input:disabled):hover { border-color: #e5e7eb; }
     .role-check input { accent-color: var(--pln-blue); }
 </style>
 @endpush
@@ -105,7 +107,7 @@
             @if ($page)
                 /halaman/{{ $page->slug }}
             @else
-                Isi identitas halaman dulu, lalu tambahkan konten per section.
+                Isi identitas halaman, susun konten per section, lalu simpan sekali.
             @endif
         </p>
     </div>
@@ -187,95 +189,60 @@
             </label>
         </div>
     </div>
-</form>
 
-@if ($page)
-    {{-- ================= SECTIONS ================= --}}
+    {{-- ================= KONTEN HALAMAN (SECTIONS) — selalu tampil, ikut submit utama ================= --}}
     <div class="form-section">
         <div class="form-section-header" style="justify-content: space-between;">
             <div class="d-flex align-items-center" style="gap:0.65rem;">
                 <div class="icon-circle"><i class="fas fa-layer-group"></i></div>
                 <h6>Konten Halaman (Sections)</h6>
             </div>
-            @can('pages.edit')
-            <form method="POST" action="{{ route('admin.pages.sections.store', $page) }}" class="d-flex gap-2">
-                @csrf
-                <select name="type" class="form-control-mod" style="width:auto;" required>
-                    @foreach (\App\Models\PageSection::TYPES as $typeKey => $typeLabel)
-                        <option value="{{ $typeKey }}">{{ $typeLabel }}</option>
-                    @endforeach
-                </select>
-                <button type="submit" class="btn-mini" style="padding:0.5rem 1rem;">
-                    <i class="fas fa-plus"></i> Tambah Section
-                </button>
-            </form>
-            @endcan
+            <button type="button" class="btn-mini" style="padding:0.5rem 1rem;" id="btnAddSection">
+                <i class="fas fa-plus"></i> Tambah Section
+            </button>
         </div>
 
-        @if ($page->sections->isEmpty())
-            <div class="text-center text-muted py-4">
-                <i class="fas fa-layer-group fa-2x mb-3 d-block" style="color:#d1d5db;"></i>
-                Belum ada section. Pilih jenis section di atas lalu klik "Tambah Section".
-            </div>
-        @endif
+        <div class="form-hint mb-2">
+            <i class="fas fa-circle-info me-1"></i>
+            Semua section tersimpan bersama tombol <strong>"Simpan Halaman"</strong> di atas — tidak perlu simpan satu per satu.
+        </div>
 
-        @foreach ($page->sections as $i => $section)
-            <div class="section-item {{ $errors->has('sections.' . $i) ? 'open' : '' }}" id="section-{{ $section->id }}">
-                <div class="section-item-head" onclick="this.parentElement.classList.toggle('open')">
-                    <div class="left">
-                        <span class="num">{{ $i + 1 }}</span>
-                        <span class="type-label">{{ $section->typeLabel() }}</span>
-                        @if ($section->type === 'text' && $section->dataValue('heading'))
-                            <span class="text-muted small">— {{ \Illuminate\Support\Str::limit($section->dataValue('heading'), 40) }}</span>
-                        @endif
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        @can('pages.edit')
-                        <span class="section-move-forms" onclick="event.stopPropagation();">
-                            <form method="POST" action="{{ route('admin.pages.sections.move', [$page, $section]) }}">
-                                @csrf
-                                <input type="hidden" name="direction" value="up">
-                                <button type="submit" class="btn-mini" title="Naikkan" @disabled($loop->first)>
-                                    <i class="fas fa-arrow-up"></i>
-                                </button>
-                            </form>
-                            <form method="POST" action="{{ route('admin.pages.sections.move', [$page, $section]) }}">
-                                @csrf
-                                <input type="hidden" name="direction" value="down">
-                                <button type="submit" class="btn-mini" title="Turunkan" @disabled($loop->last)>
-                                    <i class="fas fa-arrow-down"></i>
-                                </button>
-                            </form>
-                        </span>
-                        @endcan
-                        @can('pages.delete')
-                        <span onclick="event.stopPropagation();">
-                            <form method="POST" action="{{ route('admin.pages.sections.destroy', [$page, $section]) }}"
-                                  onsubmit="return confirm('Hapus section ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-mini danger" title="Hapus section">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </span>
-                        @endcan
-                        <i class="fas fa-chevron-down chev"></i>
-                    </div>
-                </div>
-                <div class="section-item-body">
-                    <form method="POST" action="{{ route('admin.pages.sections.update', [$page, $section]) }}">
-                        @csrf
-                        @include('admin.pages.partials.section-fields', ['section' => $section])
-                        <button type="submit" class="form-btn-save" style="padding:0.5rem 1.25rem;">
-                            <i class="fas fa-floppy-disk"></i> Simpan Section
-                        </button>
-                    </form>
-                </div>
-            </div>
-        @endforeach
+        @php
+            // Prioritas repopulasi: old() (gagal validasi) → sections tersimpan (edit) → default 1 section Teks kosong
+            $formSections = old('sections');
+            if (is_array($formSections) && $formSections !== []) {
+                $formSections = collect($formSections)
+                    ->filter(fn ($r) => is_array($r))
+                    ->map(fn ($r) => ['id' => $r['id'] ?? null, 'type' => $r['type'] ?? 'text', 'data' => $r])
+                    ->values()->all();
+            } else {
+                $formSections = $page?->sections
+                    ?->sortBy([['sort_order', 'asc'], ['id', 'asc']])
+                    ->map(fn ($sec) => ['id' => $sec->id, 'type' => $sec->type, 'data' => $sec->data ?? []])
+                    ->values()->all() ?? [];
+            }
+            if (count($formSections) === 0) {
+                $formSections = [['id' => null, 'type' => 'text', 'data' => []]];
+            }
+        @endphp
+
+        <div id="sectionsList">
+            @foreach ($formSections as $i => $s)
+                @include('admin.pages.partials.section-block', ['s' => $s, 'idx' => $i])
+            @endforeach
+        </div>
+
+        <div class="text-center text-muted py-3 d-none" id="sectionsEmpty">
+            <i class="fas fa-layer-group fa-2x mb-3 d-block" style="color:#d1d5db;"></i>
+            Belum ada section. Klik "+ Tambah Section" untuk mulai mengisi konten.
+        </div>
+
+        {{-- Template di-clone JS untuk "+ Tambah Section" — placeholder __NEW__ dinomori ulang otomatis --}}
+        <template id="sectionTemplate">
+            @include('admin.pages.partials.section-block', ['s' => ['id' => null, 'type' => 'text', 'data' => []], 'idx' => '__NEW__'])
+        </template>
     </div>
-@endif
+</form>
 
 {{-- ============================================================
      Script INLINE di dalam content section — WAJIB di sini (bukan
@@ -284,18 +251,134 @@
      ============================================================ --}}
 <script>
     (function() {
-        // Saat visibility = public, matikan checkbox role (tidak dipakai)
+        /* ============ Role grid: aktif hanya saat visibility = role_restricted ============ */
         var visibilitySelect = document.getElementById('visibility');
         var roleGrid = document.getElementById('roleGrid');
-        if (!visibilitySelect || !roleGrid) return;
+        if (visibilitySelect && roleGrid) {
+            function syncRoleGrid() {
+                roleGrid.querySelectorAll('input').forEach(function (cb) {
+                    cb.disabled = (visibilitySelect.value !== 'role_restricted');
+                });
+            }
+            visibilitySelect.addEventListener('change', syncRoleGrid);
+            syncRoleGrid();
+        }
 
-        function syncRoleGrid() {
-            roleGrid.querySelectorAll('input').forEach(function (cb) {
-                cb.disabled = (visibilitySelect.value !== 'role_restricted');
+        /* ============ Sections editor ============ */
+        var list = document.getElementById('sectionsList');
+        if (!list) return;
+
+        var template = document.getElementById('sectionTemplate');
+        var emptyBox = document.getElementById('sectionsEmpty');
+        var addBtn = document.getElementById('btnAddSection');
+        var cloneCounter = 0;
+
+        function blocks() {
+            return Array.prototype.slice.call(list.querySelectorAll('[data-section-block]'));
+        }
+
+        function syncBlockType(block) {
+            var typeSelect = block.querySelector('[data-section-type]');
+            var type = typeSelect ? typeSelect.value : 'text';
+            var label = typeSelect && typeSelect.selectedIndex >= 0
+                ? typeSelect.options[typeSelect.selectedIndex].text
+                : type;
+
+            block.querySelectorAll('[data-fields]').forEach(function (group) {
+                var show = (group.dataset.fields === type);
+                group.style.display = show ? '' : 'none';
+                group.querySelectorAll('[name]').forEach(function (el) {
+                    el.disabled = !show; // field jenis lain tidak ikut submit
+                });
+            });
+
+            var labelEl = block.querySelector('[data-section-type-label]');
+            if (labelEl) labelEl.textContent = label;
+        }
+
+        function renumber() {
+            blocks().forEach(function (block, i) {
+                block.querySelectorAll('[name]').forEach(function (el) {
+                    el.name = el.name.replace(/^sections\[[^\]]*\]/, 'sections[' + i + ']');
+                });
+                var num = block.querySelector('[data-section-num]');
+                if (num) num.textContent = (i + 1);
+            });
+            blocks().forEach(syncBlockType);
+            if (emptyBox) emptyBox.classList.toggle('d-none', blocks().length > 0);
+        }
+
+        function openSection(block, open) {
+            block.classList.toggle('open', open);
+        }
+
+        list.addEventListener('click', function (e) {
+            var block = e.target.closest('[data-section-block]');
+            if (!block) return;
+
+            var moveBtn = e.target.closest('[data-section-move]');
+            var removeBtn = e.target.closest('[data-section-remove]');
+            var toggleHit = e.target.closest('[data-section-toggle]');
+
+            // Semua interaksi di header: cegah perilaku default (submit form utama /
+            // navigasi) dan hentikan bubbling agar tidak memicu handler lain
+            // (termasuk efek buka-tutup accordion saat tombol dikuasai diklik).
+            if (moveBtn || removeBtn || toggleHit) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            if (moveBtn) {
+                var dir = moveBtn.dataset.sectionMove;
+                if (dir === 'up' && block.previousElementSibling) {
+                    block.parentNode.insertBefore(block, block.previousElementSibling);
+                } else if (dir === 'down' && block.nextElementSibling) {
+                    block.parentNode.insertBefore(block.nextElementSibling, block);
+                }
+                renumber(); // penomoran & indeks name[] di-reorder otomatis
+                return;
+            }
+
+            if (removeBtn) {
+                // Konfirmasi dulu — hindari terhapus saat admin sedang mengisi konten
+                if (confirm('Yakin ingin menghapus section ini? Perubahan berlaku setelah Simpan Halaman.')) {
+                    block.remove();       // blok langsung hilang dari layar, tanpa reload
+                    renumber();           // section 1, 2, 3 kembali berurutan rapi
+                }
+                return;
+            }
+
+            if (toggleHit) {
+                openSection(block, !block.classList.contains('open'));
+            }
+        });
+
+        list.addEventListener('change', function (e) {
+            var block = e.target.closest('[data-section-block]');
+            if (block && e.target.matches('[data-section-type]')) {
+                syncBlockType(block);
+            }
+        });
+
+        if (addBtn && template) {
+            addBtn.addEventListener('click', function () {
+                var fresh = template.content.querySelector('[data-section-block]').cloneNode(true);
+                fresh.querySelectorAll('[name]').forEach(function (el) {
+                    el.name = el.name.replace('__NEW__', 'c' + (cloneCounter++));
+                });
+                list.appendChild(fresh);
+                renumber();
+                openSection(fresh, true);
+                var firstInput = fresh.querySelector('[data-fields="text"] input[name]');
+                if (firstInput) firstInput.focus();
+                fresh.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             });
         }
-        visibilitySelect.addEventListener('change', syncRoleGrid);
-        syncRoleGrid();
+
+        // State awal: sinkronkan nomor/visibility, buka blok pertama bila hanya satu
+        renumber();
+        var initial = blocks();
+        if (initial.length === 1) openSection(initial[0], true);
     })();
 </script>
 @endsection

@@ -75,6 +75,11 @@
 @endpush
 
 @section('content')
+@if (session('success'))
+    <div class="alert alert-success py-2 px-3" style="border-radius:10px; font-size:0.83rem;">
+        <i class="fas fa-circle-check me-2"></i>{{ session('success') }}
+    </div>
+@endif
 <div class="pages-header">
     <div>
         <h5>Daftar Halaman</h5>

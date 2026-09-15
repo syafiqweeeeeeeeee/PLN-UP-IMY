@@ -128,6 +128,39 @@
     .btn-move:hover { border-color: var(--pln-blue); color: var(--pln-blue); }
     .btn-move:disabled { opacity: 0.35; cursor: not-allowed; }
     .order-num { font-weight: 700; color: var(--pln-text); font-size: 0.85rem; }
+
+    /* Modal Tambah Menu (lebar + rata kiri, beda dengan modal konfirmasi) */
+    .modal-menu-dialog {
+        background: #fff; border-radius: 16px; padding: 1.5rem 1.75rem;
+        max-width: 520px; width: 100%; text-align: left;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        animation: modalPlnIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        max-height: 90vh; overflow-y: auto;
+    }
+    .modal-menu-title { font-size: 1rem; font-weight: 800; color: var(--pln-text); margin: 0; }
+    .modal-menu-sub { font-size: 0.75rem; color: #9ca3af; margin: 0.2rem 0 0; }
+    .modal-menu-close {
+        border: none; background: #f1f5f9; color: #64748b; width: 30px; height: 30px;
+        border-radius: 8px; cursor: pointer; flex-shrink: 0;
+    }
+    .modal-menu-close:hover { background: #e2e8f0; color: #334155; }
+
+    /* Kelas form dipakai modal (didefinisikan global karena modal ada di index) */
+    .form-label-mod { font-size: 0.8rem; font-weight: 600; color: #4b5563; margin-bottom: 0.35rem; }
+    .form-control-mod {
+        width: 100%; padding: 0.65rem 0.9rem; border: 1px solid #e5e7eb;
+        border-radius: 10px; font-size: 0.85rem; color: var(--pln-text);
+        background: #fff; transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .form-control-mod:focus { outline: none; border-color: var(--pln-blue); box-shadow: 0 0 0 3px rgba(0,91,156,0.1); }
+    .form-hint { font-size: 0.72rem; color: #9ca3af; margin-top: 0.3rem; }
+    .form-btn-save {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        padding: 0.6rem 1.5rem; background: var(--pln-blue); color: #fff;
+        border: none; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer;
+        transition: all 0.25s ease;
+    }
+    .form-btn-save:hover { background: #003d6b; transform: translateY(-1px); }
 </style>
 @endpush
 
@@ -138,9 +171,9 @@
         <p>Atur menu navigasi situs publik di sini — perubahan langsung tampil di navbar.</p>
     </div>
     @can('menus.create')
-    <a href="{{ route('admin.menus.create') }}" class="btn-add-menu">
+    <button type="button" class="btn-add-menu" onclick="openMenuModal()">
         <i class="fas fa-plus"></i> Tambah Menu
-    </a>
+    </button>
     @endcan
 </div>
 
@@ -221,13 +254,21 @@
                             @if ($menu->type === 'route')
                                 <i class="fas fa-link"></i>Halaman situs
                             @elseif ($menu->type === 'page')
-                                <i class="fas fa-file-lines"></i>Halaman CMS{{ $menu->page ? ': ' . $menu->page->slug : ' (halaman sudah dihapus)' }}
+                                <i class="fas fa-file-lines"></i>Halaman: {{ $menu->page ? $menu->page->title : '(halaman sudah dihapus)' }}
                             @else
                                 <i class="fas fa-up-right-from-square"></i>{{ $menu->url }}
                             @endif
                         </div>
                     </td>
-                    <td><span class="badge-type {{ $menu->type }}">{{ $typeLabels[$menu->type] ?? $menu->type }}</span></td>
+                    <td>
+                        @if ($menu->type === 'page')
+                            <span class="badge-type page" title="/halaman/{{ $menu->page?->slug }}">
+                                <i class="fas fa-file-lines me-1"></i>Halaman: {{ $menu->page?->title ?? '(dihapus)' }}
+                            </span>
+                        @else
+                            <span class="badge-type {{ $menu->type }}">{{ $typeLabels[$menu->type] ?? $menu->type }}</span>
+                        @endif
+                    </td>
                     <td>
                         @if ($menu->children->isEmpty())
                             <span class="text-muted small">—</span>
@@ -241,9 +282,10 @@
                             </div>
                         @endif
                         @can('menus.create')
-                        <a href="{{ route('admin.menus.create', ['parent' => $menu->id]) }}" class="chip-add mt-1">
+                        <button type="button" class="chip-add mt-1" style="cursor:pointer;"
+                                onclick="openMenuModal({{ $menu->id }}, '{{ addslashes($menu->label) }}')">
                             <i class="fas fa-plus"></i> Tambah submenu
-                        </a>
+                        </button>
                         @endcan
                     </td>
                     <td>
@@ -303,4 +345,141 @@
 <div class="mt-3 d-flex justify-content-center">
     {{ $menus->withQueryString()->links() }}
 </div>
+
+{{-- ============================================================
+     MODAL TAMBAH MENU / SUBMENU
+     Dropdown "Pilih Halaman Internal" diisi dari tabel pages
+     (hanya berstatus Terbit) — dikirim dari MenuController@index.
+     ============================================================ --}}
+@can('menus.create')
+<div class="modal-pln-overlay" id="menuModal" onclick="if(event.target===this) closeMenuModal()">
+    <div class="modal-menu-dialog">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h6 class="modal-menu-title" id="menuModalTitle">Tambah Menu</h6>
+                <p class="modal-menu-sub">Menu langsung tampil di navbar publik setelah disimpan.</p>
+            </div>
+            <button type="button" class="modal-menu-close" onclick="closeMenuModal()" aria-label="Tutup">
+                <i class="fas fa-xmark"></i>
+            </button>
+        </div>
+
+        <form id="menuModalForm" method="POST" action="{{ route('admin.menus.store') }}">
+            @csrf
+            <input type="hidden" name="parent_id" id="menuModalParent" value="">
+            <input type="hidden" name="is_active" value="1">
+            <input type="hidden" name="target" value="_self">
+
+            @if ($errors->any() && old('label') !== null)
+                <div class="alert alert-danger py-2 px-3" style="border-radius:10px; font-size:0.8rem;">
+                    <i class="fas fa-circle-exclamation me-2"></i>{{ $errors->first() }}
+                </div>
+            @endif
+
+            <div class="mb-3">
+                <label class="form-label-mod" for="menuModalLabel">Nama menu <span class="text-danger">*</span></label>
+                <input type="text" id="menuModalLabel" name="label" class="form-control-mod" placeholder="Contoh: Karier" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label-mod" for="menuModalType">Tipe tujuan <span class="text-danger">*</span></label>
+                <select id="menuModalType" name="type" class="form-control-mod" onchange="toggleMenuModalTargets()">
+                    @foreach ($typeLabels as $typeKey => $typeLabel)
+                        <option value="{{ $typeKey }}">{{ $typeLabel }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="mb-3 menu-modal-target" data-for="route" style="display:none;">
+                <label class="form-label-mod" for="menuModalRoute">Pilih halaman situs</label>
+                <select id="menuModalRoute" name="route_name" class="form-control-mod">
+                    <option value="">— pilih —</option>
+                    @foreach ($routeOptions ?? [] as $routeName => $routeLabel)
+                        <option value="{{ $routeName }}">{{ $routeLabel }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="mb-3 menu-modal-target" data-for="page" style="display:none;">
+                <label class="form-label-mod" for="menuModalPage">Pilih Halaman Internal <span class="text-danger">*</span></label>
+                <select id="menuModalPage" name="page_id" class="form-control-mod">
+                    <option value="">— pilih —</option>
+                    @foreach ($pages as $pageOption)
+                        <option value="{{ $pageOption->id }}">{{ $pageOption->title }} (/halaman/{{ $pageOption->slug }})</option>
+                    @endforeach
+                </select>
+                <div class="form-hint">
+                    <i class="fas fa-shield-halved me-1"></i>
+                    Hanya halaman berstatus <strong>Terbit</strong> yang terdaftar. Menu ini otomatis disembunyikan dari pengunjung yang tidak berhak melihat halamannya.
+                </div>
+            </div>
+
+            <div class="mb-3 menu-modal-target" data-for="url" style="display:none;">
+                <label class="form-label-mod" for="menuModalUrl">Alamat link <span class="text-danger">*</span></label>
+                <input type="text" id="menuModalUrl" name="url" class="form-control-mod" placeholder="Contoh: https://web.pln.co.id">
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn-corp btn-corp-cancel" onclick="closeMenuModal()">
+                    Batal
+                </button>
+                <button type="submit" class="form-btn-save" style="padding:0.6rem 1.5rem; border-radius:10px;">
+                    <i class="fas fa-floppy-disk"></i> Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openMenuModal(parentId, parentLabel) {
+        var form = document.getElementById('menuModalForm');
+        form.reset();
+
+        var isSubmenu = !!parentId;
+        document.getElementById('menuModalParent').value = isSubmenu ? parentId : '';
+        document.getElementById('menuModalTitle').textContent = isSubmenu
+            ? 'Tambah Submenu di \'' + parentLabel + '\''
+            : 'Tambah Menu';
+
+        toggleMenuModalTargets();
+        document.getElementById('menuModal').classList.add('show');
+        document.getElementById('menuModalLabel').focus();
+    }
+
+    function closeMenuModal() {
+        document.getElementById('menuModal').classList.remove('show');
+    }
+
+    function toggleMenuModalTargets() {
+        var type = document.getElementById('menuModalType').value;
+        document.querySelectorAll('.menu-modal-target').forEach(function (el) {
+            el.style.display = (el.dataset.for === type) ? '' : 'none';
+        });
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeMenuModal();
+    });
+
+    {{-- Setelah gagal validasi: buka lagi modal + kembalikan nilai yang sudah diisi --}}
+    @if ($errors->any() && old('label') !== null)
+        (function () {
+            var parentId = @js((string) old('parent_id'));
+            openMenuModal(parentId ? parseInt(parentId, 10) : null, '');
+
+            document.getElementById('menuModalLabel').value = @js((string) old('label'));
+            document.getElementById('menuModalType').value  = @js((string) old('type', 'route'));
+            toggleMenuModalTargets();
+
+            var route = document.getElementById('menuModalRoute');
+            var page  = document.getElementById('menuModalPage');
+            var url   = document.getElementById('menuModalUrl');
+            if (route) route.value = @js((string) old('route_name', ''));
+            if (page)  page.value  = @js((string) (old('page_id') ?? ''));
+            if (url)   url.value   = @js((string) old('url', ''));
+        })();
+    @endif
+</script>
+@endcan
 @endsection

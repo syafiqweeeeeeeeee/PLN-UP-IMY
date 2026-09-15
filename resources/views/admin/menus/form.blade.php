@@ -200,6 +200,20 @@
                 <div class="invalid-feedback-mod mt-1">{{ $message }}</div>
             @endif
         @enderror
+
+        <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <label class="form-label-mod" for="target">Cara membuka link</label>
+                <select id="target" name="target" class="form-control-mod">
+                    @foreach ($targetLabels as $targetValue => $targetLabel)
+                        <option value="{{ $targetValue }}" @selected(old('target', $menu->target ?? '_self') === $targetValue)>
+                            {{ $targetLabel }}
+                        </option>
+                    @endforeach
+                </select>
+                <div class="form-hint">"Tab baru" cocok untuk link eksternal agar pengunjung tidak meninggalkan situs ini.</div>
+            </div>
+        </div>
     </div>
 
     <div class="form-section">

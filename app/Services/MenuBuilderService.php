@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
  *   migrasi antar tampilan minim perubahan.
  *
  * Bentuk item hasil build (konsisten untuk DB maupun fallback):
- * ['menu' => ?Menu, 'label' => string, 'icon' => ?string, 'url' => ?string, 'children' => array]
+ * ['menu' => ?Menu, 'label' => string, 'icon' => ?string, 'url' => ?string, 'target' => ?string, 'children' => array]
  */
 class MenuBuilderService
 {
@@ -120,6 +120,7 @@ class MenuBuilderService
                 'icon'     => $menu->icon !== null && trim($menu->icon) !== '' ? $menu->icon : null,
                 'i18n'     => null,
                 'url'      => $url,
+                'target'   => null, // grup dropdown tidak membuka tab baru
                 'children' => $children,
             ];
         }
@@ -142,6 +143,7 @@ class MenuBuilderService
             'icon'     => $menu->icon !== null && trim($menu->icon) !== '' ? $menu->icon : null,
             'i18n'     => null,
             'url'      => $url,
+            'target'   => $menu->htmlTarget(),
             'children' => $children,
         ];
     }
@@ -149,33 +151,25 @@ class MenuBuilderService
     private function defaultTree(): array
     {
         return collect(self::DEFAULT_TREE)
-            ->map(function (array $group) {
-                // Leaf root (mis. Beranda) punya target sendiri via key 'route';
-                // grup dropdown tetap tanpa target — yang penting submenu-nya.
-                $url = isset($group['route']) && Route::has($group['route'])
-                    ? route($group['route'])
-                    : null;
-
-                return [
-                    'menu'     => null,
-                    'label'    => $group['label'],
-                    'icon'     => $group['icon'],
-                    'i18n'     => $group['i18n'] ?? null,
-                    'url'      => $url,
-                    'children' => collect($group['children'] ?? [])
-                        ->filter(fn (array $child) => Route::has($child['route']))
-                        ->map(fn (array $child) => [
-                            'menu'     => null,
-                            'label'    => $child['label'],
-                            'icon'     => null,
-                            'i18n'     => $child['i18n'] ?? null,
-                            'url'      => route($child['route']),
-                            'children' => [],
-                        ])
-                        ->all(),
-                ];
-            })
-            ->filter(fn (array $group) => $group['children'] !== [] || $group['url'] !== null)
+            ->map(fn (array $group) => [
+                'menu'     => null,
+                'label'    => $group['label'],
+                'icon'     => $group['icon'],
+                'i18n'     => $group['i18n'] ?? null,
+                'url'      => null, // grup dropdown: tidak punya target sendiri
+                'children' => collect($group['children'])
+                    ->filter(fn (array $child) => Route::has($child['route']))
+                    ->map(fn (array $child) => [
+                        'menu'     => null,
+                        'label'    => $child['label'],
+                        'icon'     => null,
+                        'i18n'     => $child['i18n'] ?? null,
+                        'url'      => route($child['route']),
+                        'children' => [],
+                    ])
+                    ->all(),
+            ])
+            ->filter(fn (array $group) => $group['children'] !== [])
             ->values()
             ->all();
     }

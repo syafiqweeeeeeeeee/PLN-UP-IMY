@@ -14,10 +14,19 @@ class Menu extends Model
     public const TYPE_PAGE  = 'page';
     public const TYPE_URL   = 'url';
 
+    public const TARGET_SELF  = '_self';
+    public const TARGET_BLANK = '_blank';
+
     public const TYPES = [
         self::TYPE_ROUTE => 'Halaman yang sudah ada di situs',
         self::TYPE_PAGE  => 'Halaman buatan sendiri (dari menu "Halaman")',
         self::TYPE_URL   => 'Link / alamat lain',
+    ];
+
+    /** Pilihan cara membuka link — tampil di form admin. */
+    public const TARGETS = [
+        '_self'  => 'Tab yang sama',
+        '_blank' => 'Tab / jendela baru',
     ];
 
     /** Penjelasan awam per tipe — tampil di form admin. */
@@ -34,6 +43,7 @@ class Menu extends Model
         'route_name',
         'page_id',
         'url',
+        'target',
         'icon',
         'sort_order',
         'is_active',
@@ -42,6 +52,7 @@ class Menu extends Model
 
     protected $casts = [
         'is_active'   => 'boolean',
+        'target'      => 'string',
         'sort_order'  => 'integer',
         'created_at'  => 'datetime',
         'updated_at'  => 'datetime',
@@ -101,6 +112,12 @@ class Menu extends Model
     public function hasValidTarget(): bool
     {
         return $this->resolvedUrl() !== null;
+    }
+
+    /** Target HTML link — '_self' dikembalikan sebagai null (tanpa atribut). */
+    public function htmlTarget(): ?string
+    {
+        return $this->target === self::TARGET_BLANK ? '_blank' : null;
     }
 
     /* =========================================================

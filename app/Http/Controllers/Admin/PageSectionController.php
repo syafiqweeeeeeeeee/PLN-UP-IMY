@@ -41,7 +41,7 @@ class PageSectionController extends Controller
         abort_unless($section->page_id === $page->id, 404);
 
         $section->update([
-            'data' => $this->buildData($request, $section->type),
+            'data' => PageSection::buildData($section->type, (array) $request->all()),
         ]);
 
         ActivityLog::record('halaman', 'update', "mengubah section {$section->typeLabel()} di halaman \"{$page->title}\"", $page);
@@ -97,77 +97,4 @@ class PageSectionController extends Controller
         return redirect()->route('admin.pages.edit', $page);
     }
 
-    /* =========================================================
-       HELPER — normalisasi input form per jenis section
-       ========================================================= */
-
-    private function buildData(Request $request, string $type): array
-    {
-        return match ($type) {
-            'banner' => [
-                'heading'     => (string) $request->input('heading', ''),
-                'subheading'  => (string) $request->input('subheading', ''),
-                'button_text' => (string) $request->input('button_text', ''),
-                'button_url'  => (string) $request->input('button_url', ''),
-            ],
-            'text' => [
-                'heading' => (string) $request->input('heading', ''),
-                'body'    => (string) $request->input('body', ''),
-            ],
-            'cards' => [
-                'heading' => (string) $request->input('heading', ''),
-                'items'   => $this->parseItems($request),
-            ],
-            'file' => [
-                'heading' => (string) $request->input('heading', ''),
-                'items'   => $this->parseItems($request),
-            ],
-            'faq' => [
-                'heading' => (string) $request->input('heading', ''),
-                'items'   => $this->parseFaq($request),
-            ],
-            default => [],
-        };
-    }
-
-    /** Input textarea: "Judul | Deskripsi | URL" per baris → array items. */
-    private function parseItems(Request $request): array
-    {
-        $lines = preg_split('/\r\n|\r|\n/', (string) $request->input('items', '')) ?: [];
-
-        return collect($lines)
-            ->map(fn (string $line) => trim($line))
-            ->filter()
-            ->map(function (string $line) {
-                $parts = array_map(fn (string $p) => trim($p), explode('|', $line));
-
-                return [
-                    'title'       => $parts[0] ?? '',
-                    'description' => $parts[1] ?? '',
-                    'url'         => $parts[2] ?? '',
-                ];
-            })
-            ->values()
-            ->all();
-    }
-
-    /** Input textarea FAQ: "Pertanyaan | Jawaban" per baris. */
-    private function parseFaq(Request $request): array
-    {
-        $lines = preg_split('/\r\n|\r|\n/', (string) $request->input('items', '')) ?: [];
-
-        return collect($lines)
-            ->map(fn (string $line) => trim($line))
-            ->filter()
-            ->map(function (string $line) {
-                $parts = array_map(fn (string $p) => trim($p), explode('|', $line));
-
-                return [
-                    'question' => $parts[0] ?? '',
-                    'answer'   => $parts[1] ?? '',
-                ];
-            })
-            ->values()
-            ->all();
-    }
 }

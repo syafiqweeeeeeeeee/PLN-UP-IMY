@@ -66,4 +66,75 @@ class PageSection extends Model
             })
             ->implode("\n");
     }
+
+    /* =========================================================
+       BUILDER DATA (dipakai bersama PageController & PageSectionController)
+       ========================================================= */
+
+    /** Susun kolom `data` (JSON) dari input form baris section. */
+    public static function buildData(string $type, array $input): array
+    {
+        return match ($type) {
+            'banner' => [
+                'heading'     => (string) ($input['heading'] ?? ''),
+                'subheading'  => (string) ($input['subheading'] ?? ''),
+                'button_text' => (string) ($input['button_text'] ?? ''),
+                'button_url'  => (string) ($input['button_url'] ?? ''),
+            ],
+            'text' => [
+                'heading' => (string) ($input['heading'] ?? ''),
+                'body'    => (string) ($input['body'] ?? ''),
+            ],
+            'cards', 'file' => [
+                'heading' => (string) ($input['heading'] ?? ''),
+                'items'   => static::parseItemsText($input['items'] ?? ''),
+            ],
+            'faq' => [
+                'heading' => (string) ($input['heading'] ?? ''),
+                'items'   => static::parseFaqText($input['items'] ?? ''),
+            ],
+            default => [],
+        };
+    }
+
+    /** Input textarea: "Judul | Deskripsi | URL" per baris → array items. */
+    public static function parseItemsText(?string $text): array
+    {
+        $lines = preg_split('/\r\n|\r|\n/', (string) $text) ?: [];
+
+        return collect($lines)
+            ->map(fn (string $line) => trim($line))
+            ->filter()
+            ->map(function (string $line) {
+                $parts = array_map(fn (string $p) => trim($p), explode('|', $line));
+
+                return [
+                    'title'       => $parts[0] ?? '',
+                    'description' => $parts[1] ?? '',
+                    'url'         => $parts[2] ?? '',
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /** Input textarea FAQ: "Pertanyaan | Jawaban" per baris. */
+    public static function parseFaqText(?string $text): array
+    {
+        $lines = preg_split('/\r\n|\r|\n/', (string) $text) ?: [];
+
+        return collect($lines)
+            ->map(fn (string $line) => trim($line))
+            ->filter()
+            ->map(function (string $line) {
+                $parts = array_map(fn (string $p) => trim($p), explode('|', $line));
+
+                return [
+                    'question' => $parts[0] ?? '',
+                    'answer'   => $parts[1] ?? '',
+                ];
+            })
+            ->values()
+            ->all();
+    }
 }
