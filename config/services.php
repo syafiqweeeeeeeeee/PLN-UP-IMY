@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    /*
+    |----------------------------------------------------------------------
+    | Google reCAPTCHA v3 — proteksi anti-spam form kontak publik
+    |----------------------------------------------------------------------
+    | Isi RECAPTCHA_SITE_KEY & RECAPTCHA_SECRET di file .env. Jika keduanya
+    | kosong, verifikasi dilewati (fallback dev) dan form tetap berfungsi.
+    */
+    'recaptcha' => [
+        'site_key'  => env('RECAPTCHA_SITE_KEY'),
+        'secret'    => env('RECAPTCHA_SECRET_KEY'),
+        'min_score' => (float) env('RECAPTCHA_MIN_SCORE', 0.5),
+    ],
+
 ];

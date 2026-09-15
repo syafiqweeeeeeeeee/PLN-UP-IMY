@@ -499,6 +499,12 @@
         </script>
 
         <script src="{{ asset('js/i18n.js') }}"></script>
+
+        {{-- Google reCAPTCHA v3 — hanya dimuat jika site key sudah dikonfigurasi --}}
+        @if (config('services.recaptcha.site_key'))
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+        @endif
+
         @stack('scripts')
     </body>
 </html>

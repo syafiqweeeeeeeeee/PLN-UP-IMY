@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\PageDisplayController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GalleryController;
@@ -91,6 +93,9 @@ Route::get('/halaman/{page:slug}', [PageDisplayController::class, 'show'])
 Route::get('/kontak/hubungi-kami', function () {
     return view('kontak.hubungi_kami');
 })->name('hubungi-kami');
+
+// Form kontak publik — simpan pesan ke tabel contact_messages (masuk ke admin Permohonan)
+Route::post('/kontak/hubungi-kami', [ContactController::class, 'store'])->name('kontak.store');
 
 Route::get('/kontak/lokasi', function () {
     return view('kontak.lokasi');
@@ -302,6 +307,12 @@ Route::middleware(['auth'])->group(function () {
         // Berita / News
         Route::resource('news', NewsController::class);
         Route::post('/news/{news}/publish', [NewsController::class, 'togglePublish'])->name('news.publish');
+
+        // Permohonan & Pesan Masuk (dari form kontak publik)
+        Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+        Route::get('contact-messages/{contact_message}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
+        Route::post('contact-messages/{contact_message}/status', [ContactMessageController::class, 'updateStatus'])->name('contact-messages.update-status');
+        Route::delete('contact-messages/{contact_message}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
 
         // Galeri / Gallery
         Route::resource('galeri', GalleryController::class)->except(['show']);
