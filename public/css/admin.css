@@ -19,7 +19,56 @@
     --bg-body: #f0f2f5;
     --bg-card: #ffffff;
     --border-color: #e5e7eb;
+
+    /* ---- Semantic tokens (light default) ---- */
+    --ink-heading:   #1f2937;
+    --ink-body:      #374151;
+    --ink-muted:     #6b7280;
+    --ink-faint:     #9ca3af;
+    --panel:         #f8fafc;
+    --panel-2:       #f1f5f9;
+    --panel-hover:   #f0f7ff;
+    --line:          #e5e7eb;
+    --line-soft:     #f3f4f6;
+    --shadow-card:   0 4px 12px rgba(0,0,0,0.06);
+    --shadow-pop:    0 20px 60px rgba(0,0,0,0.25);
+    --focus-ring:    rgba(0,91,156,0.08);
+    --scrollbar-thumb: rgba(255,255,255,0.15);
 }
+
+/* ============================================
+   DARK MODE (html.theme-dark)
+   Diaktifkan dari halaman Pengaturan / toggle topbar.
+   ============================================ */
+html.theme-dark {
+    --bg-body:      #0f1729;
+    --bg-card:      #1b2537;
+    --border-color: #2e3a52;
+    --pln-gray:     #232f45;
+
+    --ink-heading:  #f1f5f9;
+    --ink-body:     #d7dee8;
+    --ink-muted:    #94a3b8;
+    --ink-faint:    #64748b;
+    --panel:        #223049;
+    --panel-2:      #283752;
+    --panel-hover:  #223a5e;
+    --line:         #2e3a52;
+    --line-soft:    #26334c;
+    --shadow-card:  0 4px 12px rgba(0,0,0,0.35);
+    --shadow-pop:   0 20px 60px rgba(0,0,0,0.5);
+    --focus-ring:   rgba(0,163,224,0.18);
+    --scrollbar-thumb: rgba(255,255,255,0.12);
+}
+
+html.theme-dark body { background: var(--bg-body); color: var(--ink-body); }
+html.theme-dark .admin-topbar { box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+html.theme-dark .dash-card:hover,
+html.theme-dark .page-header-card:hover { box-shadow: var(--shadow-card); }
+html.theme-dark .news-card:hover,
+html.theme-dark .page-pagination .page-btn { box-shadow: none; }
+html.theme-dark .stat-chip:hover,
+html.theme-dark .page-pagination .page-btn:hover { background: var(--panel-hover); }
 
 * { box-sizing: border-box; }
 
@@ -109,7 +158,7 @@ a { text-decoration: none; transition: color 0.2s ease; }
 }
 
 .sidebar-nav::-webkit-scrollbar { width: 4px; }
-.sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
 
 .sidebar-section-label {
     padding: 0.75rem 1.5rem 0.35rem;
@@ -124,23 +173,28 @@ a { text-decoration: none; transition: color 0.2s ease; }
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.6rem 1.5rem;
-    color: rgba(255,255,255,0.65);
+    padding: 0.6rem 1.25rem;
+    color: rgba(255,255,255,0.75);
     font-size: 0.85rem;
     font-weight: 500;
-    transition: all 0.2s ease;
-    margin: 1px 0.75rem;
-    border-radius: 8px;
+    transition: color 0.25s ease-in-out, background 0.25s ease-in-out;
+    margin: 2px 0;
+    border-radius: 0;
+    border-left: 4px solid transparent;
+    text-decoration: none;
 }
 
 .sidebar-link:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.08);
+    color: var(--pln-yellow);
+    background: rgba(255,255,255,0.06);
+    border-left-color: rgba(255,230,0,0.4);
 }
 
 .sidebar-link.active {
-    color: #fff;
-    background: rgba(255,230,0,0.12);
+    color: var(--pln-yellow);
+    background: rgba(255,230,0,0.15);
+    border-left: 4px solid var(--pln-yellow);
+    font-weight: 600;
 }
 
 .sidebar-link.active .link-icon {
@@ -151,16 +205,28 @@ a { text-decoration: none; transition: color 0.2s ease; }
     width: 20px;
     text-align: center;
     font-size: 0.9rem;
+    color: rgba(255,255,255,0.55);
+    transition: color 0.25s ease-in-out;
+    flex-shrink: 0;
 }
 
-.sidebar-link .badge {
+.sidebar-link:hover .link-icon {
+    color: var(--pln-yellow);
+}
+
+.sidebar-link .link-text {
+    flex: 1;
+}
+
+.sidebar-link .link-badge {
     margin-left: auto;
-    font-size: 0.65rem;
-    padding: 0.2em 0.55em;
+    font-size: 0.6rem;
+    padding: 0.2em 0.5em;
     background: var(--pln-red);
     color: #fff;
     border-radius: 10px;
-    font-weight: 600;
+    font-weight: 700;
+    line-height: 1;
 }
 
 .sidebar-footer {
@@ -250,7 +316,7 @@ a { text-decoration: none; transition: color 0.2s ease; }
 }
 
 .topbar-breadcrumb strong {
-    color: var(--pln-text);
+    color: var(--ink-heading);
     font-weight: 600;
 }
 
@@ -277,9 +343,11 @@ a { text-decoration: none; transition: color 0.2s ease; }
 }
 
 .topbar-icon-btn:hover {
-    background: var(--pln-gray);
+    background: var(--panel);
     color: var(--pln-blue);
 }
+
+html.theme-dark .topbar-icon-btn:hover { color: var(--pln-cyan); }
 
 .notification-dot {
     position: absolute;
@@ -307,6 +375,8 @@ a { text-decoration: none; transition: color 0.2s ease; }
     cursor: pointer;
     transition: background 0.2s ease;
 }
+
+html.theme-dark .topbar-user:hover { background: var(--panel); }
 
 .topbar-user:hover { background: var(--pln-gray); }
 
@@ -371,13 +441,13 @@ a { text-decoration: none; transition: color 0.2s ease; }
 .dash-card-title {
     font-size: 0.95rem;
     font-weight: 700;
-    color: var(--pln-text);
+    color: var(--ink-heading);
     margin: 0;
 }
 
 .dash-card-subtitle {
     font-size: 0.78rem;
-    color: #9ca3af;
+    color: var(--ink-faint);
     margin: 0;
 }
 
@@ -821,6 +891,304 @@ a { text-decoration: none; transition: color 0.2s ease; }
     .topbar-user-info {
         display: none;
     }
+}
+
+/* ============================================
+   SHARED PAGE PATTERNS — SELARAS DENGAN /admin/news
+   (page header card • stat chips • filter bar •
+    custom pagination • consistent buttons)
+   ============================================ */
+
+/* --- Page Header Card (pola news-page-header) --- */
+.page-header-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.25rem;
+}
+.page-header-card .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.page-header-card .header-left h5 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink-heading);
+    margin: 0 0 0.2rem;
+}
+.page-header-card .header-left h5 .header-icon {
+    color: var(--pln-blue);
+    margin-right: 0.5rem;
+}
+.page-header-card .header-left p {
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    margin: 0;
+}
+
+/* --- Stat Chips --- */
+.stat-chips-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+}
+.stat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink-body);
+    transition: all 0.2s ease;
+}
+.stat-chip:hover {
+    background: var(--panel-hover);
+    border-color: var(--pln-blue);
+}
+.stat-chip .stat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.stat-chip .stat-dot.blue { background: var(--pln-blue); }
+.stat-chip .stat-dot.green { background: #22c55e; }
+.stat-chip .stat-dot.amber { background: #f59e0b; }
+.stat-chip .stat-dot.red { background: #ef4444; }
+.stat-chip .stat-number {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-heading);
+}
+
+/* --- Filter Bar --- */
+.page-filter-bar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.page-filter-bar .search-wrapper {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+}
+.page-filter-bar .search-wrapper .search-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 0.82rem;
+    pointer-events: none;
+}
+.page-filter-bar .filter-input {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+    background: var(--panel);
+    transition: all 0.2s ease;
+    color: var(--ink-body);
+}
+.page-filter-bar .search-wrapper .filter-input {
+    padding-left: 2.4rem;
+}
+.page-filter-bar .filter-input:focus {
+    border-color: var(--pln-blue);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+    background: var(--bg-card);
+    outline: none;
+}
+.page-filter-bar .filter-input::placeholder { color: var(--ink-faint); }
+.page-filter-bar select.filter-input { cursor: pointer; }
+.filter-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--line);
+    flex-shrink: 0;
+}
+.filter-count {
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* --- Tombol aksi konsisten (di atas btn-corp yang sudah ada) --- */
+.btn-corp.btn-corp-primary {
+    background: var(--pln-blue);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 91, 156, 0.3);
+}
+.btn-corp.btn-corp-primary:hover {
+    background: var(--pln-blue-dark);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0, 91, 156, 0.45);
+    transform: translateY(-1px);
+}
+.btn-corp.btn-corp-primary:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 1px 4px rgba(0, 91, 156, 0.25);
+}
+.btn-corp.btn-corp-soft {
+    background: var(--panel);
+    color: var(--ink-body);
+    box-shadow: none;
+}
+.btn-corp.btn-corp-soft:hover {
+    background: var(--line);
+    color: var(--ink-heading);
+    transform: translateY(-1px);
+}
+.btn-corp.btn-corp-danger-soft {
+    background: #fee2e2;
+    color: #b91c1c;
+    box-shadow: none;
+}
+.btn-corp.btn-corp-danger-soft:hover {
+    background: #fecaca;
+    color: #991b1b;
+    transform: translateY(-1px);
+}
+
+/* --- Custom Pagination (pola news-pagination) --- */
+.page-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+.page-pagination .pagination {
+    display: flex;
+    gap: 0.35rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.page-pagination .page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 0.6rem;
+    border-radius: 9px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.page-pagination .page-btn:hover {
+    border-color: var(--pln-blue);
+    color: var(--pln-blue);
+    background: var(--panel-hover);
+}
+.page-pagination .page-btn.active {
+    background: var(--pln-blue);
+    color: #fff;
+    border-color: var(--pln-blue);
+}
+.page-pagination .page-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* --- Admin Table Consistency --- */
+.admin-table thead th {
+    text-align: left;
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--line-soft);
+    white-space: nowrap;
+}
+.admin-table thead th.text-right,
+.admin-table thead th:last-child.text-right { text-align: right; }
+.admin-table tbody td { padding: 1rem; vertical-align: middle; }
+.admin-table tbody tr { transition: background 0.15s ease; }
+.admin-table tbody tr:hover { background: var(--panel); }
+.admin-table .th-actions,
+.admin-table .td-actions { text-align: right; }
+
+/* --- Action Buttons (pola news-action-btn, dipakai lintas halaman) --- */
+.news-action-btn {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    border: none;
+    font-size: 0.72rem;
+    transition: all 0.2s ease;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: none;
+}
+.news-action-btn:hover { transform: translateY(-1px); }
+.news-action-btn.view { background: #dbeafe; color: #1d4ed8; }
+.news-action-btn.view:hover { background: #bfdbfe; }
+.news-action-btn.edit { background: #fef3c7; color: #92400e; }
+.news-action-btn.edit:hover { background: #fde68a; }
+.news-action-btn.delete { background: #fee2e2; color: #b91c1c; }
+.news-action-btn.delete:hover { background: #fecaca; }
+.news-action-btn.publish { background: #dcfce7; color: #166534; }
+.news-action-btn.publish:hover { background: #bbf7d0; }
+.news-action-btn.unpublish { background: #fee2e2; color: #b91c1c; }
+.news-action-btn.unpublish:hover { background: #fecaca; }
+
+/* --- Empty State (pola news-empty-state, dipakai lintas halaman) --- */
+.news-empty-state .empty-icon,
+.empty-icon {
+    width: 72px;
+    height: 72px;
+    background: #f1f5f9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+}
+.empty-icon i {
+    font-size: 1.6rem;
+    color: #cbd5e1;
+}
+
+@media (max-width: 767.98px) {
+    .page-header-card .header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .page-filter-bar {
+        flex-direction: column;
+    }
+    .page-filter-bar .search-wrapper {
+        min-width: 100%;
+    }
+    .filter-divider { display: none; }
 }
 
 @media (max-width: 575.98px) {

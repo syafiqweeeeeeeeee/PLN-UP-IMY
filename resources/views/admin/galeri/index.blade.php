@@ -29,40 +29,6 @@
     .galeri-kategori-badge.DOKUMENTASI { background: rgba(22,163,74,0.88); color: #fff; }
     .galeri-kategori-badge.SEREMONIAL  { background: rgba(139,92,246,0.88); color: #fff; }
 
-    .action-btn {
-        width: 32px;
-        height: 32px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 6px;
-        border: none;
-        transition: all 0.2s ease;
-        padding: 0;
-    }
-    .action-btn:hover { transform: translateY(-1px); }
-    .action-btn.edit   { background: #fef3c7; color: #92400e; }
-    .action-btn.delete { background: #fee2e2; color: #b91c1c; }
-    .action-btn.view   { background: #dbeafe; color: #1d4ed8; }
-    .action-btn.publish   { background: #dcfce7; color: #166534; }   /* publikasi → klik untuk tarik */
-    .action-btn.unpublish { background: #fee2e2; color: #b91c1c; }   /* draft → klik untuk publikasi */
-
-    .filter-box {
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-        transition: all 0.2s ease;
-    }
-    .filter-box:focus {
-        border-color: var(--pln-blue);
-        box-shadow: 0 0 0 3px rgba(0,91,156,0.1);
-        outline: none;
-    }
-
-    .table-galeri tbody tr { transition: background 0.15s ease; }
-    .table-galeri tbody tr:hover { background: #f8fafc; }
-
     .thumb-galeri {
         width: 64px;
         height: 48px;
@@ -74,165 +40,281 @@
     }
     .thumb-galeri img { width: 100%; height: 100%; object-fit: cover; }
 
-    .empty-state {
-        padding: 3rem 1rem;
-        text-align: center;
-        color: #9ca3af;
+    /* ============================================
+       DELETE CONFIRMATION MODAL (pola news modal)
+       ============================================ */
+    .galeri-delete-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        backdrop-filter: blur(4px);
     }
-    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
-    .empty-state h6 { font-size: 1rem; font-weight: 600; color: #6b7280; margin-bottom: 0.25rem; }
-    .empty-state p { font-size: 0.85rem; }
+    .galeri-delete-overlay.show { display: flex; }
+    .galeri-delete-dialog {
+        background: #fff;
+        border-radius: 16px;
+        padding: 2rem 1.75rem 1.5rem;
+        max-width: 420px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        animation: galeriDeleteIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes galeriDeleteIn {
+        from { opacity: 0; transform: scale(0.9) translateY(10px); }
+        to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .galeri-delete-icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 1rem;
+        background: #FEE2E2;
+        color: #DC2626;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+    }
+    .galeri-delete-title { font-size: 1.05rem; font-weight: 700; color: #1f2937; margin: 0 0 0.5rem; }
+    .galeri-delete-text { font-size: 0.88rem; color: #6b7280; line-height: 1.6; margin: 0 0 0.35rem; }
+    .galeri-delete-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1f2937;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        margin: 0.75rem 0 1.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .galeri-delete-actions { display: flex; gap: 0.6rem; justify-content: center; }
 </style>
 @endpush
 
 @section('content')
-<div class="row g-3 mb-4">
-    <div class="col-12">
-        <div class="dash-card">
-            <div class="dash-card-header">
-                <div>
-                    <h5 class="dash-card-title">Daftar Galeri</h5>
-                    <p class="dash-card-subtitle">Kelola foto kegiatan, fasilitas, dokumentasi, dan seremonial UP PLTU Indramayu</p>
-                </div>
-                <a href="{{ route('admin.galeri.create') }}" class="btn" style="background: var(--pln-yellow); color: var(--pln-blue); border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
-                    <i class="fas fa-plus me-1"></i> Tambah Foto
-                </a>
-            </div>
+{{-- ============================================
+     PAGE HEADER (pola /admin/news)
+     ============================================ --}}
+<div class="page-header-card">
+    <div class="header-row">
+        <div class="header-left">
+            <h5><i class="fas fa-images header-icon"></i>Daftar Galeri</h5>
+            <p>Kelola foto kegiatan, fasilitas, dokumentasi, dan seremonial UP PLTU Indramayu</p>
+        </div>
+        <a href="{{ route('admin.galeri.create') }}" class="btn-corp btn-corp-add">
+            <i class="fas fa-plus"></i> Tambah Foto
+        </a>
+    </div>
 
-            @if (session('success'))
-            <div class="alert alert-success" style="background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; margin-bottom: 1rem;">
-                <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
-            </div>
-            @endif
+    {{-- Stats Chips --}}
+    <div class="stat-chips-row">
+        <div class="stat-chip">
+            <span class="stat-dot blue"></span>
+            Total
+            <span class="stat-number">{{ $galleries->total() }}</span>
+        </div>
+        <div class="stat-chip">
+            <span class="stat-dot green"></span>
+            Publikasi
+            <span class="stat-number">{{ $galleries->filter(fn ($g) => $g->status === 'publikasi')->count() }}</span>
+        </div>
+        <div class="stat-chip">
+            <span class="stat-dot amber"></span>
+            Draft
+            <span class="stat-number">{{ $galleries->filter(fn ($g) => $g->status === 'draft')->count() }}</span>
+        </div>
+    </div>
+</div>
 
-            {{-- Filter (server-side, auto submit) --}}
-            <form method="GET" action="{{ route('admin.galeri.index') }}" id="galeriFilterForm">
-                <div class="row g-2 align-items-center mb-3">
-                    <div class="col-md-6">
-                        <div class="d-flex gap-2">
-                            <div class="input-group" style="border-radius: 8px; overflow: hidden;">
-                                <span class="input-group-text" style="background: #f3f4f6; border: 1px solid #e5e7eb; border-right: none; border-radius: 8px 0 0 8px;">
-                                    <i class="fas fa-search" style="color: #6b7280; font-size: 0.8rem;"></i>
-                                </span>
-                                <input type="text" name="q" value="{{ request('q') }}" class="filter-box" placeholder="Cari judul atau deskripsi..." style="border: none; border-radius: 0 8px 8px 0;">
+{{-- ============================================
+     FILTER BAR (server-side, auto submit)
+     ============================================ --}}
+<form method="GET" action="{{ route('admin.galeri.index') }}" id="galeriFilterForm">
+    <div class="page-filter-bar">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="q" value="{{ request('q') }}" class="filter-input" placeholder="Cari judul atau deskripsi...">
+        </div>
+        <div class="filter-divider"></div>
+        <select name="kategori" class="filter-input" style="width:auto;" onchange="this.form.submit()">
+            <option value="">Semua Kategori</option>
+            @foreach (\App\Models\Gallery::CATEGORIES as $cat)
+            <option value="{{ $cat }}" {{ request('kategori') === $cat ? 'selected' : '' }}>{{ ucfirst(strtolower($cat)) }}</option>
+            @endforeach
+        </select>
+        <select name="status" class="filter-input" style="width:auto;" onchange="this.form.submit()">
+            <option value="">Semua Status</option>
+            <option value="publikasi" {{ request('status') === 'publikasi' ? 'selected' : '' }}>Publikasi</option>
+            <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
+        </select>
+        <div class="filter-divider"></div>
+        <span class="filter-count">{{ $galleries->total() }} foto</span>
+    </div>
+</form>
+
+{{-- ============================================
+     GALLERY TABLE
+     ============================================ --}}
+<div class="dash-card">
+    <div class="table-responsive">
+        <table class="table admin-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th style="min-width: 280px;">Foto</th>
+                    <th>Kategori</th>
+                    <th>Tanggal Kegiatan</th>
+                    <th>Status</th>
+                    <th class="th-actions">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($galleries as $item)
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="thumb-galeri">
+                                <img src="{{ $item->image_url }}" alt="{{ $item->judul }}" loading="lazy">
+                            </div>
+                            <div style="min-width: 0;">
+                                <div style="font-weight: 600; color: var(--ink-heading); font-size: 0.88rem;">
+                                    {{ $item->judul }}
+                                </div>
+                                <div style="color: var(--ink-faint); font-size: 0.78rem; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;">
+                                    {{ $item->deskripsi ? Str::limit($item->deskripsi, 60) : 'Tanpa deskripsi' }}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex gap-2 justify-content-md-end">
-                            <select name="kategori" class="filter-box" style="cursor: pointer;" onchange="this.form.submit()">
-                                <option value="">Semua Kategori</option>
-                                @foreach (\App\Models\Gallery::CATEGORIES as $cat)
-                                <option value="{{ $cat }}" {{ request('kategori') === $cat ? 'selected' : '' }}>{{ ucfirst(strtolower($cat)) }}</option>
-                                @endforeach
-                            </select>
-                            <select name="status" class="filter-box" style="cursor: pointer;" onchange="this.form.submit()">
-                                <option value="">Semua Status</option>
-                                <option value="publikasi" {{ request('status') === 'publikasi' ? 'selected' : '' }}>Publikasi</option>
-                                <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
-                            </select>
-                            <button type="submit" class="btn" style="background: var(--pln-blue); color: #fff; border-radius: 8px; font-weight: 600; font-size: 0.8rem; padding: 0.5rem 1rem;">
-                                Filter
+                    </td>
+                    <td>
+                        <span class="galeri-kategori-badge {{ $item->kategori }}">{{ $item->kategori }}</span>
+                    </td>
+                    <td>
+                        <span style="font-size: 0.85rem; color: var(--ink-muted); white-space: nowrap;">
+                            <i class="far fa-calendar me-1"></i>{{ $item->tanggal_kegiatan->translatedFormat('d M Y') }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="galeri-status-badge {{ $item->status }}">
+                            {{ ucfirst($item->status) }}
+                        </span>
+                    </td>
+                    <td class="td-actions">
+                        <div class="d-flex gap-1 justify-content-end">
+                            {{-- Quick Toggle Status: mata terbuka = publikasi (klik → draft), mata coret = draft (klik → publikasi) --}}
+                            <form action="{{ route('admin.galeri.toggle-status', $item->id) }}" method="POST" style="display: inline;">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="news-action-btn {{ $item->status === 'publikasi' ? 'publish' : 'unpublish' }}" title="{{ $item->status === 'publikasi' ? 'Tarik ke Draft' : 'Publikasikan' }}">
+                                    <i class="fas {{ $item->status === 'publikasi' ? 'fa-eye' : 'fa-eye-slash' }}"></i>
+                                </button>
+                            </form>
+                            <a href="{{ route('admin.galeri.edit', $item->id) }}" class="news-action-btn edit" title="Edit">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <button type="button" class="news-action-btn delete" title="Hapus"
+                                    onclick="openGaleriDeleteModal('{{ route('admin.galeri.destroy', $item->id) }}', '{{ addslashes($item->judul) }}')">
+                                <i class="fas fa-trash"></i>
                             </button>
-                            <span class="text-muted" style="font-size: 0.8rem; align-self: center; white-space: nowrap;">
-                                {{ $galleries->total() }} foto
-                            </span>
                         </div>
-                    </div>
-                </div>
-            </form>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5">
+                        <div class="news-empty-state" style="grid-column: auto; border: none;">
+                            <div class="empty-icon"><i class="fas fa-images"></i></div>
+                            <h6>Belum ada foto galeri</h6>
+                            <p>Klik tombol "Tambah Foto" untuk mengunggah foto pertama.</p>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 
-            {{-- Table --}}
-            <div class="table-responsive">
-                <table class="table table-galeri align-middle mb-0">
-                    <thead>
-                        <tr>
-                            @foreach (['Foto', 'Kategori', 'Tanggal Kegiatan', 'Status', 'Aksi'] as $i => $th)
-                            <th style="padding: 1rem; font-weight: 600; font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; text-align: {{ $i === 4 ? 'right' : 'left' }}; {{ $i === 0 ? 'min-width: 280px;' : '' }}">{{ $th }}</th>
-                            @endforeach
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($galleries as $item)
-                        <tr>
-                            <td style="padding: 1rem;">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="thumb-galeri">
-                                        <img src="{{ $item->image_url }}" alt="{{ $item->judul }}" loading="lazy">
-                                    </div>
-                                    <div style="min-width: 0;">
-                                        <div style="font-weight: 600; color: #1f2937; font-size: 0.88rem;">
-                                            {{ $item->judul }}
-                                            @if ($item->status === 'draft')
-                                            <span style="font-size: 0.65rem; font-weight: 700; color: #92400e; background: #fef3c7; padding: 0.1rem 0.45rem; border-radius: 4px; margin-left: 0.4rem; vertical-align: middle;">DRAFT</span>
-                                            @endif
-                                        </div>
-                                        <div style="color: #9ca3af; font-size: 0.78rem; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;">
-                                            {{ $item->deskripsi ? Str::limit($item->deskripsi, 60) : 'Tanpa deskripsi' }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <span class="galeri-kategori-badge {{ $item->kategori }}">{{ $item->kategori }}</span>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <span style="font-size: 0.85rem; color: #6b7280; white-space: nowrap;">
-                                    <i class="far fa-calendar me-1"></i>{{ $item->tanggal_kegiatan->translatedFormat('d M Y') }}
-                                </span>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <span class="galeri-status-badge {{ $item->status }}">
-                                    {{ ucfirst($item->status) }}
-                                </span>
-                            </td>
-                            <td style="padding: 1rem; text-align: right;">
-                                <div class="d-flex gap-1 justify-content-end">
-                                    {{-- Quick Toggle Status: mata terbuka = publikasi (klik → draft), mata coret = draft (klik → publikasi) --}}
-                                    <form action="{{ route('admin.galeri.toggle-status', $item->id) }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="action-btn {{ $item->status === 'publikasi' ? 'publish' : 'unpublish' }}" title="{{ $item->status === 'publikasi' ? 'Tarik ke Draft' : 'Publikasikan' }}">
-                                            <i class="fas {{ $item->status === 'publikasi' ? 'fa-eye' : 'fa-eye-slash' }}"></i>
-                                        </button>
-                                    </form>
-                                    {{-- Tombol Edit: langsung ke form edit (route + id) --}}
-                                    <a href="{{ route('admin.galeri.edit', $item->id) }}" class="action-btn edit" title="Edit">
-                                        <i class="fas fa-pen"></i>
-                                    </a>
-                                    {{-- Tombol Hapus: POST + @method('DELETE') + konfirmasi --}}
-                                    <form action="{{ route('admin.galeri.destroy', $item->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus foto galeri ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="action-btn delete" title="Hapus">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5">
-                                <div class="empty-state">
-                                    <i class="fas fa-images"></i>
-                                    <h6>Belum ada foto galeri</h6>
-                                    <p>Klik tombol "Tambah Foto" untuk mengunggah foto pertama.</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            {{-- Pagination --}}
-            @if ($galleries->hasPages())
-            <div class="d-flex justify-content-center mt-3">
-                {{ $galleries->links() }}
-            </div>
+    {{-- Pagination (pola news) --}}
+    @if ($galleries->hasPages())
+    <div class="page-pagination">
+        <div class="pagination">
+            @if ($galleries->onFirstPage())
+                <span class="page-btn disabled"><i class="fas fa-chevron-left"></i></span>
+            @else
+                <a class="page-btn" href="{{ $galleries->previousPageUrl() }}"><i class="fas fa-chevron-left"></i></a>
             @endif
+
+            @foreach ($galleries->getUrlRange(max(1, $galleries->currentPage() - 2), min($galleries->lastPage(), $galleries->currentPage() + 2)) as $page => $url)
+                <a class="page-btn {{ $page == $galleries->currentPage() ? 'active' : '' }}" href="{{ $url }}">{{ $page }}</a>
+            @endforeach
+
+            @if ($galleries->hasMorePages())
+                <a class="page-btn" href="{{ $galleries->nextPageUrl() }}"><i class="fas fa-chevron-right"></i></a>
+            @else
+                <span class="page-btn disabled"><i class="fas fa-chevron-right"></i></span>
+            @endif
+        </div>
+    </div>
+    @endif
+</div>
+
+{{-- ============================================
+     DELETE CONFIRMATION MODAL
+     ============================================ --}}
+<div class="galeri-delete-overlay" id="deleteGaleriModal">
+    <div class="galeri-delete-dialog">
+        <div class="galeri-delete-icon">
+            <i class="fas fa-trash-can"></i>
+        </div>
+        <h6 class="galeri-delete-title">Hapus Foto Galeri?</h6>
+        <p class="galeri-delete-text">Apakah Anda yakin ingin menghapus foto galeri ini?</p>
+        <div class="galeri-delete-name" id="deleteGaleriTitle"></div>
+        <div class="galeri-delete-actions">
+            <button class="btn-corp btn-corp-soft" onclick="closeGaleriDeleteModal()">Batal</button>
+            <form id="deleteGaleriForm" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn-corp btn-corp-delete">
+                    <i class="fas fa-trash"></i> Ya, Hapus
+                </button>
+            </form>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Delete modal
+    function openGaleriDeleteModal(url, title) {
+        const modal = document.getElementById('deleteGaleriModal');
+        document.getElementById('deleteGaleriTitle').textContent = title;
+        document.getElementById('deleteGaleriForm').action = url;
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeGaleriDeleteModal() {
+        document.getElementById('deleteGaleriModal').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('deleteGaleriModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeGaleriDeleteModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('deleteGaleriModal')?.classList.contains('show')) {
+            closeGaleriDeleteModal();
+        }
+    });
+</script>
+@endpush

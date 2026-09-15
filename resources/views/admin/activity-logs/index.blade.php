@@ -128,58 +128,68 @@
     };
 @endphp
 
-<div class="row g-3 mb-4">
-    <div class="col-12">
-        <div class="dash-card">
-            <div class="dash-card-header">
-                <div>
-                    <h5 class="dash-card-title">Riwayat Aktivitas</h5>
-                    <p class="dash-card-subtitle">Semua aksi admin/karyawan terhadap berita, pengumuman, akun, dan sistem tercatat di sini</p>
-                </div>
-                <button type="button" class="btn-clear-all" onclick="document.getElementById('clearAllModal').classList.add('show')" @if($logs->total() === 0) disabled @endif>
-                    <i class="fas fa-broom me-1"></i> Bersihkan Semua
-                </button>
-            </div>
+{{-- ============================================
+     PAGE HEADER (pola /admin/news)
+     ============================================ --}}
+<div class="page-header-card">
+    <div class="header-row">
+        <div class="header-left">
+            <h5><i class="fas fa-clipboard-list header-icon"></i>Riwayat Aktivitas</h5>
+            <p>Semua aksi admin/karyawan terhadap berita, pengumuman, akun, dan sistem tercatat di sini</p>
+        </div>
+        <button type="button" class="btn-corp btn-corp-danger-soft" onclick="document.getElementById('clearAllModal').classList.add('show')" @if($logs->total() === 0) disabled @endif>
+            <i class="fas fa-broom"></i> Bersihkan Semua
+        </button>
+    </div>
 
-            {{-- Filter --}}
-            <form method="GET" action="{{ route('admin.activity-logs.index') }}" class="row g-2 align-items-center mb-3">
-                <div class="col-md-4">
-                    <div class="input-group" style="border-radius: 8px; overflow: hidden;">
-                        <span class="input-group-text" style="background: #f3f4f6; border: 1px solid #e5e7eb; border-right: none; border-radius: 8px 0 0 8px;">
-                            <i class="fas fa-search" style="color: #6b7280; font-size: 0.8rem;"></i>
-                        </span>
-                        <input type="text" name="q" value="{{ $filters['q'] }}" class="search-box" placeholder="Cari aktivitas / nama pengguna..." style="border: none; border-radius: 0 8px 8px 0;">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <select name="module" class="filter-select w-100">
-                        <option value="">Semua Modul</option>
-                        @foreach ($modules as $key => $label)
-                            <option value="{{ $key }}" @selected($filters['module'] === $key)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select name="action" class="filter-select w-100">
-                        <option value="">Semua Aksi</option>
-                        @foreach ($actions as $key => $label)
-                            <option value="{{ $key }}" @selected($filters['action'] === $key)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100" style="background: var(--pln-blue); border: none; border-radius: 8px; font-weight: 600; font-size: 0.8rem;">
-                        <i class="fas fa-filter me-1"></i> Filter
-                    </button>
-                    @if($filters['module'] || $filters['action'] || $filters['q'])
-                        <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-outline-secondary" title="Hapus filter" style="border-radius: 8px;">
-                            <i class="fas fa-xmark"></i>
-                        </a>
-                    @endif
-                </div>
-            </form>
+    {{-- Stats Chips --}}
+    <div class="stat-chips-row">
+        <div class="stat-chip">
+            <span class="stat-dot blue"></span>
+            Total Log
+            <span class="stat-number">{{ $logs->total() }}</span>
+        </div>
+        @if($filters['module'] || $filters['action'] || $filters['q'])
+        <a href="{{ route('admin.activity-logs.index') }}" class="stat-chip" style="text-decoration:none;">
+            <i class="fas fa-xmark" style="color:#ef4444; font-size:0.7rem;"></i>
+            Filter aktif — klik untuk reset
+        </a>
+        @endif
+    </div>
+</div>
 
-            {{-- Tabel log --}}
+{{-- ============================================
+     FILTER BAR (server-side)
+     ============================================ --}}
+<form method="GET" action="{{ route('admin.activity-logs.index') }}">
+    <div class="page-filter-bar">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="q" value="{{ $filters['q'] }}" class="filter-input" placeholder="Cari aktivitas / nama pengguna...">
+        </div>
+        <div class="filter-divider"></div>
+        <select name="module" class="filter-input" style="width:auto;">
+            <option value="">Semua Modul</option>
+            @foreach ($modules as $key => $label)
+                <option value="{{ $key }}" @selected($filters['module'] === $key)>{{ $label }}</option>
+            @endforeach
+        </select>
+        <select name="action" class="filter-input" style="width:auto;">
+            <option value="">Semua Aksi</option>
+            @foreach ($actions as $key => $label)
+                <option value="{{ $key }}" @selected($filters['action'] === $key)>{{ $label }}</option>
+            @endforeach
+        </select>
+        <button type="submit" class="btn-corp btn-corp-primary btn-corp-sm">
+            <i class="fas fa-filter"></i> Filter
+        </button>
+    </div>
+</form>
+
+{{-- ============================================
+     LOG TABLE
+     ============================================ --}}
+<div class="dash-card">
             <div class="table-responsive">
                 <table class="table table-logs align-middle">
                     <thead>
@@ -244,11 +254,9 @@
                 </table>
             </div>
 
-            <div class="mt-3">
+            <div class="page-pagination">
                 {{ $logs->links() }}
             </div>
-        </div>
-    </div>
 </div>
 
 {{-- Modal konfirmasi bersihkan semua --}}

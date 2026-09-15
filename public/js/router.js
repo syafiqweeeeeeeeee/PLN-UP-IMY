@@ -159,14 +159,37 @@
 
     /* Sinkronkan active state sidebar/topbar tanpa reload layout —
        menghapus kebingungan "menu tidak ikut berpindah" dan
-       re-render layout yang tidak perlu. */
+       re-render layout yang tidak perlu.
+       v3 fix (highlight sidebar):
+       - Dipanggil dengan URL TUJUAN setelah pushState — sebelumnya
+         dipanggil dengan window.location.href LAMA, sehingga menu
+         aktif selalu tertinggal 1 langkah ("harus klik 2x").
+       - Link dummy href="#" di-skip — sebelumnya match dengan
+         pathname halaman mana pun sehingga menu dummy ikut menyala.
+       - Prefix match: menu index (mis. /admin/news) tetap aktif
+         untuk sub-halamannya (mis. /admin/news/3/edit). */
     function syncActiveState(url) {
-        var path = new URL(url, window.location.href).pathname;
+        var target;
+        try { target = new URL(url, window.location.href); }
+        catch (e) { return; }
+        var path   = target.pathname;
+        var search = target.search;
+
         Array.prototype.forEach.call(document.querySelectorAll('.sidebar-nav a[href], .admin-sidebar a[href]'), function (a) {
-            var linkPath;
-            try { linkPath = new URL(a.href, window.location.href).pathname; }
+            var href = a.getAttribute('href');
+            if (!href || href === '#') {           // menu dummy → jangan pernah menyala
+                a.classList.remove('active');
+                return;
+            }
+            var linkUrl;
+            try { linkUrl = new URL(a.href, window.location.href); }
             catch (e) { return; }
-            var isActive = linkPath === path;
+
+            var isActive = linkUrl.pathname === path && linkUrl.search === search;
+            if (!isActive && linkUrl.search === '') {
+                isActive = path !== linkUrl.pathname &&
+                           path.indexOf(linkUrl.pathname + '/') === 0;
+            }
             a.classList.toggle('active', isActive);
         });
     }
@@ -203,9 +226,14 @@
             try { feather.replace(); } catch (e) { /* noop */ }
         }
 
-        syncActiveState(window.location.href);
         window.scrollTo(0, 0);
         animateIn(container);
+
+        // Beri tahu handler lain (mis. sidebar active handler di layout)
+        // bahwa swap konten telah selesai untuk URL ini.
+        try {
+            document.dispatchEvent(new CustomEvent('pt:after-swap', { detail: { url: url } }));
+        } catch (e) { /* browser lama tanpa CustomEvent → abaikan */ }
     }
 
     /* ============== NAVIGASI ============== */
@@ -219,6 +247,7 @@
             try {
                 swapContent(cached);
                 if (push) history.pushState({}, '', url);
+                syncActiveState(url); // sync ke URL TUJUAN, setelah pushState
             } finally {
                 NAVIGATING = false;
             }
@@ -230,6 +259,7 @@
                 cacheSet(url, entry);
                 swapContent(entry);
                 if (push) history.pushState({}, '', url);
+                syncActiveState(url); // sync ke URL TUJUAN, setelah pushState
             })
             .catch(function (err) {
                 if (err && err.layoutMismatch) {

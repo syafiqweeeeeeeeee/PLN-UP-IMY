@@ -310,6 +310,11 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'clear'])->name('activity-logs.clear');
         });
 
+        // Pengaturan Panel (tema, preferensi tampilan)
+        Route::get('/settings', function () {
+            return view('admin.settings');
+        })->name('settings');
+
         // Role & Permission
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->except(['show']);
         Route::get('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');
