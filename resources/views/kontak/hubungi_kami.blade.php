@@ -306,6 +306,54 @@
         margin: 1rem 0 0;
     }
 
+    /* ---------- Alert validasi & toast sukses ---------- */
+    .contact-error-alert {
+        display: flex;
+        gap: 0.6rem;
+        align-items: flex-start;
+        background: #FEF2F2;
+        border: 1px solid #FECACA;
+        color: #B91C1C;
+        border-radius: 10px;
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+        margin-bottom: 1.1rem;
+    }
+
+    .contact-error-alert i { margin-top: 0.15rem; }
+
+    .contact-success-alert {
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+        background: #F0FDF4;
+        border: 1px solid #BBF7D0;
+        color: #166534;
+        border-radius: 10px;
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1.1rem;
+    }
+
+    /* ---------- Error inline di bawah field ---------- */
+    .field-error {
+        display: flex;
+        gap: 0.35rem;
+        align-items: center;
+        color: #DC2626;
+        font-size: 0.78rem;
+        font-weight: 500;
+        margin-top: 0.35rem;
+    }
+
+    .field-error[hidden] { display: none; }
+
+    .form-control-custom.is-invalid {
+        border-color: #DC2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+    }
+
     /* ============================================
        RESPONSIVE
        ============================================ */
@@ -431,50 +479,93 @@
                         <h2 class="form-heading">Kirim Pesan</h2>
                         <p class="form-heading-sub">Isi formulir di bawah dan tim kami akan merespons secepatnya.</p>
 
-                        <form id="contactForm" action="#" method="POST" novalidate>
+                        <form id="contactForm" action="{{ route('kontak.store') }}" method="POST" novalidate>
                             @csrf
+                            @if (config('services.recaptcha.site_key'))
+                            {{-- Token reCAPTCHA v3 diisi otomatis via grecaptcha.execute saat submit --}}
+                            <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+                            @endif
+
+                            {{-- Alert error validasi server-side --}}
+                            @if ($errors->any())
+                            <div class="contact-error-alert" role="alert">
+                                <i class="fas fa-circle-exclamation"></i>
+                                <div>
+                                    @if ($errors->has('captcha'))
+                                        <strong>{{ $errors->first('captcha') }}</strong>
+                                    @else
+                                        <strong>Periksa kembali formulir:</strong>
+                                        <ul style="margin: 0.25rem 0 0; padding-left: 1.1rem;">
+                                            @foreach ($errors->where('captcha') as $error)
+                                            <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                            </div>
+                            @endif
+
+                            {{-- Toast sukses (flash session setelah redirect) --}}
+                            @if (session('success'))
+                            <div class="contact-success-alert" role="status">
+                                <i class="fas fa-circle-check"></i>
+                                <span>{{ session('success') }}</span>
+                            </div>
+                            @endif
+
+                            {{-- Alert error dinamis (validasi/captcha via AJAX) --}}
+                            <div class="contact-error-alert" id="ajaxErrorAlert" role="alert" hidden>
+                                <i class="fas fa-circle-exclamation"></i>
+                                <span id="ajaxErrorText"></span>
+                            </div>
 
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label for="nama" class="form-label-custom">Nama Lengkap <span class="req">*</span></label>
                                     <input type="text" class="form-control-custom" id="nama" name="nama"
-                                           placeholder="Masukkan nama lengkap" required>
+                                           value="{{ old('nama') }}" placeholder="Masukkan nama lengkap" required>
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="email" class="form-label-custom">Alamat Email <span class="req">*</span></label>
                                     <input type="email" class="form-control-custom" id="email" name="email"
-                                           placeholder="nama@email.com" required>
+                                           value="{{ old('email') }}" placeholder="nama@email.com" required
+                                           pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                                           autocomplete="email">
+                                    <div class="field-error" id="emailError" hidden>
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        Masukkan alamat email yang valid (contoh: nama@domain.com)
+                                    </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="telepon" class="form-label-custom">Nomor Telepon / WhatsApp <span class="req">*</span></label>
                                     <input type="tel" class="form-control-custom" id="telepon" name="telepon"
-                                           placeholder="08xx xxxx xxxx" required>
+                                           value="{{ old('telepon') }}" placeholder="08xx xxxx xxxx" required>
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="kategori" class="form-label-custom">Kategori Keperluan <span class="req">*</span></label>
                                     <select class="form-control-custom" id="kategori" name="kategori" required>
-                                        <option value="" selected disabled>Pilih kategori</option>
-                                        <option value="pertanyaan_umum">Pertanyaan Umum</option>
-                                        <option value="kerjasama_bisnis">Kerjasama Bisnis</option>
-                                        <option value="layanan_om">Layanan Pembangkitan/O&amp;M</option>
-                                        <option value="media_pers">Media &amp; Pers</option>
-                                        <option value="karir">Karir</option>
+                                        <option value="" {{ old('kategori') ? '' : 'selected' }} disabled>Pilih kategori</option>
+                                        <option value="pertanyaan_umum" {{ old('kategori') === 'pertanyaan_umum' ? 'selected' : '' }}>Pertanyaan Umum</option>
+                                        <option value="kerjasama_bisnis" {{ old('kategori') === 'kerjasama_bisnis' ? 'selected' : '' }}>Kerjasama Bisnis</option>
+                                        <option value="layanan_om" {{ old('kategori') === 'layanan_om' ? 'selected' : '' }}>Layanan Pembangkitan/O&amp;M</option>
+                                        <option value="media_pers" {{ old('kategori') === 'media_pers' ? 'selected' : '' }}>Media &amp; Pers</option>
+                                        <option value="karir" {{ old('kategori') === 'karir' ? 'selected' : '' }}>Karir</option>
                                     </select>
                                 </div>
 
                                 <div class="col-12">
                                     <label for="subjek" class="form-label-custom">Subjek Pesan <span class="req">*</span></label>
                                     <input type="text" class="form-control-custom" id="subjek" name="subjek"
-                                           placeholder="Tuliskan subjek pesan" required>
+                                           value="{{ old('subjek') }}" placeholder="Tuliskan subjek pesan" required>
                                 </div>
 
                                 <div class="col-12">
                                     <label for="pesan" class="form-label-custom">Pesan Anda <span class="req">*</span></label>
                                     <textarea class="form-control-custom" id="pesan" name="pesan" rows="5"
-                                              placeholder="Tuliskan pesan Anda secara rinci..." required></textarea>
+                                              placeholder="Tuliskan pesan Anda secara rinci..." required>{{ old('pesan') }}</textarea>
                                 </div>
 
                                 <div class="col-12 mt-4">
@@ -501,6 +592,92 @@
         var form = document.getElementById('contactForm');
         if (!form) return;
 
+        /* ---------- Google reCAPTCHA v3 ---------- */
+        var RECAPTCHA_SITE_KEY = @js((string) config('services.recaptcha.site_key'));
+        var recaptchaEnabled = RECAPTCHA_SITE_KEY !== '';
+
+        function getRecaptchaToken() {
+            return new Promise(function (resolve) {
+                if (!recaptchaEnabled || typeof grecaptcha === 'undefined') {
+                    resolve(''); // fallback: biarkan backend yang memutuskan
+                    return;
+                }
+                grecaptcha.ready(function () {
+                    grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'kontak' })
+                        .then(function (token) { resolve(token); })
+                        .catch(function () { resolve(''); });
+                });
+            });
+        }
+
+            /* ---------- Alert merah di atas form (error AJAX) ---------- */
+        var ajaxErrorAlert = document.getElementById('ajaxErrorAlert');
+        var ajaxErrorText = document.getElementById('ajaxErrorText');
+
+        function showFormError(message) {
+            if (!ajaxErrorAlert || !ajaxErrorText) return;
+            ajaxErrorText.textContent = message;
+            ajaxErrorAlert.hidden = false;
+            // Gulir agar alert terlihat tanpa menggeser halaman penuh
+            ajaxErrorAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function hideFormError() {
+            if (ajaxErrorAlert) ajaxErrorAlert.hidden = true;
+        }
+
+        /* ---------- Validasi inline field email ---------- */
+        var EMAIL_PATTERN = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        var emailInput = document.getElementById('email');
+        var emailError = document.getElementById('emailError');
+
+        function validateEmail(showError) {
+            if (!emailInput || !emailError) return true;
+            var value = emailInput.value.trim();
+            var valid = value === '' || EMAIL_PATTERN.test(value); // kosong ditangani `required`
+
+            if (!valid && showError) {
+                emailError.hidden = false;
+                emailInput.classList.add('is-invalid');
+            } else if (valid) {
+                emailError.hidden = true;
+                emailInput.classList.remove('is-invalid');
+            }
+            return valid;
+        }
+
+        // Sembunyikan error saat pengguna mulai memperbaiki, tampilkan saat blur/submit
+        emailInput?.addEventListener('input', function () { validateEmail(false); });
+        emailInput?.addEventListener('blur', function () { validateEmail(true); });
+
+        /* Toast notification sederhana (tanpa library eksternal) */
+        function showToast(message, type) {
+            var toast = document.createElement('div');
+            toast.style.cssText =
+                'position:fixed; top:1.25rem; right:1.25rem; z-index:9999;' +
+                'max-width:340px; padding:0.9rem 1.2rem; border-radius:12px;' +
+                'font-size:0.87rem; font-weight:600; color:#fff;' +
+                'box-shadow:0 12px 32px rgba(0,0,0,0.22);' +
+                'display:flex; gap:0.6rem; align-items:flex-start;' +
+                'opacity:0; transform:translateY(-8px); transition:all 0.3s ease;';
+            toast.style.background = type === 'success' ? '#16A34A' : '#DC2626';
+            toast.innerHTML =
+                '<i class="fas fa-' + (type === 'success' ? 'circle-check' : 'circle-exclamation') + '"></i>' +
+                '<span>' + message + '</span>';
+            document.body.appendChild(toast);
+
+            requestAnimationFrame(function () {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)';
+            });
+
+            setTimeout(function () {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-8px)';
+                setTimeout(function () { toast.remove(); }, 300);
+            }, 4500);
+        }
+
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
@@ -509,18 +686,67 @@
                 return;
             }
 
+            // Validasi ketat email (regex sama dengan backend) — tolak sebelum kirim
+            if (!validateEmail(true) || (emailInput && emailInput.value.trim() === '')) {
+                emailError.hidden = false;
+                emailInput?.classList.add('is-invalid');
+                emailInput?.focus();
+                return;
+            }
+
             var btn = document.getElementById('btnSubmit');
             var original = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Mengirim...';
 
-            // Simulasi pengiriman — ganti dengan fetch/AJAX ke endpoint backend sesungguhnya.
-            setTimeout(function () {
-                btn.disabled = false;
-                btn.innerHTML = original;
-                form.reset();
-                alert('Terima kasih! Pesan Anda telah berhasil dikirim.');
-            }, 900);
+            // Ambil token reCAPTCHA lalu sisipkan ke form sebelum dikirim
+            getRecaptchaToken().then(function (token) {
+                var tokenField = document.getElementById('g-recaptcha-response');
+                if (tokenField && token) tokenField.value = token;
+
+                return fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json'
+                    },
+                    body: new FormData(form)
+                });
+            })
+                .then(function (res) {
+                    return res.json().then(function (data) {
+                        return { ok: res.ok, data: data };
+                    });
+                })
+                .then(function (result) {
+                    if (!result.ok) {
+                        // Error validasi / captcha → alert merah di atas form
+                        var msg = 'Terjadi kesalahan. Silakan coba lagi.';
+                        if (result.data.errors) {
+                            msg = Object.values(result.data.errors)[0][0];
+                        } else if (result.data.message) {
+                            msg = result.data.message;
+                        }
+                        showFormError(msg);
+                        showToast(msg, 'error');
+                        return;
+                    }
+
+                    // Sukses — sembunyikan alert error, toast hijau + reset form
+                    hideFormError();
+                    showToast(result.data.message, 'success');
+                    form.reset();
+                })
+                .catch(function () {
+                    var msg = 'Gagal terhubung ke server. Periksa koneksi Anda.';
+                    showFormError(msg);
+                    showToast(msg, 'error');
+                })
+                .finally(function () {
+                    btn.disabled = false;
+                    btn.innerHTML = original;
+                });
         });
     })();
 </script>

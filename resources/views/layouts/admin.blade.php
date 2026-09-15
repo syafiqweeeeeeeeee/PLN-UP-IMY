@@ -4,6 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="E-PPID PLN — Dashboard Admin" />
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>@yield('title', 'Admin — E-PPID PLN')</title>
 
         <link rel="icon" type="image/png" href="{{ asset('assets/images/logo-pln1.png') }}" />
@@ -101,10 +102,15 @@
                 </a>
 
                 <div class="sidebar-section-label">Lainnya</div>
-                <a href="#" class="sidebar-link">
+                <a href="{{ route('admin.contact-messages.index') }}" class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
                     <span class="link-icon"><i class="fas fa-paper-plane"></i></span>
                     Permohonan
-                    <span class="badge">5</span>
+                    @php
+                        $unreadPermohonan = \App\Models\ContactMessage::unreadCount();
+                    @endphp
+                    @if ($unreadPermohonan > 0)
+                        <span class="badge" title="{{ $unreadPermohonan }} pesan belum dibaca">{{ $unreadPermohonan > 99 ? '99+' : $unreadPermohonan }}</span>
+                    @endif
                 </a>
                 <a href="#" class="sidebar-link">
                     <span class="link-icon"><i class="fas fa-cog"></i></span>

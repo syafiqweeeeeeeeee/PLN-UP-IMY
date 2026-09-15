@@ -143,7 +143,7 @@ return [
     |
     */
 
-    'path' => env('SESSION_PATH', '/'),
+    'path' => Str::startsWith($path = (string) env('SESSION_PATH', '/'), '/') ? $path : '/',
 
     /*
     |--------------------------------------------------------------------------

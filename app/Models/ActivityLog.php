@@ -44,18 +44,26 @@ class ActivityLog extends Model
     {
         $user = auth()->user();
 
-        return static::create([
-            'user_id'      => $user?->id,
-            'user_name'    => $user?->name,
-            'user_role'    => $user?->role,
-            'module'       => $module,
-            'action'       => $action,
-            'description'  => $description,
-            'subject_type' => $subject ? $subject::class : null,
-            'subject_id'   => $subject?->id,
-            'ip_address'   => request()?->ip(),
-            'user_agent'   => Str::limit((string) request()?->userAgent(), 500, ''),
-        ]);
+        try {
+            return static::create([
+                'user_id'      => $user?->id,
+                'user_name'    => $user?->name,
+                'user_role'    => $user?->role,
+                'module'       => $module,
+                'action'       => $action,
+                'description'  => $description,
+                'subject_type' => $subject ? $subject::class : null,
+                'subject_id'   => $subject?->id,
+                'ip_address'   => request()?->ip(),
+                'user_agent'   => Str::limit((string) request()?->userAgent(), 500, ''),
+            ]);
+        } catch (\Throwable $e) {
+            // Logging tidak boleh menggagalkan alur utama (mis. login).
+            // Catat ke error log, lalu lanjutkan.
+            report($e);
+
+            return null;
+        }
     }
 
     /* =========================================================
@@ -97,6 +105,7 @@ class ActivityLog extends Model
             'pengumuman'  => 'Pengumuman',
             'galeri'      => 'Galeri',
             'pengguna'    => 'Pengguna',
+            'permohonan'  => 'Permohonan',
             'role'        => 'Role & Hak Akses',
             'autentikasi' => 'Autentikasi',
             'log'         => 'Log Aktivitas',
