@@ -75,11 +75,30 @@ class MenuTest extends TestCase
         $response->assertOk();
 
         // Struktur navbar lama tetap tampil walau DB kosong
-        $response->assertSee('Tentang Kami')
+        // + Beranda sebagai leaf root pertama
+        $response->assertSee('data-i18n="nav.home"', false)
+            ->assertSee('>Beranda</span>', false)
+            ->assertSee('Tentang Kami')
             ->assertSee('Profil Perusahaan')
             ->assertSee('Visi &amp; Misi', false)
             ->assertSee('Layanan')
             ->assertSee('Kontak');
+    }
+
+    public function test_menu_seeder_creates_beranda_as_first_nav_item(): void
+    {
+        $this->seed(\Database\Seeders\MenuSeeder::class);
+
+        $beranda = Menu::where('label', 'Beranda')->whereNull('parent_id')->first();
+
+        $this->assertNotNull($beranda);
+        $this->assertSame('route', $beranda->type);
+        $this->assertSame('home', $beranda->route_name);
+        $this->assertSame(1, $beranda->sort_order);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('>Beranda</span>', false);
     }
 
     public function test_navbar_renders_dynamic_menus_from_database(): void

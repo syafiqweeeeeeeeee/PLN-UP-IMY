@@ -21,6 +21,7 @@
     const translations = {
         id: {
             /* ---------- NAVBAR ---------- */
+            'nav.home': 'Beranda',
             'nav.about': 'Tentang Kami',
             'nav.about_profile': 'Profil Perusahaan',
             'nav.about_history': 'Sejarah',
@@ -222,6 +223,7 @@
 
         en: {
             /* ---------- NAVBAR ---------- */
+            'nav.home': 'Home',
             'nav.about': 'About Us',
             'nav.about_profile': 'Company Profile',
             'nav.about_history': 'History',

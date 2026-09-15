@@ -16,8 +16,8 @@ use Illuminate\Support\Facades\Route;
  *   bukan sekadar disembunyikan).
  * - Menu dengan target tidak valid (route dihapus, page dihapus) disembunyikan.
  * - Jika database belum punya menu sama sekali (belum di-seed), dipakai
- *   struktur default hardcode — identik dengan navbar lama — sehingga
- *   migrasi antar tampilan tidak mengubah apa pun.
+ *   struktur default hardcode — navbar lama + link Beranda — sehingga
+ *   migrasi antar tampilan minim perubahan.
  *
  * Bentuk item hasil build (konsisten untuk DB maupun fallback):
  * ['menu' => ?Menu, 'label' => string, 'icon' => ?string, 'url' => ?string, 'children' => array]
@@ -26,6 +26,13 @@ class MenuBuilderService
 {
     /** Fallback identik dengan navbar hardcode lama (termasuk key i18n). */
     private const DEFAULT_TREE = [
+        [
+            'label' => 'Beranda',
+            'icon'  => 'fa-house',
+            'i18n'  => 'nav.home',
+            'route' => 'home',
+            'children' => [],
+        ],
         [
             'label' => 'Tentang Kami',
             'icon'  => 'fa-building',
@@ -142,25 +149,33 @@ class MenuBuilderService
     private function defaultTree(): array
     {
         return collect(self::DEFAULT_TREE)
-            ->map(fn (array $group) => [
-                'menu'     => null,
-                'label'    => $group['label'],
-                'icon'     => $group['icon'],
-                'i18n'     => $group['i18n'] ?? null,
-                'url'      => null, // grup dropdown: tidak punya target sendiri
-                'children' => collect($group['children'])
-                    ->filter(fn (array $child) => Route::has($child['route']))
-                    ->map(fn (array $child) => [
-                        'menu'     => null,
-                        'label'    => $child['label'],
-                        'icon'     => null,
-                        'i18n'     => $child['i18n'] ?? null,
-                        'url'      => route($child['route']),
-                        'children' => [],
-                    ])
-                    ->all(),
-            ])
-            ->filter(fn (array $group) => $group['children'] !== [])
+            ->map(function (array $group) {
+                // Leaf root (mis. Beranda) punya target sendiri via key 'route';
+                // grup dropdown tetap tanpa target — yang penting submenu-nya.
+                $url = isset($group['route']) && Route::has($group['route'])
+                    ? route($group['route'])
+                    : null;
+
+                return [
+                    'menu'     => null,
+                    'label'    => $group['label'],
+                    'icon'     => $group['icon'],
+                    'i18n'     => $group['i18n'] ?? null,
+                    'url'      => $url,
+                    'children' => collect($group['children'] ?? [])
+                        ->filter(fn (array $child) => Route::has($child['route']))
+                        ->map(fn (array $child) => [
+                            'menu'     => null,
+                            'label'    => $child['label'],
+                            'icon'     => null,
+                            'i18n'     => $child['i18n'] ?? null,
+                            'url'      => route($child['route']),
+                            'children' => [],
+                        ])
+                        ->all(),
+                ];
+            })
+            ->filter(fn (array $group) => $group['children'] !== [] || $group['url'] !== null)
             ->values()
             ->all();
     }
