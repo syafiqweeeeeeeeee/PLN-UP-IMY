@@ -89,6 +89,7 @@
         </a>
     </div>
 
+<<<<<<< HEAD
     {{-- Stats Chips --}}
     <div class="stat-chips-row">
         <div class="stat-chip">
@@ -105,6 +106,103 @@
             <span class="stat-dot amber"></span>
             Nonaktif
             <span class="stat-number">{{ $roles->filter(fn ($r) => !$r->status)->count() }}</span>
+=======
+            <div class="table-responsive">
+                <table class="table table-role align-middle mb-0">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #f3f4f6;">
+                            <th style="text-align:left; padding:1rem;">Nama Role</th>
+                            <th style="text-align:left; padding:1rem;">Deskripsi</th>
+                            <th style="text-align:center; padding:1rem;">User</th>
+                            <th style="text-align:center; padding:1rem;">Permission</th>
+                            <th style="text-align:center; padding:1rem;">Status</th>
+                            <th style="text-align:left; padding:1rem;">Dibuat</th>
+                            <th style="text-align:right; padding:1rem;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($roles as $role)
+                        <tr>
+                            <td style="padding:1rem;">
+                                <div style="font-weight:600; color:#1f2937;">{{ $role->name }}</div>
+                            </td>
+                            <td style="padding:1rem; color:#6b7280; font-size:0.85rem;">
+                                {{ $role->description ?? '-' }}
+                            </td>
+                            <td style="padding:1rem; text-align:center; color:#374151; font-weight:600;">
+                                {{ $role->users_count }}
+                            </td>
+                            <td style="padding:1rem; text-align:center; color:#374151; font-weight:600;">
+                                {{ $role->permissions_count }}
+                            </td>
+                            <td style="padding:1rem; text-align:center;">
+                                <span class="badge {{ $role->status ? 'role-badge-active' : 'role-badge-inactive' }}" style="border-radius:20px; font-size:0.75rem; font-weight:600; padding:0.3rem 0.7rem;">
+                                    {{ $role->status ? 'Aktif' : 'Nonaktif' }}
+                                </span>
+                            </td>
+                            <td style="padding:1rem; color:#6b7280; font-size:0.85rem;">
+                                {{ $role->created_at->format('d M Y') }}
+                            </td>
+                            <td style="padding:1rem; text-align:right;">
+                                <div class="d-flex gap-1 justify-content-end flex-wrap">
+                                    <button class="action-btn view" onclick="window.location.href='{{ route('admin.roles.permissions', $role) }}'" title="Kelola Permission">
+                                        <i class="fas fa-lock-open"></i>
+                                    </button>
+                                    <button class="action-btn edit" onclick="window.location.href='{{ route('admin.roles.edit', $role) }}'" title="Edit">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    @if ($role->status)
+                                        <button class="action-btn activate" onclick="deactivateRole({{ $role->id }}, '{{ $role->name }}')" title="Nonaktifkan">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    @else
+                                        <button class="action-btn activate" onclick="activateRole({{ $role->id }}, '{{ $role->name }}')" title="Aktifkan">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                    @endif
+                                    <button class="action-btn delete" data-bs-toggle="modal" data-bs-target="#deleteRoleModal" data-id="{{ $role->id }}" data-name="{{ $role->name }}" title="Hapus">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" style="padding:3rem; text-align:center;">
+                                <div style="color:#9ca3af;">
+                                    <i class="fas fa-user-tag" style="font-size:2.5rem; margin-bottom:1rem; display:block;"></i>
+                                    <strong style="font-size:1rem;">Belum ada role</strong>
+                                    <p style="font-size:0.85rem; margin-top:0.5rem;">Klik tombol "Tambah Role" untuk membuat role baru.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if (isset($roles) && $roles->hasPages())
+            <div class="d-flex justify-content-center mt-3">
+                <ul class="pagination mb-0" style="border-radius:8px; border:1px solid #e5e7eb; overflow:hidden;">
+                    @if ($roles->onFirstPage())
+                        <li class="page-item disabled"><a class="page-link" style="background:#f3f4f6; border:none; color:#9ca3af;" href="#">&laquo;</a></li>
+                    @else
+                        <li class="page-item"><a class="page-link" style="background:#f3f4f6; border:none; color:var(--pln-blue);" href="{{ $roles->previousPageUrl() }}">&laquo;</a></li>
+                    @endif
+                    @foreach ($roles->getUrlRange(max(1, $roles->currentPage() - 2), min($roles->lastPage(), $roles->currentPage() + 2)) as $page => $url)
+                        <li class="page-item {{ $page == $roles->currentPage() ? 'active' : '' }}">
+                            <a class="page-link" style="background:#f3f4f6; border:none; {{ $page == $roles->currentPage() ? 'font-weight:700; color:#fff; background:var(--pln-blue);' : 'color:var(--pln-blue);' }}" href="{{ $url }}">{{ $page }}</a>
+                        </li>
+                    @endforeach
+                    @if ($roles->hasMorePages())
+                        <li class="page-item"><a class="page-link" style="background:#f3f4f6; border:none; color:var(--pln-blue);" href="{{ $roles->nextPageUrl() }}">&raquo;</a></li>
+                    @else
+                        <li class="page-item disabled"><a class="page-link" style="background:#f3f4f6; border:none; color:#9ca3af;" href="#">&raquo;</a></li>
+                    @endif
+                </ul>
+            </div>
+            @endif
+>>>>>>> 1712595b57b4dcf086b363062f2fd394416f58ce
         </div>
     </div>
 </div>

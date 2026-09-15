@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Admin\ContactMessageController;
+use App\Http\Controllers\PageDisplayController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\NewsController;
@@ -80,9 +83,19 @@ Route::get('/informasi/layanan', function () {
     return view('informasi.layanan');
 })->name('informasi.layanan');
 
+// Halaman CMS dinamis (dua pintu: publik & internal).
+// Visibilitas (draft / role terbatas) di-enforce server-side lewat middleware page.visible.
+Route::get('/halaman', [PageDisplayController::class, 'index'])->name('pages.index');
+Route::get('/halaman/{page:slug}', [PageDisplayController::class, 'show'])
+    ->middleware('page.visible')
+    ->name('pages.show');
+
 Route::get('/kontak/hubungi-kami', function () {
     return view('kontak.hubungi_kami');
 })->name('hubungi-kami');
+
+// Form kontak publik — simpan pesan ke tabel contact_messages (masuk ke admin Permohonan)
+Route::post('/kontak/hubungi-kami', [ContactController::class, 'store'])->name('kontak.store');
 
 Route::get('/kontak/lokasi', function () {
     return view('kontak.lokasi');
@@ -295,6 +308,12 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('news', NewsController::class);
         Route::post('/news/{news}/publish', [NewsController::class, 'togglePublish'])->name('news.publish');
 
+        // Permohonan & Pesan Masuk (dari form kontak publik)
+        Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+        Route::get('contact-messages/{contact_message}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
+        Route::post('contact-messages/{contact_message}/status', [ContactMessageController::class, 'updateStatus'])->name('contact-messages.update-status');
+        Route::delete('contact-messages/{contact_message}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+
         // Galeri / Gallery
         Route::resource('galeri', GalleryController::class)->except(['show']);
         Route::patch('/galeri/{id}/toggle-status', [GalleryController::class, 'toggleStatus'])->name('galeri.toggle-status');
@@ -310,10 +329,58 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'clear'])->name('activity-logs.clear');
         });
 
+<<<<<<< HEAD
         // Pengaturan Panel (tema, preferensi tampilan)
         Route::get('/settings', function () {
             return view('admin.settings');
         })->name('settings');
+=======
+        // Halaman CMS (Page Management) — permission per aksi
+        Route::middleware('permission:pages.view')->group(function () {
+            Route::get('pages', [\App\Http\Controllers\Admin\PageController::class, 'index'])->name('pages.index');
+        });
+
+        Route::middleware('permission:pages.create')->group(function () {
+            Route::get('pages/create', [\App\Http\Controllers\Admin\PageController::class, 'create'])->name('pages.create');
+            Route::post('pages', [\App\Http\Controllers\Admin\PageController::class, 'store'])->name('pages.store');
+        });
+
+        Route::middleware('permission:pages.edit')->group(function () {
+            Route::get('pages/{page}/edit', [\App\Http\Controllers\Admin\PageController::class, 'edit'])->name('pages.edit');
+            Route::put('pages/{page}', [\App\Http\Controllers\Admin\PageController::class, 'update'])->name('pages.update');
+            Route::post('pages/{page}/publish', [\App\Http\Controllers\Admin\PageController::class, 'togglePublish'])->name('pages.publish');
+
+            Route::post('pages/{page}/sections', [\App\Http\Controllers\Admin\PageSectionController::class, 'store'])->name('pages.sections.store');
+            Route::put('pages/{page}/sections/{section}', [\App\Http\Controllers\Admin\PageSectionController::class, 'update'])->name('pages.sections.update');
+            Route::post('pages/{page}/sections/{section}/move', [\App\Http\Controllers\Admin\PageSectionController::class, 'move'])->name('pages.sections.move');
+        });
+
+        Route::middleware('permission:pages.delete')->group(function () {
+            Route::delete('pages/{page}', [\App\Http\Controllers\Admin\PageController::class, 'destroy'])->name('pages.destroy');
+            Route::delete('pages/{page}/sections/{section}', [\App\Http\Controllers\Admin\PageSectionController::class, 'destroy'])->name('pages.sections.destroy');
+        });
+
+        // Menu Builder (Menu Management) — permission per aksi
+        Route::middleware('permission:menus.view')->group(function () {
+            Route::get('menus', [\App\Http\Controllers\Admin\MenuController::class, 'index'])->name('menus.index');
+        });
+
+        Route::middleware('permission:menus.create')->group(function () {
+            Route::get('menus/create', [\App\Http\Controllers\Admin\MenuController::class, 'create'])->name('menus.create');
+            Route::post('menus', [\App\Http\Controllers\Admin\MenuController::class, 'store'])->name('menus.store');
+        });
+
+        Route::middleware('permission:menus.edit')->group(function () {
+            Route::get('menus/{menu}/edit', [\App\Http\Controllers\Admin\MenuController::class, 'edit'])->name('menus.edit');
+            Route::put('menus/{menu}', [\App\Http\Controllers\Admin\MenuController::class, 'update'])->name('menus.update');
+            Route::patch('menus/{menu}/toggle-status', [\App\Http\Controllers\Admin\MenuController::class, 'toggleStatus'])->name('menus.toggle-status');
+            Route::patch('menus/{menu}/move', [\App\Http\Controllers\Admin\MenuController::class, 'move'])->name('menus.move');
+        });
+
+        Route::middleware('permission:menus.delete')->group(function () {
+            Route::delete('menus/{menu}', [\App\Http\Controllers\Admin\MenuController::class, 'destroy'])->name('menus.destroy');
+        });
+>>>>>>> 1712595b57b4dcf086b363062f2fd394416f58ce
 
         // Role & Permission
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->except(['show']);

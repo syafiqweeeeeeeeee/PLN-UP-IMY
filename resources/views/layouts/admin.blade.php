@@ -4,6 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="E-PPID PLN — Dashboard Admin" />
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>@yield('title', 'Admin — E-PPID PLN')</title>
 
         <link rel="icon" type="image/png" href="{{ asset('assets/images/logo-pln1.png') }}" />
@@ -192,11 +193,24 @@
                     <span class="link-icon"><i class="fas fa-bullhorn"></i></span>
                     <span class="link-text">Pengumuman</span>
                 </a>
+<<<<<<< HEAD
 
                 <a href="#" class="sidebar-link" tabindex="-1" aria-disabled="true">
+=======
+                @can('pages.view')
+                <a href="{{ route('admin.pages.index') }}" class="sidebar-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
+>>>>>>> 1712595b57b4dcf086b363062f2fd394416f58ce
                     <span class="link-icon"><i class="fas fa-file-lines"></i></span>
                     <span class="link-text">Halaman</span>
                 </a>
+                @endcan
+
+                @can('menus.view')
+                <a href="{{ route('admin.menus.index') }}" class="sidebar-link {{ request()->routeIs('admin.menus.*') ? 'active' : '' }}">
+                    <span class="link-icon"><i class="fas fa-bars"></i></span>
+                    Menu
+                </a>
+                @endcan
 
                 {{-- ===== MANAJEMEN ===== --}}
                 <div class="sidebar-section-label">Manajemen</div>
@@ -222,11 +236,23 @@
 
                 {{-- ===== LAINNYA ===== --}}
                 <div class="sidebar-section-label">Lainnya</div>
+<<<<<<< HEAD
 
                 <a href="#" class="sidebar-link" tabindex="-1" aria-disabled="true">
                     <span class="link-icon"><i class="fas fa-paper-plane"></i></span>
                     <span class="link-text">Permohonan</span>
                     <span class="link-badge">5</span>
+=======
+                <a href="{{ route('admin.contact-messages.index') }}" class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
+                    <span class="link-icon"><i class="fas fa-paper-plane"></i></span>
+                    Permohonan
+                    @php
+                        $unreadPermohonan = \App\Models\ContactMessage::unreadCount();
+                    @endphp
+                    @if ($unreadPermohonan > 0)
+                        <span class="badge" title="{{ $unreadPermohonan }} pesan belum dibaca">{{ $unreadPermohonan > 99 ? '99+' : $unreadPermohonan }}</span>
+                    @endif
+>>>>>>> 1712595b57b4dcf086b363062f2fd394416f58ce
                 </a>
 
                 <a href="{{ route('admin.settings') }}"

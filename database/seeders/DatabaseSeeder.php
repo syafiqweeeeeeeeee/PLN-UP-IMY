@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             CreateAdminUserSeeder::class,
             NewsSeeder::class,
+            MenuSeeder::class,
         ]);
 
         // firstOrCreate agar seeder aman dijalankan berulang (tidak error duplicate)
