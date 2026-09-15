@@ -329,12 +329,11 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'clear'])->name('activity-logs.clear');
         });
 
-<<<<<<< HEAD
         // Pengaturan Panel (tema, preferensi tampilan)
         Route::get('/settings', function () {
             return view('admin.settings');
         })->name('settings');
-=======
+
         // Halaman CMS (Page Management) — permission per aksi
         Route::middleware('permission:pages.view')->group(function () {
             Route::get('pages', [\App\Http\Controllers\Admin\PageController::class, 'index'])->name('pages.index');
@@ -380,7 +379,6 @@ Route::middleware(['auth'])->group(function () {
         Route::middleware('permission:menus.delete')->group(function () {
             Route::delete('menus/{menu}', [\App\Http\Controllers\Admin\MenuController::class, 'destroy'])->name('menus.destroy');
         });
->>>>>>> 1712595b57b4dcf086b363062f2fd394416f58ce
 
         // Role & Permission
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->except(['show']);

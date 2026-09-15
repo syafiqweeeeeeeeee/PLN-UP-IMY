@@ -65,6 +65,17 @@ class User extends Authenticatable
             }
         }
 
+        // Fallback kompatibilitas: akun lama yang dibuat lewat UI hanya punya
+        // kolom users.role_id tanpa baris pivot role_user. Tanpa fallback ini,
+        // menu seperti Log Aktivitas & Role tidak muncul untuk akun tersebut.
+        if ($roles->isEmpty() && $this->role_id) {
+            $role = $this->relationLoaded('role') ? $this->role : $this->role()->first();
+
+            return $role !== null
+                && ! $role->isInactive()
+                && $role->hasPermission($permission);
+        }
+
         return false;
     }
 }

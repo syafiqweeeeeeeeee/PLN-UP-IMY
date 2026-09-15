@@ -47,6 +47,10 @@ class UserController extends Controller
             'role' => $role->name,
         ]));
 
+        // Sinkronkan pivot role_user agar sistem permission (@can, middleware
+        // permission:) mengenali role user ini, bukan hanya kolom users.role_id.
+        $user->roles()->sync([$role->id]);
+
         ActivityLog::record('pengguna', 'create', "menambahkan akun pengguna \"{$user->name}\" ({$user->email})", $user);
 
         return redirect()->route('admin.users.index')
@@ -95,6 +99,9 @@ class UserController extends Controller
             'role_id' => $role->id,
             'role' => $role->name,
         ]));
+
+        // Sinkronkan pivot role_user saat role diganti.
+        $user->roles()->sync([$role->id]);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Pengguna berhasil diperbarui.');

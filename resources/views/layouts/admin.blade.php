@@ -193,13 +193,8 @@
                     <span class="link-icon"><i class="fas fa-bullhorn"></i></span>
                     <span class="link-text">Pengumuman</span>
                 </a>
-<<<<<<< HEAD
-
-                <a href="#" class="sidebar-link" tabindex="-1" aria-disabled="true">
-=======
                 @can('pages.view')
                 <a href="{{ route('admin.pages.index') }}" class="sidebar-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
->>>>>>> 1712595b57b4dcf086b363062f2fd394416f58ce
                     <span class="link-icon"><i class="fas fa-file-lines"></i></span>
                     <span class="link-text">Halaman</span>
                 </a>
@@ -236,13 +231,6 @@
 
                 {{-- ===== LAINNYA ===== --}}
                 <div class="sidebar-section-label">Lainnya</div>
-<<<<<<< HEAD
-
-                <a href="#" class="sidebar-link" tabindex="-1" aria-disabled="true">
-                    <span class="link-icon"><i class="fas fa-paper-plane"></i></span>
-                    <span class="link-text">Permohonan</span>
-                    <span class="link-badge">5</span>
-=======
                 <a href="{{ route('admin.contact-messages.index') }}" class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
                     <span class="link-icon"><i class="fas fa-paper-plane"></i></span>
                     Permohonan
@@ -252,7 +240,6 @@
                     @if ($unreadPermohonan > 0)
                         <span class="badge" title="{{ $unreadPermohonan }} pesan belum dibaca">{{ $unreadPermohonan > 99 ? '99+' : $unreadPermohonan }}</span>
                     @endif
->>>>>>> 1712595b57b4dcf086b363062f2fd394416f58ce
                 </a>
 
                 <a href="{{ route('admin.settings') }}"
