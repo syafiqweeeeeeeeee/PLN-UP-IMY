@@ -442,7 +442,7 @@
 
 @if ($errors->any())
 <div style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.85rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-    <i class="fas fa-circle-exclamation"></i> Terdapat kesalahan pada form. Silakan periksa kembali.
+    <i class="fas fa-circle-exclamation"></i> Perbaiki data berikut.
 </div>
 @endif
 

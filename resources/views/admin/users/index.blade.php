@@ -223,14 +223,10 @@
                     @endif
 
                     {{-- Pagination Links --}}
-                    @foreach ($users->links() as $link)
-                        @if (str_contains($link, 'page='))
-                            <li class="page-item">
-                                <a class="page-link" style="background: #f3f4f6; border: none; color: var(--pln-blue); font-weight: 500;" href="{{ $link }}">
-                                    {!! str_replace(['<span class="page-link">', '</span>'], '', $link) !!}
-                                </a>
-                            </li>
-                        @endif
+                    @foreach ($users->getUrlRange(max(1, $users->currentPage() - 2), min($users->lastPage(), $users->currentPage() + 2)) as $page => $url)
+                        <li class="page-item {{ $page == $users->currentPage() ? 'active' : '' }}">
+                            <a class="page-link" style="background: #f3f4f6; border: none; {{ $page == $users->currentPage() ? 'font-weight: 700; color: #fff; background: var(--pln-blue);' : 'color: var(--pln-blue); font-weight: 500;' }}" href="{{ $url }}">{{ $page }}</a>
+                        </li>
                     @endforeach
 
                     {{-- Next Page Link --}}

@@ -172,14 +172,10 @@
                     @else
                         <li class="page-item"><a class="page-link" style="background:#f3f4f6; border:none; color:var(--pln-blue);" href="{{ $roles->previousPageUrl() }}">&laquo;</a></li>
                     @endif
-                    @foreach ($roles->links() as $link)
-                        @if (str_contains($link, 'page='))
-                            <li class="page-item">
-                                <a class="page-link" style="background:#f3f4f6; border:none; color:var(--pln-blue);" href="{{ $link }}">
-                                    {!! str_replace(['<span class="page-link">', '</span>'], '', $link) !!}
-                                </a>
-                            </li>
-                        @endif
+                    @foreach ($roles->getUrlRange(max(1, $roles->currentPage() - 2), min($roles->lastPage(), $roles->currentPage() + 2)) as $page => $url)
+                        <li class="page-item {{ $page == $roles->currentPage() ? 'active' : '' }}">
+                            <a class="page-link" style="background:#f3f4f6; border:none; {{ $page == $roles->currentPage() ? 'font-weight:700; color:#fff; background:var(--pln-blue);' : 'color:var(--pln-blue);' }}" href="{{ $url }}">{{ $page }}</a>
+                        </li>
                     @endforeach
                     @if ($roles->hasMorePages())
                         <li class="page-item"><a class="page-link" style="background:#f3f4f6; border:none; color:var(--pln-blue);" href="{{ $roles->nextPageUrl() }}">&raquo;</a></li>
