@@ -60,4 +60,16 @@ return [
         'min_score' => (float) env('RECAPTCHA_MIN_SCORE', 0.5),
     ],
 
+    /*
+    |----------------------------------------------------------------------
+    | Akun admin awal — dipakai AdminUserSeeder saat fresh install
+    |----------------------------------------------------------------------
+    | Wajib dioverride lewat .env di lingkungan produksi agar akun
+    | default tidak dapat ditebak.
+    */
+    'admin' => [
+        'email'    => env('ADMIN_EMAIL', 'admin@example.com'),
+        'password' => env('ADMIN_PASSWORD', 'password123'),
+    ],
+
 ];

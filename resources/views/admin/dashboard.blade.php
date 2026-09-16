@@ -217,19 +217,21 @@
                     </div>
                 @endforeach
 
-                <div class="mt-3 pt-3" style="border-top: 1px solid #f3f4f6;">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span style="font-size: 0.78rem; color: #6b7280;">Storage Usage</span>
-                        <span style="font-size: 0.78rem; font-weight: 600; color: #92400e;">78%</span>
+                @if ($storage !== null)
+                    <div class="mt-3 pt-3" style="border-top: 1px solid #f3f4f6;">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span style="font-size: 0.78rem; color: #6b7280;">Storage Usage</span>
+                            <span style="font-size: 0.78rem; font-weight: 600; color: {{ $storage['percent'] >= 80 ? '#92400e' : '#166534' }};">{{ number_format($storage['percent'], 1) }}%</span>
+                        </div>
+                        <div class="progress" style="height: 6px; border-radius: 3px; background: #f3f4f6;">
+                            <div class="progress-bar" style="width: {{ min(100, $storage['percent']) }}%; background: {{ $storage['percent'] >= 80 ? 'linear-gradient(90deg, #f59e0b, #ef4444)' : 'linear-gradient(90deg, #22c55e, #16a34a)' }}; border-radius: 3px;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <span style="font-size: 0.7rem; color: #9ca3af;">{{ $storage['used'] }} / {{ $storage['total'] }}</span>
+                            <span style="font-size: 0.7rem; color: #9ca3af;">Bebas {{ $storage['free'] }}</span>
+                        </div>
                     </div>
-                    <div class="progress" style="height: 6px; border-radius: 3px; background: #f3f4f6;">
-                        <div class="progress-bar" style="width: 78%; background: linear-gradient(90deg, #f59e0b, #ef4444); border-radius: 3px;"></div>
-                    </div>
-                    <div class="d-flex justify-content-between mt-2">
-                        <span style="font-size: 0.7rem; color: #9ca3af;">15.6 GB / 20 GB</span>
-                        <a href="#" style="font-size: 0.7rem; color: var(--pln-blue); font-weight: 600;">Kelola</a>
-                    </div>
-                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -252,7 +254,7 @@
                     </a>
                 </div>
 
-                @foreach ($latest_content as $content)
+                @forelse ($latest_content as $content)
                     <div class="content-row">
                         <div style="flex: 1; min-width: 0;">
                             <div class="content-title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $content['title'] }}</div>
@@ -266,7 +268,13 @@
                             {{ $content['status'] }}
                         </span>
                     </div>
-                @endforeach
+                @empty
+                    <div style="padding: 2.5rem 1rem; text-align: center; color: #9ca3af;">
+                        <i class="fas fa-layer-group" style="font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
+                        <div style="font-size: 0.875rem; font-weight: 600; color: #6b7280;">Belum ada konten</div>
+                        <div style="font-size: 0.8rem;">Berita, pengumuman, dan halaman yang dibuat akan tampil di sini.</div>
+                    </div>
+                @endforelse
             </div>
         </div>
 

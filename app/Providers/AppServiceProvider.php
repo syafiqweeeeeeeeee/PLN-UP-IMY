@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\View\Composers\TopbarComposer;
 use App\Services\MenuBuilderService;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
@@ -38,5 +39,8 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('menuTree', $menuTree);
         });
+
+        // Topbar admin: data user asli + notifikasi dinamis dari database.
+        View::composer('layouts.admin', TopbarComposer::class);
     }
 }

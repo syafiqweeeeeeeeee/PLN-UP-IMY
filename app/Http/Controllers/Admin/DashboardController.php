@@ -4,8 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
-use App\Models\User;
+use App\Models\Announcement;
+use App\Models\ContactMessage;
+use App\Models\Gallery;
 use App\Models\News;
+use App\Models\Page;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -16,18 +21,26 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Statistics from database
-        $totalPublishedNews = News::where('is_published', true)->count();
-        $totalDraftNews = News::where('is_published', false)->count();
+        /* =========================================================
+           STATISTIK — semua dari database, tanpa placeholder
+           ========================================================= */
+
+        // Draft gabungan dari seluruh konten (berita + pengumuman + halaman)
+        $totalDraftContent = News::where('is_published', false)->count()
+            + Announcement::where('is_published', false)->count()
+            + Page::where('status', Page::STATUS_DRAFT)->count();
 
         $stats = [
-            'total_users'    => User::count(),
-            'total_pages'    => 0, // Belum ada model Page
-            'total_news'     => $totalPublishedNews,
-            'pending_content' => $totalDraftNews,
+            'total_users'     => User::count(),
+            'total_pages'     => Page::count(),
+            'total_news'      => News::where('is_published', true)->count(),
+            'pending_content' => $totalDraftContent,
         ];
 
-        // Aktivitas terbaru dari log aktivitas sungguhan (tabel activity_logs)
+        /* =========================================================
+           AKTIVITAS TERBARU — dari log aktivitas sungguhan
+           ========================================================= */
+
         $activities = ActivityLog::query()
             ->latest()
             ->take(6)
@@ -53,41 +66,200 @@ class DashboardController extends Controller
             })
             ->toArray();
 
-        // Get latest news from database
-        $latestNews = News::latest()->take(5)->get()->map(function ($item) {
-            return [
-                'title'  => $item->title,
-                'type'   => 'Berita',
-                'status' => $item->is_published ? 'Published' : 'Draft',
-                'date'   => $item->created_at->format('d M Y'),
-            ];
-        })->toArray();
+        /* =========================================================
+           KONTEN TERBARU — gabungan berita + pengumuman + halaman
+           ========================================================= */
 
-        // Add static placeholder content if no news yet
-        $latest_content = $latestNews;
-        if (count($latest_content) < 5) {
-            $placeholders = [
-                ['title' => 'Jadwal Maintenance Bulanan September',   'type' => 'Pengumuman', 'status' => 'Published', 'date' => '08 Sep 2026'],
-                ['title' => 'Profil Perusahaan — Update Struktur',    'type' => 'Halaman',   'status' => 'Draft',     'date' => '07 Sep 2026'],
-                ['title' => 'Pedoman Layanan Informasi Publik',       'type' => 'Halaman',   'status' => 'Published', 'date' => '06 Sep 2026'],
+        $news = News::query()
+            ->selectRaw("'Berita' as content_type, title, is_published as published, created_at")
+            ->get();
+
+        $announcements = Announcement::query()
+            ->selectRaw("'Pengumuman' as content_type, title, is_published as published, created_at")
+            ->get();
+
+        $pages = Page::query()
+            ->selectRaw("'Halaman' as content_type, title, status = ? as published, created_at", [Page::STATUS_PUBLISHED])
+            ->get();
+
+        $latest_content = $news->concat($announcements)->concat($pages)
+            ->sortByDesc('created_at')
+            ->take(5)
+            ->map(fn ($item) => [
+                'title'  => $item->title,
+                'type'   => $item->content_type,
+                'status' => $item->published ? 'Published' : 'Draft',
+                'date'   => $item->created_at->locale('id')->translatedFormat('d M Y'),
+            ])
+            ->values()
+            ->toArray();
+
+        /* =========================================================
+           NOTIFIKASI — dibangkitkan dari kondisi data saat ini
+           ========================================================= */
+
+        $notifications = $this->buildNotifications($totalDraftContent);
+
+        /* =========================================================
+           STATUS SISTEM — cek nyata: koneksi DB & ruang disk
+           ========================================================= */
+
+        $system_status = $this->buildSystemStatus();
+        $storage = $this->storageSummary();
+
+        return view('admin.dashboard', compact(
+            'stats', 'activities', 'latest_content', 'notifications', 'system_status', 'storage'
+        ));
+    }
+
+    /**
+     * Notifikasi dinamis berdasarkan kondisi data terkini.
+     *
+     * @return array<int, array{message: string, type: string, time: string, icon: string}>
+     */
+    private function buildNotifications(int $totalDraftContent): array
+    {
+        $notifications = [];
+
+        $unreadMessages = ContactMessage::unreadCount();
+        if ($unreadMessages > 0) {
+            $notifications[] = [
+                'message' => $unreadMessages . ' permohonan belum dibaca',
+                'type'    => 'warning',
+                'time'    => 'sekarang',
+                'icon'    => 'fas fa-inbox',
             ];
-            $remaining = 5 - count($latest_content);
-            $latest_content = array_merge($latest_content, array_slice($placeholders, 0, $remaining));
         }
 
-        $notifications = [
-            ['message' => '3 konten menunggu publikasi',  'type' => 'warning', 'time' => '10 menit lalu',  'icon' => 'fas fa-clock'],
-            ['message' => 'Pengguna baru terdaftar',       'type' => 'info',    'time' => '1 jam lalu',     'icon' => 'fas fa-user-plus'],
-            ['message' => 'Backup database berhasil',      'type' => 'success', 'time' => '3 jam lalu',     'icon' => 'fas fa-database'],
-            ['message' => 'Update sistem ke v2.4.1',       'type' => 'info',    'time' => 'Kemarin',        'icon' => 'fas fa-code-branch'],
-        ];
+        if ($totalDraftContent > 0) {
+            $notifications[] = [
+                'message' => $totalDraftContent . ' konten masih draft',
+                'type'    => 'warning',
+                'time'    => 'sekarang',
+                'icon'    => 'fas fa-clock',
+            ];
+        }
 
-        $system_status = [
-            ['name' => 'Database',   'status' => 'Normal', 'icon' => 'fas fa-database',  'color' => '#22c55e'],
-            ['name' => 'Application','status' => 'Normal', 'icon' => 'fas fa-server',    'color' => '#22c55e'],
-            ['name' => 'Storage',    'status' => 'Warning','icon' => 'fas fa-hard-drive','color' => '#f59e0b'],
-        ];
+        $latestUser = User::query()->latest('created_at')->first();
+        if ($latestUser && $latestUser->created_at->gt(now()->subDay())) {
+            $notifications[] = [
+                'message' => 'Pengguna baru terdaftar: ' . $latestUser->name,
+                'type'    => 'info',
+                'time'    => $latestUser->created_at->locale('id')->diffForHumans(),
+                'icon'    => 'fas fa-user-plus',
+            ];
+        }
 
-        return view('admin.dashboard', compact('stats', 'activities', 'latest_content', 'notifications', 'system_status'));
+        if ($notifications === []) {
+            $notifications[] = [
+                'message' => 'Semua sistem berjalan normal, tidak ada tugas tertunda.',
+                'type'    => 'success',
+                'time'    => 'sekarang',
+                'icon'    => 'fas fa-check-circle',
+            ];
+        }
+
+        return $notifications;
+    }
+
+    /**
+     * Status sistem dari pemeriksaan nyata: koneksi database
+     * dan persentase pemakaian disk tempat storage aplikasi.
+     *
+     * @return array<int, array{name: string, status: string, icon: string, color: string}>
+     */
+    private function buildSystemStatus(): array
+    {
+        $okColor    = '#22c55e';
+        $warnColor  = '#f59e0b';
+        $errorColor = '#ef4444';
+
+        // Database: koneksi + query sederhana
+        try {
+            DB::select('select 1');
+            $dbStatus = ['status' => 'Normal', 'color' => $okColor];
+        } catch (\Throwable) {
+            $dbStatus = ['status' => 'Error', 'color' => $errorColor];
+        }
+
+        // Application: aplikasi merender halaman ini berarti berjalan
+        $appStatus = ['status' => 'Normal', 'color' => $okColor];
+
+        // Storage: persentase pemakaian disk (Warning bila >= 80%)
+        $storagePercent = $this->diskUsagePercent();
+        if ($storagePercent === null) {
+            $storageStatus = ['status' => 'Normal', 'color' => $okColor];
+        } else {
+            $storageStatus = $storagePercent >= 80
+                ? ['status' => 'Warning', 'color' => $warnColor]
+                : ['status' => 'Normal', 'color' => $okColor];
+        }
+
+        return [
+            ['name' => 'Database',    'status' => $dbStatus['status'],     'icon' => 'fas fa-database',   'color' => $dbStatus['color']],
+            ['name' => 'Application', 'status' => $appStatus['status'],    'icon' => 'fas fa-server',     'color' => $appStatus['color']],
+            ['name' => 'Storage',     'status' => $storageStatus['status'],'icon' => 'fas fa-hard-drive', 'color' => $storageStatus['color']],
+        ];
+    }
+
+    /**
+     * Persentase pemakaian disk tempat penyimpanan aplikasi,
+     * atau null bila tidak dapat dihitung (mis. driver terbatas).
+     */
+    private function diskUsagePercent(): ?float
+    {
+        $path = storage_path();
+
+        $total = @disk_total_space($path);
+        $free  = @disk_free_space($path);
+
+        if ($total === false || $free === false || $total <= 0) {
+            return null;
+        }
+
+        $used = $total - $free;
+
+        return round(($used / $total) * 100, 1);
+    }
+
+    /**
+     * Ringkasan storage untuk progress bar dashboard:
+     * persen + kapasitas dalam format ramah (GB).
+     */
+    private function storageSummary(): ?array
+    {
+        $path = storage_path();
+
+        $totalBytes = @disk_total_space($path);
+        $freeBytes  = @disk_free_space($path);
+
+        if ($totalBytes === false || $freeBytes === false || $totalBytes <= 0) {
+            return null;
+        }
+
+        $usedBytes = $totalBytes - $freeBytes;
+
+        return [
+            'percent' => round(($usedBytes / $totalBytes) * 100, 1),
+            'used'    => $this->formatBytes($usedBytes),
+            'free'    => $this->formatBytes($freeBytes),
+            'total'   => $this->formatBytes($totalBytes),
+        ];
+    }
+
+    /**
+     * Format jumlah byte menjadi string ramah manusia (GB/MB).
+     */
+    private function formatBytes(float|int $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $i = 0;
+
+        while ($bytes >= 1024 && $i < count($units) - 1) {
+            $bytes /= 1024;
+            $i++;
+        }
+
+        return round($bytes, 1) . ' ' . $units[$i];
     }
 }

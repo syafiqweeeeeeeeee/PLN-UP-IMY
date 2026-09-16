@@ -108,7 +108,7 @@
             /* ---- Dark-mode emisi inline: petakan abu Tailwind umum ----
                Halaman admin memakai banyak warna abu inline (#1f2937,
                #374151, #6b7280, #9ca3af, #f9fafb, #f3f4f6, #f8fafc,
-               #f1f5f9, #e5e7eb) di dalam @push('styles') miliknya.
+               #f1f5f9, #e5e7eb) di dalam blok push styles miliknya.
                Override di sini agar mode gelap akurat tanpa menyentuh
                setiap file. Khusus atribut style="..." perlu !important
                karena inline style menang atas specificity biasa. */
@@ -303,24 +303,104 @@
                     <button class="topbar-icon-btn" id="themeToggle" title="Ganti tema terang/gelap" aria-label="Ganti tema">
                         <i class="fas fa-moon"></i>
                     </button>
-                    <button class="topbar-icon-btn" title="Cari">
+
+                    {{-- SEARCH — buka overlay pencarian konten --}}
+                    <button class="topbar-icon-btn" id="topbarSearchBtn" title="Cari konten" aria-label="Cari" aria-haspopup="dialog">
                         <i class="fas fa-search"></i>
                     </button>
-                    <button class="topbar-icon-btn" title="Notifikasi">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-dot"></span>
-                    </button>
-                    <div class="topbar-divider"></div>
-                    <div class="topbar-user">
-                        <div class="topbar-avatar">AD</div>
-                        <div class="topbar-user-info">
-                            <div class="topbar-user-name">Admin PLN</div>
-                            <div class="topbar-user-role">Super Admin</div>
+
+                    {{-- NOTIFIKASI — dropdown dari data nyata (permohonan belum dibaca, draft) --}}
+                    <div class="topbar-dropdown-wrap">
+                        <button class="topbar-icon-btn" id="notifBtn" title="Notifikasi" aria-label="Notifikasi"
+                                aria-haspopup="true" aria-expanded="false" data-dropdown-toggle="notifDropdown">
+                            <i class="fas fa-bell"></i>
+                            @if (($topbarNotifs['unread_count'] ?? 0) > 0)
+                                <span class="notification-dot"></span>
+                            @endif
+                        </button>
+                        <div class="topbar-dropdown" id="notifDropdown" role="menu" aria-label="Daftar notifikasi">
+                            <div class="topbar-dropdown-head">Notifikasi</div>
+                            @forelse ($topbarNotifs['items'] as $notif)
+                                <a href="{{ $notif['url'] }}" class="topbar-dropdown-item {{ $notif['unread'] ? 'is-unread' : '' }}">
+                                    <span class="topbar-dropdown-icon {{ $notif['tone'] }}"><i class="{{ $notif['icon'] }}"></i></span>
+                                    <span class="topbar-dropdown-body">
+                                        <span class="topbar-dropdown-text">{{ $notif['text'] }}</span>
+                                        <span class="topbar-dropdown-time">{{ $notif['time'] }}</span>
+                                    </span>
+                                </a>
+                            @empty
+                                <div class="topbar-dropdown-empty">
+                                    <i class="fas fa-check-circle"></i>
+                                    <div>Tidak ada notifikasi</div>
+                                </div>
+                            @endforelse
+                            @if (($topbarNotifs['unread_count'] ?? 0) > 0)
+                                <a href="{{ route('admin.contact-messages.index') }}" class="topbar-dropdown-footer">
+                                    Lihat semua permohonan <i class="fas fa-arrow-right"></i>
+                                </a>
+                            @endif
                         </div>
-                        <i class="fas fa-chevron-down" style="font-size:0.6rem; color:#9ca3af; margin-left:0.25rem;"></i>
+                    </div>
+
+                    <div class="topbar-divider"></div>
+
+                    {{-- USER MENU — data user asli + dropdown profil/logout --}}
+                    <div class="topbar-dropdown-wrap">
+                        <div class="topbar-user" id="userMenuBtn" role="button" tabindex="0"
+                             aria-haspopup="true" aria-expanded="false" data-dropdown-toggle="userDropdown">
+                            <div class="topbar-avatar">{{ $topbarUser['initials'] }}</div>
+                            <div class="topbar-user-info">
+                                <div class="topbar-user-name">{{ $topbarUser['name'] }}</div>
+                                <div class="topbar-user-role">{{ $topbarUser['role'] }}</div>
+                            </div>
+                            <i class="fas fa-chevron-down" style="font-size:0.6rem; color:#9ca3af; margin-left:0.25rem;"></i>
+                        </div>
+                        <div class="topbar-dropdown dropdown-right" id="userDropdown" role="menu" aria-label="Menu akun">
+                            <div class="topbar-dropdown-head">
+                                <div class="topbar-avatar" style="width:30px;height:30px;font-size:0.72rem;">{{ $topbarUser['initials'] }}</div>
+                                <div style="min-width:0;">
+                                    <div class="topbar-dropdown-user-name">{{ $topbarUser['name'] }}</div>
+                                    <div class="topbar-dropdown-user-mail">{{ $topbarUser['email'] }}</div>
+                                </div>
+                            </div>
+                            <a href="{{ $topbarUser['profile_url'] }}" class="topbar-dropdown-item">
+                                <span class="topbar-dropdown-icon blue"><i class="fas fa-user"></i></span>
+                                <span class="topbar-dropdown-body">
+                                    <span class="topbar-dropdown-text">Profil Saya</span>
+                                </span>
+                            </a>
+                            <a href="{{ route('admin.settings') }}" class="topbar-dropdown-item">
+                                <span class="topbar-dropdown-icon amber"><i class="fas fa-gear"></i></span>
+                                <span class="topbar-dropdown-body">
+                                    <span class="topbar-dropdown-text">Pengaturan</span>
+                                </span>
+                            </a>
+                            <button type="button" class="topbar-dropdown-item as-button" onclick="showLogoutModal()">
+                                <span class="topbar-dropdown-icon red"><i class="fas fa-right-from-bracket"></i></span>
+                                <span class="topbar-dropdown-body">
+                                    <span class="topbar-dropdown-text">Logout</span>
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
+
+            {{-- SEARCH OVERLAY --}}
+            <div class="topbar-search-overlay" id="topbarSearchOverlay" role="dialog" aria-modal="true" aria-label="Pencarian">
+                <div class="topbar-search-dialog">
+                    <div class="topbar-search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="topbarSearchInput" placeholder="Cari berita, pengumuman, halaman..."
+                               autocomplete="off">
+                        <button type="button" class="topbar-search-esc" onclick="closeTopbarSearch()">ESC</button>
+                    </div>
+                    <div class="topbar-search-hint" id="topbarSearchHint">
+                        Ketik minimal 2 karakter lalu tekan Enter. Pencarian mencakup Berita, Pengumuman, dan Halaman.
+                    </div>
+                    <div class="topbar-search-results" id="topbarSearchResults" hidden></div>
+                </div>
+            </div>
 
             {{-- PAGE CONTENT (container transisi) --}}
             <main class="admin-content" data-pt-animate>
@@ -565,6 +645,163 @@
                     set: set,
                     isDark: function () { return document.documentElement.classList.contains('theme-dark'); }
                 };
+            })();
+        </script>
+
+        {{-- ============================================================
+             TOPBAR INTERACTIONS — dropdown notifikasi & user,
+             overlay pencarian, keyboard shortcuts
+             ============================================================ --}}
+        <script>
+            (function () {
+                'use strict';
+
+                /* =========================
+                   DROPDOWN GENERIK
+                   ========================= */
+                var openDropdown = null;
+
+                function closeAllDropdowns() {
+                    document.querySelectorAll('.topbar-dropdown.open').forEach(function (dd) {
+                        dd.classList.remove('open');
+                        var trigger = document.querySelector('[data-dropdown-toggle="' + dd.id + '"]');
+                        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+                    });
+                    openDropdown = null;
+                }
+
+                function toggleDropdown(id, trigger) {
+                    var dd = document.getElementById(id);
+                    if (!dd) return;
+                    var willOpen = !dd.classList.contains('open');
+                    closeAllDropdowns();
+                    if (willOpen) {
+                        dd.classList.add('open');
+                        if (trigger) trigger.setAttribute('aria-expanded', 'true');
+                        openDropdown = dd;
+                    }
+                }
+
+                document.addEventListener('click', function (e) {
+                    var trigger = e.target.closest ? e.target.closest('[data-dropdown-toggle]') : null;
+                    if (trigger) {
+                        e.preventDefault();
+                        toggleDropdown(trigger.getAttribute('data-dropdown-toggle'), trigger);
+                        return;
+                    }
+                    if (openDropdown && !e.target.closest('.topbar-dropdown')) {
+                        closeAllDropdowns();
+                    }
+                });
+
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape') closeAllDropdowns();
+                });
+
+                /* =========================
+                   SEARCH OVERLAY
+                   ========================= */
+                var overlay = document.getElementById('topbarSearchOverlay');
+                var searchBtn = document.getElementById('topbarSearchBtn');
+                var searchInput = document.getElementById('topbarSearchInput');
+                var resultsBox = document.getElementById('topbarSearchResults');
+                var hintText = document.getElementById('topbarSearchHint');
+                var searchTimer = null;
+
+                function openSearch() {
+                    if (!overlay) return;
+                    overlay.classList.add('open');
+                    closeAllDropdowns();
+                    setTimeout(function () { if (searchInput) searchInput.focus(); }, 60);
+                }
+
+                window.closeTopbarSearch = function () {
+                    if (!overlay) return;
+                    overlay.classList.remove('open');
+                    if (searchInput) searchInput.value = '';
+                    if (resultsBox) { resultsBox.hidden = true; resultsBox.innerHTML = ''; }
+                    if (hintText) hintText.style.display = '';
+                };
+
+                if (searchBtn) searchBtn.addEventListener('click', openSearch);
+
+                if (overlay) {
+                    overlay.addEventListener('click', function (e) {
+                        if (e.target === overlay) window.closeTopbarSearch();
+                    });
+                }
+
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape') window.closeTopbarSearch();
+                    // Ctrl/Cmd + K membuka pencarian
+                    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                        e.preventDefault();
+                        openSearch();
+                    }
+                });
+
+                function escapeHtml(str) {
+                    return String(str).replace(/[&<>"']/g, function (c) {
+                        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+                    });
+                }
+
+                function renderResults(groups) {
+                    if (!resultsBox) return;
+                    var html = '';
+                    var icons = { Berita: 'fa-newspaper', Pengumuman: 'fa-bullhorn', Halaman: 'fa-file-lines' };
+
+                    groups.forEach(function (group) {
+                        if (!group.items.length) return;
+                        html += '<div class="topbar-search-group-label">' + escapeHtml(group.label) + '</div>';
+                        group.items.forEach(function (item) {
+                            var icon = icons[group.label] || 'fa-file-lines';
+                            html += '<a class="topbar-search-item" href="' + item.url + '">' +
+                                '<i class="fas ' + icon + '"></i>' +
+                                '<span>' + escapeHtml(item.title) + '</span>' +
+                                '<span class="meta">' + escapeHtml(item.meta) + '</span>' +
+                                '</a>';
+                        });
+                    });
+
+                    if (html === '') {
+                        resultsBox.innerHTML = '<div class="topbar-search-empty">Tidak ada hasil untuk "' +
+                            escapeHtml(searchInput.value) + '"</div>';
+                    } else {
+                        resultsBox.innerHTML = html;
+                    }
+
+                    hintText.style.display = 'none';
+                    resultsBox.hidden = false;
+                }
+
+                function runSearch(q) {
+                    fetch('{{ route("admin.search") }}?q=' + encodeURIComponent(q), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                        .then(function (res) { return res.ok ? res.json() : []; })
+                        .then(renderResults)
+                        .catch(function () {
+                            if (resultsBox) {
+                                resultsBox.innerHTML = '<div class="topbar-search-empty">Pencarian gagal. Coba lagi.</div>';
+                                hintText.style.display = 'none';
+                                resultsBox.hidden = false;
+                            }
+                        });
+                }
+
+                if (searchInput) {
+                    searchInput.addEventListener('input', function () {
+                        var q = this.value.trim();
+                        clearTimeout(searchTimer);
+                        if (q.length < 2) {
+                            if (resultsBox) resultsBox.hidden = true;
+                            if (hintText) hintText.style.display = '';
+                            return;
+                        }
+                        searchTimer = setTimeout(function () { runSearch(q); }, 250);
+                    });
+                }
             })();
         </script>
 

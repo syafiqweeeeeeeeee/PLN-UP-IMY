@@ -334,6 +334,10 @@ Route::middleware(['auth'])->group(function () {
             return view('admin.settings');
         })->name('settings');
 
+        // Pencarian topbar (Ctrl+K / ikon kaca pembesar)
+        Route::get('/search', \App\Http\Controllers\Admin\AdminSearchController::class)
+            ->name('search');
+
         // Halaman CMS (Page Management) — permission per aksi
         Route::middleware('permission:pages.view')->group(function () {
             Route::get('pages', [\App\Http\Controllers\Admin\PageController::class, 'index'])->name('pages.index');
