@@ -93,6 +93,60 @@
                 font-size: 1rem;
             }
 
+            /* ============================================
+               BRAND NAVBAR — emblem + teks (satu sumber teks)
+               Struktur: <a.navbar-brand> = flex row:
+               <img.emblem kuning> + <span.brand-text>.
+               Tidak ada teks duplikat: span ini adalah
+               SATU-SATUNYA teks branding.
+               ============================================ */
+            .navbar-pln .navbar-brand .brand-text {
+                color: #fff;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                white-space: nowrap;
+            }
+            .navbar-pln .navbar-brand .logo-nav {
+                height: 42px;
+                width: 42px;
+                object-fit: contain;
+                flex-shrink: 0;
+            }
+
+            /* ============================================
+               MOBILE (<640px / sm): persist Tailwind
+               flex flex-col items-start gap-1
+               Baris 1: emblem kuning saja (h-10 = 2.5rem)
+               Baris 2: teks "PLN Nusantara Power"
+               Navbar height: auto + overflow: visible agar
+               konten di bawah tidak tertimpa. Desktop (≥640px)
+               tetap sejajar horizontal seperti semula.
+               ============================================ */
+            @media (max-width: 639.98px) {
+                .navbar-pln {
+                    height: auto;
+                    overflow: visible;
+                }
+                .navbar-pln .navbar-brand {
+                    flex-direction: column;      /* flex-col */
+                    align-items: flex-start;     /* items-start */
+                    gap: 0.25rem;                /* gap-1 */
+                    margin-right: 0;
+                }
+                /* Baris 1: emblem kuning saja (h-10 = 2.5rem, w-auto) */
+                .navbar-pln .navbar-brand .logo-nav {
+                    height: 2.5rem;              /* h-10 */
+                    width: auto;                 /* w-auto */
+                    margin-bottom: 0.25rem;      /* mb-1 */
+                }
+                /* Baris 2: teks di BAWAH logo — span asli, sudah
+                   tampil karena bukan lagi d-none */
+                .navbar-pln .navbar-brand .brand-text {
+                    font-size: 0.8rem;
+                }
+                /* Hamburger TIDAK disentuh: posisi & fungsinya tetap. */
+            }
+
             .navbar-pln .nav-link {
                 color: rgba(255, 255, 255, 0.85);
                 font-weight: 500;

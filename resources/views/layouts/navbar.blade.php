@@ -20,23 +20,24 @@
 <!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-pln" id="mainNav">
     <div class="container px-4 px-lg-5">
-        {{-- Brand --}}
+        {{-- Brand — struktur persis seperti sketsa:
+             <img emblem kuning> + <span teks> dalam satu container flex.
+             Mobile (<640px): kolom (logo di atas, teks di bawah).
+             Desktop: tetap sejajar horizontal (emblem + teks). --}}
         <a class="navbar-brand" href="{{ route('home') }}">
             <img
-                src="{{ asset('assets/images/logo-pln.png') }}"
-                alt="Logo PLN"
+                src="{{ asset('assets/images/logo-pln1.png') }}"
+                alt="Logo PLN Nusantara Power"
                 class="logo-nav"
-                width="158" height="42"
+                width="42" height="42"
                 fetchpriority="high"
                 decoding="async"
                 draggable="false"
                 ondragstart="return false;"
                 style="pointer-events: none; user-select: none; -webkit-user-drag: none;"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
+                onerror="this.style.display='none';"
             />
-            <span class="d-none">
-                <i class="fas fa-bolt" style="color: var(--pln-yellow)"></i> PLN Nusantara Power
-            </span>
+            <span class="brand-text">PLN Nusantara Power</span>
         </a>
 
         {{-- Toggler (mobile) --}}

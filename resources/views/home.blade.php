@@ -286,15 +286,22 @@
     }
 
     @media (max-width: 991.98px) {
+        /* Navbar tablet/mobile lebih tinggi (brand 2 baris + hamburger):
+           ruang atas hero ditambah agar emblem tidak tertimpa navbar */
+        .hero-section { padding: 6.5rem 0 4rem; }
         .hero-title { font-size: 2.1rem; }
         .logo-hero { height: 220px; max-width: 320px; }
     }
 
     @media (max-width: 767.98px) {
-        .hero-section { padding: 4rem 0 3rem; }
+        /* Ruang atas lega (7rem) — aman meski tinggi navbar berubah-ubah
+           (teks brand bisa sedikit membesar di sebagian perangkat) */
+        .hero-section { padding: 7rem 0 3rem; }
         .hero-title { font-size: 1.7rem; }
         .hero-subtitle { font-size: 0.95rem; }
-        .logo-hero { height: 170px; max-width: 250px; border-radius: 55px; }
+        /* Logo di atas judul — diperkecil agar proporsional dan tidak
+           mendorong konten terlalu jauh ke bawah */
+        .logo-hero { height: 120px; max-width: 180px; border-radius: 40px; }
         .stats-section, .pln-mobile-section, .services-section, .wilayah-section { padding: 3rem 0; }
         .stat-value { font-size: 1.3rem; }
     }
@@ -308,7 +315,24 @@
 <section class="hero-section" id="home">
     <div class="container px-4 px-lg-5">
         <div class="row align-items-center">
-            <div class="col-lg-7 hero-content">
+            {{-- Logo emblem: DI ATAS judul saat mobile/tablet (source order
+                 pertama = urutan stack kolom), lalu di desktop (lg+)
+                 dikembalikan ke kanan via order-lg-2 agar tampilan
+                 desktop TIDAK berubah. --}}
+            <div class="col-lg-5 text-center order-lg-2 mb-4 mb-lg-0">
+                <img
+                    src="{{ asset('assets/images/logo-pln1.png') }}"
+                    alt="Logo PLN Nusantara Power"
+                    class="logo-hero"
+                    draggable="false"
+                    ondragstart="return false;"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
+                />
+                <span class="d-none text-white fw-bold" style="font-size: 1.4rem;">
+                    <i class="fas fa-bolt" style="color: var(--pln-yellow)"></i> PLN
+                </span>
+            </div>
+            <div class="col-lg-7 hero-content order-lg-1">
                 <h1 class="hero-title" data-i18n="hero.title_plain">
                     PLN Nusantara Power <span>Indramayu</span>
                 </h1>
@@ -323,19 +347,6 @@
                         <i class="fas fa-info-circle me-2"></i> Pelajari Lebih Lanjut
                     </a>
                 </div>
-            </div>
-            <div class="col-lg-5 text-center mt-5 mt-lg-0">
-                <img
-                    src="{{ asset('assets/images/logo-pln1.png') }}"
-                    alt="Logo PLN Nusantara Power"
-                    class="logo-hero"
-                    draggable="false"
-                    ondragstart="return false;"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
-                />
-                <span class="d-none text-white fw-bold" style="font-size: 1.4rem;">
-                    <i class="fas fa-bolt" style="color: var(--pln-yellow)"></i> PLN
-                </span>
             </div>
         </div>
     </div>
