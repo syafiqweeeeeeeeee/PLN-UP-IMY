@@ -108,6 +108,27 @@
                 background: rgba(255, 255, 255, 0.12);
             }
 
+            /* Menu aktif — tanda kuning khas PLN: teks kuning + underline.
+               Parent dropdown juga menyala jika salah satu submenu-nya aktif. */
+            .navbar-pln .nav-link.active:not(.dropdown-toggle) {
+                color: var(--pln-yellow);
+                background: rgba(255, 230, 0, 0.10);
+                box-shadow: inset 0 -2px 0 var(--pln-yellow);
+            }
+
+            .navbar-pln .nav-link.dropdown-toggle.active {
+                color: var(--pln-yellow);
+            }
+
+            .navbar-pln .nav-link.dropdown-toggle.active::after {
+                border-top-color: var(--pln-yellow);
+            }
+
+            .navbar-pln .dropdown-menu .dropdown-item.active {
+                color: var(--pln-yellow);
+                background: rgba(255, 230, 0, 0.10);
+            }
+
             .navbar-pln .navbar-toggler {
                 border: 2px solid rgba(255, 255, 255, 0.5);
                 padding: 0.3rem 0.6rem;

@@ -73,28 +73,22 @@
             'region.subtitle': 'Cakupan area kerja dan pembangkitan di berbagai wilayah Indonesia',
 
             /* ---------- MEKANISME / ALUR ---------- */
-            'flow.title': 'Mekanisme Pelayanan Informasi Publik',
-            'flow.subtitle': 'Berikut adalah alur langkah pelayanan informasi publik di lingkungan PT PLN (Persero)',
-            'flow.step1_title': 'Pengajuan Permohonan',
-            'flow.step1_desc': 'Pemohon mengajukan permohonan informasi publik secara tertulis melalui formulir yang telah disediakan.',
-            'flow.step2_title': 'Penerimaan & Pencatatan',
-            'flow.step2_desc': 'PPID menerima permohonan, mencatat dalam register, dan memberikan tanda terima kepada pemohon.',
-            'flow.step3_title': 'Proses Verifikasi',
-            'flow.step3_desc': 'PPID melakukan verifikasi dan inventarisasi informasi yang dimohonkan berdasarkan kriteria keterbukaan.',
-            'flow.step4_title': 'Penyampaian Informasi',
-            'flow.step4_desc': 'Informasi publik disampaikan kepada pemohon paling lambat 10 hari kerja sejak permohonan diterima.',
+            /* ---------- PROMO PLN MOBILE ---------- */
+            'mobile.title': 'Mulai Pengalaman Baru di PLN Mobile',
+            'mobile.subtitle': 'Semua keperluan listrik dan rumah dalam 1 aplikasi PLN Mobile, semua semakin mudah!',
+            'mobile.hashtag': '#SemuaMakinMudah',
 
             /* ---------- LAYANAN KAMI ---------- */
             'services.title': 'Layanan Kami',
             'services.subtitle': 'Akses berbagai layanan informasi publik yang tersedia',
-            'services.menu1_title': 'Informasi Publik',
-            'services.menu1_desc': 'Akses dokumen dan data informasi publik yang tersedia secara terbuka.',
-            'services.menu2_title': 'Permohonan Informasi',
-            'services.menu2_desc': 'Ajukan permohonan informasi publik secara online dengan mudah dan cepat.',
-            'services.menu3_title': 'Keberatan Informasi',
-            'services.menu3_desc': 'Sampaikan keberatan apabila informasi yang dimohonkan ditolak atau tidak sesuai.',
-            'services.menu4_title': 'Informasi Serta Merta',
-            'services.menu4_desc': 'Akses informasi yang harus segera diumumkan demi keselamatan masyarakat.',
+            'services.menu1_title': 'Informasi Layanan',
+            'services.menu1_desc': 'Informasi mengenai layanan informasi publik yang tersedia di PPID.',
+            'services.menu2_title': 'Berita',
+            'services.menu2_desc': 'Baca kabar dan informasi terbaru seputar kegiatan PLTU Indramayu.',
+            'services.menu3_title': 'Daftar Layanan',
+            'services.menu3_desc': 'Lihat daftar layanan informasi publik yang dapat diakses masyarakat.',
+            'services.menu4_title': 'FAQ',
+            'services.menu4_desc': 'Temukan jawaban atas pertanyaan yang sering diajukan seputar layanan.',
 
             /* ---------- FOOTER ---------- */
             'footer.title': 'PT PLN Nusantara Power UP PLTU Indramayu',
@@ -274,29 +268,22 @@
             'region.title': 'PT PLN Nusantara Power Operational Region',
             'region.subtitle': 'Work area and generation coverage across various regions of Indonesia',
 
-            /* ---------- MEKANISME / ALUR ---------- */
-            'flow.title': 'Public Information Service Mechanism',
-            'flow.subtitle': 'The following is the public information service procedure at PT PLN (Persero)',
-            'flow.step1_title': 'Request Submission',
-            'flow.step1_desc': 'The applicant submits a written public information request through the provided form.',
-            'flow.step2_title': 'Receipt & Recording',
-            'flow.step2_desc': 'PPID receives the request, records it in the register, and issues a receipt to the applicant.',
-            'flow.step3_title': 'Verification Process',
-            'flow.step3_desc': 'PPID verifies and inventories the requested information based on openness criteria.',
-            'flow.step4_title': 'Information Delivery',
-            'flow.step4_desc': 'Public information is delivered to the applicant no later than 10 working days from receipt.',
+            /* ---------- PROMO PLN MOBILE ---------- */
+            'mobile.title': 'Start a New Experience with PLN Mobile',
+            'mobile.subtitle': 'All your electricity and home needs in 1 PLN Mobile app — everything is easier!',
+            'mobile.hashtag': '#SemuaMakinMudah',
 
             /* ---------- LAYANAN KAMI ---------- */
             'services.title': 'Our Services',
             'services.subtitle': 'Access the various public information services available',
-            'services.menu1_title': 'Public Information',
-            'services.menu1_desc': 'Access openly available public information documents and data.',
-            'services.menu2_title': 'Information Request',
-            'services.menu2_desc': 'Submit a public information request online easily and quickly.',
-            'services.menu3_title': 'Information Objection',
-            'services.menu3_desc': 'File an objection if the requested information is denied or does not comply.',
-            'services.menu4_title': 'Immediate Information',
-            'services.menu4_desc': 'Access information that must be announced immediately for public safety.',
+            'services.menu1_title': 'Information Services',
+            'services.menu1_desc': 'Information about the public information services available at PPID.',
+            'services.menu2_title': 'News',
+            'services.menu2_desc': 'Read the latest news and updates about PLTU Indramayu activities.',
+            'services.menu3_title': 'Service List',
+            'services.menu3_desc': 'Browse the list of public information services accessible to the public.',
+            'services.menu4_title': 'FAQ',
+            'services.menu4_desc': 'Find answers to frequently asked questions about our services.',,
 
             /* ---------- FOOTER ---------- */
             'footer.title': 'PT PLN Nusantara Power UP PLTU Indramayu',

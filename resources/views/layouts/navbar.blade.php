@@ -1,3 +1,22 @@
+@php
+    /* URL halaman saat ini tanpa trailing slash — dipakai deteksi menu aktif. */
+    $currentUrl = rtrim(url()->current(), '/');
+    $homeUrl    = rtrim(url('/'), '/');
+
+    /* Deteksi halaman aktif: URL sama persis, atau halaman detail di bawah
+       URL menu (mis. /informasi/berita/{slug} tetap menyalakan menu "Berita").
+       Halaman utama (root) hanya exact match. */
+    $isActiveUrl = function (?string $url) use ($currentUrl, $homeUrl) {
+        if ($url === null) return false;
+        $target = rtrim($url, '/');
+        if ($target === '' || $target === $homeUrl) {
+            return $currentUrl === $target;
+        }
+        return $currentUrl === $target
+            || str_starts_with($currentUrl . '/', $target . '/');
+    };
+@endphp
+
 <!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-pln" id="mainNav">
     <div class="container px-4 px-lg-5">
@@ -29,10 +48,15 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ms-auto">
                 @foreach ($menuTree as $item)
+                    @php
+                        $isGroupActive = collect($item['children'])->contains(
+                            fn ($c) => $isActiveUrl($c['url'] ?? null)
+                        );
+                    @endphp
                     @if (count($item['children']) > 0)
                         {{-- Dropdown group --}}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle {{ $isGroupActive ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 @if ($item['icon'])
                                     <i class="fas {{ $item['icon'] }} me-1"></i>
                                 @endif
@@ -41,7 +65,7 @@
                             <ul class="dropdown-menu dropdown-menu-dark">
                                 @foreach ($item['children'] as $child)
                                     <li>
-                                        <a class="dropdown-item" href="{{ $child['url'] }}" @if (!empty($child['target'])) target="{{ $child['target'] }}" rel="noopener" @endif @if (!empty($child['i18n'])) data-i18n="{{ $child['i18n'] }}" @endif>
+                                        <a class="dropdown-item {{ $isActiveUrl($child['url'] ?? null) ? 'active' : '' }}" href="{{ $child['url'] }}" @if (!empty($child['target'])) target="{{ $child['target'] }}" rel="noopener" @endif @if (!empty($child['i18n'])) data-i18n="{{ $child['i18n'] }}" @endif>
                                             @if ($child['icon'])
                                                 <i class="fas {{ $child['icon'] }} me-1"></i>
                                             @endif
@@ -54,7 +78,7 @@
                     @elseif ($item['url'] !== null)
                         {{-- Leaf item langsung --}}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ $item['url'] }}" @if (!empty($item['target'])) target="{{ $item['target'] }}" rel="noopener" @endif>
+                            <a class="nav-link {{ $isActiveUrl($item['url']) ? 'active' : '' }}" href="{{ $item['url'] }}" @if (!empty($item['target'])) target="{{ $item['target'] }}" rel="noopener" @endif>
                                 @if ($item['icon'])
                                     <i class="fas {{ $item['icon'] }} me-1"></i>
                                 @endif

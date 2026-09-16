@@ -151,25 +151,36 @@ class MenuBuilderService
     private function defaultTree(): array
     {
         return collect(self::DEFAULT_TREE)
-            ->map(fn (array $group) => [
-                'menu'     => null,
-                'label'    => $group['label'],
-                'icon'     => $group['icon'],
-                'i18n'     => $group['i18n'] ?? null,
-                'url'      => null, // grup dropdown: tidak punya target sendiri
-                'children' => collect($group['children'])
-                    ->filter(fn (array $child) => Route::has($child['route']))
-                    ->map(fn (array $child) => [
-                        'menu'     => null,
-                        'label'    => $child['label'],
-                        'icon'     => null,
-                        'i18n'     => $child['i18n'] ?? null,
-                        'url'      => route($child['route']),
-                        'children' => [],
-                    ])
-                    ->all(),
-            ])
-            ->filter(fn (array $group) => $group['children'] !== [])
+            ->map(function (array $group) {
+                // Grup daun (mis. Beranda) punya route sendiri; grup dropdown tidak.
+                $ownUrl = isset($group['route']) && Route::has($group['route'])
+                    ? route($group['route'])
+                    : null;
+
+                return [
+                    'menu'     => null,
+                    'label'    => $group['label'],
+                    'icon'     => $group['icon'],
+                    'i18n'     => $group['i18n'] ?? null,
+                    'url'      => $ownUrl, // grup dropdown: tidak punya target sendiri
+                    'target'   => null,
+                    'children' => collect($group['children'])
+                        ->filter(fn (array $child) => Route::has($child['route']))
+                        ->map(fn (array $child) => [
+                            'menu'     => null,
+                            'label'    => $child['label'],
+                            'icon'     => null,
+                            'i18n'     => $child['i18n'] ?? null,
+                            'url'      => route($child['route']),
+                            'target'   => null,
+                            'children' => [],
+                        ])
+                        ->all(),
+                ];
+            })
+            // Grup dropdown tanpa anak valid dibuang, tapi grup daun dengan
+            // route valid (mis. Beranda) tetap tampil.
+            ->filter(fn (array $group) => $group['children'] !== [] || $group['url'] !== null)
             ->values()
             ->all();
     }

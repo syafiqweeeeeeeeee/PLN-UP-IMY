@@ -78,10 +78,15 @@
     }
 
     .logo-hero {
-        height: 74px;
+        height: 300px;
         width: auto;
-        max-width: 220px;
+        max-width: 440px;
         object-fit: contain;
+        border-radius: 95px;
+        filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.35));
+        -webkit-user-drag: none;
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     .stats-section { padding: 4.5rem 0; background: var(--pln-gray); }
@@ -141,47 +146,104 @@
 
     .stat-desc { color: #64748B; font-size: 0.83rem; line-height: 1.6; margin-bottom: 0; }
 
-    .mekanisme-section { padding: 4.5rem 0; background: #fff; }
+    /* --- 3. PROMO PLN MOBILE (pengganti mekanisme pelayanan) --- */
+    .pln-mobile-section {
+        padding: 5rem 0;
+        background:
+            radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.14) 0, transparent 42%),
+            radial-gradient(circle at 10% 90%, rgba(255, 255, 255, 0.10) 0, transparent 40%),
+            linear-gradient(135deg, #00c2d1 0%, #00a6bd 55%, #008fa8 100%);
+        position: relative;
+        overflow: hidden;
+    }
 
     .section-title { margin-bottom: 0.4rem; }
 
     .section-subtitle { margin-bottom: 2.5rem; }
 
-    .step-card {
-        background: #fff;
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 1.8rem 1.3rem;
-        text-align: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        height: 100%;
-    }
-
-    .step-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 30px rgba(0, 163, 224, 0.12);
-        border-color: var(--pln-cyan);
-    }
-
-    .step-number {
-        width: 46px;
-        height: 46px;
-        background: linear-gradient(135deg, var(--pln-blue), var(--pln-cyan));
+    .mobile-title {
         color: #fff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin: 0 auto 1rem;
+        font-weight: 800;
+        font-size: 2.4rem;
+        line-height: 1.2;
     }
 
-    .step-card h5 { color: var(--pln-blue); font-weight: 600; font-size: 1rem; margin-bottom: 0.6rem; }
+    .mobile-subtitle {
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 1.05rem;
+        max-width: 34rem;
+        margin-top: 0.9rem;
+        margin-bottom: 0;
+    }
 
-    .step-card p { color: #64748B; font-size: 0.88rem; line-height: 1.6; margin-bottom: 0; }
+    .qr-box {
+        background: #fff;
+        padding: 0.7rem;
+        border-radius: 10px;
+        box-shadow: 0 14px 30px rgba(0, 40, 60, 0.25);
+        line-height: 0;
+        flex-shrink: 0;
+    }
 
-    .step-icon { font-size: 2rem; color: var(--pln-cyan); margin-bottom: 0.75rem; }
+    .badge-store {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        background: #000;
+        color: #fff;
+        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 9px;
+        padding: 0.5rem 1.15rem;
+        min-width: 200px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .badge-store:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+        color: #fff;
+    }
+
+    .badge-store .store-icon { font-size: 1.7rem; }
+
+    .badge-store small {
+        display: block;
+        font-size: 0.62rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        opacity: 0.85;
+    }
+
+    .badge-store strong {
+        display: block;
+        font-size: 1.22rem;
+        font-weight: 600;
+        line-height: 1.15;
+    }
+
+    .hashtag-pill {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 0.55rem 1.4rem;
+        border-radius: 10px;
+    }
+
+    /* Mockup HP — gambar asli aplikasi */
+    .phone-img {
+        width: 100%;
+        max-width: 420px;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+        filter: drop-shadow(0 30px 60px rgba(0, 40, 60, 0.35));
+        -webkit-user-drag: none;
+        user-select: none;
+    }
 
     .services-section { padding: 4.5rem 0; background: #fff; }
 
@@ -216,13 +278,24 @@
 
     .menu-card p { color: #64748B; font-size: 0.82rem; line-height: 1.6; margin-bottom: 0; }
 
-    @media (max-width: 991.98px) { .hero-title { font-size: 2.1rem; } }
+    /* Kartu layanan kini berupa link <a> — netralkan warna teks link
+       agar tampilan sama persis dengan kartu biasa. */
+    a.menu-card,
+    a.menu-card:hover {
+        color: inherit;
+    }
+
+    @media (max-width: 991.98px) {
+        .hero-title { font-size: 2.1rem; }
+        .logo-hero { height: 220px; max-width: 320px; }
+    }
 
     @media (max-width: 767.98px) {
         .hero-section { padding: 4rem 0 3rem; }
         .hero-title { font-size: 1.7rem; }
         .hero-subtitle { font-size: 0.95rem; }
-        .stats-section, .mekanisme-section, .services-section, .wilayah-section { padding: 3rem 0; }
+        .logo-hero { height: 170px; max-width: 250px; border-radius: 55px; }
+        .stats-section, .pln-mobile-section, .services-section, .wilayah-section { padding: 3rem 0; }
         .stat-value { font-size: 1.3rem; }
     }
 </style>
@@ -253,9 +326,11 @@
             </div>
             <div class="col-lg-5 text-center mt-5 mt-lg-0">
                 <img
-                    src="{{ asset('assets/images/logo-pln.png') }}"
+                    src="{{ asset('assets/images/logo-pln1.png') }}"
                     alt="Logo PLN Nusantara Power"
                     class="logo-hero"
+                    draggable="false"
+                    ondragstart="return false;"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
                 />
                 <span class="d-none text-white fw-bold" style="font-size: 1.4rem;">
@@ -317,52 +392,63 @@
 </section>
 
 <!-- ============================================
-     3. MEKANISME PELAYANAN
+     3. PROMO PLN MOBILE
      ============================================ -->
-<section class="mekanisme-section" id="mekanisme">
+<section class="pln-mobile-section" id="mekanisme">
     <div class="container px-4 px-lg-5">
-        <div class="text-center mb-5">
-            <h2 class="section-title" data-i18n="flow.title">Mekanisme Pelayanan Informasi Publik</h2>
-            <p class="section-subtitle" data-i18n="flow.subtitle">
-                Berikut adalah alur langkah pelayanan informasi publik di lingkungan PT PLN (Persero)
-            </p>
-        </div>
+        <div class="row align-items-center g-5">
+            {{-- Kolom kiri: teks + QR + tombol store --}}
+            <div class="col-lg-7">
+                <h2 class="mobile-title" data-i18n="mobile.title">Mulai Pengalaman Baru<br>di PLN Mobile</h2>
+                <p class="mobile-subtitle" data-i18n="mobile.subtitle">
+                    Semua keperluan listrik dan rumah dalam 1 aplikasi PLN Mobile, semua semakin mudah!
+                </p>
 
-        <div class="row g-4">
-            <div class="col-lg-3 col-md-6">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <div class="step-icon"><i class="fas fa-pen-to-square"></i></div>
-                    <h5 data-i18n="flow.step1_title">Pengajuan Permohonan</h5>
-                    <p data-i18n="flow.step1_desc">Pemohon mengajukan permohonan informasi publik secara tertulis melalui formulir yang telah disediakan.</p>
+                <div class="d-flex flex-wrap align-items-center gap-4 mt-5">
+                    <div class="qr-box">
+                        <img src="{{ asset('assets/halaman_utama/qr-pln-mobile.png') }}"
+                            alt="QR Code Unduh PLN Mobile" width="150" height="150"
+                            loading="lazy" decoding="async" draggable="false" ondragstart="return false;"
+                            onerror="this.parentElement.style.display='none';">
+                    </div>
+
+                    <div class="d-flex flex-column gap-3">
+                        <a href="https://play.google.com/store/apps/details?id=com.icon.pln123"
+                            target="_blank" rel="noopener" class="badge-store">
+                            <i class="fab fa-google-play store-icon"></i>
+                            <span>
+                                <small>Get it on</small>
+                                <strong>Google Play</strong>
+                            </span>
+                        </a>
+                        <a href="https://apps.apple.com/nz/app/pln-mobile/id1299581030"
+                            target="_blank" rel="noopener" class="badge-store">
+                            <i class="fab fa-apple store-icon"></i>
+                            <span>
+                                <small>Download on the</small>
+                                <strong>App Store</strong>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <span class="hashtag-pill" data-i18n="mobile.hashtag">#SemuaMakinMudah</span>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <div class="step-icon"><i class="fas fa-clipboard-check"></i></div>
-                    <h5 data-i18n="flow.step2_title">Penerimaan & Pencatatan</h5>
-                    <p data-i18n="flow.step2_desc">PPID menerima permohonan, mencatat dalam register, dan memberikan tanda terima kepada pemohon.</p>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-                <div class="step-card">
-                    <div class="step-number">3</div>
-                    <div class="step-icon"><i class="fas fa-magnifying-glass-chart"></i></div>
-                    <h5 data-i18n="flow.step3_title">Proses Verifikasi</h5>
-                    <p data-i18n="flow.step3_desc">PPID melakukan verifikasi dan inventarisasi informasi yang dimohonkan berdasarkan kriteria keterbukaan.</p>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-                <div class="step-card">
-                    <div class="step-number">4</div>
-                    <div class="step-icon"><i class="fas fa-paper-plane"></i></div>
-                    <h5 data-i18n="flow.step4_title">Penyampaian Informasi</h5>
-                    <p data-i18n="flow.step4_desc">Informasi publik disampaikan kepada pemohon paling lambat 10 hari kerja sejak permohonan diterima.</p>
-                </div>
+            {{-- Kolom kanan: mockup HP (gambar aplikasi) --}}
+            <div class="col-lg-5 d-none d-lg-block">
+                <img
+                    src="{{ asset('assets/images/mobile-pln.png') }}"
+                    alt="Tampilan aplikasi PLN Mobile"
+                    class="phone-img"
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                    ondragstart="return false;"
+                    onerror="this.style.display='none';"
+                >
             </div>
         </div>
     </div>
@@ -423,43 +509,43 @@
 
         <div class="row g-4">
             <div class="col-lg-3 col-md-6">
-                <div class="menu-card">
+                <a href="{{ route('informasi.layanan') }}" class="menu-card d-block text-decoration-none">
                     <div class="icon-circle" style="background: linear-gradient(135deg, var(--pln-blue), var(--pln-cyan))">
-                        <i class="fas fa-file-alt"></i>
+                        <i class="fas fa-circle-info"></i>
                     </div>
-                    <h5 data-i18n="services.menu1_title">Informasi Publik</h5>
-                    <p data-i18n="services.menu1_desc">Akses dokumen dan data informasi publik yang tersedia secara terbuka.</p>
-                </div>
+                    <h5 data-i18n="services.menu1_title">Informasi Layanan</h5>
+                    <p data-i18n="services.menu1_desc">Informasi mengenai layanan informasi publik yang tersedia di PPID.</p>
+                </a>
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <div class="menu-card">
+                <a href="{{ route('berita') }}" class="menu-card d-block text-decoration-none">
                     <div class="icon-circle" style="background: linear-gradient(135deg, var(--pln-cyan), #00d4ff)">
-                        <i class="fas fa-paper-plane"></i>
+                        <i class="fas fa-newspaper"></i>
                     </div>
-                    <h5 data-i18n="services.menu2_title">Permohonan Informasi</h5>
-                    <p data-i18n="services.menu2_desc">Ajukan permohonan informasi publik secara online dengan mudah dan cepat.</p>
-                </div>
+                    <h5 data-i18n="services.menu2_title">Berita</h5>
+                    <p data-i18n="services.menu2_desc">Baca kabar dan informasi terbaru seputar kegiatan PLTU Indramayu.</p>
+                </a>
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <div class="menu-card">
+                <a href="{{ route('layanan.daftar') }}" class="menu-card d-block text-decoration-none">
                     <div class="icon-circle" style="background: linear-gradient(135deg, var(--pln-yellow), #ffcc00); color: #1a1a2e;">
-                        <i class="fas fa-exclamation-triangle"></i>
+                        <i class="fas fa-concierge-bell"></i>
                     </div>
-                    <h5 data-i18n="services.menu3_title">Keberatan Informasi</h5>
-                    <p data-i18n="services.menu3_desc">Sampaikan keberatan apabila informasi yang dimohonkan ditolak atau tidak sesuai.</p>
-                </div>
+                    <h5 data-i18n="services.menu3_title">Daftar Layanan</h5>
+                    <p data-i18n="services.menu3_desc">Lihat daftar layanan informasi publik yang dapat diakses masyarakat.</p>
+                </a>
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <div class="menu-card">
+                <a href="{{ route('layanan.faq') }}" class="menu-card d-block text-decoration-none">
                     <div class="icon-circle" style="background: linear-gradient(135deg, var(--pln-red), #ff5555)">
-                        <i class="fas fa-bolt"></i>
+                        <i class="fas fa-circle-question"></i>
                     </div>
-                    <h5 data-i18n="services.menu4_title">Informasi Serta Merta</h5>
-                    <p data-i18n="services.menu4_desc">Akses informasi yang harus segera diumumkan demi keselamatan masyarakat.</p>
-                </div>
+                    <h5 data-i18n="services.menu4_title">FAQ</h5>
+                    <p data-i18n="services.menu4_desc">Temukan jawaban atas pertanyaan yang sering diajukan seputar layanan.</p>
+                </a>
             </div>
         </div>
     </div>
