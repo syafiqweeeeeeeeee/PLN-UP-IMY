@@ -37,7 +37,19 @@ class GalleryController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        return view('admin.galeri.index', compact('galleries'));
+        // Nama pembuat tiap foto (dari log aktivitas aksi 'create' modul 'galeri')
+        $creatorNames = ActivityLog::query()
+            ->where('module', 'galeri')
+            ->where('action', 'create')
+            ->where('subject_type', Gallery::class)
+            ->whereIn('subject_id', $galleries->getCollection()->pluck('id'))
+            ->orderBy('id')
+            ->get()
+            ->groupBy('subject_id')
+            ->map(fn ($logs) => $logs->first()->user_name)
+            ->all();
+
+        return view('admin.galeri.index', compact('galleries', 'creatorNames'));
     }
 
     /**

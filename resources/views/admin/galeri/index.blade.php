@@ -5,64 +5,206 @@
 
 @push('styles')
 <style>
-    .galeri-status-badge {
-        font-size: 0.68rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 0.25rem 0.65rem;
-        border-radius: 20px;
-    }
-    .galeri-status-badge.publikasi { background: #dcfce7; color: #166534; }
-    .galeri-status-badge.draft     { background: #fef3c7; color: #92400e; }
+    /* ============================================
+       KELOLA GALERI — GRID CARDS (pola news)
+       ============================================ */
 
-    .galeri-kategori-badge {
-        font-size: 0.68rem;
+    /* Badges thumbnail (status & kategori) */
+    .galeri-badge {
+        font-size: 0.62rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         padding: 0.2rem 0.55rem;
         border-radius: 6px;
     }
-    .galeri-kategori-badge.KEGIATAN    { background: rgba(255,230,0,0.92); color: #005B9C; }
-    .galeri-kategori-badge.FASILITAS   { background: rgba(0,163,224,0.88); color: #fff; }
-    .galeri-kategori-badge.DOKUMENTASI { background: rgba(22,163,74,0.88); color: #fff; }
-    .galeri-kategori-badge.SEREMONIAL  { background: rgba(139,92,246,0.88); color: #fff; }
+    .galeri-badge.status-publikasi { background: rgba(220, 252, 231, 0.92); color: #166534; }
+    .galeri-badge.status-draft     { background: rgba(254, 243, 199, 0.92); color: #92400e; }
 
-    .thumb-galeri {
-        width: 64px;
-        height: 48px;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #f1f5f9;
-        flex-shrink: 0;
-        border: 1px solid #e5e7eb;
-    }
-    .thumb-galeri img { width: 100%; height: 100%; object-fit: cover; }
+    .galeri-badge.cat { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    /* Setara backdrop-blur Tailwind: teks badge tetap terbaca di atas foto */
+    .galeri-badge { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    .galeri-badge.cat-KEGIATAN    { background: rgba(255,230,0,0.92); color: #005B9C; }
+    .galeri-badge.cat-FASILITAS   { background: rgba(0,163,224,0.88); color: #fff; }
+    .galeri-badge.cat-DOKUMENTASI { background: rgba(22,163,74,0.88); color: #fff; }
+    .galeri-badge.cat-SEREMONIAL  { background: rgba(139,92,246,0.88); color: #fff; }
 
     /* ============================================
-       DELETE CONFIRMATION MODAL (pola news modal)
+       GALERI CARD GRID — persist Tailwind:
+       grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6
+       (mobile-first; Tailwind TIDAK dimuat di layout admin,
+        jadi diterjemahkan ke CSS murni di sini)
+       ============================================ */
+    .galeri-grid {
+        display: grid;                                  /* grid */
+        grid-template-columns: 1fr;                     /* grid-cols-1 */
+        gap: 1.5rem;                                    /* gap-6 */
+    }
+    @media (min-width: 640px) {                         /* sm: */
+        .galeri-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }  /* sm:grid-cols-2 */
+    }
+    @media (min-width: 768px) {                         /* md: */
+        .galeri-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }  /* md:grid-cols-3 */
+    }
+
+    .galeri-card {
+        width: 100%;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        overflow: hidden;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+    }
+    .galeri-card:hover {
+        border-color: #d1d5db;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+        transform: translateY(-2px);
+    }
+
+    /* Media thumbnail 16:9 + placeholder */
+    .galeri-card-media {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        overflow: hidden;
+        position: relative;
+    }
+    .galeri-card-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+    .galeri-card:hover .galeri-card-media img { transform: scale(1.03); }
+    .galeri-card-media .image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e1;
+    }
+    .galeri-card-media .image-placeholder i { font-size: 2rem; margin-bottom: 0.4rem; }
+    .galeri-card-media .image-placeholder span { font-size: 0.72rem; font-weight: 500; }
+
+    /* Badge overlay DI DALAM container gambar — persist Tailwind:
+       absolute top-3 left-3 flex gap-2 (background semi-transparan) */
+    .galeri-card-badges {
+        position: absolute;                             /* absolute */
+        top: 0.75rem;                                   /* top-3 */
+        left: 0.75rem;                                  /* left-3 */
+        display: flex;                                  /* flex */
+        gap: 0.5rem;                                    /* gap-2 */
+        z-index: 2;
+    }
+
+    /* Body: judul + deskripsi (2 baris) */
+    .galeri-card-body {
+        padding: 1rem 1.15rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .galeri-card-title {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: var(--ink-heading);
+        margin: 0 0 0.4rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .galeri-card-excerpt {
+        font-size: 0.78rem;
+        color: var(--ink-muted);
+        line-height: 1.55;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+    }
+
+    /* Footer: tanggal + pembuat, aksi kanan bawah */
+    .galeri-card-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding-top: 0.7rem;
+        margin-top: 0.75rem;
+        border-top: 1px solid var(--line-soft);
+    }
+    .galeri-card-date {
+        font-size: 0.72rem;
+        color: var(--ink-faint);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        min-width: 0;
+    }
+    .galeri-card-date .creator {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .galeri-card-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+
+    /* Empty state mengikuti pola news-empty-state */
+    .galeri-empty-state {
+        grid-column: 1 / -1;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    .galeri-empty-state h6 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--ink-body);
+        margin: 0 0 0.3rem;
+    }
+    .galeri-empty-state p {
+        font-size: 0.85rem;
+        color: var(--ink-faint);
+        margin: 0 0 1.25rem;
+    }
+
+    /* ============================================
+       DELETE CONFIRMATION MODAL — persist Tailwind:
+       fixed inset-0 bg-black/50 backdrop-blur, hidden by default
+       (blok ini hilang pada perubahan sebelumnya sehingga
+        modal "bocor" tampil statis di bawah grid)
        ============================================ */
     .galeri-delete-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
+        display: none;                                  /* hidden / isOpen=false */
+        position: fixed;                                /* fixed */
+        inset: 0;                                       /* inset-0 */
+        background: rgba(0, 0, 0, 0.5);                 /* bg-black/50 */
         z-index: 2000;
         align-items: center;
         justify-content: center;
         padding: 1rem;
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);                     /* backdrop-blur */
+        -webkit-backdrop-filter: blur(4px);
     }
-    .galeri-delete-overlay.show { display: flex; }
+    .galeri-delete-overlay.show { display: flex; }      /* isOpen=true */
     .galeri-delete-dialog {
-        background: #fff;
+        background: var(--bg-card, #fff);
         border-radius: 16px;
         padding: 2rem 1.75rem 1.5rem;
         max-width: 420px;
         width: 100%;
         text-align: center;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        box-shadow: var(--shadow-pop, 0 20px 60px rgba(0, 0, 0, 0.25));
         animation: galeriDeleteIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     @keyframes galeriDeleteIn {
@@ -81,14 +223,14 @@
         justify-content: center;
         font-size: 1.4rem;
     }
-    .galeri-delete-title { font-size: 1.05rem; font-weight: 700; color: #1f2937; margin: 0 0 0.5rem; }
-    .galeri-delete-text { font-size: 0.88rem; color: #6b7280; line-height: 1.6; margin: 0 0 0.35rem; }
+    .galeri-delete-title { font-size: 1.05rem; font-weight: 700; color: var(--ink-heading); margin: 0 0 0.5rem; }
+    .galeri-delete-text { font-size: 0.88rem; color: var(--ink-muted); line-height: 1.6; margin: 0 0 0.35rem; }
     .galeri-delete-name {
         font-size: 0.85rem;
         font-weight: 600;
-        color: #1f2937;
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
+        color: var(--ink-heading);
+        background: var(--panel, #f9fafb);
+        border: 1px solid var(--line, #e5e7eb);
         border-radius: 8px;
         padding: 0.5rem 0.75rem;
         margin: 0.75rem 0 1.25rem;
@@ -136,7 +278,7 @@
 </div>
 
 {{-- ============================================
-     FILTER BAR (server-side, auto submit)
+     FILTER BAR (server-side, auto submit) — tetap berfungsi
      ============================================ --}}
 <form method="GET" action="{{ route('admin.galeri.index') }}" id="galeriFilterForm">
     <div class="page-filter-bar">
@@ -162,114 +304,99 @@
 </form>
 
 {{-- ============================================
-     GALLERY TABLE
+     GALERI CARD GRID
      ============================================ --}}
-<div class="dash-card">
-    <div class="table-responsive">
-        <table class="table admin-table align-middle mb-0">
-            <thead>
-                <tr>
-                    <th style="min-width: 280px;">Foto</th>
-                    <th>Kategori</th>
-                    <th>Tanggal Kegiatan</th>
-                    <th>Status</th>
-                    <th class="th-actions">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($galleries as $item)
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="thumb-galeri">
-                                <img src="{{ $item->image_url }}" alt="{{ $item->judul }}" loading="lazy">
-                            </div>
-                            <div style="min-width: 0;">
-                                <div style="font-weight: 600; color: var(--ink-heading); font-size: 0.88rem;">
-                                    {{ $item->judul }}
-                                </div>
-                                <div style="color: var(--ink-faint); font-size: 0.78rem; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;">
-                                    {{ $item->deskripsi ? Str::limit($item->deskripsi, 60) : 'Tanpa deskripsi' }}
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="galeri-kategori-badge {{ $item->kategori }}">{{ $item->kategori }}</span>
-                    </td>
-                    <td>
-                        <span style="font-size: 0.85rem; color: var(--ink-muted); white-space: nowrap;">
-                            <i class="far fa-calendar me-1"></i>{{ $item->tanggal_kegiatan->translatedFormat('d M Y') }}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="galeri-status-badge {{ $item->status }}">
-                            {{ ucfirst($item->status) }}
-                        </span>
-                    </td>
-                    <td class="td-actions">
-                        <div class="d-flex gap-1 justify-content-end">
-                            {{-- Quick Toggle Status: mata terbuka = publikasi (klik → draft), mata coret = draft (klik → publikasi) --}}
-                            <form action="{{ route('admin.galeri.toggle-status', $item->id) }}" method="POST" style="display: inline;">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="news-action-btn {{ $item->status === 'publikasi' ? 'publish' : 'unpublish' }}" title="{{ $item->status === 'publikasi' ? 'Tarik ke Draft' : 'Publikasikan' }}">
-                                    <i class="fas {{ $item->status === 'publikasi' ? 'fa-eye' : 'fa-eye-slash' }}"></i>
-                                </button>
-                            </form>
-                            <a href="{{ route('admin.galeri.edit', $item->id) }}" class="news-action-btn edit" title="Edit">
-                                <i class="fas fa-pen"></i>
-                            </a>
-                            <button type="button" class="news-action-btn delete" title="Hapus"
-                                    onclick="openGaleriDeleteModal('{{ route('admin.galeri.destroy', $item->id) }}', '{{ addslashes($item->judul) }}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5">
-                        <div class="news-empty-state" style="grid-column: auto; border: none;">
-                            <div class="empty-icon"><i class="fas fa-images"></i></div>
-                            <h6>Belum ada foto galeri</h6>
-                            <p>Klik tombol "Tambah Foto" untuk mengunggah foto pertama.</p>
-                        </div>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    {{-- Pagination (pola news) --}}
-    @if ($galleries->hasPages())
-    <div class="page-pagination">
-        <div class="pagination">
-            @if ($galleries->onFirstPage())
-                <span class="page-btn disabled"><i class="fas fa-chevron-left"></i></span>
+<div class="galeri-grid" id="galeriGrid">
+    @forelse ($galleries as $item)
+    <div class="galeri-card">
+        {{-- Media: thumbnail + badge status & kategori --}}
+        <div class="galeri-card-media">
+            @if (!empty($item->file_gambar))
+                <img src="{{ $item->image_url }}" alt="{{ $item->judul }}" loading="lazy">
             @else
-                <a class="page-btn" href="{{ $galleries->previousPageUrl() }}"><i class="fas fa-chevron-left"></i></a>
+                <div class="image-placeholder">
+                    <i class="far fa-image"></i>
+                    <span>Tanpa Gambar</span>
+                </div>
             @endif
+            <div class="galeri-card-badges">
+                <span class="galeri-badge status-{{ $item->status }}">{{ ucfirst($item->status) }}</span>
+                <span class="galeri-badge cat cat-{{ $item->kategori }}">{{ $item->kategori }}</span>
+            </div>
+        </div>
 
-            @foreach ($galleries->getUrlRange(max(1, $galleries->currentPage() - 2), min($galleries->lastPage(), $galleries->currentPage() + 2)) as $page => $url)
-                <a class="page-btn {{ $page == $galleries->currentPage() ? 'active' : '' }}" href="{{ $url }}">{{ $page }}</a>
-            @endforeach
+        {{-- Body: judul + deskripsi --}}
+        <div class="galeri-card-body">
+            <h6 class="galeri-card-title">{{ $item->judul }}</h6>
+            <p class="galeri-card-excerpt">{{ $item->deskripsi ? $item->deskripsi : 'Tanpa deskripsi' }}</p>
 
-            @if ($galleries->hasMorePages())
-                <a class="page-btn" href="{{ $galleries->nextPageUrl() }}"><i class="fas fa-chevron-right"></i></a>
-            @else
-                <span class="page-btn disabled"><i class="fas fa-chevron-right"></i></span>
-            @endif
+            {{-- Footer: tanggal kegiatan + pembuat | aksi --}}
+            <div class="galeri-card-meta">
+                <span class="galeri-card-date">
+                    <i class="far fa-calendar"></i>
+                    <span>{{ $item->tanggal_kegiatan->translatedFormat('d M Y') }}</span>
+                    @if ($creatorNames[$item->id] ?? null)
+                        <span class="creator">· {{ $creatorNames[$item->id] }}</span>
+                    @endif
+                </span>
+                <div class="galeri-card-actions">
+                    {{-- Toggle status: mata = publikasi (klik → draft), mata coret = draft (klik → publikasi) --}}
+                    <form action="{{ route('admin.galeri.toggle-status', $item->id) }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="news-action-btn {{ $item->status === 'publikasi' ? 'publish' : 'unpublish' }}" title="{{ $item->status === 'publikasi' ? 'Tarik ke Draft' : 'Publikasikan' }}">
+                            <i class="fas {{ $item->status === 'publikasi' ? 'fa-eye' : 'fa-eye-slash' }}"></i>
+                        </button>
+                    </form>
+                    <a href="{{ route('admin.galeri.edit', $item->id) }}" class="news-action-btn edit" title="Edit">
+                        <i class="fas fa-pen"></i>
+                    </a>
+                    <button type="button" class="news-action-btn delete" title="Hapus"
+                            onclick="openGaleriDeleteModal('{{ route('admin.galeri.destroy', $item->id) }}', '{{ addslashes($item->judul) }}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-    @endif
+    @empty
+    <div class="galeri-empty-state">
+        <div class="empty-icon"><i class="fas fa-images"></i></div>
+        <h6>Belum ada foto galeri</h6>
+        <p>Klik tombol "Tambah Foto" untuk mengunggah foto pertama.</p>
+    </div>
+    @endforelse
 </div>
 
+{{-- Pagination (pola news) --}}
+@if ($galleries->hasPages())
+<div class="page-pagination">
+    <div class="pagination">
+        @if ($galleries->onFirstPage())
+            <span class="page-btn disabled"><i class="fas fa-chevron-left"></i></span>
+        @else
+            <a class="page-btn" href="{{ $galleries->previousPageUrl() }}"><i class="fas fa-chevron-left"></i></a>
+        @endif
+
+        @foreach ($galleries->getUrlRange(max(1, $galleries->currentPage() - 2), min($galleries->lastPage(), $galleries->currentPage() + 2)) as $page => $url)
+            <a class="page-btn {{ $page == $galleries->currentPage() ? 'active' : '' }}" href="{{ $url }}">{{ $page }}</a>
+        @endforeach
+
+        @if ($galleries->hasMorePages())
+            <a class="page-btn" href="{{ $galleries->nextPageUrl() }}"><i class="fas fa-chevron-right"></i></a>
+        @else
+            <span class="page-btn disabled"><i class="fas fa-chevron-right"></i></span>
+        @endif
+    </div>
+</div>
+@endif
+
 {{-- ============================================
-     DELETE CONFIRMATION MODAL
+     DELETE CONFIRMATION MODAL — pop-up melayang di tengah layar
+     (fixed inset-0 bg-black/50 backdrop-blur), default TERSEMBUNYI
+     (isOpen = false). Tampil hanya saat tombol hapus diklik.
      ============================================ --}}
-<div class="galeri-delete-overlay" id="deleteGaleriModal">
+<div class="galeri-delete-overlay" id="deleteGaleriModal" hidden>
     <div class="galeri-delete-dialog">
         <div class="galeri-delete-icon">
             <i class="fas fa-trash-can"></i>
@@ -293,17 +420,20 @@
 
 @push('scripts')
 <script>
-    // Delete modal
+    // Delete modal — isOpen state (default false, elemen ber-atribut hidden)
     function openGaleriDeleteModal(url, title) {
         const modal = document.getElementById('deleteGaleriModal');
         document.getElementById('deleteGaleriTitle').textContent = title;
         document.getElementById('deleteGaleriForm').action = url;
+        modal.hidden = false;           // isOpen = true
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
 
     function closeGaleriDeleteModal() {
-        document.getElementById('deleteGaleriModal').classList.remove('show');
+        const modal = document.getElementById('deleteGaleriModal');
+        modal.classList.remove('show');
+        modal.hidden = true;            // isOpen = false
         document.body.style.overflow = '';
     }
 
