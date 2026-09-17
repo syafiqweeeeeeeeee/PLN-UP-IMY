@@ -434,7 +434,7 @@
 
                 <div class="promo-actions d-flex flex-wrap align-items-center gap-4 mt-5">
                     <div class="qr-box">
-                        <img src="{{ asset('assets/halaman_utama/qr-pln-mobile.png') }}"
+                        <img src="{{ asset('assets/images/qr-mobile-pln.png') }}"
                             alt="QR Code Unduh PLN Mobile" width="150" height="150"
                             loading="lazy" decoding="async" draggable="false" ondragstart="return false;"
                             onerror="this.parentElement.style.display='none';">
