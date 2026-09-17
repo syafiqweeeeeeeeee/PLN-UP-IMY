@@ -1,7 +1,7 @@
 # Matriks Role × Akses — Portal Internal UP Indramayu
 
 > Acuan untuk menentukan role mana yang perlu dibuat di sistem (Role Management).
-> Dibuat: 2026-09-16 · Berdasarkan struktur divisi dari bagan organisasi.
+> Dibuat: 2026-09-16 · **Diperbarui (Revisi 2): 2026-09-17** — disinkronkan dengan implementasi RBAC per-aksi & keputusan SRD 1.1.
 
 ---
 
@@ -41,6 +41,11 @@ Legend: ✅ = punya permission · ❌ = tidak
 | `pages.view` | ✅ | ✅ | ✅ | ✅ |
 | `pages.create` / `pages.edit` | ❌ | ❌ | ✅ | ✅ |
 | `pages.delete` | ❌ | ❌ | ❌ | ✅ |
+| `announcements.view` (kelola pengumuman) | ❌ | ❌ | ❌ ² | ✅ |
+| `announcements.create/edit/publish` | ❌ | ❌ | ❌ ² | ✅ |
+| `announcements.delete` | ❌ | ❌ | ❌ | ✅ |
+| `galleries.*` (kelola galeri) | ❌ | ❌ | ❌ ² | ✅ |
+| `contact_messages.*` (permohonan & pesan) | ❌ | ❌ | ❌ | ✅ |
 | `internal.view` (halaman internal) | ✅ | ✅ | ✅ | ✅ |
 | `applications.view` (aplikasi internal) | ✅ | ✅ | ✅ | ✅ |
 | `applications.create/edit/delete` | ❌ | ❌ | ❌ | ✅ |
@@ -51,8 +56,9 @@ Legend: ✅ = punya permission · ❌ = tidak
 | `settings.view` / `settings.edit` | ❌ | ❌ | ❌ | ✅ |
 
 ¹ Hapus dibiarkan milik Administrator agar konten tidak terhapus tanpa kontrol. Bisa diubah nanti.
+² Seluruh route admin kini ditegakkan middleware `permission:` per aksi (implementasi 17 Sep 2026, diuji `RbacTest`). Modul Pengumuman, Galeri, dan Permohonan saat ini hanya Administrator; jika nanti PIC konten juga perlu mengelola pengumuman/galeri, cukup centang permission-nya di Role Management — tanpa ubah kode.
 
-**Catatan:** jumlah baris matriksnya memang sedikit berbeda untuk tiap role — justru itu tujuannya. Perbedaan akses hanya muncul di **Editor Konten** (boleh buat/edit/publish) dan **Pimpinan** (bisa lihat log aktivitas). Sisanya identik.
+**Catatan:** perbedaan akses antar role muncul di **Editor Konten** (boleh buat/edit/publish berita & halaman) dan **Pimpinan** (bisa lihat log aktivitas). Modul manajemen lainnya identik: hanya Administrator. Karyawan tetap bisa *membaca* pengumuman/berita/halaman internal lewat `internal.view`, bukan lewat modul admin.
 
 ---
 
@@ -61,12 +67,14 @@ Legend: ✅ = punya permission · ❌ = tidak
 | # | Role | Status | Deskripsi | Isi permission |
 |---|---|---|---|---|
 | 1 | **Karyawan** | ✅ sudah ada (seeder) | Default semua divisi | `dashboard.view`, `news.view`, `pages.view`, `internal.view`, `applications.view`, `logout` |
-| 2 | **Pimpinan** | 🆕 buat baru | Kepala UP / koordinator — pantau saja | Karyawan + `activity_logs.view` |
-| 3 | **Editor Konten** | 🆕 buat baru | PIC publikasi konten (kemungkinan dari SDM Umum CSR) | Karyawan + `news.create`, `news.edit`, `news.publish`, `pages.create`, `pages.edit` |
+| 2 | **Pimpinan** | 🆕 belum dibuat di seeder | Kepala UP / koordinator — pantau saja | Karyawan + `activity_logs.view` |
+| 3 | **Editor Konten** | 🆕 belum dibuat di seeder | PIC publikasi konten (kemungkinan dari SDM Umum CSR) | Karyawan + `news.create`, `news.edit`, `news.publish`, `announcements.create`, `announcements.edit`, `announcements.publish`, `pages.create`, `pages.edit` |
 | 4 | **Administrator** | ✅ sudah ada (seeder) | Kelola sistem penuh | semua permission |
 | 5 | **Viewer** (publik) | ✅ sudah ada | Pengunjung web publik tanpa login | bukan role sistem — tanpa login |
 
 **Hasil: hanya 2 role baru yang perlu dibuat** (Pimpinan, Editor Konten). 24 divisi cukup diarahkan ke role **Karyawan**.
+
+> **Status per 17 Sep 2026:** `PermissionSeeder` baru punya role **Administrator** dan **Karyawan** (dengan permission pengumuman/galeri/permohonan lengkap). Role Pimpinan & Editor Konten dibuat bersamaan implementasi FR-015/FR-016 — dicatat di kolom status. Editor Konten kini termasuk `announcements.create/edit/publish` sesuai keputusan bahwa PIC konten mengelola pengumuman juga.
 
 ---
 
@@ -86,14 +94,18 @@ Legend: ✅ = punya permission · ❌ = tidak
 ## 6. Celah & catatan teknis
 
 1. **~~Permission Pengumuman & Galeri belum ada~~** ✅ (16 Sep 2026) — `announcements.*`, `galleries.*`, dan `contact_messages.*` sudah ditambahkan ke `PermissionSeeder`, dan **semua route admin kini ditegakkan middleware `permission:`** (berita, pengumuman, galeri, users, permohonan, roles). Sidebar & dashboard ikut menyembunyikan modul yang tidak punya permission.
-2. **Form user masih single-role.** Pivot `role_user` sudah mendukung multi-role, tapi `UserController` baru sinkron 1 role. Cukup untuk skema di atas (tiap orang ≤ 2 role), tapi kalau mau "Karyawan + Editor" sekaligus perlu diubah jadi multi-select.
-3. **Targeting konten per divisi** (pengumuman khusus Operasi saja, dsb.) = pekerjaan modul **Grup Karyawan** (`groups.*` sudah disiapkan di seeder), bukan role tambahan.
-4. Permission berakhiran `-x` untuk klaster yang aksesnya nanti ternyata berbeda (mis. Pengadaan boleh tambah aplikasi internal) cukup dicentang via Role Management — tanpa kode.
+2. **~~RBAC belum ditegakkan konsisten~~** ✅ (17 Sep 2026) — seluruh route admin (berita, pengumuman, galeri, users, permohonan, roles, menus) kini di-gate per aksi via middleware `permission:`; sidebar & quick-action dashboard ikut disembunyikan bila tidak punya permission. Teruji oleh `tests/Feature/RbacTest.php` (125 test lulus).
+3. **Form user masih single-role.** Pivot `role_user` sudah mendukung multi-role, tapi `UserController` baru sinkron 1 role. Cukup untuk skema di atas (tiap orang ≤ 2 role), tapi kalau mau "Karyawan + Editor" sekaligus perlu diubah jadi multi-select.
+4. **Targeting konten per divisi** (pengumuman khusus Operasi saja, dsb.) = pekerjaan modul **Grup Karyawan** (`groups.*` sudah disiapkan di seeder), bukan role tambahan.
+5. Permission untuk klaster yang aksesnya nanti ternyata berbeda (mis. Pengadaan boleh tambah aplikasi internal) cukup dicentang via Role Management — tanpa kode.
 
 ---
 
-## 7. Keputusan yang perlu ditetapkan
+## 7. Keputusan
 
+- [x] **Arsitektur divisi vs role** ✅ ditetapkan (SRD 1.1, FR-011–FR-013) — divisi adalah entitas terpisah dari role (tabel `divisions` + `users.division_id`), aplikasi/web eksternal dipetakan ke divisi lewat pivot `application_division`. Tidak ada role per divisi.
+- [x] **RBAC per-aksi di seluruh route admin** ✅ ditetapkan & diimplementasikan (17 Sep 2026) — middleware `permission:` di semua endpoint, sidebar & dashboard adaptif, diuji `RbacTest`.
+- [x] **Editor Konten ikut mengelola pengumuman** ✅ ditetapkan (Revisi 2) — role Editor Konten mendapat `announcements.create/edit/publish` selain berita & halaman.
 - [ ] **Siapa PIC konten?** (pemegang role Editor Konten — dari divisi mana?)
 - [ ] **Apakah ada divisi yang aksesnya benar-benar berbeda** dari baris Karyawan di matriks? (mis. Pengadaan boleh kelola aplikasi internal)
 - [ ] **Pengumuman internal per-unit atau untuk semua?** → menentukan apakah modul Grup Karyawan perlu dibangun sekarang atau nanti.
