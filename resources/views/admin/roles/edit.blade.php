@@ -73,11 +73,14 @@
         padding:0.6rem 1.2rem; font-weight:500; transition:all 0.2s ease;
     }
     .btn-back:hover { background:#e5e7eb; color:#374151; }
+    /* Selaras dengan btn-corp-add (kuning PLN #FFC107) di admin.css */
     .btn-submit {
-        background:var(--pln-yellow); color:var(--pln-blue); border:none; border-radius:8px;
+        background:#FFC107; color:#1a1a2e; border:none; border-radius:8px;
         padding:0.65rem 1.5rem; font-weight:700; font-size:0.9rem; transition:all 0.2s ease;
+        box-shadow:0 2px 8px rgba(255,193,7,0.3);
     }
-    .btn-submit:hover { background:#fff; box-shadow:0 4px 12px rgba(255,230,0,0.4); transform:translateY(-1px); }
+    .btn-submit:hover { background:#ffb300; color:#1a1a2e; box-shadow:0 4px 16px rgba(255,193,7,0.45); transform:translateY(-1px); }
+    .btn-submit:active { transform:translateY(0) scale(0.97); box-shadow:0 1px 4px rgba(255,193,7,0.25); }
 </style>
 @endpush
 

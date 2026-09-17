@@ -71,6 +71,34 @@
         text-overflow: ellipsis;
     }
     .role-delete-actions { display: flex; gap: 0.6rem; justify-content: center; }
+
+    /* Tombol modal — selaras persis dengan .news-delete-btn di /admin/news */
+    .role-delete-btn {
+        padding: 0.6rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    .role-delete-btn.cancel {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+    .role-delete-btn.cancel:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+    .role-delete-btn.confirm {
+        background: #DC2626;
+        color: #fff;
+    }
+    .role-delete-btn.confirm:hover {
+        background: #B91C1C;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
 </style>
 @endpush
 
@@ -118,11 +146,11 @@
             <thead>
                 <tr>
                     <th>Nama Role</th>
-                    <th>Deskripsi</th>
+                    <th class="col-hide-mobile">Deskripsi</th>
                     <th style="text-align: center;">User</th>
                     <th style="text-align: center;">Permission</th>
                     <th style="text-align: center;">Status</th>
-                    <th>Dibuat</th>
+                    <th class="col-hide-mobile">Dibuat</th>
                     <th class="th-actions">Aksi</th>
                 </tr>
             </thead>
@@ -132,7 +160,7 @@
                     <td>
                         <div style="font-weight:600; color:var(--ink-heading);">{{ $role->name }}</div>
                     </td>
-                    <td style="color:var(--ink-muted); font-size:0.85rem;">
+                    <td class="col-hide-mobile" style="color:var(--ink-muted); font-size:0.85rem;">
                         {{ $role->description ?? '-' }}
                     </td>
                     <td style="text-align:center; color:var(--ink-body); font-weight:600;">
@@ -146,7 +174,7 @@
                             {{ $role->status ? 'Aktif' : 'Nonaktif' }}
                         </span>
                     </td>
-                    <td style="color:var(--ink-muted); font-size:0.85rem;">
+                    <td class="col-hide-mobile" style="color:var(--ink-muted); font-size:0.85rem;">
                         {{ $role->created_at->format('d M Y') }}
                     </td>
                     <td class="td-actions">
@@ -224,20 +252,25 @@
         <p class="role-delete-text">Apakah Anda yakin ingin menghapus role ini?</p>
         <div class="role-delete-name" id="deleteRoleName"></div>
         <div class="role-delete-actions">
-            <button class="btn-corp btn-corp-soft" onclick="closeRoleDeleteModal()">Batal</button>
+            <button class="role-delete-btn cancel" onclick="closeRoleDeleteModal()">Batal</button>
             <form id="deleteRoleForm" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn-corp btn-corp-delete">
-                    <i class="fas fa-trash"></i> Ya, Hapus
+                <button type="submit" class="role-delete-btn confirm">
+                    <i class="fas fa-trash me-1"></i> Ya, Hapus
                 </button>
             </form>
         </div>
     </div>
 </div>
-@endsection
 
-@push('scripts')
+{{-- ============================================================
+     Script INLINE di dalam content section — WAJIB di sini (bukan
+     @push('scripts')) karena client-side router (router.js) hanya
+     menukar isi <main> dan mengeksekusi ulang <script> di dalamnya.
+     Jika ditaruh di @push('scripts'), popup hapus tidak muncul
+     saat berpindah halaman via sidebar tanpa reload.
+     ============================================================ --}}
 <script>
     // Delete modal
     function openRoleDeleteModal(roleId, roleName) {
@@ -274,4 +307,4 @@
         }).then(r => r.ok ? window.location.reload() : alert('Gagal memperbarui status.'));
     }
 </script>
-@endpush
+@endsection

@@ -61,16 +61,19 @@
         color:#6b7280;
         margin-bottom:0.5rem;
     }
+    /* Selaras dengan btn-corp-add (kuning PLN #FFC107) di admin.css */
     .btn-permission {
-        background:var(--pln-yellow);
-        color:var(--pln-blue);
+        background:#FFC107;
+        color:#1a1a2e;
         border:none;
         border-radius:8px;
         padding:0.6rem 1.2rem;
         font-weight:700;
         transition:all 0.2s ease;
+        box-shadow:0 2px 8px rgba(255,193,7,0.3);
     }
-    .btn-permission:hover { background:#fff; }
+    .btn-permission:hover { background:#ffb300; color:#1a1a2e; box-shadow:0 4px 16px rgba(255,193,7,0.45); transform:translateY(-1px); }
+    .btn-permission:active { transform:translateY(0) scale(0.97); box-shadow:0 1px 4px rgba(255,193,7,0.25); }
     .btn-permission-outline {
         background:#f3f4f6;
         color:#374151;
