@@ -251,7 +251,7 @@
             'services.menu3_title': 'Service List',
             'services.menu3_desc': 'Browse the list of public information services accessible to the public.',
             'services.menu4_title': 'FAQ',
-            'services.menu4_desc': 'Find answers to frequently asked questions about our services.',,
+            'services.menu4_desc': 'Find answers to frequently asked questions about our services.',
 
             /* ---------- FOOTER ---------- */
             'footer.title': 'PT PLN Nusantara Power UP PLTU Indramayu',

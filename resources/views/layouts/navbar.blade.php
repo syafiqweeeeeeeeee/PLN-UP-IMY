@@ -102,11 +102,12 @@
                      persis di antara "Kontak" dan tombol "Login" --}}
                 <li class="nav-item lang-switcher" id="lang-switcher">
                     <button class="nav-link lang-toggle" type="button" id="langToggle" aria-expanded="false" aria-haspopup="true" title="Bahasa / Language">
-                        <i data-feather="globe" style="width:16px;height:16px;"></i> <span id="lang-current">ID</span>
+                        <i class="fas fa-globe lang-globe"></i> <span id="lang-current">ID</span>
                         <span class="caret"></span>
                     </button>
                     <ul class="lang-menu" id="langMenu">
-                        <li>                                <button class="lang-option {{ session('lang', 'id') === 'id' ? 'active' : '' }}" type="button" data-lang="id">
+                        <li>
+                            <button class="lang-option {{ session('lang', 'id') === 'id' ? 'active' : '' }}" type="button" data-lang="id">
                                 <img src="{{ asset('assets/images/flag-indonesia.svg') }}" alt="ID" class="flag-img me-2"> <span data-i18n="lang.indonesian">Bahasa Indonesia</span>
                             </button>
                         </li>
@@ -121,7 +122,7 @@
 
             {{-- Login Button (desktop saja) — di mobile disembunyikan karena
              sudah digantikan tombol login terpisah di samping hamburger --}}
-            <div class="d-none d-lg-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
+            <div class="nav-login-wrap d-none d-lg-flex align-items-center ms-lg-3">
                 <a href="{{ route('login') }}" class="btn btn-login">
                     <span data-i18n="nav.login">Login</span>
                 </a>

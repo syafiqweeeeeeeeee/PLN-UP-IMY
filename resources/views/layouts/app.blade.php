@@ -335,6 +335,52 @@
                 color: var(--pln-cyan);
             }
 
+            /* Ikon globe pada language switcher — ukuran & perataan
+               konsisten dengan teks menu navbar lainnya. */
+            .lang-switcher .lang-globe {
+                font-size: 0.95rem;
+                line-height: 1;
+            }
+
+            /* Desktop: semua item navbar (menu + language + login)
+               sejajar horizontal di tengah secara vertikal. */
+            .navbar-pln .navbar-nav {
+                align-items: center;
+            }
+
+            /* Pembungkus tombol Login desktop — sejajar dengan nav-link,
+               tanpa margin-top yang bikin turun tidak sejajar. */
+            .navbar-pln .nav-login-wrap {
+                margin-top: 0;
+            }
+
+            /* Mobile (<992px): language switcher jadi baris penuh,
+               dropdown bahasa mengalir dalam daftar menu (bukan melayang). */
+            @media (max-width: 991.98px) {
+                .navbar-pln .navbar-nav {
+                    align-items: stretch;
+                    padding-bottom: 0.5rem;
+                }
+                .navbar-pln .lang-switcher {
+                    width: 100%;
+                }
+                .navbar-pln .lang-switcher .lang-toggle {
+                    display: flex;
+                    width: 100%;
+                    justify-content: flex-start;
+                }
+                .navbar-pln .lang-switcher .lang-menu {
+                    position: static;
+                    display: none;
+                    width: 100%;
+                    margin-top: 0.25rem;
+                    box-shadow: none;
+                }
+                .navbar-pln .lang-switcher.open .lang-menu {
+                    display: block;
+                }
+            }
+
             /* HERO */
             .hero-section {
                 background: linear-gradient(135deg, var(--pln-blue) 0%, #00566b 50%, var(--pln-dark) 100%);

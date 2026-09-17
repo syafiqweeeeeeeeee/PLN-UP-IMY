@@ -188,9 +188,31 @@
         user-select: none;
     }
 
-    .services-section { padding: 4.5rem 0; background: #fff; }
+    .services-section {
+        padding: 4.5rem 0;
+        /* Selaras dengan section PLN Mobile: gradient biru-cyan var(--pln-blue) */
+        background:
+            radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.14) 0, transparent 42%),
+            radial-gradient(circle at 10% 90%, rgba(255, 255, 255, 0.10) 0, transparent 40%),
+            linear-gradient(135deg, #00c2d1 0%, #00a6bd 55%, #008fa8 100%);
+    }
 
-    .wilayah-section { padding: 4.5rem 0; background: var(--pln-gray); }
+    .services-section .section-title { color: #fff; }
+
+    .services-section .section-subtitle { color: rgba(255, 255, 255, 0.9); }
+
+    .wilayah-section {
+        padding: 4.5rem 0;
+        /* Selaras dengan section PLN Mobile: gradient biru-cyan var(--pln-blue) */
+        background:
+            radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.14) 0, transparent 42%),
+            radial-gradient(circle at 10% 90%, rgba(255, 255, 255, 0.10) 0, transparent 40%),
+            linear-gradient(135deg, #00c2d1 0%, #00a6bd 55%, #008fa8 100%);
+    }
+
+    .wilayah-section .section-title { color: #fff; }
+
+    .wilayah-section .section-subtitle { color: rgba(255, 255, 255, 0.9); }
 
     /* --- Banner slider (Wilayah Operasional + Sistem Interkoneksi) ---
        Gaya banner seperti slider PLN Mobile: gambar penuh dalam frame
@@ -252,20 +274,21 @@
     .banner-dots {
         position: absolute;
         left: 50%;
-        bottom: 0.8rem;
+        bottom: 0.7rem;
         transform: translateX(-50%);
         display: flex;
-        gap: 0.45rem;
+        align-items: center;
+        gap: 0.35rem;
         z-index: 3;
     }
 
     .banner-dots [data-bs-target] {
-        width: 10px;
-        height: 10px;
+        width: 7px;
+        height: 7px;
         border-radius: 50%;
         border: none;
         background: rgba(255, 255, 255, 0.55);
-        /* Area sentuh lebih besar (20px) tanpa mengubah ukuran visual:
+        /* Area sentuh lebih besar (17px) tanpa mengubah ukuran visual:
            padding transparan + background hanya di area konten */
         background-clip: padding-box;
         box-sizing: content-box;
@@ -277,7 +300,7 @@
 
     .banner-dots [data-bs-target].active {
         background: var(--pln-yellow);
-        transform: scale(1.25);
+        transform: scale(1.15);
     }
 
     /* Tombol panah prev/next */
@@ -643,6 +666,24 @@
     if (prefersReducedMotion && window.bootstrap && window.bootstrap.Carousel) {
         window.bootstrap.Carousel.getOrCreateInstance(slider, { interval: false }).pause();
     }
+
+    /* Sinkronisasi dot indikator kustom (.banner-dots): Bootstrap hanya
+       memindahkan class .active untuk elemen di dalam .carousel-indicators,
+       jadi titik kuning kita sinkronkan manual mengikuti slide aktif. */
+    var dots = slider.querySelectorAll('.banner-dots [data-bs-slide-to]');
+    var syncDots = function (index) {
+        dots.forEach(function (dot, i) {
+            dot.classList.toggle('active', i === index);
+            if (i === index) {
+                dot.setAttribute('aria-current', 'true');
+            } else {
+                dot.removeAttribute('aria-current');
+            }
+        });
+    };
+    slider.addEventListener('slide.bs.carousel', function (event) {
+        syncDots(event.to);
+    });
 })();
 </script>
 @endpush
