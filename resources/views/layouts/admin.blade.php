@@ -178,21 +178,23 @@
                    data-no-router>
                     <span class="link-icon"><i class="fas fa-th-large"></i></span>
                     <span class="link-text">Dashboard</span>
-                </a>
-
+                </a>                @can('news.view')
                 <a href="{{ route('admin.news.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.news.*')) active @endif"
                    data-no-router>
                     <span class="link-icon"><i class="fas fa-newspaper"></i></span>
                     <span class="link-text">Berita</span>
                 </a>
+                @endcan
 
+                @can('announcements.view')
                 <a href="{{ route('admin.announcements.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.announcements.*')) active @endif"
                    data-no-router>
                     <span class="link-icon"><i class="fas fa-bullhorn"></i></span>
                     <span class="link-text">Pengumuman</span>
                 </a>
+                @endcan
                 @can('pages.view')
                 <a href="{{ route('admin.pages.index') }}" class="sidebar-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
                     <span class="link-icon"><i class="fas fa-file-lines"></i></span>
@@ -210,19 +212,23 @@
                 {{-- ===== MANAJEMEN ===== --}}
                 <div class="sidebar-section-label">Manajemen</div>
 
+                @can('users.view')
                 <a href="{{ route('admin.users.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.users.*')) active @endif"
                    data-no-router>
                     <span class="link-icon"><i class="fas fa-users"></i></span>
                     <span class="link-text">Pengguna</span>
                 </a>
+                @endcan
 
+                @can('galleries.view')
                 <a href="{{ route('admin.galeri.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.galeri.*')) active @endif"
                    data-no-router>
                     <span class="link-icon"><i class="fas fa-images"></i></span>
                     <span class="link-text">Galeri</span>
                 </a>
+                @endcan
 
                 <a href="#" class="sidebar-link" tabindex="-1" aria-disabled="true">
                     <span class="link-icon"><i class="fas fa-file-invoice"></i></span>
@@ -231,6 +237,7 @@
 
                 {{-- ===== LAINNYA ===== --}}
                 <div class="sidebar-section-label">Lainnya</div>
+                @can('contact_messages.view')
                 <a href="{{ route('admin.contact-messages.index') }}" class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
                     <span class="link-icon"><i class="fas fa-paper-plane"></i></span>
                     Permohonan
@@ -241,6 +248,7 @@
                         <span class="badge" title="{{ $unreadPermohonan }} pesan belum dibaca">{{ $unreadPermohonan > 99 ? '99+' : $unreadPermohonan }}</span>
                     @endif
                 </a>
+                @endcan
 
                 <a href="{{ route('admin.settings') }}"
                    class="sidebar-link @if(request()->routeIs('admin.settings')) active @endif"

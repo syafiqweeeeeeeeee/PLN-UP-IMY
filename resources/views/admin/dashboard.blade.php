@@ -114,6 +114,7 @@
                     </div>
                 </div>
                 <div class="row g-2">
+                    @can('news.create')
                     <div class="col-xl-3 col-lg-4 col-md-6 col-12">
                         <a href="{{ route('admin.news.create') }}" class="quick-action-btn">
                             <div class="quick-action-icon" style="background: #dbeafe; color: #1d4ed8;">
@@ -125,7 +126,9 @@
                             </div>
                         </a>
                     </div>
+                    @endcan
 
+                    @can('announcements.create')
                     <div class="col-xl-3 col-lg-4 col-md-6 col-12">
                         <a href="{{ route('admin.announcements.create') }}" class="quick-action-btn">
                             <div class="quick-action-icon" style="background: #fef3c7; color: #92400e;">
@@ -137,6 +140,9 @@
                             </div>
                         </a>
                     </div>
+                    @endcan
+
+                    @can('users.create')
                     <div class="col-xl-3 col-lg-4 col-md-6 col-12">
                         <a href="{{ route('admin.users.create') }}" class="quick-action-btn">
                             <div class="quick-action-icon" style="background: #f3e8ff; color: #7c3aed;">
@@ -148,6 +154,7 @@
                             </div>
                         </a>
                     </div>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -166,9 +173,11 @@
                         <h5 class="dash-card-title">Aktivitas Terbaru</h5>
                         <p class="dash-card-subtitle">Aktivitas yang baru dilakukan oleh pengguna & admin</p>
                     </div>
+                    @can('activity_logs.view')
                     <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-outline-secondary" style="border-radius:8px; font-size:0.75rem; font-weight:600; white-space: nowrap; flex-shrink: 0;">
                         Lihat Semua
                     </a>
+                    @endcan
                 </div>
 
                 @forelse ($activities as $activity)
@@ -249,9 +258,11 @@
                         <h5 class="dash-card-title">Konten Terbaru</h5>
                         <p class="dash-card-subtitle">Berita, pengumuman, dan halaman yang baru diterbitkan</p>
                     </div>
+                    @can('news.view')
                     <a href="{{ route('admin.news.index') }}" class="btn btn-sm btn-outline-secondary" style="border-radius:8px; font-size:0.75rem; font-weight:600; white-space: nowrap; flex-shrink: 0;">
                         Kelola Konten
                     </a>
+                    @endcan
                 </div>
 
                 @forelse ($latest_content as $content)

@@ -2,6 +2,9 @@
 
 namespace Tests;
 
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -28,5 +31,34 @@ abstract class TestCase extends BaseTestCase
         }
 
         return parent::createApplication();
+    }
+
+    /**
+     * Buat user dengan role berisi permission tertentu (untuk test RBAC).
+     * Role dibuat unik per pemanggilan agar tidak saling menimpa.
+     *
+     * @param  array<int, string>  $permissions
+     * @param  array<string, mixed>  $attributes
+     */
+    protected function userWithPermissions(array $permissions, array $attributes = []): User
+    {
+        $role = Role::create([
+            'name'        => 'Role Uji ' . uniqid(),
+            'description' => 'Role otomatis untuk test',
+            'status'      => true,
+        ]);
+
+        foreach ($permissions as $permission) {
+            $perm = Permission::firstOrCreate(
+                ['name' => $permission],
+                ['display_name' => $permission, 'module' => 'Test']
+            );
+            $role->permissions()->attach($perm->id);
+        }
+
+        $user = User::factory()->create($attributes);
+        $user->roles()->attach($role->id);
+
+        return $user;
     }
 }

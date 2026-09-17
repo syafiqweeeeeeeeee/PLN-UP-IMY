@@ -75,7 +75,7 @@ class ActivityLogTest extends TestCase
 
     public function test_news_create_update_publish_toggle_and_delete_are_logged(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['news.create', 'news.edit', 'news.publish', 'news.delete']);
 
         // 1. Buat berita -> log create
         $this->actingAs($user)->post(route('admin.news.store'), [
@@ -132,7 +132,7 @@ class ActivityLogTest extends TestCase
 
     public function test_announcement_create_is_logged(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['announcements.create']);
 
         $this->actingAs($user)->post(route('admin.announcements.store'), [
             'title'        => 'Pengumuman Uji Log',
@@ -150,7 +150,7 @@ class ActivityLogTest extends TestCase
 
     public function test_user_create_and_delete_are_logged(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->userWithPermissions(['users.create', 'users.delete']);
         $role  = Role::create(['name' => 'Karyawan Uji', 'description' => 'Role untuk test', 'status' => true]);
 
         $this->actingAs($admin)->post(route('admin.users.store'), [
@@ -179,7 +179,7 @@ class ActivityLogTest extends TestCase
 
     public function test_gallery_create_publish_toggle_and_delete_are_logged(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['galleries.create', 'galleries.edit', 'galleries.delete']);
 
         // 1. Tambah foto galeri -> log create
         $this->actingAs($user)->post(route('admin.galeri.store'), [

@@ -44,7 +44,7 @@ class AnnouncementTest extends TestCase
 
     public function test_admin_form_create_page_renders(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['announcements.create']);
 
         $this->actingAs($user)
             ->get(route('admin.announcements.create'))
@@ -54,7 +54,7 @@ class AnnouncementTest extends TestCase
 
     public function test_store_validation_shows_field_errors(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['announcements.create']);
 
         $response = $this->actingAs($user)
             ->from(route('admin.announcements.create'))
@@ -74,7 +74,7 @@ class AnnouncementTest extends TestCase
 
     public function test_admin_can_create_and_publish_announcement(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['announcements.create']);
 
         $response = $this->actingAs($user)->post(route('admin.announcements.store'), [
             'title'        => 'Pengumuman Baru dari Admin',
@@ -166,7 +166,7 @@ class AnnouncementTest extends TestCase
 
     public function test_store_validation_rejects_invalid_category(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['announcements.create']);
 
         $this->actingAs($user)
             ->from(route('admin.announcements.create'))

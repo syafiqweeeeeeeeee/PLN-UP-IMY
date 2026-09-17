@@ -3,8 +3,8 @@
 
 ---
 
-**Dokumen Versi:** 1.0  
-**Tanggal:** September 2026  
+**Dokumen Versi:** 1.1  
+**Tanggal:** September 2026 (Revisi 1.1 — 16 September 2026)  
 **Dibuat Oleh:** Tim Pengembangan  
 **Diapprove Oleh:** [Nama Approver]
 
@@ -47,6 +47,9 @@ Sistem E-PPID PLN mencakup:
 - Halaman Tentang Kami (Sejarah, Visi & Misi)
 - Dashboard Admin untuk manajemen konten
 - Layanan informasi publik online
+- **[1.1]** Portal internal karyawan: konten internal (berita/pengumuman/halaman internal) dengan kontrol akses berbasis role
+- **[1.1]** Manajemen divisi dan pemetaan pengguna ke divisi
+- **[1.1]** Aplikasi & web eksternal per divisi: setiap divisi mendapat tombol akses web eksternal dengan URL berbeda-beda, dikelola lewat CMS
 
 ---
 
@@ -68,13 +71,18 @@ E-PPID PLN menyediakan solusi berbasis web yang memungkinkan:
 - Proses verifikasi dan penyampaian informasi yang terstruktur
 - Dashboard admin untuk manajemen konten dan monitoring
 
-### 2.3User Pengguna
+### 2.3 User Pengguna
 
 | Level Pengguna | Deskripsi |
 |----------------|-----------|
-| **Pengunjung Umum** | Masyarakat yang mengakses informasi publik dan pengajuan permohonan |
+| **Pengunjung Umum (Viewer)** | Masyarakat yang mengakses informasi publik dan pengajuan permohonan — tanpa login |
+| **Karyawan** | Pegawai internal UP Indramayu — mengakses dashboard internal, berita, halaman internal, dan aplikasi sesuai divisinya |
+| **Pimpinan** | Kepala UP / koordinator unit — akses Karyawan + melihat log aktivitas (pantau tanpa mengedit) |
+| **Editor Konten** | PIC publikasi konten — akses Karyawan + kelola (buat/edit/publish) berita dan halaman |
 | **Admin PPID** | Pejabat Pengelola Informasi dan Dokumentasi yang mengelola sistem |
-| **Super Admin** | Administrator sistem dengan akses penuh |
+| **Super Admin (Administrator)** | Administrator sistem dengan akses penuh |
+
+> **[1.1]** Rincian matriks role × akses dan klasterisasi 24 divisi dipisahkan ke dokumen `docs/matriks-role.md`. Selain role, pengguna internal memiliki atribut **divisi** (1 pengguna 1 divisi) yang menentukan aplikasi/web eksternal mana yang tampil untuknya — lihat FR-012.
 
 ---
 
@@ -216,6 +224,48 @@ E-PPID PLN menyediakan solusi berbasis web yang memungkinkan:
 | available_at | TIMESTAMP | Waktu tersedia |
 | created_at | TIMESTAMP | Waktu pembuatan |
 
+#### [1.1] Tabel: roles, permissions, role_permission, role_user
+| Nama Field | Tipe Data | Keterangan |
+|------------|-----------|------------|
+| roles.id | BIGINT UNSIGNED | Primary Key |
+| roles.name | VARCHAR(255) | Nama role (Karyawan, Pimpinan, Editor Konten, Administrator) |
+| roles.description | VARCHAR(255) | Deskripsi role |
+| roles.status | TINYINT(1) | Aktif / nonaktif |
+| permissions.id | BIGINT UNSIGNED | Primary Key |
+| permissions.name | VARCHAR(255) | Kode permission, mis. `news.publish` |
+| permissions.display_name | VARCHAR(255) | Label permission |
+| permissions.module | VARCHAR(255) | Modul pemilik permission |
+| role_permission | pivot | role_id ↔ permission_id |
+| role_user | pivot | role_id ↔ user_id (mendukung multi-role) |
+
+#### [1.1] Tabel: divisions
+| Nama Field | Tipe Data | Keterangan |
+|------------|-----------|------------|
+| id | BIGINT UNSIGNED | Primary Key |
+| name | VARCHAR(255) | Nama divisi (Produksi A, Mesin 1, dst.) |
+| slug | VARCHAR(255) | Slug unik untuk URL/logika |
+| is_active | TINYINT(1) | Aktif / nonaktif |
+| created_at / updated_at | TIMESTAMP | Audit waktu |
+
+#### [1.1] Tabel: applications
+| Nama Field | Tipe Data | Keterangan |
+|------------|-----------|------------|
+| id | BIGINT UNSIGNED | Primary Key |
+| name | VARCHAR(255) | Nama aplikasi/web eksternal |
+| url | VARCHAR(255) | URL eksternal (dibuka di tab baru) |
+| icon | VARCHAR(255) | Ikon tombol |
+| description | VARCHAR(255) | Deskripsi singkat |
+| sort_order | INT | Urutan tampil di grid |
+| is_active | TINYINT(1) | Aktif / nonaktif |
+
+#### [1.1] Tabel: application_division
+| Nama Field | Tipe Data | Keterangan |
+|------------|-----------|------------|
+| application_id | BIGINT UNSIGNED | FK ke applications |
+| division_id | BIGINT UNSIGNED | FK ke divisions |
+
+> Aplikasi **tanpa** baris pivot = tampil untuk semua divisi (global). Aplikasi dengan pemetaan = hanya tampil bagi pengguna dengan divisi terkait.
+
 ### 4.2 Desain Interface
 
 #### 4.2.1 Halaman Beranda (Home)
@@ -307,6 +357,14 @@ E-PPID PLN menyediakan solusi berbasis web yang memungkinkan:
 | FR-006 | Admin dapat melihat notifikasi | Tinggi | ✅ Implementasi |
 | FR-007 | Sistem harus responsive di semua ukuran layar | Tinggi | ✅ Implementasi |
 | FR-008 | Sistem harus memiliki navigasi yang mudah digunakan | Tinggi | ✅ Implementasi |
+| FR-009 | [1.1] Sistem harus memiliki portal internal karyawan dengan konten terpisah dari web publik | Tinggi | 🔄 Perencanaan |
+| FR-010 | [1.1] Sistem harus mengatur akses halaman admin berdasarkan role dan permission (RBAC) | Tinggi | ✅ Implementasi |
+| FR-011 | [1.1] Admin dapat mengelola divisi (CRUD) dan menetapkan divisi pada pengguna | Tinggi | 🔄 Perencanaan |
+| FR-012 | [1.1] Admin dapat mendaftarkan aplikasi/web eksternal dan memetakannya ke divisi tertentu | Tinggi | 🔄 Perencanaan |
+| FR-013 | [1.1] Dashboard karyawan menampilkan grid tombol aplikasi/web eksternal sesuai divisi pengguna | Tinggi | 🔄 Perencanaan |
+| FR-014 | [1.1] Aplikasi tanpa pemetaan divisi tampil untuk semua pengguna internal | Sedang | 🔄 Perencanaan |
+| FR-015 | [1.1] Pimpinan dapat melihat log aktivitas sistem tanpa hak edit | Sedang | 🔄 Perencanaan |
+| FR-016 | [1.1] Editor Konten dapat membuat, mengedit, dan mempublikasikan berita serta halaman tanpa hak hapus | Sedang | 🔄 Perencanaan |
 
 #### 5.1.2 Non-Functional Requirements
 

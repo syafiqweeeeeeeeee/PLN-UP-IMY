@@ -301,26 +301,97 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // CRUD Pengguna
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+        // CRUD Pengguna — gate per aksi. `show` sengaja terbuka (profil saya di topbar).
+        Route::middleware('permission:users.view')->group(function () {
+            Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        });
+        Route::middleware('permission:users.create')->group(function () {
+            Route::get('users/create', [\App\Http\Controllers\Admin\UserController::class, 'create'])->name('users.create');
+            Route::post('users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
+        });
+        Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+        Route::middleware('permission:users.edit')->group(function () {
+            Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
+            Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+        });
+        Route::middleware('permission:users.delete')->group(function () {
+            Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+        });
 
-        // Berita / News
-        Route::resource('news', NewsController::class);
-        Route::post('/news/{news}/publish', [NewsController::class, 'togglePublish'])->name('news.publish');
+        // Berita / News — gate per aksi
+        // Catatan urutan: route statis (create) WAJIB didaftarkan sebelum
+        // wildcard show (news/{news}), kalau tidak "create" tertangkap binding {news} → 404.
+        Route::middleware('permission:news.view')->group(function () {
+            Route::get('news', [NewsController::class, 'index'])->name('news.index');
+        });
+        Route::middleware('permission:news.create')->group(function () {
+            Route::get('news/create', [NewsController::class, 'create'])->name('news.create');
+            Route::post('news', [NewsController::class, 'store'])->name('news.store');
+        });
+        Route::middleware('permission:news.view')->group(function () {
+            Route::get('news/{news}', [NewsController::class, 'show'])->name('news.show');
+        });
+        Route::middleware('permission:news.edit')->group(function () {
+            Route::get('news/{news}/edit', [NewsController::class, 'edit'])->name('news.edit');
+            Route::put('news/{news}', [NewsController::class, 'update'])->name('news.update');
+        });
+        Route::middleware('permission:news.publish')->group(function () {
+            Route::post('/news/{news}/publish', [NewsController::class, 'togglePublish'])->name('news.publish');
+        });
+        Route::middleware('permission:news.delete')->group(function () {
+            Route::delete('news/{news}', [NewsController::class, 'destroy'])->name('news.destroy');
+        });
 
-        // Permohonan & Pesan Masuk (dari form kontak publik)
-        Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
-        Route::get('contact-messages/{contact_message}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
-        Route::post('contact-messages/{contact_message}/status', [ContactMessageController::class, 'updateStatus'])->name('contact-messages.update-status');
-        Route::delete('contact-messages/{contact_message}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+        // Permohonan & Pesan Masuk (dari form kontak publik) — gate per aksi
+        Route::middleware('permission:contact_messages.view')->group(function () {
+            Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+            Route::get('contact-messages/{contact_message}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
+        });
+        Route::middleware('permission:contact_messages.update')->group(function () {
+            Route::post('contact-messages/{contact_message}/status', [ContactMessageController::class, 'updateStatus'])->name('contact-messages.update-status');
+        });
+        Route::middleware('permission:contact_messages.delete')->group(function () {
+            Route::delete('contact-messages/{contact_message}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+        });
 
-        // Galeri / Gallery
-        Route::resource('galeri', GalleryController::class)->except(['show']);
-        Route::patch('/galeri/{id}/toggle-status', [GalleryController::class, 'toggleStatus'])->name('galeri.toggle-status');
+        // Galeri / Gallery — gate per aksi
+        Route::middleware('permission:galleries.view')->group(function () {
+            Route::get('galeri', [GalleryController::class, 'index'])->name('galeri.index');
+        });
+        Route::middleware('permission:galleries.create')->group(function () {
+            Route::get('galeri/create', [GalleryController::class, 'create'])->name('galeri.create');
+            Route::post('galeri', [GalleryController::class, 'store'])->name('galeri.store');
+        });
+        Route::middleware('permission:galleries.edit')->group(function () {
+            Route::get('galeri/{galeri}/edit', [GalleryController::class, 'edit'])->name('galeri.edit');
+            Route::put('galeri/{galeri}', [GalleryController::class, 'update'])->name('galeri.update');
+            Route::patch('/galeri/{id}/toggle-status', [GalleryController::class, 'toggleStatus'])->name('galeri.toggle-status');
+        });
+        Route::middleware('permission:galleries.delete')->group(function () {
+            Route::delete('galeri/{galeri}', [GalleryController::class, 'destroy'])->name('galeri.destroy');
+        });
 
-        // Pengumuman / Announcements
-        Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class);
-        Route::post('/announcements/{announcement}/publish', [\App\Http\Controllers\Admin\AnnouncementController::class, 'togglePublish'])->name('announcements.publish');
+        // Pengumuman / Announcements — gate per aksi (urutan statis sebelum wildcard, lihat catatan Berita)
+        Route::middleware('permission:announcements.view')->group(function () {
+            Route::get('announcements', [\App\Http\Controllers\Admin\AnnouncementController::class, 'index'])->name('announcements.index');
+        });
+        Route::middleware('permission:announcements.create')->group(function () {
+            Route::get('announcements/create', [\App\Http\Controllers\Admin\AnnouncementController::class, 'create'])->name('announcements.create');
+            Route::post('announcements', [\App\Http\Controllers\Admin\AnnouncementController::class, 'store'])->name('announcements.store');
+        });
+        Route::middleware('permission:announcements.view')->group(function () {
+            Route::get('announcements/{announcement}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'show'])->name('announcements.show');
+        });
+        Route::middleware('permission:announcements.edit')->group(function () {
+            Route::get('announcements/{announcement}/edit', [\App\Http\Controllers\Admin\AnnouncementController::class, 'edit'])->name('announcements.edit');
+            Route::put('announcements/{announcement}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('announcements.update');
+        });
+        Route::middleware('permission:announcements.publish')->group(function () {
+            Route::post('/announcements/{announcement}/publish', [\App\Http\Controllers\Admin\AnnouncementController::class, 'togglePublish'])->name('announcements.publish');
+        });
+        Route::middleware('permission:announcements.delete')->group(function () {
+            Route::delete('announcements/{announcement}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+        });
 
         // Log Aktivitas — hanya untuk yang punya permission activity_logs.view (role Administrator)
         Route::middleware('permission:activity_logs.view')->group(function () {
@@ -384,11 +455,26 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('menus/{menu}', [\App\Http\Controllers\Admin\MenuController::class, 'destroy'])->name('menus.destroy');
         });
 
-        // Role & Permission
-        Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->except(['show']);
-        Route::get('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');
-        Route::put('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])->name('roles.permissions.update');
-        Route::put('/roles/{role}/toggle-status', [\App\Http\Controllers\Admin\RoleController::class, 'toggleStatus'])->name('roles.toggle-status');
+        // Role & Permission — gate per aksi
+        Route::middleware('permission:roles.view')->group(function () {
+            Route::get('roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('roles.index');
+            Route::get('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');
+        });
+        Route::middleware('permission:roles.create')->group(function () {
+            Route::get('roles/create', [\App\Http\Controllers\Admin\RoleController::class, 'create'])->name('roles.create');
+            Route::post('roles', [\App\Http\Controllers\Admin\RoleController::class, 'store'])->name('roles.store');
+        });
+        Route::middleware('permission:roles.edit')->group(function () {
+            Route::get('roles/{role}/edit', [\App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('roles.edit');
+            Route::put('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])->name('roles.update');
+            Route::put('/roles/{role}/toggle-status', [\App\Http\Controllers\Admin\RoleController::class, 'toggleStatus'])->name('roles.toggle-status');
+        });
+        Route::middleware('permission:roles.assign_permission')->group(function () {
+            Route::put('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])->name('roles.permissions.update');
+        });
+        Route::middleware('permission:roles.delete')->group(function () {
+            Route::delete('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('roles.destroy');
+        });
     });
 });
 

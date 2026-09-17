@@ -67,7 +67,7 @@ class NewsTest extends TestCase
 
     public function test_admin_news_pages_render(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['news.view', 'news.create']);
 
         $this->actingAs($user)
             ->get(route('admin.news.index'))
@@ -83,7 +83,7 @@ class NewsTest extends TestCase
     public function test_admin_can_create_and_publish_news(): void
     {
         Storage::fake('public');
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['news.create']);
 
         $response = $this->actingAs($user)->post(route('admin.news.store'), [
             'title'        => 'Berita Baru dari Admin',
@@ -109,7 +109,7 @@ class NewsTest extends TestCase
 
     public function test_admin_can_toggle_publish_news(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['news.publish']);
 
         $news = News::create([
             'title'        => 'Berita Toggle Publish',
@@ -138,7 +138,7 @@ class NewsTest extends TestCase
 
     public function test_admin_can_update_news(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['news.edit']);
 
         $news = News::create([
             'title'        => 'Judul Awal Berita',
@@ -166,7 +166,7 @@ class NewsTest extends TestCase
 
     public function test_store_validation_shows_field_errors(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['news.create']);
 
         // Submit form kosong: semua kolom wajib harus ditandai error
         $response = $this->actingAs($user)
@@ -189,7 +189,7 @@ class NewsTest extends TestCase
 
     public function test_admin_can_delete_news(): void
     {
-        $user = User::factory()->create();
+        $user = $this->userWithPermissions(['news.delete']);
 
         $news = News::create([
             'title'        => 'Berita Akan Dihapus',

@@ -205,7 +205,7 @@ class ContactMessageTest extends TestCase
             'status' => ContactMessage::STATUS_SELESAI,
         ]);
 
-        $this->actingAs(\App\Models\User::factory()->create())
+        $this->actingAs($this->userWithPermissions(['contact_messages.view']))
             ->get(route('admin.contact-messages.index'))
             ->assertOk()
             ->assertSee('Kelola Permohonan &amp; Pesan Masuk', false)
@@ -228,21 +228,21 @@ class ContactMessageTest extends TestCase
         ]);
 
         // Pencarian nama & subjek
-        $this->actingAs(\App\Models\User::factory()->create())
+        $this->actingAs($this->userWithPermissions(['contact_messages.view']))
             ->get(route('admin.contact-messages.index', ['q' => 'Cari Saya']))
             ->assertOk()
             ->assertSee('Cari Saya')
             ->assertDontSee('Lamaran Kerja');
 
         // Filter kategori
-        $this->actingAs(\App\Models\User::factory()->create())
+        $this->actingAs($this->userWithPermissions(['contact_messages.view']))
             ->get(route('admin.contact-messages.index', ['kategori' => 'karir']))
             ->assertOk()
             ->assertSee('Lamaran Kerja')
             ->assertDontSee('Cari Saya');
 
         // Filter status
-        $this->actingAs(\App\Models\User::factory()->create())
+        $this->actingAs($this->userWithPermissions(['contact_messages.view']))
             ->get(route('admin.contact-messages.index', ['status' => 'diproses']))
             ->assertOk()
             ->assertSee('Lamaran Kerja')
@@ -256,7 +256,7 @@ class ContactMessageTest extends TestCase
             'kategori' => 'pertanyaan_umum', 'subjek' => 'Detail Uji', 'pesan' => 'Isi pesan.',
         ]);
 
-        $this->actingAs(\App\Models\User::factory()->create())
+        $this->actingAs($this->userWithPermissions(['contact_messages.view']))
             ->getJson(route('admin.contact-messages.show', $message))
             ->assertOk()
             ->assertJsonPath('status', ContactMessage::STATUS_DIPROSES)
@@ -275,7 +275,7 @@ class ContactMessageTest extends TestCase
             'kategori' => 'media_pers', 'subjek' => 'Status Uji', 'pesan' => 'Isi pesan.',
         ]);
 
-        $this->actingAs(\App\Models\User::factory()->create())
+        $this->actingAs($this->userWithPermissions(['contact_messages.update']))
             ->postJson(route('admin.contact-messages.update-status', $message), [
                 'status' => ContactMessage::STATUS_SELESAI,
             ])
@@ -291,7 +291,7 @@ class ContactMessageTest extends TestCase
         ]);
 
         // Status invalid ditolak
-        $this->actingAs(\App\Models\User::factory()->create())
+        $this->actingAs($this->userWithPermissions(['contact_messages.update']))
             ->post(route('admin.contact-messages.update-status', $message), [
                 'status' => 'ngawur',
             ])
@@ -305,7 +305,7 @@ class ContactMessageTest extends TestCase
             'kategori' => 'karir', 'subjek' => 'Hapus Saya', 'pesan' => 'Isi pesan.',
         ]);
 
-        $this->actingAs(\App\Models\User::factory()->create())
+        $this->actingAs($this->userWithPermissions(['contact_messages.delete']))
             ->delete(route('admin.contact-messages.destroy', $message))
             ->assertRedirect();
 
@@ -327,7 +327,7 @@ class ContactMessageTest extends TestCase
         ]);
 
         // Badge merah tampil di sidebar saat ada pesan belum dibaca
-        $this->actingAs(\App\Models\User::factory()->create())
+        $this->actingAs($this->userWithPermissions(['contact_messages.view', 'dashboard.view']))
             ->get(route('admin.dashboard'))
             ->assertOk()
             ->assertSee('<span class="badge"', false);
@@ -335,7 +335,7 @@ class ContactMessageTest extends TestCase
         // Semua pesan selesai -> badge hilang dari sidebar
         ContactMessage::query()->update(['status' => ContactMessage::STATUS_SELESAI]);
 
-        $this->actingAs(\App\Models\User::factory()->create())
+        $this->actingAs($this->userWithPermissions(['contact_messages.view', 'dashboard.view']))
             ->get(route('admin.dashboard'))
             ->assertOk()
             ->assertDontSee('<span class="badge"', false);
