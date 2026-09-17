@@ -212,6 +212,7 @@
                 {{-- ===== MANAJEMEN ===== --}}
                 <div class="sidebar-section-label">Manajemen</div>
 
+                @can('users.view')
                 <a href="{{ route('admin.users.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.users.*') && !$isOwnProfilePage) active @endif"
                    data-no-router>
