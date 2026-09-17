@@ -50,6 +50,14 @@
     .detail-value.muted {
         color: #6b7280;
     }
+    /* Banner alert flash message */
+    .alert-show-success {
+        background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;
+        border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.85rem;
+        font-weight: 600; margin-bottom: 1rem;
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+    html.theme-dark .alert-show-success { background: rgba(22,163,74,0.15); color: #86efac; border-color: rgba(22,163,74,0.35); }
     .btn-back {
         background: #f3f4f6;
         color: #6b7280;
@@ -137,6 +145,11 @@
 @endpush
 
 @section('content')
+@if (session('success'))
+<div class="alert-show-success">
+    <i class="fas fa-circle-check"></i> {{ session('success') }}
+</div>
+@endif
 <div class="row g-3 mb-4">
     <div class="col-12">
         <div class="detail-card">

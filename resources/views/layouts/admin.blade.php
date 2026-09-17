@@ -214,6 +214,12 @@
                 {{-- ===== MANAJEMEN ===== --}}
                 <div class="sidebar-section-label">Manajemen</div>
 
+                @php
+                    $viewedUser = request()->route('user');
+                    $isOwnProfilePage = $viewedUser instanceof \App\Models\User
+                        && auth()->check()
+                        && $viewedUser->is(auth()->user());
+                @endphp
                 @can('users.view')
                 <a href="{{ route('admin.users.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.users.*') && !$isOwnProfilePage) active @endif"
@@ -412,6 +418,9 @@
 
         {{-- Bootstrap JS --}}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+        {{-- SweetAlert2: pop-up notifikasi (sukses/gagal) --}}
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         {{-- Client-side router: pindah halaman tanpa reload layout,
              cache memori per halaman, micro-transition 60ms --}}

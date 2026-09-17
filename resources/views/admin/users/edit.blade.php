@@ -34,6 +34,92 @@
     .role-badge { font-size: 0.7rem; padding: 0.25rem 0.6rem; border-radius: 20px; font-weight: 600; text-transform: uppercase; }
     .role-badge-active { background: #dcfce7; color: #166534; }
     .role-badge-inactive { background: #fef3c7; color: #92400e; }
+
+    /* ===== Blok OTP ===== */
+    .otp-card {
+        background: #f0f7ff; border: 1px solid #d8e6f5; border-radius: 12px;
+        padding: 1.1rem 1.25rem;
+    }
+    html.theme-dark .otp-card { background: rgba(0,91,156,0.14); border-color: rgba(0,163,224,0.25); }
+    .otp-card-head { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.3rem; }
+    .otp-lock {
+        width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+        background: var(--pln-blue); color: #fff;
+        display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+    }
+    .otp-card-title { font-weight: 700; font-size: 0.92rem; color: #1f2937; flex: 1; min-width: 0; }
+    .otp-badge {
+        font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
+        background: #dbeafe; color: #1d4ed8; border-radius: 20px; padding: 0.2rem 0.65rem;
+        white-space: nowrap;
+    }
+    html.theme-dark .otp-badge { background: rgba(0,163,224,0.18); color: #7cc7ff; }
+    .otp-desc { font-size: 0.8rem; color: #64748b; margin: 0 0 0.85rem 0; }
+    .otp-desc strong { color: #1f2937; word-break: break-all; }
+    .otp-controls { display: flex; gap: 0.65rem; align-items: stretch; flex-wrap: wrap; }
+    .otp-input {
+        flex: 1 1 210px; min-width: 0;
+        text-align: center; font-family: 'Courier New', Courier, monospace;
+        font-size: 1rem; font-weight: 600; letter-spacing: 2px;
+        border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.6rem 0.75rem;
+        transition: all 0.2s ease;
+    }
+    .otp-input:focus { border-color: var(--pln-blue); box-shadow: 0 0 0 3px rgba(0,91,156,0.12); outline: none; }
+    .otp-input.has-value { letter-spacing: 6px; font-weight: 700; }
+    .btn-otp {
+        background: var(--pln-blue); color: #fff; border: none; border-radius: 8px;
+        padding: 0.6rem 1.15rem; font-weight: 600; font-size: 0.85rem;
+        white-space: nowrap; flex-shrink: 0; transition: all 0.2s ease;
+    }
+    .btn-otp:hover:not(:disabled) { background: #004a80; }
+    .btn-otp:disabled { background: #94a3b8; cursor: not-allowed; opacity: 0.8; }
+    .otp-alert { display: none; font-size: 0.8rem; border-radius: 8px; padding: 0.55rem 0.85rem; margin-top: 0.7rem; }
+    .otp-alert.show { display: block; }
+    .otp-alert-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .otp-alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+    /* ===== Auto-validate OTP: state valid / invalid / loading ===== */
+    .otp-field { position: relative; flex: 1 1 210px; min-width: 0; }
+    .otp-field .otp-input { width: 100%; padding-right: 2.4rem; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+    .otp-status {
+        position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);
+        width: 20px; text-align: center; font-size: 0.95rem; display: none;
+    }
+    .otp-status.show { display: inline-block; }
+    .otp-status .fa-spinner { color: var(--pln-blue); }
+    .otp-status .fa-circle-check { color: #16a34a; }
+    .otp-status .fa-circle-xmark { color: #dc2626; }
+    .otp-input.is-valid { border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.12); background: #f0fdf4; }
+    .otp-input.is-invalid { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.10); }
+    .otp-input[readonly] { background: #f0fdf4; color: #14532d; cursor: not-allowed; }
+    .otp-validate-msg { display: none; font-size: 0.78rem; margin-top: 0.4rem; font-weight: 600; }
+    .otp-validate-msg.show { display: block; }
+    .otp-validate-msg.ok { color: #16a34a; }
+    .otp-validate-msg.err { color: #dc2626; }
+
+    /* Banner alert flash message */
+    .alert-edit-success {
+        background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;
+        border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.85rem;
+        font-weight: 600; margin-bottom: 1rem;
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+    html.theme-dark .alert-edit-success { background: rgba(22,163,74,0.15); color: #86efac; border-color: rgba(22,163,74,0.35); }
+
+    /* ===== Inline field error: frame merah + pesan di bawah input ===== */
+    .field-error,
+    input.field-error, select.field-error, textarea.field-error {
+        border-color: #dc2626 !important;
+        box-shadow: 0 0 0 3px rgba(220,38,38,0.12);
+    }
+    .field-error:focus {
+        border-color: #dc2626 !important;
+        box-shadow: 0 0 0 3px rgba(220,38,38,0.20);
+    }
+    .inline-error {
+        display: flex; align-items: center; gap: 0.3rem;
+        font-size: 0.78rem; color: #dc2626; font-weight: 600; margin-top: 0.3rem;
+    }
 </style>
 @endpush
 
@@ -52,6 +138,12 @@
                     </div>
                 </div>
             </div>
+
+            @if (session('success'))
+            <div class="alert-edit-success">
+                <i class="fas fa-circle-check"></i> {{ session('success') }}
+            </div>
+            @endif
 
             <div class="row g-2 mb-4">
                 <div class="col-md-4">
@@ -90,7 +182,7 @@
                 </div>
             </div>
 
-            <form action="{{ route('admin.users.update', $user) }}" method="POST">
+            <form id="formEditUser" action="{{ route('admin.users.update', $user) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -131,6 +223,46 @@
                         </div>
                     </div>
 
+                    {{-- ===== Verifikasi OTP (wajib hanya jika password baru diisi) ===== --}}
+                    <div class="col-12">
+                        <div class="otp-card">
+                            {{-- Baris 1: judul + badge --}}
+                            <div class="otp-card-head">
+                                <div class="otp-lock"><i class="fas fa-lock"></i></div>
+                                <div class="otp-card-title">Verifikasi Keamanan (OTP)</div>
+                                <span class="otp-badge">Wajib jika mengubah password</span>
+                            </div>
+                            {{-- Baris 2: sub-deskripsi --}}
+                            <p class="otp-desc">
+                                Kode OTP akan dikirimkan ke email: <strong>{{ $user->email }}</strong>
+                            </p>
+                            {{-- Baris 3: input + tombol sejajar --}}
+                            <div class="otp-controls">
+                                <div class="otp-field">
+                                    <input type="text" id="otp_code" name="otp_code" class="otp-input"
+                                           inputmode="numeric" pattern="[0-9]*" maxlength="6"
+                                           placeholder="Masukkan 6 digit OTP" autocomplete="one-time-code">
+                                    <span id="otpStatus" class="otp-status"><i class="fas fa-spinner fa-spin"></i></span>
+                                </div>
+                                <button type="button" id="btnSendOtp" class="btn-otp">
+                                    <i class="fas fa-paper-plane me-1"></i>
+                                    <span id="btnSendOtpText">Kirim Kode OTP</span>
+                                </button>
+                            </div>
+                            <div id="otpValidateOk" class="otp-validate-msg ok">OTP Valid <i class="fas fa-check"></i></div>
+                            <div id="otpValidateErr" class="otp-validate-msg err">Kode OTP salah atau kadaluwarsa <i class="fas fa-xmark"></i></div>
+                            <div id="otpAlertSuccess" class="otp-alert otp-alert-success">
+                                <i class="fas fa-circle-check me-1"></i><span></span>
+                            </div>
+                            <div id="otpAlertError" class="otp-alert otp-alert-error">
+                                <i class="fas fa-circle-exclamation me-1"></i><span></span>
+                            </div>
+                            @error('otp_code')
+                                <div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
                     <div class="col-12">
                         <label class="form-label" for="role_id">Role Pengguna <span class="text-danger">*</span></label>
                         <select id="role_id" name="role_id" class="form-select" required>
@@ -160,15 +292,16 @@
 
                 <div class="d-flex justify-content-end gap-2 mt-4 pt-3" style="border-top: 1px solid #f3f4f6;">
                     <button type="button" class="btn-back" onclick="history.back()"><i class="fas fa-times me-1"></i> Batal</button>
-                    <button type="submit" class="btn-submit"><i class="fas fa-save me-1"></i> Simpan Perubahan</button>
+                    <button type="submit" id="btnSubmitUser" class="btn-submit"><i class="fas fa-save me-1"></i> Simpan Perubahan</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-@endsection
 
-@push('scripts')
+{{-- Script HARUS di dalam @section('content'): konten di luar @section pada
+     template yang @extends layout tidak dirender Blade. Ditempatkan di sini juga
+     membuat router SPA mengeksekusi ulang script saat navigasi AJAX. --}}
 <script>
     function togglePassword(fieldId, btn) {
         const field = document.getElementById(fieldId);
@@ -176,5 +309,334 @@
         if (field.type === 'password') { field.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
         else { field.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
     }
+
+    /* ===== Kirim OTP via AJAX + countdown 60 detik ===== */
+    (function () {
+        const btnSendOtp = document.getElementById('btnSendOtp');
+        if (!btnSendOtp || btnSendOtp.dataset.otpBound) return;   // anti double-bind
+        btnSendOtp.dataset.otpBound = '1';
+
+        const btnIcon  = btnSendOtp.querySelector('i');
+        const btnText  = document.getElementById('btnSendOtpText');
+        const otpInput = document.getElementById('otp_code');
+        const alertOk  = document.getElementById('otpAlertSuccess');
+        const alertErr = document.getElementById('otpAlertError');
+        const targetEmail = @json($user->email);
+        const otpUrl      = @json(route('admin.users.send-otp', $user));
+        const verifyUrl   = @json(route('admin.users.verify-otp', $user));
+        const otpStatus   = document.getElementById('otpStatus');
+        const otpMsgOk    = document.getElementById('otpValidateOk');
+        const otpMsgErr   = document.getElementById('otpValidateErr');
+        let countdownInterval = null;
+        let verifyTimer  = null;
+        let verifyAbort  = null;
+        let otpValidated = false;
+
+        function setButton(iconClass, text, disabled) {
+            btnIcon.className = iconClass;
+            btnText.textContent = text;
+            btnSendOtp.disabled = disabled;
+        }
+
+        function showAlert(el, message) {
+            [alertOk, alertErr].forEach(function (a) { a.classList.remove('show'); });
+            if (el && message) {
+                el.querySelector('span').textContent = message;
+                el.classList.add('show');
+            }
+        }
+
+        function startCountdown(seconds) {
+            let remaining = seconds;
+            btnSendOtp.disabled = true;
+            btnIcon.className = 'fas fa-clock me-1';
+            btnText.textContent = 'Kirim Ulang (' + remaining + 's)';
+            countdownInterval = setInterval(function () {
+                remaining--;
+                if (remaining > 0) {
+                    btnText.textContent = 'Kirim Ulang (' + remaining + 's)';
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    setButton('fas fa-paper-plane me-1', 'Kirim Ulang Kode OTP', false);
+                }
+            }, 1000);
+        }
+
+        function resetValidation() {
+            otpValidated = false;
+            otpInput.classList.remove('is-valid', 'is-invalid');
+            otpInput.readOnly = false;   // readonly, BUKAN disabled — nilai tetap ikut terkirim saat submit
+            otpMsgOk.classList.remove('show');
+            otpMsgErr.classList.remove('show');
+            otpStatus.classList.remove('show');
+        }
+
+        // Auto-validate: begitu 6 digit terisi, kirim verifikasi instan ke server.
+        if (otpInput) {
+            otpInput.addEventListener('input', function () {
+                this.value = this.value.replace(/\D/g, '').slice(0, 6);
+                this.classList.toggle('has-value', this.value.length > 0);
+
+                // Pengguna mengetik lagi / mengubah isi → reset state validasi
+                resetValidation();
+                if (verifyTimer) { clearTimeout(verifyTimer); verifyTimer = null; }
+                if (verifyAbort) { verifyAbort.abort(); verifyAbort = null; }
+
+                if (this.value.length === 6) {
+                    verifyTimer = setTimeout(autoVerify, 350);   // debounce 350ms
+                }
+            });
+        }
+
+        function autoVerify() {
+            if (otpInput.value.length !== 6 || otpValidated) return;
+
+            // Indikator loading kecil di dalam input
+            otpStatus.querySelector('i').className = 'fas fa-spinner fa-spin';
+            otpStatus.classList.add('show');
+            otpInput.classList.remove('is-valid', 'is-invalid');
+            otpMsgOk.classList.remove('show');
+            otpMsgErr.classList.remove('show');
+
+            verifyAbort = new AbortController();
+            fetch(verifyUrl, {
+                method: 'POST',
+                signal: verifyAbort.signal,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ otp_code: otpInput.value })
+            })
+            .then(function (res) {
+                return res.json().catch(function () {
+                    throw new Error('Respons tidak valid dari server.');
+                });
+            })
+            .then(function (data) {
+                verifyAbort = null;
+                if (otpInput.value.length !== 6) return;   // isi berubah di tengah request
+
+                if (data.success) {
+                    otpValidated = true;
+                    otpStatus.querySelector('i').className = 'fas fa-circle-check';
+                    otpInput.classList.add('is-valid');
+                    otpMsgOk.classList.add('show');
+                    otpInput.readOnly = true;              // kunci setelah valid — readonly agar nilai tetap terkirim saat submit
+                } else {
+                    otpStatus.querySelector('i').className = 'fas fa-circle-xmark';
+                    otpInput.classList.add('is-invalid');
+                    otpMsgErr.classList.add('show');
+                }
+            })
+            .catch(function (err) {
+                if (err && err.name === 'AbortError') return;   // dibatalkan pengguna mengetik
+                verifyAbort = null;
+                otpStatus.querySelector('i').className = 'fas fa-circle-xmark';
+                otpInput.classList.add('is-invalid');
+                otpMsgErr.textContent = 'Gagal memverifikasi. Periksa koneksi lalu ubah salah satu digit untuk mencoba lagi.';
+                otpMsgErr.classList.add('show');
+            });
+        }
+
+        // Simpan teks default pesan error agar bisa dipulihkan setelah error jaringan
+        const defaultErrMsg = otpMsgErr.textContent;
+
+        btnSendOtp.addEventListener('click', function () {
+            if (btnSendOtp.disabled) return;
+            showAlert(null);
+            resetValidation();
+            otpMsgErr.textContent = defaultErrMsg;
+            setButton('fas fa-spinner fa-spin me-1', 'Mengirim...', true);
+
+            fetch(otpUrl, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function (res) {
+                return res.json().catch(function () {
+                    throw new Error('Respons tidak valid dari server (HTTP ' + res.status + ').');
+                }).then(function (data) { return { ok: res.ok, data: data }; });
+            })
+            .then(function (result) {
+                if (result.ok && result.data.success) {
+                    showAlert(alertOk, 'Kode OTP berhasil dikirim ke ' + (result.data.email || targetEmail) + '. Berlaku 5 menit.');
+                    startCountdown(60);
+                } else {
+                    setButton('fas fa-paper-plane me-1', 'Kirim Kode OTP', false);
+                    showAlert(alertErr, (result.data && result.data.message) || 'Gagal mengirim OTP. Silakan coba lagi.');
+                }
+            })
+            .catch(function (err) {
+                setButton('fas fa-paper-plane me-1', 'Kirim Kode OTP', false);
+                showAlert(alertErr, (err && err.message) ? err.message : 'Terjadi kesalahan jaringan. Silakan coba lagi.');
+            });
+        });
+    })();
+
+    /* ===== Submit form via AJAX + pop-up SweetAlert2 =====
+       Sukses  → pop-up hijau (timer 1.5s) lalu redirect ke Detail Pengguna.
+       Gagal   → pop-up merah + frame merah per field, TETAP di halaman edit. */
+    (function () {
+        const form = document.getElementById('formEditUser');
+        if (!form || form.dataset.submitBound) return;   // anti double-bind
+        form.dataset.submitBound = '1';
+
+        /* ---- Inline field error helpers ---- */
+        function clearFieldErrors() {
+            form.querySelectorAll('.field-error').forEach(function (el) {
+                el.classList.remove('field-error');
+            });
+            form.querySelectorAll('.inline-error').forEach(function (el) {
+                el.remove();
+            });
+        }
+
+        function clearOneFieldError(el) {
+            if (!el || !el.name) return;
+            el.classList.remove('field-error');
+            const wrapper = el.closest('.input-icon, .password-wrapper, .otp-field') || el;
+            const next = wrapper.nextElementSibling;
+            if (next && next.classList && next.classList.contains('inline-error')) next.remove();
+        }
+
+        function showFieldError(input, message) {
+            if (!input) return;
+            input.classList.add('field-error');
+            const wrapper = input.closest('.input-icon, .password-wrapper, .otp-field') || input;
+            let msg = wrapper.nextElementSibling;
+            if (!msg || !msg.classList || !msg.classList.contains('inline-error')) {
+                msg = document.createElement('div');
+                msg.className = 'inline-error';
+                wrapper.parentNode.insertBefore(msg, wrapper.nextSibling);
+            }
+            msg.innerHTML = '<i class="fas fa-circle-exclamation"></i> ' + message;
+        }
+
+        // Render semua error validasi 422 ke field masing-masing + scroll ke field pertama
+        function renderFieldErrors(errors) {
+            clearFieldErrors();
+            let firstInput = null;
+            Object.keys(errors).forEach(function (name) {
+                const message = Array.isArray(errors[name]) ? errors[name][0] : String(errors[name]);
+                const input = form.querySelector('[name="' + name + '"]');
+                showFieldError(input, message);
+                if (name === 'password') {
+                    // konfirmasi password ikut ditandai karena error 'confirmed'
+                    const pc = form.querySelector('[name="password_confirmation"]');
+                    if (pc) pc.classList.add('field-error');
+                }
+                if (!firstInput && input) firstInput = input;
+            });
+            if (firstInput) firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // AUTO CLEAR: begitu user mengetik/mengubah field yang error, frame merah
+        // dan pesan di bawahnya hilang otomatis.
+        ['input', 'change'].forEach(function (evt) {
+            form.addEventListener(evt, function (e) {
+                clearOneFieldError(e.target);
+                if (e.target.name === 'password') {
+                    clearOneFieldError(form.querySelector('[name="password_confirmation"]'));
+                }
+            });
+        });
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();   // cegah submit penuh — pakai AJAX
+
+            const btn  = document.getElementById('btnSubmitUser');
+            const icon = btn.querySelector('i');
+            const origIcon = icon.className;
+            btn.disabled = true;
+            icon.className = 'fas fa-spinner fa-spin me-1';
+            clearFieldErrors();   // bersihkan error submit sebelumnya
+
+            const payload = new FormData(form);
+
+            // Ambil pesan error pertama dari bentuk JSON validasi Laravel (422):
+            // { message: ..., errors: { field: ["pesan"] } }
+            function firstError(data) {
+                if (data && data.errors) {
+                    const first = Object.values(data.errors)[0];
+                    if (Array.isArray(first) && first.length) return first[0];
+                }
+                return (data && data.message) || 'Periksa kembali data yang diisi.';
+            }
+
+            fetch(form.action, {
+                method: 'POST',   // form punya @method('PUT') di field tersembunyi
+                body: payload,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function (res) {
+                return res.json().catch(function () {
+                    throw new Error('Terjadi kesalahan server (HTTP ' + res.status + ').');
+                }).then(function (data) { return { ok: res.ok, status: res.status, data: data }; });
+            })
+            .then(function (result) {
+                if (result.ok && result.data.success) {
+                    // Sukses: pop-up hijau, otomatis hilang 1.5 detik, lalu redirect ke Detail Pengguna
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: result.data.message,
+                        timer: 1500,
+                        showConfirmButton: false,
+                        timerProgressBar: true
+                    }).then(function () {
+                        window.location.href = result.data.redirect;
+                    });
+                } else {
+                    // Gagal (validasi / OTP salah / role nonaktif): pop-up merah, tetap di halaman
+                    btn.disabled = false;
+                    icon.className = origIcon;
+
+                    // Validasi 422 → tandai field yang salah dengan frame merah + pesan inline
+                    if (result.status === 422 && result.data && result.data.errors) {
+                        renderFieldErrors(result.data.errors);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal memperbarui data',
+                            text: 'Silakan periksa kembali isian yang berwarna merah.',
+                            confirmButtonText: 'Mengerti',
+                            confirmButtonColor: '#dc2626'
+                        });
+                    } else {
+                        // Error non-validasi (OTP salah, role nonaktif, dsb.)
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal menyimpan',
+                            text: firstError(result.data),
+                            confirmButtonText: 'Mengerti',
+                            confirmButtonColor: '#dc2626'
+                        });
+                    }
+                }
+            })
+            .catch(function (err) {
+                btn.disabled = false;
+                icon.className = origIcon;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal menyimpan',
+                    text: (err && err.message) ? err.message : 'Terjadi kesalahan jaringan. Silakan coba lagi.',
+                    confirmButtonText: 'Mengerti',
+                    confirmButtonColor: '#dc2626'
+                });
+            });
+        });
+    })();
 </script>
-@endpush
+@endsection
