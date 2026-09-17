@@ -192,17 +192,120 @@
 
     .wilayah-section { padding: 4.5rem 0; background: var(--pln-gray); }
 
-    .wilayah-section img {
+    /* --- Banner slider (Wilayah Operasional + Sistem Interkoneksi) ---
+       Gaya banner seperti slider PLN Mobile: gambar penuh dalam frame
+       membulat, kaption tebal dengan sorotan kuning, dan dot indikator. */
+    .banner-slider {
+        position: relative;
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.12);
+        background: #fff;
+    }
+
+    .banner-slide img {
         width: 100%;
         height: auto;
         display: block;
-        margin: 0 auto;
-        border-radius: 10px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
         -webkit-user-drag: none;
         user-select: none;
         -webkit-user-select: none;
+    }
+
+    /* Kaption overlay: turun menjadi bar di bawah gambar pada layar kecil */
+    .banner-caption {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 2.6rem 2.4rem 1.9rem;
+        background: linear-gradient(180deg, rgba(4, 35, 52, 0) 0%, rgba(4, 35, 52, 0.72) 60%);
+        text-align: left;
+        pointer-events: none;
+    }
+
+    .banner-caption .banner-line {
+        display: block;
+        color: #fff;
+        font-weight: 800;
+        font-size: clamp(1.05rem, 2.6vw, 1.9rem);
+        line-height: 1.25;
+        text-shadow: 0 2px 10px rgba(0, 30, 45, 0.55);
+        max-width: 80%;
+    }
+
+    .banner-caption .banner-highlight {
+        display: inline-block;
+        margin-top: 0.35rem;
+        background: var(--pln-yellow);
+        color: var(--pln-blue);
+        font-weight: 800;
+        font-size: clamp(1.1rem, 2.8vw, 2rem);
+        line-height: 1.3;
+        padding: 0.15em 0.55em;
+        border-radius: 8px;
+        text-shadow: none;
+    }
+
+    /* Dot indikator ala slider PLN Mobile */
+    .banner-dots {
+        position: absolute;
+        left: 50%;
+        bottom: 0.8rem;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 0.45rem;
+        z-index: 3;
+    }
+
+    .banner-dots [data-bs-target] {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255, 255, 255, 0.55);
+        /* Area sentuh lebih besar (20px) tanpa mengubah ukuran visual:
+           padding transparan + background hanya di area konten */
+        background-clip: padding-box;
+        box-sizing: content-box;
+        padding: 5px;
+        opacity: 1;
+        margin: 0;
+        transition: all 0.25s ease;
+    }
+
+    .banner-dots [data-bs-target].active {
+        background: var(--pln-yellow);
+        transform: scale(1.25);
+    }
+
+    /* Tombol panah prev/next */
+    .banner-slider .carousel-control-prev,
+    .banner-slider .carousel-control-next {
+        width: 44px;
+        height: 44px;
+        top: 50%;
+        bottom: auto;
+        transform: translateY(-50%);
+        border-radius: 50%;
+        background: rgba(4, 35, 52, 0.45);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+
+    .banner-slider .carousel-control-prev { left: 0.9rem; }
+    .banner-slider .carousel-control-next { right: 0.9rem; }
+
+    .banner-slider:hover .carousel-control-prev,
+    .banner-slider:hover .carousel-control-next,
+    .banner-slider .carousel-control-prev:focus-visible,
+    .banner-slider .carousel-control-next:focus-visible { opacity: 1; }
+
+    .banner-slider .carousel-control-prev-icon,
+    .banner-slider .carousel-control-next-icon {
+        width: 1.1rem;
+        height: 1.1rem;
     }
 
     .icon-circle {
@@ -257,6 +360,23 @@
            (judul "Wilayah Operasional..." cukup panjang) */
         .section-title { font-size: 1.4rem; }
         .section-subtitle { font-size: 0.9rem; margin-bottom: 1.75rem; }
+
+        /* Banner slider di HP: kaption pindah ke bawah gambar (bukan
+           overlay) agar tidak menutupi isi peta/diagram.
+           Padding bawah 2rem memberi ruang untuk dot indikator. */
+        .banner-caption {
+            position: static;
+            padding: 0.9rem 1.1rem 2rem;
+            background: linear-gradient(180deg, #06263a 0%, #042338 100%);
+            text-align: center;
+        }
+
+        .banner-caption .banner-line { max-width: 100%; font-size: 1rem; }
+        .banner-caption .banner-highlight { font-size: 1.05rem; }
+
+        .banner-slider .carousel-control-prev,
+        .banner-slider .carousel-control-next { display: none; }
+        .banner-dots { bottom: 0.55rem; }
 
         /* Promo PLN Mobile: QR + tombol store rata tengah agar rapi
            saat flex-wrap di layar sempit */
@@ -323,7 +443,7 @@
 </section>
 
 <!-- ============================================
-     2. WILAYAH OPERASIONAL
+     2. BANNER SLIDER — Wilayah Operasional + Sistem Interkoneksi
      ============================================ -->
 <section class="wilayah-section" id="wilayah">
     <div class="container px-4 px-lg-5">
@@ -333,31 +453,58 @@
         </div>
 
         <div class="row justify-content-center">
-            <div class="col-lg-10 text-center mb-4">
-                <img src="{{ asset('assets/halaman_utama/wilayah operasional1.png') }}" alt="Wilayah Operasional 1" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
-            </div>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-lg-10 text-center">
-                <img src="{{ asset('assets/halaman_utama/wilayah operasional2.png') }}" alt="Wilayah Operasional 2" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
-            </div>
-        </div>
-    </div>
-</section>
+            <div class="col-lg-10">
+                <div id="bannerSlider" class="carousel slide banner-slider" data-bs-ride="carousel" data-bs-touch="true">
 
-<!-- ============================================
-     3. SISTEM INTERKONEKSI
-     ============================================ -->
-<section class="wilayah-section" id="interkoneksi">
-    <div class="container px-4 px-lg-5">
-        <div class="text-center mb-5">
-            <h2 class="section-title">Sistem Interkoneksi</h2>
-            <p class="section-subtitle">Diagram sistem interkoneksi jaringan kelistrikan</p>
-        </div>
+                    {{-- Dot indikator ala slider PLN Mobile --}}
+                    <div class="banner-dots">
+                        <button type="button" data-bs-target="#bannerSlider" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1: Wilayah Operasional 1"></button>
+                        <button type="button" data-bs-target="#bannerSlider" data-bs-slide-to="1" aria-label="Slide 2: Wilayah Operasional 2"></button>
+                        <button type="button" data-bs-target="#bannerSlider" data-bs-slide-to="2" aria-label="Slide 3: Sistem Interkoneksi"></button>
+                    </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-10 text-center">
-                <img src="{{ asset('assets/halaman_utama/sistem interkoneksi.png') }}" alt="Sistem Interkoneksi" style="width: 100%; height: auto; border-radius: 10px; border: 1px solid #E2E8F0; box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);" draggable="false" ondragstart="return false;">
+                    <div class="carousel-inner">
+
+                        {{-- Slide 1: Wilayah Operasional 1 --}}
+                        <div class="carousel-item banner-slide active" data-bs-interval="5000">
+                            <img src="{{ asset('assets/halaman_utama/wilayah operasional1.png') }}" alt="Wilayah Operasional 1" decoding="async" draggable="false" ondragstart="return false;">
+                            <div class="banner-caption">
+                                <span class="banner-line">Cakupan Area Pembangkitan</span>
+                                <span class="banner-highlight">Wilayah Operasional 1</span>
+                            </div>
+                        </div>
+
+                        {{-- Slide 2: Wilayah Operasional 2 --}}
+                        <div class="carousel-item banner-slide" data-bs-interval="5000">
+                            <img src="{{ asset('assets/halaman_utama/wilayah operasional2.png') }}" alt="Wilayah Operasional 2" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
+                            <div class="banner-caption">
+                                <span class="banner-line">Cakupan Area Pembangkitan</span>
+                                <span class="banner-highlight">Wilayah Operasional 2</span>
+                            </div>
+                        </div>
+
+                        {{-- Slide 3: Sistem Interkoneksi --}}
+                        <div class="carousel-item banner-slide" data-bs-interval="5000">
+                            <img src="{{ asset('assets/halaman_utama/sistem interkoneksi.png') }}" alt="Sistem Interkoneksi" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
+                            <div class="banner-caption">
+                                <span class="banner-line">Diagram Jaringan Kelistrikan</span>
+                                <span class="banner-highlight">Sistem Interkoneksi</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {{-- Panah prev/next (muncul saat hover) --}}
+                    <button class="carousel-control-prev" type="button" data-bs-target="#bannerSlider" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Sebelumnya</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#bannerSlider" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Berikutnya</span>
+                    </button>
+
+                </div>
             </div>
         </div>
     </div>
@@ -483,3 +630,19 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+(function() {
+    /* Hormati preferensi "reduced motion": matikan auto-play slider
+       jika pengguna memilih mengurangi animasi di sistemnya. */
+    var slider = document.getElementById('bannerSlider');
+    if (!slider) return;
+    var prefersReducedMotion = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion && window.bootstrap && window.bootstrap.Carousel) {
+        window.bootstrap.Carousel.getOrCreateInstance(slider, { interval: false }).pause();
+    }
+})();
+</script>
+@endpush
