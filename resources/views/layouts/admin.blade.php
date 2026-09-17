@@ -308,13 +308,13 @@
                 </div>
 
                 <div class="topbar-right">
-                    <button class="topbar-icon-btn" id="themeToggle" title="Ganti tema terang/gelap" aria-label="Ganti tema">
-                        <i class="fas fa-moon"></i>
-                    </button>
-
                     {{-- SEARCH — buka overlay pencarian konten --}}
                     <button class="topbar-icon-btn" id="topbarSearchBtn" title="Cari konten" aria-label="Cari" aria-haspopup="dialog">
                         <i class="fas fa-search"></i>
+                    </button>
+
+                    <button class="topbar-icon-btn" id="themeToggle" title="Ganti tema terang/gelap" aria-label="Ganti tema">
+                        <i class="fas fa-moon"></i>
                     </button>
 
                     {{-- NOTIFIKASI — dropdown dari data nyata (permohonan belum dibaca, draft) --}}
