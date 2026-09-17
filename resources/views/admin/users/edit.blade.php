@@ -42,14 +42,14 @@
     <div class="col-12">
         <div class="dash-card">
             <div class="dash-card-header">
-                <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{{ route('admin.users.show', $user) }}" class="btn-back d-flex align-items-center justify-content-center" style="flex-shrink: 0; width: 38px; height: 38px; padding: 0;" title="Kembali" aria-label="Kembali">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
                     <div>
                         <h5 class="dash-card-title">Edit Pengguna</h5>
                         <p class="dash-card-subtitle">Perbarui informasi pengguna ini</p>
                     </div>
-                    <a href="{{ route('admin.users.index') }}" class="btn-back">
-                        <i class="fas fa-arrow-left me-1"></i> Kembali
-                    </a>
                 </div>
             </div>
 
