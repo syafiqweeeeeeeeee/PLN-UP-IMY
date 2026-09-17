@@ -1312,6 +1312,144 @@ html.theme-dark .topbar-search-item i { background: rgba(59, 130, 246, 0.18); co
 }
 
 /* ============================================
+   RESPONSIVE (HP KECIL ≤575.98px) — halaman admin
+   Penyempurnaan khusus tampilan ponsel agar konten
+   halaman admin (header, chips, tabel, modal) rapi
+   dan tidak meluber. Kolom tabel "kurang penting"
+   disembunyikan lewat class .col-hide-mobile yang
+   dipasang di view masing-masing.
+   ============================================ */
+@media (max-width: 575.98px) {
+    /* --- Page header: label tombol tidak berantakan --- */
+    .page-header-card {
+        padding: 1.15rem 1rem;
+    }
+    .page-header-card .header-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .page-header-card .header-row .btn-corp {
+        justify-content: center;
+    }
+
+    /* --- Stat chips: dua per baris, lebar setara --- */
+    .stat-chips-row {
+        gap: 0.5rem;
+    }
+    .stat-chip {
+        flex: 1 1 calc(50% - 0.25rem);
+        justify-content: center;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.72rem;
+    }
+    .stat-chip .stat-number {
+        font-size: 0.78rem;
+    }
+
+    /* --- Filter bar & tombol aksi tidak meluber --- */
+    .page-filter-bar {
+        padding: 0.85rem;
+    }
+    .btn-corp {
+        padding: 0.55rem 1.1rem;
+        font-size: 0.82rem;
+    }
+
+    /* --- Tabel admin: kolom sekunder disembunyikan,
+           sel lebih rapat, aksi tetap bisa di-tap --- */
+    .col-hide-mobile {
+        display: none;
+    }
+    .admin-table thead th,
+    .admin-table tbody td {
+        padding: 0.65rem 0.6rem;
+    }
+    .admin-table .td-actions .d-flex {
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+    }
+    .news-action-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.68rem;
+    }
+
+    /* --- Pagination tidak meluber --- */
+    .page-pagination .page-btn {
+        min-width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+
+    /* --- Modal hapus: dialog pas layar, teks tak terpotong --- */
+    .news-delete-overlay,
+    .user-delete-overlay,
+    .announcement-delete-overlay,
+    .galeri-delete-overlay,
+    .role-delete-overlay {
+        padding: 1rem 0.75rem;
+    }
+    .news-delete-dialog,
+    .user-delete-dialog,
+    .announcement-delete-dialog,
+    .galeri-delete-dialog,
+    .role-delete-dialog {
+        max-width: 100%;
+        padding: 1.5rem 1.1rem 1.1rem;
+    }
+    .news-delete-name,
+    .news-delete-title-preview,
+    .user-delete-name,
+    .announcement-delete-name,
+    .galeri-delete-name,
+    .role-delete-name {
+        white-space: normal;
+        word-break: break-word;
+        text-align: center;
+    }
+    .news-delete-actions,
+    .user-delete-actions,
+    .announcement-delete-actions,
+    .galeri-delete-actions,
+    .role-delete-actions {
+        flex-wrap: wrap;
+    }
+    .news-delete-btn,
+    .user-delete-btn,
+    .announcement-delete-btn,
+    .galeri-delete-btn,
+    .role-delete-btn {
+        flex: 1 1 auto;
+        min-width: 120px;
+        justify-content: center;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* --- Form admin: tombol aksi sekalian lebar penuh --- */
+    .d-flex.justify-content-end.gap-2.mt-4 {
+        flex-direction: column;
+    }
+    .d-flex.justify-content-end.gap-2.mt-4 .btn,
+    .d-flex.justify-content-end.gap-2.mt-4 .btn-back,
+    .d-flex.justify-content-end.gap-2.mt-4 .btn-submit,
+    .d-flex.justify-content-end.gap-2.mt-4 .btn-permission {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* --- Form admin (galeri/announcements): tombol aksi lebar penuh --- */
+    .col-12.d-flex.justify-content-end.gap-2 {
+        flex-direction: column;
+    }
+    .col-12.d-flex.justify-content-end.gap-2 .btn,
+    .col-12.d-flex.justify-content-end.gap-2 .btn-submit {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================
    SHARED PAGE PATTERNS — SELARAS DENGAN /admin/news
    (page header card • stat chips • filter bar •
     custom pagination • consistent buttons)

@@ -239,6 +239,34 @@
         text-overflow: ellipsis;
     }
     .galeri-delete-actions { display: flex; gap: 0.6rem; justify-content: center; }
+
+    /* Tombol modal — selaras persis dengan .news-delete-btn di /admin/news */
+    .galeri-delete-btn {
+        padding: 0.6rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    .galeri-delete-btn.cancel {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+    .galeri-delete-btn.cancel:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+    .galeri-delete-btn.confirm {
+        background: #DC2626;
+        color: #fff;
+    }
+    .galeri-delete-btn.confirm:hover {
+        background: #B91C1C;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
 </style>
 @endpush
 
@@ -405,46 +433,63 @@
         <p class="galeri-delete-text">Apakah Anda yakin ingin menghapus foto galeri ini?</p>
         <div class="galeri-delete-name" id="deleteGaleriTitle"></div>
         <div class="galeri-delete-actions">
-            <button class="btn-corp btn-corp-soft" onclick="closeGaleriDeleteModal()">Batal</button>
+            <button class="galeri-delete-btn cancel" onclick="closeGaleriDeleteModal()">Batal</button>
             <form id="deleteGaleriForm" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn-corp btn-corp-delete">
-                    <i class="fas fa-trash"></i> Ya, Hapus
+                <button type="submit" class="galeri-delete-btn confirm">
+                    <i class="fas fa-trash me-1"></i> Ya, Hapus
                 </button>
             </form>
         </div>
     </div>
 </div>
+
+{{-- ============================================================
+     Script INLINE modal hapus — WAJIB di dalam content (bukan
+     @push('scripts')) karena client-side router (router.js) hanya
+     mengeksekusi ulang <script> di dalam <main>; kalau di push
+     stack, popup hapus tidak muncul setelah navigasi via sidebar.
+     ============================================================ --}}
+<script>
+    // Guard re-eksekusi: hindari listener ganda saat router.js
+    // menjalankan ulang script ini setelah swap konten.
+    if (!window.__galeriDeleteModalBound) {
+        window.__galeriDeleteModalBound = true;
+
+        // Delete modal — isOpen state (default false, elemen ber-atribut hidden)
+        window.openGaleriDeleteModal = function(url, title) {
+            const modal = document.getElementById('deleteGaleriModal');
+            document.getElementById('deleteGaleriTitle').textContent = title;
+            document.getElementById('deleteGaleriForm').action = url;
+            modal.hidden = false;           // isOpen = true
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeGaleriDeleteModal = function() {
+            const modal = document.getElementById('deleteGaleriModal');
+            modal.classList.remove('show');
+            modal.hidden = true;            // isOpen = false
+            document.body.style.overflow = '';
+        };
+
+        document.getElementById('deleteGaleriModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeGaleriDeleteModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('deleteGaleriModal')?.classList.contains('show')) {
+                closeGaleriDeleteModal();
+            }
+        });
+    }
+</script>
 @endsection
 
 @push('scripts')
 <script>
-    // Delete modal — isOpen state (default false, elemen ber-atribut hidden)
-    function openGaleriDeleteModal(url, title) {
-        const modal = document.getElementById('deleteGaleriModal');
-        document.getElementById('deleteGaleriTitle').textContent = title;
-        document.getElementById('deleteGaleriForm').action = url;
-        modal.hidden = false;           // isOpen = true
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeGaleriDeleteModal() {
-        const modal = document.getElementById('deleteGaleriModal');
-        modal.classList.remove('show');
-        modal.hidden = true;            // isOpen = false
-        document.body.style.overflow = '';
-    }
-
-    document.getElementById('deleteGaleriModal')?.addEventListener('click', function(e) {
-        if (e.target === this) closeGaleriDeleteModal();
-    });
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && document.getElementById('deleteGaleriModal')?.classList.contains('show')) {
-            closeGaleriDeleteModal();
-        }
-    });
+    // Catatan: fungsi modal hapus dipindah ke script inline di atas
+    // (router.js hanya mengeksekusi ulang <script> di dalam <main>).
 </script>
 @endpush

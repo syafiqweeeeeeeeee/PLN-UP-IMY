@@ -94,6 +94,34 @@
         text-overflow: ellipsis;
     }
     .user-delete-actions { display: flex; gap: 0.6rem; justify-content: center; }
+
+    /* Tombol modal — selaras persis dengan .news-delete-btn di /admin/news */
+    .user-delete-btn {
+        padding: 0.6rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    .user-delete-btn.cancel {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+    .user-delete-btn.cancel:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+    .user-delete-btn.confirm {
+        background: #DC2626;
+        color: #fff;
+    }
+    .user-delete-btn.confirm:hover {
+        background: #B91C1C;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
 </style>
 @endpush
 
@@ -165,7 +193,7 @@
                     <th>Pengguna</th>
                     <th>Role</th>
                     <th>Status</th>
-                    <th>Terdaftar</th>
+                    <th class="col-hide-mobile">Terdaftar</th>
                     <th class="th-actions">Aksi</th>
                 </tr>
             </thead>
@@ -207,7 +235,7 @@
                             </span>
                         </div>
                     </td>
-                    <td>
+                    <td class="col-hide-mobile">
                         <span style="font-size: 0.85rem; color: var(--ink-muted);">
                             <i class="far fa-calendar me-1"></i>
                             {{ $user->created_at->format('d M Y') }}
@@ -279,21 +307,60 @@
         <p class="user-delete-text">Apakah Anda yakin ingin menghapus pengguna ini?</p>
         <div class="user-delete-name" id="deleteUserName"></div>
         <div class="user-delete-actions">
-            <button class="btn-corp btn-corp-soft" onclick="closeUserDeleteModal()">Batal</button>
+            <button class="user-delete-btn cancel" onclick="closeUserDeleteModal()">Batal</button>
             <form id="deleteUserForm" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn-corp btn-corp-delete">
-                    <i class="fas fa-trash"></i> Ya, Hapus
+                <button type="submit" class="user-delete-btn confirm">
+                    <i class="fas fa-trash me-1"></i> Ya, Hapus
                 </button>
             </form>
         </div>
     </div>
 </div>
+
+{{-- ============================================================
+     Script INLINE modal hapus — WAJIB di dalam content (bukan
+     @push('scripts')) karena client-side router (router.js) hanya
+     mengeksekusi ulang <script> di dalam <main>; kalau di push
+     stack, popup hapus tidak muncul setelah navigasi via sidebar.
+     ============================================================ --}}
+<script>
+    // Guard re-eksekusi: hindari listener ganda saat router.js
+    // menjalankan ulang script ini setelah swap konten.
+    if (!window.__userDeleteModalBound) {
+        window.__userDeleteModalBound = true;
+
+        window.openUserDeleteModal = function(userId, userName) {
+            const modal = document.getElementById('deleteUserModal');
+            document.getElementById('deleteUserName').textContent = userName;
+            document.getElementById('deleteUserForm').action = `/admin/users/${userId}`;
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeUserDeleteModal = function() {
+            document.getElementById('deleteUserModal').classList.remove('show');
+            document.body.style.overflow = '';
+        };
+
+        document.getElementById('deleteUserModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeUserDeleteModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('deleteUserModal')?.classList.contains('show')) {
+                closeUserDeleteModal();
+            }
+        });
+    }
+</script>
 @endsection
 
 @push('scripts')
 <script>
+    // Catatan: fungsi modal hapus dipindah ke script inline di atas
+    // (router.js hanya mengeksekusi ulang tag script di dalam main).
     // Search functionality
     (function() {
         const searchInput = document.getElementById('searchInput');
