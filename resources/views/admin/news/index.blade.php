@@ -508,6 +508,7 @@
         }
         .news-filter-bar {
             flex-direction: column;
+            align-items: stretch;
         }
         .news-filter-bar .search-wrapper {
             min-width: 100%;

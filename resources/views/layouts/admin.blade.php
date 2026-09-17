@@ -134,11 +134,13 @@
             html.theme-dark .announcement-delete-dialog,
             html.theme-dark .galeri-delete-dialog,
             html.theme-dark .role-delete-dialog,
+            html.theme-dark .log-delete-dialog,
             html.theme-dark .news-delete-dialog { background: var(--bg-card); }
             html.theme-dark .user-delete-name,
             html.theme-dark .announcement-delete-name,
             html.theme-dark .galeri-delete-name,
             html.theme-dark .role-delete-name,
+            html.theme-dark .log-delete-name,
             html.theme-dark .news-delete-title-preview { background: var(--panel); border-color: var(--line); color: var(--ink-heading); }
         </style>
 
@@ -230,11 +232,6 @@
                 </a>
                 @endcan
 
-                <a href="#" class="sidebar-link" tabindex="-1" aria-disabled="true">
-                    <span class="link-icon"><i class="fas fa-file-invoice"></i></span>
-                    <span class="link-text">Dokumen</span>
-                </a>
-
                 {{-- ===== LAINNYA ===== --}}
                 <div class="sidebar-section-label">Lainnya</div>
                 @can('contact_messages.view')
@@ -249,13 +246,6 @@
                     @endif
                 </a>
                 @endcan
-
-                <a href="{{ route('admin.settings') }}"
-                   class="sidebar-link @if(request()->routeIs('admin.settings')) active @endif"
-                   data-no-router>
-                    <span class="link-icon"><i class="fas fa-cog"></i></span>
-                    <span class="link-text">Pengaturan</span>
-                </a>
 
                 @can('activity_logs.view')
                 <a href="{{ route('admin.activity-logs.index') }}"
@@ -399,12 +389,15 @@
                 <div class="topbar-search-dialog">
                     <div class="topbar-search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="topbarSearchInput" placeholder="Cari berita, pengumuman, halaman..."
+                        <input type="text" id="topbarSearchInput" placeholder="Cari apa saja di admin..."
                                autocomplete="off">
                         <button type="button" class="topbar-search-esc" onclick="closeTopbarSearch()">ESC</button>
                     </div>
                     <div class="topbar-search-hint" id="topbarSearchHint">
-                        Ketik minimal 2 karakter lalu tekan Enter. Pencarian mencakup Berita, Pengumuman, dan Halaman.
+                        Ketik minimal 2 karakter untuk mencari data di modul yang dapat Anda akses.
+                        <span class="d-block mt-1" style="font-size:0.72rem; opacity:0.75;">
+                            Tips: cari berdasarkan waktu — mis. &ldquo;hari ini&rdquo;, &ldquo;kemarin&rdquo;, &ldquo;17 sep&rdquo;, &ldquo;sep 2026&rdquo;, &ldquo;3 jam terakhir&rdquo;, atau &ldquo;01:53&rdquo;.
+                        </span>
                     </div>
                     <div class="topbar-search-results" id="topbarSearchResults" hidden></div>
                 </div>
@@ -757,13 +750,12 @@
                 function renderResults(groups) {
                     if (!resultsBox) return;
                     var html = '';
-                    var icons = { Berita: 'fa-newspaper', Pengumuman: 'fa-bullhorn', Halaman: 'fa-file-lines' };
 
                     groups.forEach(function (group) {
                         if (!group.items.length) return;
                         html += '<div class="topbar-search-group-label">' + escapeHtml(group.label) + '</div>';
                         group.items.forEach(function (item) {
-                            var icon = icons[group.label] || 'fa-file-lines';
+                            var icon = group.icon || 'fa-file-lines';
                             html += '<a class="topbar-search-item" href="' + item.url + '">' +
                                 '<i class="fas ' + icon + '"></i>' +
                                 '<span>' + escapeHtml(item.title) + '</span>' +

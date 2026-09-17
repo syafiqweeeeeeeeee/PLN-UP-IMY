@@ -117,6 +117,92 @@
     /* Modal konfirmasi (pola modal-pln yang sudah ada di layout) */
     .modal-pln-overlay { display: none; }
     .modal-pln-overlay.show { display: flex; }
+
+    /* ============================================
+       DELETE CONFIRMATION MODAL (pola news modal)
+       ============================================ */
+    .log-delete-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        backdrop-filter: blur(4px);
+    }
+    .log-delete-overlay.show { display: flex; }
+    .log-delete-dialog {
+        background: #fff;
+        border-radius: 16px;
+        padding: 2rem 1.75rem 1.5rem;
+        max-width: 420px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        animation: logDeleteIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes logDeleteIn {
+        from { opacity: 0; transform: scale(0.9) translateY(10px); }
+        to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .log-delete-icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 1rem;
+        background: #FEE2E2;
+        color: #DC2626;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+    }
+    .log-delete-title { font-size: 1.05rem; font-weight: 700; color: #1f2937; margin: 0 0 0.5rem; }
+    .log-delete-text { font-size: 0.88rem; color: #6b7280; line-height: 1.6; margin: 0 0 0.35rem; }
+    .log-delete-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1f2937;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        margin: 0.75rem 0 1.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .log-delete-actions { display: flex; gap: 0.6rem; justify-content: center; }
+
+    /* Tombol modal — selaras persis dengan .news-delete-btn di /admin/news */
+    .log-delete-btn {
+        padding: 0.6rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    .log-delete-btn.cancel {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+    .log-delete-btn.cancel:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+    .log-delete-btn.confirm {
+        background: #DC2626;
+        color: #fff;
+    }
+    .log-delete-btn.confirm:hover {
+        background: #B91C1C;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
 </style>
 @endpush
 
@@ -230,13 +316,10 @@
                                     <div class="log-ip">{{ $log->created_at->locale('id')->diffForHumans() }}</div>
                                 </td>
                                 <td class="text-end">
-                                    <form action="{{ route('admin.activity-logs.destroy', $log) }}" method="POST" onsubmit="return confirm('Hapus log ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="action-btn delete" title="Hapus log ini">
-                                            <i class="fas fa-trash" style="font-size: 0.75rem;"></i>
-                                        </button>
-                                    </form>
+                                    <button type="button" class="action-btn delete" title="Hapus log ini"
+                                            onclick="openLogDeleteModal('{{ route('admin.activity-logs.destroy', $log) }}', '{{ addslashes($log->description) }}')">
+                                        <i class="fas fa-trash" style="font-size: 0.75rem;"></i>
+                                    </button>
                                 </td>
                             </tr>
                         @empty
@@ -281,4 +364,65 @@
         </div>
     </div>
 </div>
+
+{{-- ============================================
+     DELETE CONFIRMATION MODAL (pola news modal)
+     ============================================ --}}
+<div class="log-delete-overlay" id="deleteLogModal">
+    <div class="log-delete-dialog">
+        <div class="log-delete-icon">
+            <i class="fas fa-trash-can"></i>
+        </div>
+        <h6 class="log-delete-title">Hapus Log?</h6>
+        <p class="log-delete-text">Apakah Anda yakin ingin menghapus log ini?</p>
+        <div class="log-delete-name" id="deleteLogDesc"></div>
+        <div class="log-delete-actions">
+            <button class="log-delete-btn cancel" onclick="closeLogDeleteModal()">Batal</button>
+            <form id="deleteLogForm" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="log-delete-btn confirm">
+                    <i class="fas fa-trash me-1"></i> Ya, Hapus
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- ============================================================
+     Script INLINE modal hapus — WAJIB di dalam content (bukan
+     @push('scripts')) karena client-side router (router.js) hanya
+     mengeksekusi ulang tag script di dalam main; kalau di push
+     stack, popup hapus tidak muncul setelah navigasi via sidebar.
+     ============================================================ --}}
+<script>
+    // Guard re-eksekusi: hindari listener ganda saat router.js
+    // menjalankan ulang script ini setelah swap konten.
+    if (!window.__logDeleteModalBound) {
+        window.__logDeleteModalBound = true;
+
+        window.openLogDeleteModal = function(url, desc) {
+            const modal = document.getElementById('deleteLogModal');
+            document.getElementById('deleteLogDesc').textContent = desc;
+            document.getElementById('deleteLogForm').action = url;
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeLogDeleteModal = function() {
+            document.getElementById('deleteLogModal').classList.remove('show');
+            document.body.style.overflow = '';
+        };
+
+        document.getElementById('deleteLogModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeLogDeleteModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('deleteLogModal')?.classList.contains('show')) {
+                closeLogDeleteModal();
+            }
+        });
+    }
+</script>
 @endsection

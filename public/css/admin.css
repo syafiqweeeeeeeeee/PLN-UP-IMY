@@ -1386,14 +1386,16 @@ html.theme-dark .topbar-search-item i { background: rgba(59, 130, 246, 0.18); co
     .user-delete-overlay,
     .announcement-delete-overlay,
     .galeri-delete-overlay,
-    .role-delete-overlay {
+    .role-delete-overlay,
+    .log-delete-overlay {
         padding: 1rem 0.75rem;
     }
     .news-delete-dialog,
     .user-delete-dialog,
     .announcement-delete-dialog,
     .galeri-delete-dialog,
-    .role-delete-dialog {
+    .role-delete-dialog,
+    .log-delete-dialog {
         max-width: 100%;
         padding: 1.5rem 1.1rem 1.1rem;
     }
@@ -1402,7 +1404,8 @@ html.theme-dark .topbar-search-item i { background: rgba(59, 130, 246, 0.18); co
     .user-delete-name,
     .announcement-delete-name,
     .galeri-delete-name,
-    .role-delete-name {
+    .role-delete-name,
+    .log-delete-name {
         white-space: normal;
         word-break: break-word;
         text-align: center;
@@ -1411,14 +1414,16 @@ html.theme-dark .topbar-search-item i { background: rgba(59, 130, 246, 0.18); co
     .user-delete-actions,
     .announcement-delete-actions,
     .galeri-delete-actions,
-    .role-delete-actions {
+    .role-delete-actions,
+    .log-delete-actions {
         flex-wrap: wrap;
     }
     .news-delete-btn,
     .user-delete-btn,
     .announcement-delete-btn,
     .galeri-delete-btn,
-    .role-delete-btn {
+    .role-delete-btn,
+    .log-delete-btn {
         flex: 1 1 auto;
         min-width: 120px;
         justify-content: center;
@@ -1740,9 +1745,14 @@ html.theme-dark .topbar-search-item i { background: rgba(59, 130, 246, 0.18); co
     }
     .page-filter-bar {
         flex-direction: column;
+        align-items: stretch;   /* kontrol filter lebar penuh, tidak melayang di tengah */
+        gap: 0.55rem;
     }
     .page-filter-bar .search-wrapper {
         min-width: 100%;
+    }
+    .page-filter-bar .filter-count {
+        text-align: left;
     }
     .filter-divider { display: none; }
 }
