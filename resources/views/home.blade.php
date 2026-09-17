@@ -5,7 +5,7 @@
 @push('styles')
 <style>
     .hero-section {
-        background: linear-gradient(135deg, var(--pln-blue) 0%, #003d6b 50%, var(--pln-dark) 100%);
+        background: linear-gradient(135deg, var(--pln-blue) 0%, #00566b 50%, var(--pln-dark) 100%);
         padding: 6rem 0 5rem;
         position: relative;
         overflow: hidden;
@@ -18,7 +18,7 @@
         right: -15%;
         width: 600px;
         height: 600px;
-        background: radial-gradient(circle, rgba(0, 163, 224, 0.18) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(0, 194, 209, 0.18) 0%, transparent 70%);
         border-radius: 50%;
     }
 
@@ -74,7 +74,7 @@
     .btn-hero-outline:hover {
         border-color: var(--pln-cyan);
         color: var(--pln-cyan);
-        background: rgba(0, 163, 224, 0.08);
+        background: rgba(0, 194, 209, 0.08);
     }
 
     .logo-hero {
@@ -88,63 +88,6 @@
         user-select: none;
         -webkit-user-select: none;
     }
-
-    .stats-section { padding: 4.5rem 0; background: var(--pln-gray); }
-
-    .stat-card {
-        background: #fff;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 1.8rem 1.5rem;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
-        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 4px;
-        height: 100%;
-        background: linear-gradient(180deg, var(--pln-cyan), var(--pln-blue));
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        border-color: var(--pln-cyan);
-        box-shadow: 0 14px 34px rgba(0, 163, 224, 0.16);
-    }
-
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-        background: rgba(0, 163, 224, 0.1);
-        color: var(--pln-cyan);
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        margin-bottom: 1rem;
-    }
-
-    .stat-value {
-        color: var(--pln-blue);
-        font-weight: 800;
-        font-size: 1.6rem;
-        line-height: 1.2;
-        margin-bottom: 0.3rem;
-    }
-
-    .stat-value small { font-size: 0.9rem; font-weight: 700; color: var(--pln-cyan); }
-
-    .stat-label { color: #1E293B; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem; }
-
-    .stat-desc { color: #64748B; font-size: 0.83rem; line-height: 1.6; margin-bottom: 0; }
 
     /* --- 3. PROMO PLN MOBILE (pengganti mekanisme pelayanan) --- */
     .pln-mobile-section {
@@ -291,6 +234,11 @@
         .hero-section { padding: 6.5rem 0 4rem; }
         .hero-title { font-size: 2.1rem; }
         .logo-hero { height: 220px; max-width: 320px; }
+        /* Tablet/mobile: logo tampil di ATAS konten (stack kolom),
+           jadi teks & tombol hero ikut rata tengah agar seimbang */
+        .hero-content { text-align: center; }
+        .hero-content .hero-subtitle { margin-left: auto; margin-right: auto; }
+        .hero-content .d-flex { justify-content: center; }
     }
 
     @media (max-width: 767.98px) {
@@ -302,8 +250,30 @@
         /* Logo di atas judul — diperkecil agar proporsional dan tidak
            mendorong konten terlalu jauh ke bawah */
         .logo-hero { height: 120px; max-width: 180px; border-radius: 40px; }
-        .stats-section, .pln-mobile-section, .services-section, .wilayah-section { padding: 3rem 0; }
-        .stat-value { font-size: 1.3rem; }
+
+        .pln-mobile-section, .services-section, .wilayah-section { padding: 3rem 0; }
+
+        /* Judul section lebih kecil agar tidak mendominasi layar HP
+           (judul "Wilayah Operasional..." cukup panjang) */
+        .section-title { font-size: 1.4rem; }
+        .section-subtitle { font-size: 0.9rem; margin-bottom: 1.75rem; }
+
+        /* Promo PLN Mobile: QR + tombol store rata tengah agar rapi
+           saat flex-wrap di layar sempit */
+        .mobile-title { font-size: 1.65rem; }
+        .mobile-subtitle { font-size: 0.95rem; }
+        .pln-mobile-section .col-lg-7 { text-align: center; }
+        .promo-actions { justify-content: center; }
+        .store-badges { align-items: center; }
+
+        .menu-card { padding: 1.5rem 1.25rem; }
+    }
+
+    @media (max-width: 575.98px) {
+        /* HP kecil: tombol hero melebar penuh berurutan ke bawah,
+           tidak berdesakan berdampingan */
+        .hero-content .btn-hero-primary,
+        .hero-content .btn-hero-outline { width: 100%; }
     }
 </style>
 @endpush
@@ -353,120 +323,7 @@
 </section>
 
 <!-- ============================================
-     2. STATISTIK & KINERJA
-     ============================================ -->
-<section class="stats-section" id="statistik">
-    <div class="container px-4 px-lg-5">
-        <div class="text-center mb-5">
-            <h2 class="section-title" data-i18n="stats.title">Statistik & Kinerja Teknis</h2>
-            <p class="section-subtitle" data-i18n="stats.subtitle">Ringkasan kapasitas dan kontribusi unit pembangkitan</p>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-lg-3 col-md-6">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-bolt"></i></div>
-                    <div class="stat-value" data-i18n="stats.value_capacity">3 &times; 330 <small>MW</small></div>
-                    <div class="stat-label" data-i18n="stats.label_capacity">Kapasitas Terpasang</div>
-                    <p class="stat-desc" data-i18n="stats.desc_capacity">Total 990 MW kapasitas pembangkitan terpasang.</p>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-network-wired"></i></div>
-                    <div class="stat-value" data-i18n="stats.value_coverage">Jamali</div>
-                    <div class="stat-label" data-i18n="stats.label_coverage">Cakupan Suplai</div>
-                    <p class="stat-desc" data-i18n="stats.desc_coverage">Sistem Interkoneksi Jawa–Madura–Bali (Jamali).</p>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-industry"></i></div>
-                    <div class="stat-value" data-i18n="stats.value_total">23.000+ <small>MW</small></div>
-                    <div class="stat-label" data-i18n="stats.label_total">Total Kapasitas PLN NP</div>
-                    <p class="stat-desc" data-i18n="stats.desc_total">Kapasitas pembangkitan PT PLN Nusantara Power.</p>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-leaf"></i></div>
-                    <div class="stat-value" data-i18n="stats.value_ebt">6,3+ <small>GW</small></div>
-                    <div class="stat-label" data-i18n="stats.label_ebt">Proyek Energi Terbarukan</div>
-                    <p class="stat-desc" data-i18n="stats.desc_ebt">Portofolio energi terbarukan yang terus berkembang.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ============================================
-     3. PROMO PLN MOBILE
-     ============================================ -->
-<section class="pln-mobile-section" id="mekanisme">
-    <div class="container px-4 px-lg-5">
-        <div class="row align-items-center g-5">
-            {{-- Kolom kiri: teks + QR + tombol store --}}
-            <div class="col-lg-7">
-                <h2 class="mobile-title" data-i18n="mobile.title">Mulai Pengalaman Baru<br>di PLN Mobile</h2>
-                <p class="mobile-subtitle" data-i18n="mobile.subtitle">
-                    Semua keperluan listrik dan rumah dalam 1 aplikasi PLN Mobile, semua semakin mudah!
-                </p>
-
-                <div class="d-flex flex-wrap align-items-center gap-4 mt-5">
-                    <div class="qr-box">
-                        <img src="{{ asset('assets/halaman_utama/qr-pln-mobile.png') }}"
-                            alt="QR Code Unduh PLN Mobile" width="150" height="150"
-                            loading="lazy" decoding="async" draggable="false" ondragstart="return false;"
-                            onerror="this.parentElement.style.display='none';">
-                    </div>
-
-                    <div class="d-flex flex-column gap-3">
-                        <a href="https://play.google.com/store/apps/details?id=com.icon.pln123"
-                            target="_blank" rel="noopener" class="badge-store">
-                            <i class="fab fa-google-play store-icon"></i>
-                            <span>
-                                <small>Get it on</small>
-                                <strong>Google Play</strong>
-                            </span>
-                        </a>
-                        <a href="https://apps.apple.com/nz/app/pln-mobile/id1299581030"
-                            target="_blank" rel="noopener" class="badge-store">
-                            <i class="fab fa-apple store-icon"></i>
-                            <span>
-                                <small>Download on the</small>
-                                <strong>App Store</strong>
-                            </span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="mt-5">
-                    <span class="hashtag-pill" data-i18n="mobile.hashtag">#SemuaMakinMudah</span>
-                </div>
-            </div>
-
-            {{-- Kolom kanan: mockup HP (gambar aplikasi) --}}
-            <div class="col-lg-5 d-none d-lg-block">
-                <img
-                    src="{{ asset('assets/images/mobile-pln.png') }}"
-                    alt="Tampilan aplikasi PLN Mobile"
-                    class="phone-img"
-                    loading="lazy"
-                    decoding="async"
-                    draggable="false"
-                    ondragstart="return false;"
-                    onerror="this.style.display='none';"
-                >
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ============================================
-     4. WILAYAH OPERASIONAL
+     2. WILAYAH OPERASIONAL
      ============================================ -->
 <section class="wilayah-section" id="wilayah">
     <div class="container px-4 px-lg-5">
@@ -489,7 +346,7 @@
 </section>
 
 <!-- ============================================
-     5. SISTEM INTERKONEKSI
+     3. SISTEM INTERKONEKSI
      ============================================ -->
 <section class="wilayah-section" id="interkoneksi">
     <div class="container px-4 px-lg-5">
@@ -507,7 +364,7 @@
 </section>
 
 <!-- ============================================
-     6. LAYANAN KAMI
+     4. LAYANAN KAMI
      ============================================ -->
 <section class="services-section" id="layanan">
     <div class="container px-4 px-lg-5">
@@ -531,7 +388,7 @@
 
             <div class="col-lg-3 col-md-6">
                 <a href="{{ route('berita') }}" class="menu-card d-block text-decoration-none">
-                    <div class="icon-circle" style="background: linear-gradient(135deg, var(--pln-cyan), #00d4ff)">
+                    <div class="icon-circle" style="background: linear-gradient(135deg, var(--pln-cyan), var(--pln-blue))">
                         <i class="fas fa-newspaper"></i>
                     </div>
                     <h5 data-i18n="services.menu2_title">Berita</h5>
@@ -557,6 +414,70 @@
                     <h5 data-i18n="services.menu4_title">FAQ</h5>
                     <p data-i18n="services.menu4_desc">Temukan jawaban atas pertanyaan yang sering diajukan seputar layanan.</p>
                 </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     5. PROMO PLN MOBILE
+     ============================================ -->
+<section class="pln-mobile-section" id="mekanisme">
+    <div class="container px-4 px-lg-5">
+        <div class="row align-items-center g-5">
+            {{-- Kolom kiri: teks + QR + tombol store --}}
+            <div class="col-lg-7">
+                <h2 class="mobile-title" data-i18n="mobile.title">Mulai Pengalaman Baru<br>di PLN Mobile</h2>
+                <p class="mobile-subtitle" data-i18n="mobile.subtitle">
+                    Semua keperluan listrik dan rumah dalam 1 aplikasi PLN Mobile, semua semakin mudah!
+                </p>
+
+                <div class="promo-actions d-flex flex-wrap align-items-center gap-4 mt-5">
+                    <div class="qr-box">
+                        <img src="{{ asset('assets/halaman_utama/qr-pln-mobile.png') }}"
+                            alt="QR Code Unduh PLN Mobile" width="150" height="150"
+                            loading="lazy" decoding="async" draggable="false" ondragstart="return false;"
+                            onerror="this.parentElement.style.display='none';">
+                    </div>
+
+                    <div class="store-badges d-flex flex-column gap-3">
+                        <a href="https://play.google.com/store/apps/details?id=com.icon.pln123"
+                            target="_blank" rel="noopener" class="badge-store">
+                            <i class="fab fa-google-play store-icon"></i>
+                            <span>
+                                <small>Get it on</small>
+                                <strong>Google Play</strong>
+                            </span>
+                        </a>
+                        <a href="https://apps.apple.com/nz/app/pln-mobile/id1299581030"
+                            target="_blank" rel="noopener" class="badge-store">
+                            <i class="fab fa-apple store-icon"></i>
+                            <span>
+                                <small>Download on the</small>
+                                <strong>App Store</strong>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <span class="hashtag-pill" data-i18n="mobile.hashtag">#SemuaMakinMudah</span>
+                </div>
+            </div>
+
+            {{-- Kolom kanan: mockup HP (gambar aplikasi) — tampil di SEMUA
+                 ukuran layar, bukan hanya desktop (d-none d-lg-block) --}}
+            <div class="col-lg-5">
+                <img
+                    src="{{ asset('assets/images/mobile-pln.png') }}"
+                    alt="Tampilan aplikasi PLN Mobile"
+                    class="phone-img"
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                    ondragstart="return false;"
+                    onerror="this.style.display='none';"
+                >
             </div>
         </div>
     </div>

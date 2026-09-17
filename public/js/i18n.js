@@ -52,22 +52,6 @@
             'hero.btn_request': '<i class="fas fa-file-alt me-2"></i> Permohonan Informasi',
             'hero.btn_learn': '<i class="fas fa-info-circle me-2"></i> Pelajari Lebih Lanjut',
 
-            /* ---------- STATISTIK & KINERJA TEKNIS ---------- */
-            'stats.title': 'Statistik & Kinerja Teknis',
-            'stats.subtitle': 'Ringkasan kapasitas dan kontribusi unit pembangkitan',
-            'stats.value_capacity': '3 \u00d7 330 <small>MW</small>',
-            'stats.label_capacity': 'Kapasitas Terpasang',
-            'stats.desc_capacity': 'Total 990 MW kapasitas pembangkitan terpasang.',
-            'stats.value_coverage': 'Jamali',
-            'stats.label_coverage': 'Cakupan Suplai',
-            'stats.desc_coverage': 'Sistem Interkoneksi Jawa–Madura–Bali (Jamali).',
-            'stats.value_total': '23.000+ <small>MW</small>',
-            'stats.label_total': 'Total Kapasitas PLN NP',
-            'stats.desc_total': 'Kapasitas pembangkitan PT PLN Nusantara Power.',
-            'stats.value_ebt': '6,3+ <small>GW</small>',
-            'stats.label_ebt': 'Proyek Energi Terbarukan (EBT)',
-            'stats.desc_ebt': 'Portofolio energi terbarukan yang terus berkembang.',
-
             /* ---------- WILAYAH OPERASIONAL ---------- */
             'region.title': 'Wilayah Operasional PT PLN Nusantara Power',
             'region.subtitle': 'Cakupan area kerja dan pembangkitan di berbagai wilayah Indonesia',
@@ -247,22 +231,6 @@
             'hero.subtitle': 'The Indramayu Steam Power Plant (PLTU) with an installed capacity of 3 x 330 MW, operating 24 hours nonstop to support national energy security and provide transparent public information services.',
             'hero.btn_request': '<i class="fas fa-file-alt me-2"></i> Information Request',
             'hero.btn_learn': '<i class="fas fa-info-circle me-2"></i> Learn More',
-
-            /* ---------- STATISTIK & KINERJA TEKNIS ---------- */
-            'stats.title': 'Statistics & Technical Performance',
-            'stats.subtitle': 'An overview of the generating unit\u2019s capacity and contribution',
-            'stats.value_capacity': '3 \u00d7 330 <small>MW</small>',
-            'stats.label_capacity': 'Installed Capacity',
-            'stats.desc_capacity': 'A total of 990 MW of installed generating capacity.',
-            'stats.value_coverage': 'Jamali',
-            'stats.label_coverage': 'Supply Coverage',
-            'stats.desc_coverage': 'Java\u2013Madura\u2013Bali (Jamali) interconnected system.',
-            'stats.value_total': '23,000+ <small>MW</small>',
-            'stats.label_total': 'Total PLN NP Capacity',
-            'stats.desc_total': 'Generating capacity of PT PLN Nusantara Power.',
-            'stats.value_ebt': '6.3+ <small>GW</small>',
-            'stats.label_ebt': 'Renewable Energy Projects',
-            'stats.desc_ebt': 'A continuously growing renewable energy portfolio.',
 
             /* ---------- WILAYAH OPERASIONAL ---------- */
             'region.title': 'PT PLN Nusantara Power Operational Region',

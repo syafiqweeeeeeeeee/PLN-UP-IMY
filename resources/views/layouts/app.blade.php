@@ -34,10 +34,15 @@
         {{-- Custom PLN Styles --}}
         <style>
             :root {
-                --pln-blue:    #005B9C;
+                /* Disamakan dengan biru teal pada section "Mulai Pengalaman
+                   Baru di PLN Mobile" (gradient #00c2d1 → #008fa8); dipakai
+                   navbar, footer, hero, dan elemen brand lainnya */
+                --pln-blue:    #008fa8;
                 --pln-yellow:  #FFE600;
                 --pln-red:     #ED1C24;
-                --pln-cyan:    #00A3E0;
+                /* Aksen teal muda — selaras dengan gradasi biru teal baru
+                   (dipakai hover, highlight, dan elemen aksen) */
+                --pln-cyan:    #00c2d1;
                 --pln-dark:    #1a1a2e;
                 --pln-gray:    #F8F9FA;
                 --pln-text:    #333333;
@@ -61,13 +66,13 @@
             .navbar-pln {
                 background: var(--pln-blue);
                 padding: 0.6rem 0;
-                box-shadow: 0 2px 12px rgba(0, 91, 156, 0.25);
+                box-shadow: 0 2px 12px rgba(0, 143, 168, 0.25);
                 transition: background 0.3s ease, padding 0.3s ease;
             }
 
             .navbar-pln.scrolled {
                 padding: 0.35rem 0;
-                box-shadow: 0 4px 20px rgba(0, 91, 156, 0.35);
+                box-shadow: 0 4px 20px rgba(0, 143, 168, 0.35);
             }
 
             .navbar-pln .navbar-brand {
@@ -107,8 +112,9 @@
                 white-space: nowrap;
             }
             .navbar-pln .navbar-brand .logo-nav {
-                height: 42px;
-                width: 42px;
+                height: 52px;                /* diperbesar dari 42px */
+                width: auto;
+                max-width: 200px;
                 object-fit: contain;
                 flex-shrink: 0;
             }
@@ -133,10 +139,10 @@
                     gap: 0.25rem;                /* gap-1 */
                     margin-right: 0;
                 }
-                /* Baris 1: emblem kuning saja (h-10 = 2.5rem, w-auto) */
+                /* Baris 1: emblem — diperbesar dari 2.5rem (40px) ke 3.25rem (52px) */
                 .navbar-pln .navbar-brand .logo-nav {
-                    height: 2.5rem;              /* h-10 */
-                    width: auto;                 /* w-auto */
+                    height: 3.25rem;
+                    width: auto;
                     margin-bottom: 0.25rem;      /* mb-1 */
                 }
                 /* Baris 2: teks di BAWAH logo — span asli, sudah
@@ -314,12 +320,12 @@
 
             .lang-switcher .lang-option:hover {
                 color: #fff;
-                background: rgba(0, 163, 224, 0.12);
+                background: rgba(0, 194, 209, 0.12);
             }
 
             .lang-switcher .lang-option.active {
                 color: #fff;
-                background: rgba(0, 163, 224, 0.18);
+                background: rgba(0, 194, 209, 0.18);
                 font-weight: 700;
             }
 
@@ -331,7 +337,7 @@
 
             /* HERO */
             .hero-section {
-                background: linear-gradient(135deg, var(--pln-blue) 0%, #003d6b 50%, var(--pln-dark) 100%);
+                background: linear-gradient(135deg, var(--pln-blue) 0%, #00566b 50%, var(--pln-dark) 100%);
                 min-height: 100vh;
                 display: flex;
                 align-items: center;
@@ -392,7 +398,7 @@
             .btn-hero-outline:hover {
                 border-color: var(--pln-cyan);
                 color: var(--pln-cyan);
-                background: rgba(0, 163, 224, 0.08);
+                background: rgba(0, 194, 209, 0.08);
             }
 
             /* GENERAL */
@@ -419,7 +425,7 @@
 
             .stat-card:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 12px 30px rgba(0, 91, 156, 0.12);
+                box-shadow: 0 12px 30px rgba(0, 143, 168, 0.12);
                 border-color: var(--pln-cyan);
             }
 
@@ -435,7 +441,7 @@
 
             .menu-card:hover {
                 transform: translateY(-4px);
-                box-shadow: 0 8px 24px rgba(0, 91, 156, 0.15);
+                box-shadow: 0 8px 24px rgba(0, 143, 168, 0.15);
             }
 
             .footer-pln {
@@ -499,9 +505,9 @@
             }
 
             .logo-nav {
-                height: 42px;
+                height: 52px;
                 width: auto;
-                max-width: 180px;
+                max-width: 200px;
                 object-fit: contain;
             }
 

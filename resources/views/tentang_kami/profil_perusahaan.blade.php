@@ -71,20 +71,29 @@
     }
 
     /* Logo lingkaran "UP" — proporsional & menyatu dengan judul */
+    /* Lingkaran "UP" kini diganti gambar logo asli (logo-pln1.png):
+       obj-fit contain + background putih + border putih agar logo
+       yang bertumpu pada area transparan tetap tampil bersih bulat. */
     .company-logo-ring {
         width: 88px;
         height: 88px;
         border-radius: 50%;
-        background: var(--pln-yellow);
+        background: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.75rem;
-        font-weight: 900;
-        color: var(--pln-blue);
         border: 4px solid #fff;
-        box-shadow: 0 6px 20px rgba(0, 91, 156, 0.18);
+        box-shadow: 0 6px 20px rgba(0, 143, 168, 0.18);
         flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .company-logo-ring img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        -webkit-user-drag: none;
+        user-select: none;
     }
 
     .hero-head {
@@ -668,7 +677,7 @@
     /* --- Responsive --- */
     @media (max-width: 991.98px) {
         .hero-title { font-size: 1.85rem; }
-        .company-logo-ring { width: 76px; height: 76px; font-size: 1.5rem; }
+        .company-logo-ring { width: 76px; height: 76px; }
         .timeline-track { left: 24px; }
         .timeline-item {
             padding-left: 60px !important;
@@ -682,7 +691,7 @@
     @media (max-width: 767.98px) {
         .profile-hero { padding: calc(76px + 1.75rem) 0 2.5rem; }
         .hero-title { font-size: 1.55rem; }
-        .company-logo-ring { width: 64px; height: 64px; font-size: 1.3rem; }
+        .company-logo-ring { width: 64px; height: 64px; }
         .hero-head { gap: 1rem; }
         .hero-stats { gap: 0.75rem; }
         .hero-stat { padding: 0.85rem 0.9rem; }
@@ -751,7 +760,13 @@
                         </span>
 
                         <div class="hero-head">
-                            <div class="company-logo-ring">UP</div>
+                            <div class="company-logo-ring">
+                                <img src="{{ asset('assets/images/logo-pln1.png') }}"
+                                    alt="Logo PLN Nusantara Power Unit Pembangkitan Indramayu"
+                                    width="88" height="88"
+                                    draggable="false" ondragstart="return false;"
+                                    onerror="this.style.display='none'; this.parentElement.textContent='UP';">
+                            </div>
                             <h1 class="hero-title">
                                 PLN Nusantara Power<br>
                                 <span>Unit Pembangkitan Indramayu</span>

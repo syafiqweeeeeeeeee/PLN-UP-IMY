@@ -15,6 +15,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\PermissionMiddleware::class,
             'page.visible' => \App\Http\Middleware\EnsurePageVisible::class,
         ]);
+
+        /* ---- Trust semua proxy (ngrok / cloudflare tunnel / LB) ----
+           Tanpa ini, akses lewat ngrok membuat Laravel menganggap
+           request "http" (padahal browser di https): cookie session
+           & CSRF tidak ter-set flag Secure, token tidak cocok, dan
+           submit form login berujung "419 Page Expired".
+           Dengan trustProxies, header X-Forwarded-Proto/Host dipakai
+           sehingga URL, cookie, dan redirect tetap https. */
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

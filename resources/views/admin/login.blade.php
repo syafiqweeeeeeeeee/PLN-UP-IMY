@@ -205,8 +205,8 @@
 
         {{-- Header --}}
         <div class="login-header">
-            <h2>Selamat Datang, Admin</h2>
-            <p>Silakan masuk ke panel administrasi</p>
+            <h2>Selamat Datang</h2>
+            <p>Silakan masuk ke panel yang tersedia</p>
         </div>
 
         {{-- Error alert --}}
@@ -234,7 +234,7 @@
                         value="{{ old('email') }}"
                         required
                         autocomplete="email"
-                        placeholder="admin@contoh.com">
+                        placeholder="ad***@contoh.com">
                 </div>
                 @error('email')
                 <div class="field-error">
@@ -269,13 +269,13 @@
 
             {{-- Submit --}}
             <button type="submit" class="btn-login-pln">
-                <i class="fas fa-arrow-right-to-bracket"></i> Masuk
+                <i></i> Masuk
             </button>
         </form>
 
         {{-- Footer --}}
         <div class="login-footer">
-            E-PPID PLN &middot; Admin Panel
+            PLN Nusantara Power UP Indramayu 2027
         </div>
     </div>
 </div>
