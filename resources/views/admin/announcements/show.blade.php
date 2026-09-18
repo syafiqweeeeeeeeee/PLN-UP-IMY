@@ -55,20 +55,6 @@
         color: #334155;
         white-space: pre-wrap;
     }
-
-    .btn-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        color: #6b7280;
-        font-weight: 600;
-        font-size: 0.85rem;
-        text-decoration: none;
-        transition: color 0.2s ease;
-        padding: 0.4rem 0;
-    }
-    .btn-back:hover { color: var(--pln-blue); }
-
     .btn-edit {
         background: var(--pln-blue);
         color: #fff;
@@ -92,24 +78,27 @@
 @endpush
 
 @section('content')
-<div class="row g-3 mb-4">
-    <div class="col-12">
-        <div class="dash-card">
-            <div class="dash-card-header">
-                <div>
-                    <h5 class="dash-card-title">Detail Pengumuman</h5>
-                    <p class="dash-card-subtitle">Pratinjau pengumuman sesuai data yang tersimpan</p>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <a href="{{ route('admin.announcements.index') }}" class="btn-back">
-                        <i class="fas fa-arrow-left"></i> Kembali
-                    </a>
-                    <a href="{{ route('admin.announcements.edit', $announcement) }}" class="btn-edit">
-                        <i class="fas fa-pen"></i> Edit
-                    </a>
-                </div>
-            </div>
+{{-- ============================================
+     TOP NAVIGATION — standar Design System Form
+     ============================================ --}}
+<div class="form-topbar">
+    <div class="form-topbar-left">
+        <a href="{{ route('admin.announcements.index') }}" class="form-back-btn">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+        <div>
+            <h4 class="form-page-title">Detail Pengumuman</h4>
+            <p class="form-page-subtitle">Pratinjau pengumuman sesuai data yang tersimpan</p>
+        </div>
+    </div>
+    <div class="form-topbar-actions">
+        <a href="{{ route('admin.announcements.edit', $announcement) }}" class="form-btn-save" style="text-decoration:none;">
+            <i class="fas fa-pen"></i> Edit
+        </a>
+    </div>
+</div>
 
+<div class="form-section">
             <div class="row g-4">
                 <div class="col-lg-8">
                     <div class="detail-label">Judul</div>
@@ -158,7 +147,5 @@
                     @endif
                 </div>
             </div>
-        </div>
-    </div>
 </div>
 @endsection

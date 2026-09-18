@@ -5,21 +5,7 @@
 
 @push('styles')
 <style>
-    .menus-header {
-        background: var(--bg-card); border: 1px solid var(--border-color);
-        border-radius: 14px; padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
-        display: flex; align-items: center; justify-content: space-between;
-        flex-wrap: wrap; gap: 1rem;
-    }
-    .menus-header h5 { font-size: 1.1rem; font-weight: 700; color: var(--pln-text); margin: 0 0 0.2rem; }
-    .menus-header p  { font-size: 0.8rem; color: #9ca3af; margin: 0; }
-    .btn-add-menu {
-        display: inline-flex; align-items: center; gap: 0.5rem;
-        padding: 0.6rem 1.25rem; background: var(--pln-blue); color: #fff;
-        border-radius: 10px; font-weight: 600; font-size: 0.85rem; text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    .btn-add-menu:hover { background: #003d6b; color: #fff; transform: translateY(-1px); }
+    /* menus-header/btn-add-menu → page-header-card + btn-corp-add (global di admin.css) */
 
     .howto-box {
         background: #f0f7ff; border: 1px solid #d6e6f7; border-radius: 14px;
@@ -145,36 +131,24 @@
     }
     .modal-menu-close:hover { background: #e2e8f0; color: #334155; }
 
-    /* Kelas form dipakai modal (didefinisikan global karena modal ada di index) */
-    .form-label-mod { font-size: 0.8rem; font-weight: 600; color: #4b5563; margin-bottom: 0.35rem; }
-    .form-control-mod {
-        width: 100%; padding: 0.65rem 0.9rem; border: 1px solid #e5e7eb;
-        border-radius: 10px; font-size: 0.85rem; color: var(--pln-text);
-        background: #fff; transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .form-control-mod:focus { outline: none; border-color: var(--pln-blue); box-shadow: 0 0 0 3px rgba(0,91,156,0.1); }
-    .form-hint { font-size: 0.72rem; color: #9ca3af; margin-top: 0.3rem; }
-    .form-btn-save {
-        display: inline-flex; align-items: center; gap: 0.5rem;
-        padding: 0.6rem 1.5rem; background: var(--pln-blue); color: #fff;
-        border: none; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer;
-        transition: all 0.25s ease;
-    }
-    .form-btn-save:hover { background: #003d6b; transform: translateY(-1px); }
+    /* Kelas form dipakai modal: form-label-mod, form-control-mod, form-hint,
+       form-btn-save → global di public/css/admin.css */
 </style>
 @endpush
 
 @section('content')
-<div class="menus-header">
-    <div>
-        <h5>Struktur Menu</h5>
-        <p>Atur menu navigasi situs publik di sini — perubahan langsung tampil di navbar.</p>
+<div class="page-header-card">
+    <div class="header-row">
+        <div class="header-left">
+            <h5><i class="fas fa-bars header-icon"></i>Struktur Menu</h5>
+            <p>Atur menu navigasi situs publik di sini — perubahan langsung tampil di navbar.</p>
+        </div>
+        @can('menus.create')
+        <button type="button" class="btn-corp btn-corp-add" onclick="openMenuModal()">
+            <i class="fas fa-plus"></i> Tambah Menu
+        </button>
+        @endcan
     </div>
-    @can('menus.create')
-    <button type="button" class="btn-add-menu" onclick="openMenuModal()">
-        <i class="fas fa-plus"></i> Tambah Menu
-    </button>
-    @endcan
 </div>
 
 @if (session('success'))
@@ -377,13 +351,13 @@
             @endif
 
             <div class="mb-3">
-                <label class="form-label-mod" for="menuModalLabel">Nama menu <span class="text-danger">*</span></label>
-                <input type="text" id="menuModalLabel" name="label" class="form-control-mod" placeholder="Contoh: Karier" required>
+                <label class="form-group-label" for="menuModalLabel">Nama menu <span class="required">*</span></label>
+                <input type="text" id="menuModalLabel" name="label" class="form-input" placeholder="Contoh: Karier" required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label-mod" for="menuModalType">Tipe tujuan <span class="text-danger">*</span></label>
-                <select id="menuModalType" name="type" class="form-control-mod" onchange="toggleMenuModalTargets()">
+                <label class="form-group-label" for="menuModalType">Tipe tujuan <span class="required">*</span></label>
+                <select id="menuModalType" name="type" class="form-input" onchange="toggleMenuModalTargets()">
                     @foreach ($typeLabels as $typeKey => $typeLabel)
                         <option value="{{ $typeKey }}">{{ $typeLabel }}</option>
                     @endforeach
@@ -391,8 +365,8 @@
             </div>
 
             <div class="mb-3 menu-modal-target" data-for="route" style="display:none;">
-                <label class="form-label-mod" for="menuModalRoute">Pilih halaman situs</label>
-                <select id="menuModalRoute" name="route_name" class="form-control-mod">
+                <label class="form-group-label" for="menuModalRoute">Pilih halaman situs</label>
+                <select id="menuModalRoute" name="route_name" class="form-input">
                     <option value="">— pilih —</option>
                     @foreach ($routeOptions ?? [] as $routeName => $routeLabel)
                         <option value="{{ $routeName }}">{{ $routeLabel }}</option>
@@ -401,22 +375,22 @@
             </div>
 
             <div class="mb-3 menu-modal-target" data-for="page" style="display:none;">
-                <label class="form-label-mod" for="menuModalPage">Pilih Halaman Internal <span class="text-danger">*</span></label>
-                <select id="menuModalPage" name="page_id" class="form-control-mod">
+                <label class="form-group-label" for="menuModalPage">Pilih Halaman Internal <span class="required">*</span></label>
+                <select id="menuModalPage" name="page_id" class="form-input">
                     <option value="">— pilih —</option>
                     @foreach ($pages as $pageOption)
                         <option value="{{ $pageOption->id }}">{{ $pageOption->title }} (/halaman/{{ $pageOption->slug }})</option>
                     @endforeach
                 </select>
-                <div class="form-hint">
-                    <i class="fas fa-shield-halved me-1"></i>
+                <div class="form-hint flex">
+                    <i class="fas fa-shield-halved"></i>
                     Hanya halaman berstatus <strong>Terbit</strong> yang terdaftar. Menu ini otomatis disembunyikan dari pengunjung yang tidak berhak melihat halamannya.
                 </div>
             </div>
 
             <div class="mb-3 menu-modal-target" data-for="url" style="display:none;">
-                <label class="form-label-mod" for="menuModalUrl">Alamat link <span class="text-danger">*</span></label>
-                <input type="text" id="menuModalUrl" name="url" class="form-control-mod" placeholder="Contoh: https://web.pln.co.id">
+                <label class="form-group-label" for="menuModalUrl">Alamat link <span class="required">*</span></label>
+                <input type="text" id="menuModalUrl" name="url" class="form-input" placeholder="Contoh: https://web.pln.co.id">
             </div>
 
             <div class="d-flex justify-content-end gap-2 mt-4">

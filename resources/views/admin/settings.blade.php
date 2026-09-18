@@ -531,9 +531,9 @@
 <div class="settings-toast" id="settingsToast">
     <i class="fas fa-circle-check"></i> <span id="settingsToastText">Pengaturan disimpan</span>
 </div>
-@endsection
-
-@push('scripts')
+{{-- Script WAJIB di dalam @section('content') (bukan @push('scripts'))
+     karena client-side router (router.js) hanya mengeksekusi ulang
+     <script> di dalam <main> setelah navigasi SPA. --}}
 <script>
     (function () {
         'use strict';
@@ -604,4 +604,4 @@
         }
     })();
 </script>
-@endpush
+@endsection

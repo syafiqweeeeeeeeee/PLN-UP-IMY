@@ -486,10 +486,3 @@
     }
 </script>
 @endsection
-
-@push('scripts')
-<script>
-    // Catatan: fungsi modal hapus dipindah ke script inline di atas
-    // (router.js hanya mengeksekusi ulang <script> di dalam <main>).
-</script>
-@endpush

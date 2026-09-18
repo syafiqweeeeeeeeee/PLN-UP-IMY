@@ -5,132 +5,255 @@
 
 @push('styles')
 <style>
-    .form-label { font-weight: 600; font-size: 0.85rem; color: #374151; margin-bottom: 0.4rem; }
-    .form-control, .form-select {
-        border: 1px solid #e5e7eb; border-radius: 8px;
-        padding: 0.65rem 0.9rem; font-size: 0.875rem; transition: all 0.2s ease;
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: var(--pln-blue); box-shadow: 0 0 0 3px rgba(0,91,156,0.1); outline: none;
-    }
+    /* ============================================
+       USER CREATE FORM — DESIGN SYSTEM FORM STANDAR
+       Struktur & style sama dengan form Berita (referensi utama):
+       form-topbar, form-section(+icon), form-group, form-input,
+       form-error, form-footer, form-btn-save/cancel
+       → semua global di public/css/admin.css.
+       Yang tersisa di sini HANYA komponen unik Pengguna:
+       ikon dalam input + indikator kekuatan password.
+       ============================================ */
+
+    /* Input dengan ikon di kiri — gaya standar form-input */
     .input-icon { position: relative; }
-    .input-icon .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.85rem; }
-    .input-icon .form-control { padding-left: 2rem; }
+    .input-icon .icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 0.85rem;
+        pointer-events: none;
+    }
+    html.theme-dark .input-icon .icon { color: var(--ink-faint); }
+    .input-icon .form-input { padding-left: 2.25rem; }
+
+    /* Wrapper password + tombol show/hide */
     .password-wrapper { position: relative; }
     .password-toggle {
-        position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-        background: none; border: none; color: #9ca3af; cursor: pointer; padding: 0;
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 0;
     }
     .password-toggle:hover { color: var(--pln-blue); }
-    .password-strength { height: 4px; border-radius: 2px; margin-top: 0.5rem; width: 0%; background: #e5e7eb; }
-    .strength-text { font-size: 0.75rem; margin-top: 0.25rem; }
-    .help-text { font-size: 0.78rem; color: #9ca3af; margin-top: 0.25rem; }
-    .error-text { font-size: 0.78rem; color: #dc2626; margin-top: 0.25rem; }
-    .btn-back { background: #f3f4f6; color: #6b7280; border: none; border-radius: 8px; padding: 0.6rem 1.2rem; font-weight: 500; }
-    .btn-back:hover { background: #e5e7eb; color: #374151; }
-    .btn-submit { background: var(--pln-yellow); color: var(--pln-blue); border: none; border-radius: 8px; padding: 0.65rem 1.5rem; font-weight: 700; font-size: 0.9rem; }
-    .btn-submit:hover { background: #fff; }
+    .input-icon .password-toggle ~ .form-input,
+    .password-wrapper .form-input { padding-right: 2.4rem; }
+
+    /* Indikator kekuatan password */
+    .password-strength {
+        height: 4px;
+        border-radius: 2px;
+        margin-top: 0.5rem;
+        width: 0%;
+        background: #e5e7eb;
+        transition: width 0.2s ease, background 0.2s ease;
+    }
+    .strength-text { font-size: 0.75rem; margin-top: 0.25rem; font-weight: 600; }
 </style>
 @endpush
 
 @section('content')
-<div class="row g-3 mb-4">
-    <div class="col-12">
-        <div class="dash-card">
-            <div class="dash-card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h5 class="dash-card-title">Tambah Pengguna Baru</h5>
-                        <p class="dash-card-subtitle">Isi formulir di bawah untuk mendaftarkan pengguna baru</p>
-                    </div>
-                    <a href="{{ route('admin.users.index') }}" class="btn-back">
-                        <i class="fas fa-arrow-left me-1"></i> Kembali
-                    </a>
-                </div>
-            </div>
-
-            <form action="{{ route('admin.users.store') }}" method="POST">
-                @csrf
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label" for="name">Nama Lengkap <span class="text-danger">*</span></label>
-                        <div class="input-icon">
-                            <i class="fas fa-user icon"></i>
-                            <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}" required autocomplete="name">
-                        </div>
-                        @error('name') <div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="email">Email <span class="text-danger">*</span></label>
-                        <div class="input-icon">
-                            <i class="fas fa-envelope icon"></i>
-                            <input type="email" id="email" name="email" class="form-control" value="{{ old('email') }}" required autocomplete="email" placeholder="email@contoh.com">
-                        </div>
-                        @error('email') <div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="password">Password <span class="text-danger">*</span></label>
-                        <div class="password-wrapper">
-                            <input type="password" id="password" name="password" class="form-control" required autocomplete="new-password" placeholder="Min. 8 karakter">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
-                        </div>
-                        <div id="passwordStrength" class="password-strength"></div>
-                        <div id="strengthText" class="strength-text"></div>
-                        @error('password') <div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="password_confirmation">Konfirmasi Password <span class="text-danger">*</span></label>
-                        <div class="password-wrapper">
-                            <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required autocomplete="new-password">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label" for="role_id">Role Pengguna <span class="text-danger">*</span></label>
-                        <select id="role_id" name="role_id" class="form-select" required>
-                            <option value="">-- Pilih Role --</option>
-                            @foreach($roles as $role)
-                                <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
-                                    {{ $role->name }} {{ $role->status ? '' : '(Nonaktif)' }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <p class="help-text">Pilih role aktif. Role nonaktif tidak dapat digunakan.</p>
-                        @error('role_id') <div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="no_hp">No. Telepon</label>
-                        <div class="input-icon">
-                            <i class="fas fa-phone icon"></i>
-                            <input type="text" id="no_hp" name="no_hp" class="form-control" value="{{ old('no_hp') }}" placeholder="081234567890">
-                        </div>
-                        <p class="help-text">Isi jika diperlukan untuk kontak</p>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="alamat">Alamat</label>
-                        <textarea id="alamat" name="alamat" class="form-control" rows="2" placeholder="Alamat lengkap pengguna...">{{ old('alamat') }}</textarea>
-                        <p class="help-text">Isi jika diperlukan</p>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-end gap-2 mt-4 pt-3" style="border-top: 1px solid #d66565;">
-                    <button type="button" class="btn-back" onclick="history.back()"><i class="fas fa-times me-1"></i> Batal</button>
-                    <button type="submit" class="btn-submit"><i class="fas fa-save me-1"></i> Tambah Pengguna</button>
-                </div>
-            </form>
+{{-- ============================================
+     TOP NAVIGATION — standar Design System Form
+     ============================================ --}}
+<div class="form-topbar">
+    <div class="form-topbar-left">
+        <a href="{{ route('admin.users.index') }}" class="form-back-btn">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+        <div>
+            <h4 class="form-page-title">Tambah Pengguna Baru</h4>
+            <p class="form-page-subtitle">Isi formulir di bawah untuk mendaftarkan pengguna baru</p>
         </div>
     </div>
 </div>
-@endsection
 
-@push('scripts')
+@if (session('success'))
+<div class="form-alert success">
+    <i class="fas fa-check-circle"></i> {{ session('success') }}
+</div>
+@endif
+
+@if ($errors->any())
+<div class="form-alert danger">
+    <i class="fas fa-circle-exclamation"></i> Perbaiki data berikut.
+</div>
+@endif
+
+<form action="{{ route('admin.users.store') }}" method="POST" id="userForm">
+    @csrf
+
+    {{-- ============================================
+         SECTION: Informasi Akun
+         ============================================ --}}
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon blue">
+                <i class="fas fa-user"></i>
+            </div>
+            <div>
+                <h6 class="form-section-title">Informasi Akun</h6>
+                <p class="form-section-desc">Nama, email, dan keamanan akun</p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="name">
+                        Nama Lengkap <span class="required">*</span>
+                    </label>
+                    <div class="input-icon">
+                        <i class="fas fa-user icon"></i>
+                        <input type="text" id="name" name="name" class="form-input" value="{{ old('name') }}" required autocomplete="name" placeholder="Nama lengkap pengguna...">
+                    </div>
+                    @error('name')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="email">
+                        Email <span class="required">*</span>
+                    </label>
+                    <div class="input-icon">
+                        <i class="fas fa-envelope icon"></i>
+                        <input type="email" id="email" name="email" class="form-input" value="{{ old('email') }}" required autocomplete="email" placeholder="email@contoh.com">
+                    </div>
+                    @error('email')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="password">
+                        Password <span class="required">*</span>
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" class="form-input" required autocomplete="new-password" placeholder="Min. 8 karakter">
+                        <button type="button" class="password-toggle" onclick="togglePassword('password', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
+                    </div>
+                    <div id="passwordStrength" class="password-strength"></div>
+                    <div id="strengthText" class="strength-text"></div>
+                    @error('password')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="password_confirmation">
+                        Konfirmasi Password <span class="required">*</span>
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" required autocomplete="new-password" placeholder="Ulangi password...">
+                        <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ============================================
+         SECTION: Role & Kontak
+         ============================================ --}}
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon cyan">
+                <i class="fas fa-user-tag"></i>
+            </div>
+            <div>
+                <h6 class="form-section-title">Role & Kontak</h6>
+                <p class="form-section-desc">Hak akses dan informasi kontak pengguna</p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-group-label" for="role_id">
+                        Role Pengguna <span class="required">*</span>
+                    </label>
+                    <select id="role_id" name="role_id" class="form-input" required>
+                        <option value="">-- Pilih Role --</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                                {{ $role->name }} {{ $role->status ? '' : '(Nonaktif)' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="form-hint flex">
+                        <i class="far fa-lightbulb"></i> Pilih role aktif — role nonaktif tidak dapat digunakan.
+                    </div>
+                    @error('role_id')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="no_hp">
+                        No. Telepon <span class="optional">(opsional)</span>
+                    </label>
+                    <div class="input-icon">
+                        <i class="fas fa-phone icon"></i>
+                        <input type="text" id="no_hp" name="no_hp" class="form-input" value="{{ old('no_hp') }}" placeholder="081234567890">
+                    </div>
+                    <div class="form-hint flex">
+                        <i class="far fa-lightbulb"></i> Isi jika diperlukan untuk kontak
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="alamat">
+                        Alamat <span class="optional">(opsional)</span>
+                    </label>
+                    <textarea id="alamat" name="alamat" class="form-input" rows="2" placeholder="Alamat lengkap pengguna...">{{ old('alamat') }}</textarea>
+                    <div class="form-hint flex">
+                        <i class="far fa-lightbulb"></i> Isi jika diperlukan
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ============================================
+         FOOTER — standar Design System Form
+         ============================================ --}}
+    <div class="form-footer">
+        <div class="form-footer-info">
+            <i class="fas fa-circle-info"></i> Field dengan <span style="color:#dc2626;">*</span> wajib diisi
+        </div>
+        <div class="form-footer-actions">
+            <button type="button" class="form-btn-cancel" onclick="history.back()">
+                Batal
+            </button>
+            <button type="submit" class="form-btn-save">
+                <i class="fas fa-save"></i> Tambah Pengguna
+            </button>
+        </div>
+    </div>
+</form>
+
+{{-- Script WAJIB di dalam @section('content') (bukan @push('scripts'))
+     karena client-side router (router.js) hanya mengeksekusi ulang
+     <script> di dalam <main>; kalau di push stack, tombol show password
+     & indikator kekuatan password mati setelah navigasi via sidebar. --}}
 <script>
     function togglePassword(fieldId, btn) {
         const field = document.getElementById(fieldId);
@@ -158,4 +281,4 @@
         strengthText.style.color = color;
     });
 </script>
-@endpush
+@endsection

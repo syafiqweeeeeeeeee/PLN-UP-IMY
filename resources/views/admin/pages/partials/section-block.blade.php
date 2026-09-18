@@ -50,9 +50,9 @@
             <input type="hidden" name="sections[{{ $idx }}][id]" value="{{ $sid }}">
         @endif
 
-        <div class="mb-3">
-            <label class="form-label-mod">Jenis section</label>
-            <select name="sections[{{ $idx }}][type]" class="form-control-mod" data-section-type>
+        <div class="form-group mb-3">
+            <label class="form-group-label">Jenis section</label>
+            <select name="sections[{{ $idx }}][type]" class="form-input" data-section-type>
                 @foreach (\App\Models\PageSection::TYPES as $typeKey => $typeLabel)
                     <option value="{{ $typeKey }}" @selected($type === $typeKey)>{{ $typeLabel }}</option>
                 @endforeach
@@ -62,82 +62,82 @@
         {{-- ================= BANNER / HERO ================= --}}
         <div class="row g-3 mb-1" data-fields="banner" @if ($type !== 'banner') style="display:none;" @endif>
             <div class="col-md-6">
-                <label class="form-label-mod">Judul Utama</label>
+                <label class="form-group-label">Judul Utama</label>
                 <input type="text" name="sections[{{ $idx }}][heading]" value="{{ $d['heading'] ?? '' }}"
-                       class="form-control-mod" @disable($type !== 'banner')>
+                       class="form-input" @disable($type !== 'banner')>
             </div>
             <div class="col-md-6">
-                <label class="form-label-mod">Subjudul</label>
+                <label class="form-group-label">Subjudul</label>
                 <input type="text" name="sections[{{ $idx }}][subheading]" value="{{ $d['subheading'] ?? '' }}"
-                       class="form-control-mod" @disable($type !== 'banner')>
+                       class="form-input" @disable($type !== 'banner')>
             </div>
             <div class="col-md-6">
-                <label class="form-label-mod">Teks Tombol (opsional)</label>
+                <label class="form-group-label">Teks Tombol <span class="optional">(opsional)</span></label>
                 <input type="text" name="sections[{{ $idx }}][button_text]" value="{{ $d['button_text'] ?? '' }}"
-                       class="form-control-mod" @disable($type !== 'banner')>
+                       class="form-input" @disable($type !== 'banner')>
             </div>
             <div class="col-md-6">
-                <label class="form-label-mod">URL Tombol (opsional)</label>
+                <label class="form-group-label">URL Tombol <span class="optional">(opsional)</span></label>
                 <input type="text" name="sections[{{ $idx }}][button_url]" value="{{ $d['button_url'] ?? '' }}"
-                       class="form-control-mod" placeholder="https://... atau /halaman/..." @disable($type !== 'banner')>
+                       class="form-input" placeholder="https://... atau /halaman/..." @disable($type !== 'banner')>
             </div>
         </div>
 
         {{-- ================= TEKS ================= --}}
         <div data-fields="text" @if ($type !== 'text') style="display:none;" @endif>
-            <div class="mb-3">
-                <label class="form-label-mod">Judul Bagian</label>
+            <div class="form-group mb-3">
+                <label class="form-group-label">Judul Bagian</label>
                 <input type="text" name="sections[{{ $idx }}][heading]" value="{{ $d['heading'] ?? '' }}"
-                       class="form-control-mod" @disable($type !== 'text')>
+                       class="form-input" @disable($type !== 'text')>
             </div>
-            <div>
-                <label class="form-label-mod">Isi Teks</label>
-                <textarea name="sections[{{ $idx }}][body]" class="form-control-mod" rows="6" @disable($type !== 'text')>{{ $d['body'] ?? '' }}</textarea>
-                <div class="form-hint">Teks biasa, baris kosong memisahkan paragraf. Tidak mendukung HTML (aman dari XSS).</div>
+            <div class="form-group">
+                <label class="form-group-label">Isi Teks</label>
+                <textarea name="sections[{{ $idx }}][body]" class="form-input" rows="6" @disable($type !== 'text')>{{ $d['body'] ?? '' }}</textarea>
+                <div class="form-hint flex"><i class="far fa-lightbulb"></i> Teks biasa, baris kosong memisahkan paragraf. Tidak mendukung HTML (aman dari XSS).</div>
             </div>
         </div>
 
         {{-- ================= KARTU / DAFTAR FILE ================= --}}
         <div data-fields="cards" @if ($type !== 'cards') style="display:none;" @endif>
-            <div class="mb-3">
-                <label class="form-label-mod">Judul Bagian</label>
+            <div class="form-group mb-3">
+                <label class="form-group-label">Judul Bagian</label>
                 <input type="text" name="sections[{{ $idx }}][heading]" value="{{ $d['heading'] ?? '' }}"
-                       class="form-control-mod" @disable($type !== 'cards')>
+                       class="form-input" @disable($type !== 'cards')>
             </div>
-            <div>
-                <label class="form-label-mod">Daftar Kartu</label>
-                <textarea name="sections[{{ $idx }}][items]" class="form-control-mod" rows="5"
+            <div class="form-group">
+                <label class="form-group-label">Daftar Kartu</label>
+                <textarea name="sections[{{ $idx }}][items]" class="form-input" rows="5"
                           placeholder="Judul | Deskripsi | URL tombol (opsional)" @disable($type !== 'cards')>{{ $type === 'cards' ? $itemsAsText : '' }}</textarea>
-                <div class="form-hint">Satu item per baris, pisahkan dengan " | ".</div>
+                <div class="form-hint flex"><i class="far fa-lightbulb"></i> Satu item per baris, pisahkan dengan " | ".</div>
             </div>
         </div>
 
         <div data-fields="file" @if ($type !== 'file') style="display:none;" @endif>
-            <div class="mb-3">
-                <label class="form-label-mod">Judul Bagian</label>
+            <div class="form-group mb-3">
+                <label class="form-group-label">Judul Bagian</label>
                 <input type="text" name="sections[{{ $idx }}][heading]" value="{{ $d['heading'] ?? '' }}"
-                       class="form-control-mod" @disable($type !== 'file')>
+                       class="form-input" @disable($type !== 'file')>
             </div>
-            <div>
-                <label class="form-label-mod">Daftar File</label>
-                <textarea name="sections[{{ $idx }}][items]" class="form-control-mod" rows="5"
+            <div class="form-group">
+                <label class="form-group-label">Daftar File</label>
+                <textarea name="sections[{{ $idx }}][items]" class="form-input" rows="5"
                           placeholder="Nama File | Keterangan | URL file" @disable($type !== 'file')>{{ $type === 'file' ? $itemsAsText : '' }}</textarea>
-                <div class="form-hint">Contoh: <code>Laporan Tahunan 2025 | Ringkasan kinerja | /storage/laporan.pdf</code></div>
+                <div class="form-hint flex"><i class="far fa-lightbulb"></i> Contoh: <code>Laporan Tahunan 2025 | Ringkasan kinerja | /storage/laporan.pdf</code></div>
             </div>
         </div>
 
         {{-- ================= FAQ ================= --}}
         <div data-fields="faq" @if ($type !== 'faq') style="display:none;" @endif>
-            <div class="mb-3">
-                <label class="form-label-mod">Judul Bagian</label>
+            <div class="form-group mb-3">
+                <label class="form-group-label">Judul Bagian</label>
                 <input type="text" name="sections[{{ $idx }}][heading]" value="{{ $d['heading'] ?? '' }}"
-                       class="form-control-mod" @disable($type !== 'faq')>
+                       class="form-input" @disable($type !== 'faq')>
             </div>
-            <div>
-                <label class="form-label-mod">Daftar Tanya-Jawab</label>
-                <textarea name="sections[{{ $idx }}][items]" class="form-control-mod" rows="6"
+            <div class="form-group">
+                <label class="form-group-label">Daftar Tanya-Jawab</label>
+                <textarea name="sections[{{ $idx }}][items]" class="form-input" rows="6"
                           placeholder="Pertanyaan | Jawaban" @disable($type !== 'faq')>{{ $type === 'faq' ? $itemsAsText : '' }}</textarea>
-                <div class="form-hint">Satu pasangan per baris: <code>Pertanyaan | Jawaban</code>.</div>
+                <div class="form-hint flex"><i class="far fa-lightbulb"></i> Satu pasangan per baris: <code>Pertanyaan | Jawaban</code>.</div>
             </div>
         </div>
     </div>

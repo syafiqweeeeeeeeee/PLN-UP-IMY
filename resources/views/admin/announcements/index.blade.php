@@ -330,6 +330,42 @@
 </div>
 
 {{-- ============================================================
+     Script INLINE filter tabel — WAJIB di dalam content (bukan
+     @push('scripts')) karena router.js hanya mengeksekusi ulang
+     <script> di dalam <main> setelah navigasi SPA.
+     ============================================================ --}}
+<script>
+    (function() {
+        const searchInput = document.getElementById('searchInput');
+        const filterCategory = document.getElementById('filterCategory');
+        const filterStatus = document.getElementById('filterStatus');
+        const rows = document.querySelectorAll('#announcementTableBody tr[data-title]');
+
+        function applyFilters() {
+            const search = (searchInput?.value ?? '').toLowerCase();
+            const category = filterCategory?.value ?? '';
+            const status = filterStatus?.value ?? '';
+
+            rows.forEach(function(row) {
+                const title = row.dataset.title || '';
+                const rowCategory = row.dataset.category || '';
+                const rowStatus = row.dataset.status || '';
+
+                const matchSearch = !search || title.includes(search);
+                const matchCategory = !category || rowCategory === category;
+                const matchStatus = !status || rowStatus === status;
+
+                row.style.display = (matchSearch && matchCategory && matchStatus) ? '' : 'none';
+            });
+        }
+
+        searchInput?.addEventListener('input', applyFilters);
+        filterCategory?.addEventListener('change', applyFilters);
+        filterStatus?.addEventListener('change', applyFilters);
+    })();
+</script>
+
+{{-- ============================================================
      Script INLINE modal hapus — WAJIB di dalam content (bukan
      @push('scripts')) karena client-side router (router.js) hanya
      mengeksekusi ulang <script> di dalam <main>; kalau di push
@@ -367,62 +403,4 @@
 </script>
 @endsection
 
-@push('scripts')
-<script>
-    // Catatan: fungsi modal hapus dipindah ke script inline di atas
-    // (router.js hanya mengeksekusi ulang tag script di dalam main).
-    // Filter functionality (pola news)
-    (function() {
-        const searchInput = document.getElementById('searchInput');
-        const filterCategory = document.getElementById('filterCategory');
-        const filterStatus = document.getElementById('filterStatus');
-        const rows = document.querySelectorAll('#announcementTableBody tr[data-title]');
 
-        function applyFilters() {
-            const search = (searchInput?.value ?? '').toLowerCase();
-            const category = filterCategory?.value ?? '';
-            const status = filterStatus?.value ?? '';
-
-            rows.forEach(function(row) {
-                const title = row.dataset.title || '';
-                const rowCategory = row.dataset.category || '';
-                const rowStatus = row.dataset.status || '';
-
-                const matchSearch = !search || title.includes(search);
-                const matchCategory = !category || rowCategory === category;
-                const matchStatus = !status || rowStatus === status;
-
-                row.style.display = (matchSearch && matchCategory && matchStatus) ? '' : 'none';
-            });
-        }
-
-        searchInput?.addEventListener('input', applyFilters);
-        filterCategory?.addEventListener('change', applyFilters);
-        filterStatus?.addEventListener('change', applyFilters);
-    })();
-
-    // Delete modal
-    function openAnnouncementDeleteModal(url, title) {
-        const modal = document.getElementById('deleteAnnouncementModal');
-        document.getElementById('deleteAnnouncementTitle').textContent = title;
-        document.getElementById('deleteAnnouncementForm').action = url;
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeAnnouncementDeleteModal() {
-        document.getElementById('deleteAnnouncementModal').classList.remove('show');
-        document.body.style.overflow = '';
-    }
-
-    document.getElementById('deleteAnnouncementModal')?.addEventListener('click', function(e) {
-        if (e.target === this) closeAnnouncementDeleteModal();
-    });
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && document.getElementById('deleteAnnouncementModal')?.classList.contains('show')) {
-            closeAnnouncementDeleteModal();
-        }
-    });
-</script>
-@endpush

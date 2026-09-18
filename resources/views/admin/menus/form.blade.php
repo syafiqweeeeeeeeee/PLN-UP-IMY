@@ -5,51 +5,15 @@
 
 @push('styles')
 <style>
-    .form-topbar {
-        display: flex; align-items: center; justify-content: space-between;
-        margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;
-    }
-    .form-back-btn {
-        display: inline-flex; align-items: center; gap: 0.5rem;
-        padding: 0.5rem 1rem; background: var(--bg-card);
-        border: 1px solid var(--border-color); border-radius: 10px;
-        color: #6b7280; font-weight: 600; font-size: 0.82rem; text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    .form-back-btn:hover { border-color: var(--pln-blue); color: var(--pln-blue); }
-    .form-page-title { font-size: 1.25rem; font-weight: 800; color: var(--pln-text); margin: 0; }
-    .form-page-subtitle { font-size: 0.8rem; color: #9ca3af; margin: 0.15rem 0 0; }
-    .form-btn-save {
-        display: inline-flex; align-items: center; gap: 0.5rem;
-        padding: 0.6rem 1.5rem; background: var(--pln-blue); color: #fff;
-        border: none; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer;
-        transition: all 0.25s ease;
-    }
-    .form-btn-save:hover { background: #003d6b; transform: translateY(-1px); }
-
-    .form-section {
-        background: var(--bg-card); border: 1px solid var(--border-color);
-        border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem;
-    }
-    .form-section-header {
-        display: flex; align-items: center; gap: 0.65rem;
-        margin-bottom: 1.25rem; padding-bottom: 0.85rem; border-bottom: 1px solid #f3f4f6;
-    }
-    .form-section-header .icon-circle {
-        width: 34px; height: 34px; border-radius: 9px;
-        background: #e8f1fa; color: var(--pln-blue);
-        display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
-    }
-    .form-section-header h6 { margin: 0; font-weight: 700; color: var(--pln-text); font-size: 0.95rem; }
-    .form-label-mod { font-size: 0.8rem; font-weight: 600; color: #4b5563; margin-bottom: 0.35rem; }
-    .form-control-mod {
-        width: 100%; padding: 0.65rem 0.9rem; border: 1px solid #e5e7eb;
-        border-radius: 10px; font-size: 0.85rem; color: var(--pln-text); background: #fff;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .form-control-mod:focus { outline: none; border-color: var(--pln-blue); box-shadow: 0 0 0 3px rgba(0,91,156,0.1); }
-    .invalid-feedback-mod { color: #dc2626; font-size: 0.75rem; margin-top: 0.3rem; }
-    .form-hint { font-size: 0.72rem; color: #9ca3af; margin-top: 0.3rem; }
+    /* ============================================
+       MENU FORM — DESIGN SYSTEM FORM STANDAR
+       Struktur & style sama dengan form Berita (referensi utama):
+       form-topbar, form-section(+icon), form-group, form-input,
+       form-hint, form-footer, form-btn-save/cancel
+       → semua global di public/css/admin.css.
+       Yang tersisa di sini HANYA komponen unik Menu:
+       kartu pilihan tipe tujuan + icon picker.
+       ============================================ */
 
     /* Kartu pilihan tipe tujuan */
     .type-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; }
@@ -83,26 +47,50 @@
         display: flex; align-items: center; justify-content: center; color: var(--pln-blue);
         flex-shrink: 0;
     }
+
+    /* Dark-mode komponen unik menu */
+    html.theme-dark .type-card { background: var(--panel); border-color: var(--line); }
+    html.theme-dark .type-card.selected { background: var(--panel-hover); }
+    html.theme-dark .icon-opt { background: var(--panel); border-color: var(--line); color: var(--ink-muted); }
 </style>
 @endpush
 
 @section('content')
+{{-- ============================================
+     TOP NAVIGATION — standar Design System Form
+     ============================================ --}}
 <div class="form-topbar">
-    <div>
-        <a href="{{ route('admin.menus.index') }}" class="form-back-btn mb-2">
+    <div class="form-topbar-left">
+        <a href="{{ route('admin.menus.index') }}" class="form-back-btn">
             <i class="fas fa-arrow-left"></i> Kembali
         </a>
-        <h1 class="form-page-title">{{ $menu ? 'Edit Menu' : 'Tambah Menu' }}</h1>
-        <p class="form-page-subtitle">
-            {{ $menu
-                ? 'Mengubah "' . $menu->label . '" — perubahan langsung tampil di navbar situs.'
-                : 'Menu baru akan langsung tampil di navbar setelah disimpan.' }}
-        </p>
+        <div>
+            <h4 class="form-page-title">{{ $menu ? 'Edit Menu' : 'Tambah Menu Baru' }}</h4>
+            <p class="form-page-subtitle">
+                {{ $menu
+                    ? 'Mengubah "' . $menu->label . '" — perubahan langsung tampil di navbar situs.'
+                    : 'Menu baru akan langsung tampil di navbar setelah disimpan.' }}
+            </p>
+        </div>
     </div>
-    <button type="submit" form="menuForm" class="form-btn-save">
-        <i class="fas fa-floppy-disk"></i> Simpan Menu
-    </button>
+    <div class="form-topbar-actions">
+        <button type="submit" form="menuForm" class="form-btn-save">
+            <i class="fas fa-floppy-disk"></i> Simpan Menu
+        </button>
+    </div>
 </div>
+
+@if (session('success'))
+<div class="form-alert success">
+    <i class="fas fa-check-circle"></i> {{ session('success') }}
+</div>
+@endif
+
+@if ($errors->any())
+<div class="form-alert danger">
+    <i class="fas fa-circle-exclamation"></i> Perbaiki data berikut.
+</div>
+@endif
 
 <form id="menuForm" method="POST"
       action="{{ $menu ? route('admin.menus.update', $menu) : route('admin.menus.store') }}">
@@ -113,30 +101,37 @@
 
     <div class="form-section">
         <div class="form-section-header">
-            <div class="icon-circle"><i class="fas fa-pen"></i></div>
-            <h6>Nama & Posisi Menu</h6>
+            <div class="form-section-icon blue"><i class="fas fa-pen"></i></div>
+            <div>
+                <h6 class="form-section-title">Nama & Posisi Menu</h6>
+                <p class="form-section-desc">Teks menu dan posisinya di navbar</p>
+            </div>
         </div>
         <div class="row g-3">
             <div class="col-md-6">
-                <label class="form-label-mod" for="label">Nama menu <span class="text-danger">*</span></label>
-                <input type="text" id="label" name="label" value="{{ old('label', $menu->label ?? '') }}"
-                       class="form-control-mod @error('label') is-invalid @enderror"
-                       placeholder="Contoh: Karier" required>
-                @error('label')<div class="invalid-feedback-mod">{{ $message }}</div>@enderror
-                <div class="form-hint">Teks yang dilihat pengunjung di navbar.</div>
+                <div class="form-group">
+                    <label class="form-group-label" for="label">Nama menu <span class="required">*</span></label>
+                    <input type="text" id="label" name="label" value="{{ old('label', $menu->label ?? '') }}"
+                           class="form-input @error('label') is-invalid @enderror"
+                           placeholder="Contoh: Karier" required>
+                    @error('label')<div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
+                    <div class="form-hint flex"><i class="far fa-lightbulb"></i> Teks yang dilihat pengunjung di navbar.</div>
+                </div>
             </div>
             <div class="col-md-6">
-                <label class="form-label-mod" for="parent_id">Letak menu</label>
-                <select id="parent_id" name="parent_id" class="form-control-mod">
-                    <option value="">Sebagai grup sendiri di navbar (Menu Utama)</option>
-                    @foreach ($parents as $id => $label)
-                        <option value="{{ $id }}" @selected(old('parent_id', $menu->parent_id ?? '') == $id)>
-                            Di dalam dropdown "{{ $label }}"
-                        </option>
-                    @endforeach
-                </select>
-                <div class="form-hint">
-                    Menu Utama = dropdown besar (contoh: "Tentang Kami"). Submenu = item di dalamnya (contoh: "Berita").
+                <div class="form-group">
+                    <label class="form-group-label" for="parent_id">Letak menu</label>
+                    <select id="parent_id" name="parent_id" class="form-input">
+                        <option value="">Sebagai grup sendiri di navbar (Menu Utama)</option>
+                        @foreach ($parents as $id => $label)
+                            <option value="{{ $id }}" @selected(old('parent_id', $menu->parent_id ?? '') == $id)>
+                                Di dalam dropdown "{{ $label }}"
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="form-hint flex">
+                        <i class="far fa-lightbulb"></i> Menu Utama = dropdown besar (contoh: "Tentang Kami"). Submenu = item di dalamnya (contoh: "Berita").
+                    </div>
                 </div>
             </div>
         </div>
@@ -144,8 +139,11 @@
 
     <div class="form-section">
         <div class="form-section-header">
-            <div class="icon-circle"><i class="fas fa-location-arrow"></i></div>
-            <h6>Mau mengarah ke mana?</h6>
+            <div class="form-section-icon cyan"><i class="fas fa-location-arrow"></i></div>
+            <div>
+                <h6 class="form-section-title">Tujuan Menu</h6>
+                <p class="form-section-desc">Mau mengarah ke mana saat diklik?</p>
+            </div>
         </div>
 
         <div class="type-cards">
@@ -162,9 +160,9 @@
             @endforeach
         </div>
 
-        <div class="mt-3 type-field" data-for="route">
-            <label class="form-label-mod" for="route_name">Pilih halaman situs</label>
-            <select id="route_name" name="route_name" class="form-control-mod">
+        <div class="mt-3 type-field form-group" data-for="route">
+            <label class="form-group-label" for="route_name">Pilih halaman situs</label>
+            <select id="route_name" name="route_name" class="form-input">
                 <option value="">— pilih —</option>
                 @foreach ($routeOptions as $routeName => $routeLabel)
                     <option value="{{ $routeName }}" @selected(old('route_name', $menu->route_name ?? '') === $routeName)>{{ $routeLabel }}</option>
@@ -172,9 +170,9 @@
             </select>
         </div>
 
-        <div class="mt-3 type-field" data-for="page" style="display:none;">
-            <label class="form-label-mod" for="page_id">Pilih halaman buatan sendiri</label>
-            <select id="page_id" name="page_id" class="form-control-mod">
+        <div class="mt-3 type-field form-group" data-for="page" style="display:none;">
+            <label class="form-group-label" for="page_id">Pilih halaman buatan sendiri</label>
+            <select id="page_id" name="page_id" class="form-input">
                 <option value="">— pilih —</option>
                 @foreach ($pages as $pageOption)
                     <option value="{{ $pageOption->id }}" @selected(old('page_id', $menu->page_id ?? '') == $pageOption->id)>
@@ -182,44 +180,49 @@
                     </option>
                 @endforeach
             </select>
-            <div class="form-hint">
-                <i class="fas fa-shield-halved me-1"></i>
+            <div class="form-hint flex">
+                <i class="fas fa-shield-halved"></i>
                 Menu ini otomatis disembunyikan dari pengunjung yang tidak berhak melihat halamannya.
                 Belum punya halaman? Buat dulu di menu <strong>Halaman</strong> di sidebar.
             </div>
         </div>
 
-        <div class="mt-3 type-field" data-for="url" style="display:none;">
-            <label class="form-label-mod" for="url">Alamat link</label>
+        <div class="mt-3 type-field form-group" data-for="url" style="display:none;">
+            <label class="form-group-label" for="url">Alamat link</label>
             <input type="text" id="url" name="url" value="{{ old('url', $menu->url ?? '') }}"
-                   class="form-control-mod" placeholder="Contoh: https://web.pln.co.id">
-            <div class="form-hint">Bisa alamat situs lain, atau alamat dalam situs ini yang diawali "/".</div>
+                   class="form-input" placeholder="Contoh: https://web.pln.co.id">
+            <div class="form-hint flex"><i class="far fa-lightbulb"></i> Bisa alamat situs lain, atau alamat dalam situs ini yang diawali "/".</div>
         </div>
         @error('url')
             @if (old('type', $menu->type ?? '') === 'url')
-                <div class="invalid-feedback-mod mt-1">{{ $message }}</div>
+                <div class="form-error mt-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
             @endif
         @enderror
 
         <div class="row g-3 mt-1">
             <div class="col-md-6">
-                <label class="form-label-mod" for="target">Cara membuka link</label>
-                <select id="target" name="target" class="form-control-mod">
-                    @foreach ($targetLabels as $targetValue => $targetLabel)
-                        <option value="{{ $targetValue }}" @selected(old('target', $menu->target ?? '_self') === $targetValue)>
-                            {{ $targetLabel }}
-                        </option>
-                    @endforeach
-                </select>
-                <div class="form-hint">"Tab baru" cocok untuk link eksternal agar pengunjung tidak meninggalkan situs ini.</div>
+                <div class="form-group">
+                    <label class="form-group-label" for="target">Cara membuka link</label>
+                    <select id="target" name="target" class="form-input">
+                        @foreach ($targetLabels as $targetValue => $targetLabel)
+                            <option value="{{ $targetValue }}" @selected(old('target', $menu->target ?? '_self') === $targetValue)>
+                                {{ $targetLabel }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="form-hint flex"><i class="far fa-lightbulb"></i> "Tab baru" cocok untuk link eksternal agar pengunjung tidak meninggalkan situs ini.</div>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="form-section">
         <div class="form-section-header">
-            <div class="icon-circle"><i class="fas fa-icons"></i></div>
-            <h6>Ikon (opsional)</h6>
+            <div class="form-section-icon yellow"><i class="fas fa-icons"></i></div>
+            <div>
+                <h6 class="form-section-title">Ikon Menu</h6>
+                <p class="form-section-desc">Opsional — ikon kecil di samping teks menu</p>
+            </div>
         </div>
         <div class="icon-grid" id="iconGrid">
             @foreach ($iconChoices as $iconChoice)
@@ -229,14 +232,14 @@
                 </button>
             @endforeach
         </div>
-        <div class="icon-custom-row">
+        <div class="icon-custom-row form-group">
             <span class="icon-preview" id="iconPreview">
                 <i class="fas {{ old('icon', $menu->icon ?? 'fa-link') ?: 'fa-link' }}" id="iconPreviewIcon"></i>
             </span>
             <div style="flex:1;">
                 <input type="text" id="icon" name="icon" value="{{ old('icon', $menu->icon ?? '') }}"
-                       class="form-control-mod" placeholder="Kosongkan untuk tanpa ikon, atau ketik kode sendiri">
-                <div class="form-hint">Klik ikon di atas untuk memilih, atau ketik manual (otomatis diberi awalan fa-).</div>
+                       class="form-input" placeholder="Kosongkan untuk tanpa ikon, atau ketik kode sendiri">
+                <div class="form-hint flex"><i class="far fa-lightbulb"></i> Klik ikon di atas untuk memilih, atau ketik manual (otomatis diberi awalan fa-).</div>
             </div>
         </div>
 
@@ -249,6 +252,24 @@
         </div>
     </div>
 </form>
+
+{{-- ============================================
+     FOOTER — standar Design System Form (di luar form,
+     tombol simpan utama ada di form-topbar via attribute form="menuForm")
+     ============================================ --}}
+<div class="form-footer">
+    <div class="form-footer-info">
+        <i class="fas fa-circle-info"></i> Field dengan <span style="color:#dc2626;">*</span> wajib diisi
+    </div>
+    <div class="form-footer-actions">
+        <a href="{{ route('admin.menus.index') }}" class="form-btn-cancel">
+            Batal
+        </a>
+        <button type="submit" form="menuForm" class="form-btn-save">
+            <i class="fas fa-floppy-disk"></i> Simpan Menu
+        </button>
+    </div>
+</div>
 
 {{-- ============================================================
      Script INLINE di dalam content section — WAJIB di sini (bukan

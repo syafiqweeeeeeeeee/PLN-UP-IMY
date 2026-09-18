@@ -5,6 +5,11 @@
 
 @push('styles')
 <style>
+    /* ============================================
+       PERMISSION FORM — DESIGN SYSTEM FORM STANDAR
+       Header & footer mengikuti standar form Berita;
+       daftar checkbox permission tetap seperti semula.
+       ============================================ */
     .permission-card {
         background:#fff;
         border:1px solid #e5e7eb;
@@ -97,33 +102,39 @@
 @endpush
 
 @section('content')
-<div class="row g-3 mb-4">
-    <div class="col-12">
-        <div class="dash-card">
-            <div class="dash-card-header">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <div>
-                        <h5 class="dash-card-title">Kelola Permission</h5>
-                        <p class="dash-card-subtitle">Tentukan permission untuk role <strong>{{ $role->name }}</strong></p>
-                    </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="badge {{ $role->status ? 'status-badge-role active' : 'status-badge-role inactive' }}">
-                            {{ $role->status ? 'Aktif' : 'Nonaktif' }}
-                        </span>
-                        <a href="{{ route('admin.roles.index') }}" class="btn-permission-outline" style="display:inline-flex; align-items:center; gap:0.4rem;">
-                            <i class="fas fa-arrow-left"></i> Kembali
-                        </a>
-                    </div>
-                </div>
-            </div>
+{{-- ============================================
+     TOP NAVIGATION — standar Design System Form
+     ============================================ --}}
+<div class="form-topbar">
+    <div class="form-topbar-left">
+        <a href="{{ route('admin.roles.index') }}" class="form-back-btn">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+        <div>
+            <h4 class="form-page-title">Kelola Permission</h4>
+            <p class="form-page-subtitle">Tentukan permission untuk role <strong>{{ $role->name }}</strong></p>
+        </div>
+    </div>
+    <div class="form-topbar-actions">
+        <span class="badge {{ $role->status ? 'status-badge-role active' : 'status-badge-role inactive' }}" style="align-self:center;">{{ $role->status ? 'Aktif' : 'Nonaktif' }}</span>
+        <form action="{{ route('admin.roles.permissions', $role) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <button type="submit" class="form-btn-save">
+                <i class="fas fa-save"></i> Simpan Permission
+            </button>
+        </form>
+    </div>
+</div>
 
+@if (session('success'))
+<div class="form-alert success">
+    <i class="fas fa-check-circle"></i> {{ session('success') }}
+</div>
+@endif
+
+<div class="form-section">
             <div class="p-3">
-                @if (session('success'))
-                <div class="alert alert-success d-flex align-items-center gap-2" style="border-radius:8px; border:none; background:#dcfce7; color:#166534; font-size:0.85rem; margin-bottom:1rem;">
-                    <i class="fas fa-check-circle"></i> {{ session('success') }}
-                </div>
-                @endif
-
                 <div class="row g-2 mb-3">
                     <div class="col-auto">
                         <button type="button" id="selectAllBtn" class="btn-permission-outline" style="display:inline-flex; align-items:center; gap:0.4rem;">
@@ -135,15 +146,7 @@
                             <i class="fas fa-times"></i> Hapus Semua
                         </button>
                     </div>
-                    <div class="col-auto ms-auto">
-                        <form action="{{ route('admin.roles.permissions', $role) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-                            <button type="submit" class="btn-permission" style="display:inline-flex; align-items:center; gap:0.4rem;">
-                                <i class="fas fa-save"></i> Simpan Permission
-                            </button>
-                        </form>
-                    </div>
+                    <div class="col-auto ms-auto"></div>
                 </div>
 
                 <div class="permission-card">
@@ -182,13 +185,10 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 </div>
-@endsection
-
-@push('scripts')
+{{-- Script WAJIB di dalam @section('content') (bukan @push('scripts'))
+     karena client-side router (router.js) hanya mengeksekusi ulang
+     <script> di dalam <main> setelah navigasi SPA. --}}
 <script>
     (function () {
         const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
@@ -221,4 +221,4 @@
         updateSelectAllState();
     })();
 </script>
-@endpush
+@endsection

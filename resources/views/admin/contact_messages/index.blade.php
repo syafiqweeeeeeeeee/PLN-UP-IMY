@@ -406,9 +406,10 @@
     }, 4000);
 </script>
 @endif
-@endsection
-
-@push('scripts')
+{{-- Script WAJIB di dalam @section('content') (bukan @push('scripts'))
+     karena client-side router (router.js) hanya mengeksekusi ulang
+     <script> di dalam <main>; kalau di push stack, modal detail,
+     toast, dan sinkronisasi badge mati setelah navigasi via sidebar. --}}
 <script>
     var STATUS_LABELS = @json($statusLabels);
 
@@ -626,4 +627,4 @@
         if (e.key === 'Escape') closeDetailModal();
     });
 </script>
-@endpush
+@endsection

@@ -222,7 +222,7 @@
                 @endphp
                 @can('users.view')
                 <a href="{{ route('admin.users.index') }}"
-                   class="sidebar-link @if(request()->routeIs('admin.users.*') && !$isOwnProfilePage) active @endif"
+                   class="sidebar-link @if(request()->routeIs('admin.users.*') && !($isOwnProfilePage ?? false)) active @endif"
                    data-no-router>
                     <span class="link-icon"><i class="fas fa-users"></i></span>
                     <span class="link-text">Pengguna</span>

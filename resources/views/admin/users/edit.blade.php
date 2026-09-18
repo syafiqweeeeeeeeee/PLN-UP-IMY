@@ -5,39 +5,60 @@
 
 @push('styles')
 <style>
-    .form-label { font-weight: 600; font-size: 0.85rem; color: #374151; margin-bottom: 0.4rem; }
-    .form-control, .form-select {
-        border: 1px solid #e5e7eb; border-radius: 8px;
-        padding: 0.65rem 0.9rem; font-size: 0.875rem; transition: all 0.2s ease;
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: var(--pln-blue); box-shadow: 0 0 0 3px rgba(0,91,156,0.1); outline: none;
-    }
+    /* ============================================
+       USER EDIT FORM — DESIGN SYSTEM FORM STANDAR
+       Struktur & style SAMA dengan form Tambah Pengguna
+       (konsistensi Tambah = Edit, hanya isi & form action yang beda).
+       Class dasar global di public/css/admin.css; yang tersisa di
+       sini HANYA komponen unik Pengguna + blok OTP.
+       ============================================ */
+
+    /* Input dengan ikon di kiri — gaya standar form-input */
     .input-icon { position: relative; }
-    .input-icon .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.85rem; }
-    .input-icon .form-control { padding-left: 2rem; }
+    .input-icon .icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 0.85rem;
+        pointer-events: none;
+    }
+    html.theme-dark .input-icon .icon { color: var(--ink-faint); }
+    .input-icon .form-input { padding-left: 2.25rem; }
+
+    /* Wrapper password + tombol show/hide */
     .password-wrapper { position: relative; }
     .password-toggle {
-        position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-        background: none; border: none; color: #9ca3af; cursor: pointer; padding: 0;
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 0;
     }
     .password-toggle:hover { color: var(--pln-blue); }
-    .help-text { font-size: 0.78rem; color: #9ca3af; margin-top: 0.25rem; }
-    .error-text { font-size: 0.78rem; color: #dc2626; margin-top: 0.25rem; }
-    .info-item { background: #f9fafb; border-radius: 8px; padding: 0.75rem 1rem; border: 1px solid #f3f4f6; }
-    .info-label { font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
-    .info-value { font-weight: 600; color: #1f2937; font-size: 0.9rem; }
-    .btn-back { background: #f3f4f6; color: #6b7280; border: none; border-radius: 8px; padding: 0.6rem 1.2rem; font-weight: 500; }
-    .btn-back:hover { background: #e5e7eb; color: #374151; }
-    .btn-submit { background: var(--pln-yellow); color: var(--pln-blue); border: none; border-radius: 8px; padding: 0.65rem 1.5rem; font-weight: 700; font-size: 0.9rem; }
-    .btn-submit:hover { background: #fff; }
-    .role-badge { font-size: 0.7rem; padding: 0.25rem 0.6rem; border-radius: 20px; font-weight: 600; text-transform: uppercase; }
+    .password-wrapper .form-input { padding-right: 2.4rem; }
+
+    /* Badge role pada ringkasan atas */
+    .role-badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
     .role-badge-active { background: #dcfce7; color: #166534; }
     .role-badge-inactive { background: #fef3c7; color: #92400e; }
 
     /* ===== Blok OTP ===== */
     .otp-card {
-        background: #f0f7ff; border: 1px solid #d8e6f5; border-radius: 12px;
+        background: #f0f7ff;
+        border: 1px solid #d8e6f5;
+        border-radius: 12px;
         padding: 1.1rem 1.25rem;
     }
     html.theme-dark .otp-card { background: rgba(0,91,156,0.14); border-color: rgba(0,163,224,0.25); }
@@ -48,6 +69,7 @@
         display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
     }
     .otp-card-title { font-weight: 700; font-size: 0.92rem; color: #1f2937; flex: 1; min-width: 0; }
+    html.theme-dark .otp-card-title { color: var(--ink-heading); }
     .otp-badge {
         font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
         background: #dbeafe; color: #1d4ed8; border-radius: 20px; padding: 0.2rem 0.65rem;
@@ -55,19 +77,23 @@
     }
     html.theme-dark .otp-badge { background: rgba(0,163,224,0.18); color: #7cc7ff; }
     .otp-desc { font-size: 0.8rem; color: #64748b; margin: 0 0 0.85rem 0; }
+    html.theme-dark .otp-desc { color: var(--ink-muted); }
     .otp-desc strong { color: #1f2937; word-break: break-all; }
+    html.theme-dark .otp-desc strong { color: var(--ink-heading); }
     .otp-controls { display: flex; gap: 0.65rem; align-items: stretch; flex-wrap: wrap; }
     .otp-input {
         flex: 1 1 210px; min-width: 0;
         text-align: center; font-family: 'Courier New', Courier, monospace;
         font-size: 1rem; font-weight: 600; letter-spacing: 2px;
-        border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.6rem 0.75rem;
+        border: 1px solid #cbd5e1; border-radius: 10px; padding: 0.6rem 0.75rem;
         transition: all 0.2s ease;
+        background: #fff;
     }
+    html.theme-dark .otp-input { background: var(--panel); border-color: var(--line); color: var(--ink-heading); }
     .otp-input:focus { border-color: var(--pln-blue); box-shadow: 0 0 0 3px rgba(0,91,156,0.12); outline: none; }
     .otp-input.has-value { letter-spacing: 6px; font-weight: 700; }
     .btn-otp {
-        background: var(--pln-blue); color: #fff; border: none; border-radius: 8px;
+        background: var(--pln-blue); color: #fff; border: none; border-radius: 10px;
         padding: 0.6rem 1.15rem; font-weight: 600; font-size: 0.85rem;
         white-space: nowrap; flex-shrink: 0; transition: all 0.2s ease;
     }
@@ -97,15 +123,6 @@
     .otp-validate-msg.ok { color: #16a34a; }
     .otp-validate-msg.err { color: #dc2626; }
 
-    /* Banner alert flash message */
-    .alert-edit-success {
-        background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;
-        border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.85rem;
-        font-weight: 600; margin-bottom: 1rem;
-        display: flex; align-items: center; gap: 0.5rem;
-    }
-    html.theme-dark .alert-edit-success { background: rgba(22,163,74,0.15); color: #86efac; border-color: rgba(22,163,74,0.35); }
-
     /* ===== Inline field error: frame merah + pesan di bawah input ===== */
     .field-error,
     input.field-error, select.field-error, textarea.field-error {
@@ -124,180 +141,274 @@
 @endpush
 
 @section('content')
-<div class="row g-3 mb-4">
-    <div class="col-12">
-        <div class="dash-card">
-            <div class="dash-card-header">
-                <div class="d-flex align-items-center gap-3">
-                    <a href="{{ route('admin.users.show', $user) }}" class="btn-back d-flex align-items-center justify-content-center" style="flex-shrink: 0; width: 38px; height: 38px; padding: 0;" title="Kembali" aria-label="Kembali">
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
-                    <div>
-                        <h5 class="dash-card-title">Edit Pengguna</h5>
-                        <p class="dash-card-subtitle">Perbarui informasi pengguna ini</p>
-                    </div>
-                </div>
-            </div>
-
-            @if (session('success'))
-            <div class="alert-edit-success">
-                <i class="fas fa-circle-check"></i> {{ session('success') }}
-            </div>
-            @endif
-
-            <div class="row g-2 mb-4">
-                <div class="col-md-4">
-                    <div class="info-item d-flex align-items-center gap-3">
-                        <div class="avatar-placeholder" style="width:44px;height:44px;background:linear-gradient(135deg,var(--pln-blue),var(--pln-cyan));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:1rem;flex-shrink:0;">
-                            {{ strtoupper(substr($user->name, 0, 2)) }}
-                        </div>
-                        <div>
-                            <div class="info-label">Nama</div>
-                            <div class="info-value">{{ $user->name }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="info-item">
-                        <div class="info-label">Email</div>
-                        <div class="info-value">{{ $user->email }}</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="info-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="info-label">Role</div>
-                            @php
-                                $roleModel = $user->getRelationValue('role');
-                                $roleName = $roleModel && $roleModel instanceof App\Models\Role ? $roleModel->name : (is_string($user->role) ? $user->role : 'Pengguna');
-                                $roleStatus = $roleModel && $roleModel instanceof App\Models\Role ? $roleModel->status : true;
-                                $roleBadgeClass = $roleStatus ? 'role-badge-active' : 'role-badge-inactive';
-                                $inactiveLabel = $roleStatus ? '' : ' (Nonaktif)';
-                            @endphp
-                            <span class="role-badge {{ $roleBadgeClass }}">
-                                {{ $roleName }}{{ $inactiveLabel }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <form id="formEditUser" action="{{ route('admin.users.update', $user) }}" method="POST">
-                @csrf
-                @method('PUT')
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label" for="name">Nama Lengkap <span class="text-danger">*</span></label>
-                        <div class="input-icon">
-                            <i class="fas fa-user icon"></i>
-                            <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $user->name) }}" required autocomplete="name">
-                        </div>
-                        @error('name') <div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="email">Email <span class="text-danger">*</span></label>
-                        <div class="input-icon">
-                            <i class="fas fa-envelope icon"></i>
-                            <input type="email" id="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required autocomplete="email">
-                        </div>
-                        @error('email') <div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="password">Password Baru</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="password" name="password" class="form-control" autocomplete="new-password" placeholder="Kosongkan jika tidak ingin mengubah">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
-                        </div>
-                        <p class="help-text">Biarkan kosong jika tidak ingin mengubah password</p>
-                        @error('password') <div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="password_confirmation">Konfirmasi Password Baru</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" autocomplete="new-password">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
-                        </div>
-                    </div>
-
-                    {{-- ===== Verifikasi OTP (wajib hanya jika password baru diisi) ===== --}}
-                    <div class="col-12">
-                        <div class="otp-card">
-                            {{-- Baris 1: judul + badge --}}
-                            <div class="otp-card-head">
-                                <div class="otp-lock"><i class="fas fa-lock"></i></div>
-                                <div class="otp-card-title">Verifikasi Keamanan (OTP)</div>
-                                <span class="otp-badge">Wajib jika mengubah password</span>
-                            </div>
-                            {{-- Baris 2: sub-deskripsi --}}
-                            <p class="otp-desc">
-                                Kode OTP akan dikirimkan ke email: <strong>{{ $user->email }}</strong>
-                            </p>
-                            {{-- Baris 3: input + tombol sejajar --}}
-                            <div class="otp-controls">
-                                <div class="otp-field">
-                                    <input type="text" id="otp_code" name="otp_code" class="otp-input"
-                                           inputmode="numeric" pattern="[0-9]*" maxlength="6"
-                                           placeholder="Masukkan 6 digit OTP" autocomplete="one-time-code">
-                                    <span id="otpStatus" class="otp-status"><i class="fas fa-spinner fa-spin"></i></span>
-                                </div>
-                                <button type="button" id="btnSendOtp" class="btn-otp">
-                                    <i class="fas fa-paper-plane me-1"></i>
-                                    <span id="btnSendOtpText">Kirim Kode OTP</span>
-                                </button>
-                            </div>
-                            <div id="otpValidateOk" class="otp-validate-msg ok">OTP Valid <i class="fas fa-check"></i></div>
-                            <div id="otpValidateErr" class="otp-validate-msg err">Kode OTP salah atau kadaluwarsa <i class="fas fa-xmark"></i></div>
-                            <div id="otpAlertSuccess" class="otp-alert otp-alert-success">
-                                <i class="fas fa-circle-check me-1"></i><span></span>
-                            </div>
-                            <div id="otpAlertError" class="otp-alert otp-alert-error">
-                                <i class="fas fa-circle-exclamation me-1"></i><span></span>
-                            </div>
-                            @error('otp_code')
-                                <div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label" for="role_id">Role Pengguna <span class="text-danger">*</span></label>
-                        <select id="role_id" name="role_id" class="form-select" required>
-                            @foreach($roles as $role)
-                                <option value="{{ $role->id }}" {{ old('role_id', $user->role_id) == $role->id ? 'selected' : '' }}>
-                                    {{ $role->name }} {{ $role->status ? '' : '(Nonaktif)' }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <p class="help-text">Pilih role aktif. Role nonaktif tidak dapat digunakan.</p>
-                        @error('role_id') <div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="no_hp">No. Telepon</label>
-                        <div class="input-icon">
-                            <i class="fas fa-phone icon"></i>
-                            <input type="text" id="no_hp" name="no_hp" class="form-control" value="{{ old('no_hp', $user->no_hp) }}">
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="alamat">Alamat</label>
-                        <textarea id="alamat" name="alamat" class="form-control" rows="2">{{ old('alamat', $user->alamat) }}</textarea>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-end gap-2 mt-4 pt-3" style="border-top: 1px solid #f3f4f6;">
-                    <button type="button" class="btn-back" onclick="history.back()"><i class="fas fa-times me-1"></i> Batal</button>
-                    <button type="submit" id="btnSubmitUser" class="btn-submit"><i class="fas fa-save me-1"></i> Simpan Perubahan</button>
-                </div>
-            </form>
+{{-- ============================================
+     TOP NAVIGATION — standar Design System Form
+     ============================================ --}}
+<div class="form-topbar">
+    <div class="form-topbar-left">
+        <a href="{{ route('admin.users.show', $user) }}" class="form-back-btn">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+        <div>
+            <h4 class="form-page-title">Edit Pengguna</h4>
+            <p class="form-page-subtitle">Perbarui informasi pengguna ini</p>
         </div>
     </div>
 </div>
+
+@if (session('success'))
+<div class="form-alert success">
+    <i class="fas fa-circle-check"></i> {{ session('success') }}
+</div>
+@endif
+
+@if ($errors->any())
+<div class="form-alert danger">
+    <i class="fas fa-circle-exclamation"></i> Perbaiki data berikut.
+</div>
+@endif
+
+{{-- Ringkasan data pengguna — kartu section standar --}}
+<div class="form-section">
+    <div class="form-section-header">
+        <div class="form-section-icon purple">
+            <i class="fas fa-id-card"></i>
+        </div>
+        <div>
+            <h6 class="form-section-title">Data Pengguna</h6>
+            <p class="form-section-desc">Ringkasan data yang sedang diedit</p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--pln-blue),var(--pln-cyan));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:1rem;flex-shrink:0;border-radius:10px;">
+                    {{ strtoupper(substr($user->name, 0, 2)) }}
+                </div>
+                <div>
+                    <div class="form-group-label" style="margin-bottom:0.1rem;">Nama</div>
+                    <div style="font-size:0.88rem; color:var(--ink-heading); font-weight:600;">{{ $user->name }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group-label" style="margin-bottom:0.1rem;">Email</div>
+            <div style="font-size:0.88rem; color:var(--ink-heading);">{{ $user->email }}</div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group-label" style="margin-bottom:0.1rem;">Role</div>
+            @php
+                $roleModel = $user->getRelationValue('role');
+                $roleName = $roleModel && $roleModel instanceof App\Models\Role ? $roleModel->name : (is_string($user->role) ? $user->role : 'Pengguna');
+                $roleStatus = $roleModel && $roleModel instanceof App\Models\Role ? $roleModel->status : true;
+                $roleBadgeClass = $roleStatus ? 'role-badge-active' : 'role-badge-inactive';
+                $inactiveLabel = $roleStatus ? '' : ' (Nonaktif)';
+            @endphp
+            <span class="role-badge {{ $roleBadgeClass }}">
+                {{ $roleName }}{{ $inactiveLabel }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<form id="formEditUser" action="{{ route('admin.users.update', $user) }}" method="POST">
+    @csrf
+    @method('PUT')
+
+    {{-- ============================================
+         SECTION: Informasi Akun — sama dengan form Tambah
+         ============================================ --}}
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon blue">
+                <i class="fas fa-user"></i>
+            </div>
+            <div>
+                <h6 class="form-section-title">Informasi Akun</h6>
+                <p class="form-section-desc">Nama, email, dan keamanan akun</p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="name">
+                        Nama Lengkap <span class="required">*</span>
+                    </label>
+                    <div class="input-icon">
+                        <i class="fas fa-user icon"></i>
+                        <input type="text" id="name" name="name" class="form-input" value="{{ old('name', $user->name) }}" required autocomplete="name">
+                    </div>
+                    @error('name')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="email">
+                        Email <span class="required">*</span>
+                    </label>
+                    <div class="input-icon">
+                        <i class="fas fa-envelope icon"></i>
+                        <input type="email" id="email" name="email" class="form-input" value="{{ old('email', $user->email) }}" required autocomplete="email">
+                    </div>
+                    @error('email')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="password">
+                        Password Baru <span class="optional">(opsional)</span>
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" class="form-input" autocomplete="new-password" placeholder="Kosongkan jika tidak ingin mengubah">
+                        <button type="button" class="password-toggle" onclick="togglePassword('password', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
+                    </div>
+                    <div class="form-hint flex">
+                        <i class="far fa-lightbulb"></i> Biarkan kosong jika tidak ingin mengubah password
+                    </div>
+                    @error('password')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="password_confirmation">
+                        Konfirmasi Password Baru <span class="optional">(opsional)</span>
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" autocomplete="new-password" placeholder="Ulangi password baru...">
+                        <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ===== Verifikasi OTP (wajib hanya jika password baru diisi) ===== --}}
+            <div class="col-12">
+                <div class="otp-card">
+                    {{-- Baris 1: judul + badge --}}
+                    <div class="otp-card-head">
+                        <div class="otp-lock"><i class="fas fa-lock"></i></div>
+                        <div class="otp-card-title">Verifikasi Keamanan (OTP)</div>
+                        <span class="otp-badge">Wajib jika mengubah password</span>
+                    </div>
+                    {{-- Baris 2: sub-deskripsi --}}
+                    <p class="otp-desc">
+                        Kode OTP akan dikirimkan ke email: <strong>{{ $user->email }}</strong>
+                    </p>
+                    {{-- Baris 3: input + tombol sejajar --}}
+                    <div class="otp-controls">
+                        <div class="otp-field">
+                            <input type="text" id="otp_code" name="otp_code" class="otp-input"
+                                   inputmode="numeric" pattern="[0-9]*" maxlength="6"
+                                   placeholder="Masukkan 6 digit OTP" autocomplete="one-time-code">
+                            <span id="otpStatus" class="otp-status"><i class="fas fa-spinner fa-spin"></i></span>
+                        </div>
+                        <button type="button" id="btnSendOtp" class="btn-otp">
+                            <i class="fas fa-paper-plane me-1"></i>
+                            <span id="btnSendOtpText">Kirim Kode OTP</span>
+                        </button>
+                    </div>
+                    <div id="otpValidateOk" class="otp-validate-msg ok">OTP Valid <i class="fas fa-check"></i></div>
+                    <div id="otpValidateErr" class="otp-validate-msg err">Kode OTP salah atau kadaluwarsa <i class="fas fa-xmark"></i></div>
+                    <div id="otpAlertSuccess" class="otp-alert otp-alert-success">
+                        <i class="fas fa-circle-check me-1"></i><span></span>
+                    </div>
+                    <div id="otpAlertError" class="otp-alert otp-alert-error">
+                        <i class="fas fa-circle-exclamation me-1"></i><span></span>
+                    </div>
+                    @error('otp_code')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ============================================
+         SECTION: Role & Kontak — sama dengan form Tambah
+         ============================================ --}}
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon cyan">
+                <i class="fas fa-user-tag"></i>
+            </div>
+            <div>
+                <h6 class="form-section-title">Role & Kontak</h6>
+                <p class="form-section-desc">Hak akses dan informasi kontak pengguna</p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-group-label" for="role_id">
+                        Role Pengguna <span class="required">*</span>
+                    </label>
+                    <select id="role_id" name="role_id" class="form-input" required>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->id }}" {{ old('role_id', $user->role_id) == $role->id ? 'selected' : '' }}>
+                                {{ $role->name }} {{ $role->status ? '' : '(Nonaktif)' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="form-hint flex">
+                        <i class="far fa-lightbulb"></i> Pilih role aktif — role nonaktif tidak dapat digunakan.
+                    </div>
+                    @error('role_id')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="no_hp">
+                        No. Telepon <span class="optional">(opsional)</span>
+                    </label>
+                    <div class="input-icon">
+                        <i class="fas fa-phone icon"></i>
+                        <input type="text" id="no_hp" name="no_hp" class="form-input" value="{{ old('no_hp', $user->no_hp) }}" placeholder="081234567890">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="alamat">
+                        Alamat <span class="optional">(opsional)</span>
+                    </label>
+                    <textarea id="alamat" name="alamat" class="form-input" rows="2" placeholder="Alamat lengkap pengguna...">{{ old('alamat', $user->alamat) }}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ============================================
+         FOOTER — standar Design System Form
+         ============================================ --}}
+    <div class="form-footer">
+        <div class="form-footer-info">
+            <i class="fas fa-circle-info"></i> Field dengan <span style="color:#dc2626;">*</span> wajib diisi
+        </div>
+        <div class="form-footer-actions">
+            <button type="button" class="form-btn-cancel" onclick="history.back()">
+                Batal
+            </button>
+            <button type="submit" id="btnSubmitUser" class="form-btn-save">
+                <i class="fas fa-save"></i> Simpan Perubahan
+            </button>
+        </div>
+    </div>
+</form>
 
 {{-- Script HARUS di dalam @section('content'): konten di luar @section pada
      template yang @extends layout tidak dirender Blade. Ditempatkan di sini juga

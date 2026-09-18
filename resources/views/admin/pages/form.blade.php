@@ -5,52 +5,16 @@
 
 @push('styles')
 <style>
-    .form-topbar {
-        display: flex; align-items: center; justify-content: space-between;
-        margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;
-    }
-    .form-back-btn {
-        display: inline-flex; align-items: center; gap: 0.5rem;
-        padding: 0.5rem 1rem; background: var(--bg-card);
-        border: 1px solid var(--border-color); border-radius: 10px;
-        color: #6b7280; font-weight: 600; font-size: 0.82rem; text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    .form-back-btn:hover { border-color: var(--pln-blue); color: var(--pln-blue); }
-    .form-page-title { font-size: 1.25rem; font-weight: 800; color: var(--pln-text); margin: 0; }
-    .form-page-subtitle { font-size: 0.8rem; color: #9ca3af; margin: 0.15rem 0 0; }
-    .form-btn-save {
-        display: inline-flex; align-items: center; gap: 0.5rem;
-        padding: 0.6rem 1.5rem; background: var(--pln-blue); color: #fff;
-        border: none; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer;
-        transition: all 0.25s ease;
-    }
-    .form-btn-save:hover { background: #003d6b; transform: translateY(-1px); }
-
-    .form-section {
-        background: var(--bg-card); border: 1px solid var(--border-color);
-        border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem;
-    }
-    .form-section-header {
-        display: flex; align-items: center; gap: 0.65rem;
-        margin-bottom: 1.25rem; padding-bottom: 0.85rem; border-bottom: 1px solid #f3f4f6;
-    }
-    .form-section-header .icon-circle {
-        width: 34px; height: 34px; border-radius: 9px;
-        background: #e8f1fa; color: var(--pln-blue);
-        display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
-    }
-    .form-section-header h6 { margin: 0; font-weight: 700; color: var(--pln-text); font-size: 0.95rem; }
-    .form-label-mod { font-size: 0.8rem; font-weight: 600; color: #4b5563; margin-bottom: 0.35rem; }
-    .form-control-mod {
-        width: 100%; padding: 0.65rem 0.9rem; border: 1px solid #e5e7eb;
-        border-radius: 10px; font-size: 0.85rem; color: var(--pln-text);
-        background: #fff; transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .form-control-mod:focus { outline: none; border-color: var(--pln-blue); box-shadow: 0 0 0 3px rgba(0,91,156,0.1); }
-    textarea.form-control-mod { min-height: 100px; resize: vertical; }
-    .invalid-feedback-mod { color: #dc2626; font-size: 0.75rem; margin-top: 0.3rem; }
-    .form-hint { font-size: 0.72rem; color: #9ca3af; margin-top: 0.3rem; }
+    /* ============================================
+       PAGE FORM — DESIGN SYSTEM FORM STANDAR
+       Struktur & style sama dengan form Berita (referensi utama):
+       form-topbar, form-section(+icon), form-group, form-input,
+       form-hint, form-footer, form-btn-save/cancel
+       → semua global di public/css/admin.css.
+       Yang tersisa di sini HANYA komponen unik Halaman:
+       accordion section editor + role checkboxes.
+       ============================================ */
+    textarea.form-input { min-height: 100px; resize: vertical; }
 
     /* Sections */
     .section-item {
@@ -93,28 +57,54 @@
     .role-check:has(input:disabled) { opacity: 0.45; cursor: not-allowed; }
     .role-check:has(input:disabled):hover { border-color: #e5e7eb; }
     .role-check input { accent-color: var(--pln-blue); }
+
+    /* Dark-mode komponen unik halaman */
+    html.theme-dark .section-item { background: var(--panel); border-color: var(--line); }
+    html.theme-dark .section-item-head { background: var(--panel-2); border-color: var(--line); }
+    html.theme-dark .section-item-head .type-label { color: var(--ink-heading); }
+    html.theme-dark .btn-mini { background: var(--panel); }
+    html.theme-dark .role-check { border-color: var(--line); color: var(--ink-body); }
 </style>
 @endpush
 
 @section('content')
+{{-- ============================================
+     TOP NAVIGATION — standar Design System Form
+     ============================================ --}}
 <div class="form-topbar">
-    <div>
-        <a href="{{ route('admin.pages.index') }}" class="form-back-btn mb-2">
+    <div class="form-topbar-left">
+        <a href="{{ route('admin.pages.index') }}" class="form-back-btn">
             <i class="fas fa-arrow-left"></i> Kembali
         </a>
-        <h1 class="form-page-title">{{ $page ? 'Edit Halaman' : 'Tambah Halaman' }}</h1>
-        <p class="form-page-subtitle">
-            @if ($page)
-                /halaman/{{ $page->slug }}
-            @else
-                Isi identitas halaman, susun konten per section, lalu simpan sekali.
-            @endif
-        </p>
+        <div>
+            <h4 class="form-page-title">{{ $page ? 'Edit Halaman' : 'Tambah Halaman Baru' }}</h4>
+            <p class="form-page-subtitle">
+                @if ($page)
+                    /halaman/{{ $page->slug }}
+                @else
+                    Isi identitas halaman, susun konten per section, lalu simpan sekali.
+                @endif
+            </p>
+        </div>
     </div>
-    <button type="submit" form="pageForm" class="form-btn-save">
-        <i class="fas fa-floppy-disk"></i> Simpan Halaman
-    </button>
+    <div class="form-topbar-actions">
+        <button type="submit" form="pageForm" class="form-btn-save">
+            <i class="fas fa-floppy-disk"></i> Simpan Halaman
+        </button>
+    </div>
 </div>
+
+@if (session('success'))
+<div class="form-alert success">
+    <i class="fas fa-check-circle"></i> {{ session('success') }}
+</div>
+@endif
+
+@if ($errors->any())
+<div class="form-alert danger">
+    <i class="fas fa-circle-exclamation"></i> Perbaiki data berikut.
+</div>
+@endif
 
 <form id="pageForm" method="POST"
       action="{{ $page ? route('admin.pages.update', $page) : route('admin.pages.store') }}">
@@ -125,60 +115,76 @@
 
     <div class="form-section">
         <div class="form-section-header">
-            <div class="icon-circle"><i class="fas fa-circle-info"></i></div>
-            <h6>Identitas Halaman</h6>
+            <div class="form-section-icon blue"><i class="fas fa-circle-info"></i></div>
+            <div>
+                <h6 class="form-section-title">Identitas Halaman</h6>
+                <p class="form-section-desc">Judul dan status publikasi halaman</p>
+            </div>
         </div>
         <div class="row g-3">
             <div class="col-md-8">
-                <label class="form-label-mod" for="title">Judul Halaman <span class="text-danger">*</span></label>
-                <input type="text" id="title" name="title" value="{{ old('title', $page->title ?? '') }}"
-                       class="form-control-mod @error('title') is-invalid @enderror" required autofocus>
-                @error('title')<div class="invalid-feedback-mod">{{ $message }}</div>@enderror
+                <div class="form-group">
+                    <label class="form-group-label" for="title">Judul Halaman <span class="required">*</span></label>
+                    <input type="text" id="title" name="title" value="{{ old('title', $page->title ?? '') }}"
+                           class="form-input @error('title') is-invalid @enderror" placeholder="Masukkan judul halaman..." required autofocus>
+                    @error('title')<div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
+                </div>
             </div>
             <div class="col-md-4">
-                <label class="form-label-mod" for="status">Status <span class="text-danger">*</span></label>
-                <select id="status" name="status" class="form-control-mod">
-                    <option value="draft" @selected(old('status', $page->status ?? 'draft') === 'draft')>Draft</option>
-                    <option value="published" @selected(old('status', $page->status ?? '') === 'published')>Terbit</option>
-                </select>
+                <div class="form-group">
+                    <label class="form-group-label" for="status">Status <span class="required">*</span></label>
+                    <select id="status" name="status" class="form-input">
+                        <option value="draft" @selected(old('status', $page->status ?? 'draft') === 'draft')>Draft</option>
+                        <option value="published" @selected(old('status', $page->status ?? '') === 'published')>Terbit</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="form-section">
         <div class="form-section-header">
-            <div class="icon-circle"><i class="fas fa-lock"></i></div>
-            <h6>Visibilitas</h6>
+            <div class="form-section-icon purple"><i class="fas fa-lock"></i></div>
+            <div>
+                <h6 class="form-section-title">Visibilitas</h6>
+                <p class="form-section-desc">Siapa yang boleh melihat halaman ini</p>
+            </div>
         </div>
         <div class="row g-3">
             <div class="col-md-6">
-                <label class="form-label-mod" for="visibility">Siapa yang boleh melihat?</label>
-                <select id="visibility" name="visibility" class="form-control-mod">
-                    <option value="public" @selected(old('visibility', $page->visibility ?? 'public') === 'public')>
-                        Publik — semua pengunjung
-                    </option>
-                    <option value="role_restricted" @selected(old('visibility', $page->visibility ?? '') === 'role_restricted')>
-        Role Terbatas — hanya role terpilih (wajib login)
-                    </option>
-                </select>
-                <div class="form-hint">
-                    Visibilitas di-enforce di server: halaman ber-role yang diakses tanpa hak akan tampil 404.
+                <div class="form-group">
+                    <label class="form-group-label" for="visibility">Siapa yang boleh melihat?</label>
+                    <select id="visibility" name="visibility" class="form-input">
+                        <option value="public" @selected(old('visibility', $page->visibility ?? 'public') === 'public')>
+                            Publik — semua pengunjung
+                        </option>
+                        <option value="role_restricted" @selected(old('visibility', $page->visibility ?? '') === 'role_restricted')>
+            Role Terbatas — hanya role terpilih (wajib login)
+                        </option>
+                    </select>
+                    <div class="form-hint flex">
+                        <i class="far fa-lightbulb"></i> Visibilitas di-enforce di server: halaman ber-role yang diakses tanpa hak akan tampil 404.
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="form-label-mod">Role yang diizinkan</div>
-                <div class="role-grid" id="roleGrid">
-                    @forelse ($roles as $role)
-                        <label class="role-check">
-                            <input type="checkbox" name="role_ids[]" value="{{ $role->id }}"
-                                   {{ in_array($role->id, old('role_ids', $page?->roles->pluck('id')->toArray() ?? [])) ? 'checked' : '' }}>
-                            {{ $role->name }}
-                        </label>
-                    @empty
-                        <span class="text-muted small">Belum ada role terdaftar.</span>
-                    @endforelse
+                <div class="form-group">
+                    <label class="form-group-label">Role yang diizinkan</label>
+                    <div class="role-grid" id="roleGrid">
+                        @forelse ($roles as $role)
+                            <label class="role-check">
+                                <input type="checkbox" name="role_ids[]" value="{{ $role->id }}"
+                                       {{ in_array($role->id, old('role_ids', $page?->roles->pluck('id')->toArray() ?? [])) ? 'checked' : '' }}>
+                                {{ $role->name }}
+                            </label>
+                        @empty
+                            <span class="text-muted small">Belum ada role terdaftar.</span>
+                        @endforelse
+                    </div>
+                    <div class="form-hint flex">
+                        <i class="far fa-lightbulb"></i> Hanya berlaku saat visibilitas "Role Terbatas". Tanpa role terpilih, halaman terkunci.
+                    </div>
                 </div>
-                <div class="form-hint">Hanya berlaku saat visibilitas "Role Terbatas". Tanpa role terpilih, halaman terkunci.</div>
             </div>
         </div>
         <div class="form-check mt-2">
@@ -194,16 +200,19 @@
     <div class="form-section">
         <div class="form-section-header" style="justify-content: space-between;">
             <div class="d-flex align-items-center" style="gap:0.65rem;">
-                <div class="icon-circle"><i class="fas fa-layer-group"></i></div>
-                <h6>Konten Halaman (Sections)</h6>
+                <div class="form-section-icon cyan"><i class="fas fa-layer-group"></i></div>
+                <div>
+                    <h6 class="form-section-title">Konten Halaman (Sections)</h6>
+                    <p class="form-section-desc">Susun isi halaman per section</p>
+                </div>
             </div>
             <button type="button" class="btn-mini" style="padding:0.5rem 1rem;" id="btnAddSection">
                 <i class="fas fa-plus"></i> Tambah Section
             </button>
         </div>
 
-        <div class="form-hint mb-2">
-            <i class="fas fa-circle-info me-1"></i>
+        <div class="form-hint flex mb-2">
+            <i class="fas fa-circle-info"></i>
             Semua section tersimpan bersama tombol <strong>"Simpan Halaman"</strong> di atas — tidak perlu simpan satu per satu.
         </div>
 
@@ -243,6 +252,24 @@
         </template>
     </div>
 </form>
+
+{{-- ============================================
+     FOOTER — standar Design System Form (di luar form,
+     tombol simpan utama ada di form-topbar via attribute form="pageForm")
+     ============================================ --}}
+<div class="form-footer">
+    <div class="form-footer-info">
+        <i class="fas fa-circle-info"></i> Field dengan <span style="color:#dc2626;">*</span> wajib diisi
+    </div>
+    <div class="form-footer-actions">
+        <a href="{{ route('admin.pages.index') }}" class="form-btn-cancel">
+            Batal
+        </a>
+        <button type="submit" form="pageForm" class="form-btn-save">
+            <i class="fas fa-floppy-disk"></i> Simpan Halaman
+        </button>
+    </div>
+</div>
 
 {{-- ============================================================
      Script INLINE di dalam content section — WAJIB di sini (bukan

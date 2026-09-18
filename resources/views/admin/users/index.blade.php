@@ -355,54 +355,25 @@
         });
     }
 </script>
-@endsection
-
-@push('scripts')
+{{-- Script INLINE search tabel — WAJIB di dalam content (bukan
+     @push('scripts')) karena router.js hanya mengeksekusi ulang
+     <script> di dalam <main> setelah navigasi SPA. --}}
 <script>
-    // Catatan: fungsi modal hapus dipindah ke script inline di atas
-    // (router.js hanya mengeksekusi ulang tag script di dalam main).
-    // Search functionality
     (function() {
         const searchInput = document.getElementById('searchInput');
         const rows = document.querySelectorAll('tbody tr[data-search]');
 
         function applyFilters() {
             const search = (searchInput?.value ?? '').toLowerCase();
-            let visibleCount = 0;
 
             rows.forEach(function(row) {
                 const text = row.dataset.search || '';
                 const show = !search || text.includes(search);
                 row.style.display = show ? '' : 'none';
-                if (show) visibleCount++;
             });
         }
 
         searchInput?.addEventListener('input', applyFilters);
     })();
-
-    // Delete modal
-    function openUserDeleteModal(userId, userName) {
-        const modal = document.getElementById('deleteUserModal');
-        document.getElementById('deleteUserName').textContent = userName;
-        document.getElementById('deleteUserForm').action = `/admin/users/${userId}`;
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeUserDeleteModal() {
-        document.getElementById('deleteUserModal').classList.remove('show');
-        document.body.style.overflow = '';
-    }
-
-    document.getElementById('deleteUserModal')?.addEventListener('click', function(e) {
-        if (e.target === this) closeUserDeleteModal();
-    });
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && document.getElementById('deleteUserModal')?.classList.contains('show')) {
-            closeUserDeleteModal();
-        }
-    });
 </script>
-@endpush
+@endsection

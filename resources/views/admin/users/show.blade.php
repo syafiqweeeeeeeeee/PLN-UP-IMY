@@ -58,19 +58,7 @@
         display: flex; align-items: center; gap: 0.5rem;
     }
     html.theme-dark .alert-show-success { background: rgba(22,163,74,0.15); color: #86efac; border-color: rgba(22,163,74,0.35); }
-    .btn-back {
-        background: #f3f4f6;
-        color: #6b7280;
-        border: none;
-        border-radius: 8px;
-        padding: 0.6rem 1.2rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-    .btn-back:hover {
-        background: #e5e7eb;
-        color: #374151;
-    }
+    /* btn-back → global di public/css/admin.css */
     .btn-edit {
         background: var(--pln-yellow);
         color: var(--pln-blue);

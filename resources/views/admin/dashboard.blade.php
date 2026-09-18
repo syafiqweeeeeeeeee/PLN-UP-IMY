@@ -317,6 +317,22 @@
     </div>
 
 </div>
+    {{-- Script WAJIB di dalam @section('content') (bukan @push('scripts'))
+         karena client-side router (router.js) hanya mengeksekusi ulang
+         <script> di dalam <main> setelah navigasi SPA. --}}
+    <script>
+    (function() {
+        var searchInput = document.getElementById('dashboardSearchInput');
+        if (!searchInput) return;
+        searchInput.addEventListener('input', function() {
+            var q = this.value.toLowerCase().trim();
+            document.querySelectorAll('.content-row, .activity-item').forEach(function(el) {
+                var t = (el.querySelector('.content-title, .activity-text') || {}).textContent || '';
+                el.classList.toggle('search-hidden', q && !t.toLowerCase().includes(q));
+            });
+        });
+    })();
+    </script>
 @endsection
 
 @push('styles')
@@ -334,20 +350,4 @@
     .stat-card { min-height: 100px; }
     .quick-action-btn { min-height: 92px; }
 </style>
-@endpush
-
-@push('scripts')
-<script>
-(function() {
-    var searchInput = document.getElementById('dashboardSearchInput');
-    if (!searchInput) return;
-    searchInput.addEventListener('input', function() {
-        var q = this.value.toLowerCase().trim();
-        document.querySelectorAll('.content-row, .activity-item').forEach(function(el) {
-            var t = (el.querySelector('.content-title, .activity-text') || {}).textContent || '';
-            el.classList.toggle('search-hidden', q && !t.toLowerCase().includes(q));
-        });
-    });
-})();
-</script>
 @endpush

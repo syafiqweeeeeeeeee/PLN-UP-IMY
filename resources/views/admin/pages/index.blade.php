@@ -5,27 +5,7 @@
 
 @push('styles')
 <style>
-    .pages-header {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 14px;
-        padding: 1.5rem 1.75rem;
-        margin-bottom: 1.25rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-    .pages-header h5 { font-size: 1.1rem; font-weight: 700; color: var(--pln-text); margin: 0 0 0.2rem; }
-    .pages-header p  { font-size: 0.8rem; color: #9ca3af; margin: 0; }
-    .btn-add-page {
-        display: inline-flex; align-items: center; gap: 0.5rem;
-        padding: 0.6rem 1.25rem; background: var(--pln-blue); color: #fff;
-        border-radius: 10px; font-weight: 600; font-size: 0.85rem;
-        text-decoration: none; transition: all 0.2s ease;
-    }
-    .btn-add-page:hover { background: #003d6b; color: #fff; transform: translateY(-1px); }
+    /* pages-header/btn-add-page → page-header-card + btn-corp-add (global di admin.css) */
 
     .pages-card {
         background: var(--bg-card);
@@ -80,16 +60,18 @@
         <i class="fas fa-circle-check me-2"></i>{{ session('success') }}
     </div>
 @endif
-<div class="pages-header">
-    <div>
-        <h5>Daftar Halaman</h5>
-        <p>Kelola halaman CMS dinamis — draf, publikasi, dan visibilitas per role.</p>
+<div class="page-header-card">
+    <div class="header-row">
+        <div class="header-left">
+            <h5><i class="fas fa-file-lines header-icon"></i>Daftar Halaman</h5>
+            <p>Kelola halaman CMS dinamis — draf, publikasi, dan visibilitas per role.</p>
+        </div>
+        @can('pages.create')
+        <a href="{{ route('admin.pages.create') }}" class="btn-corp btn-corp-add">
+            <i class="fas fa-plus"></i> Tambah Halaman
+        </a>
+        @endcan
     </div>
-    @can('pages.create')
-    <a href="{{ route('admin.pages.create') }}" class="btn-add-page">
-        <i class="fas fa-plus"></i> Tambah Halaman
-    </a>
-    @endcan
 </div>
 
 <div class="pages-card">
