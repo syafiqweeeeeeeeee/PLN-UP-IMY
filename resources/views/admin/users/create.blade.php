@@ -75,7 +75,7 @@
                         <label class="form-label" for="password">Password <span class="text-danger">*</span></label>
                         <div class="password-wrapper">
                             <input type="password" id="password" name="password" class="form-control" required autocomplete="new-password" placeholder="Min. 8 karakter">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password', this)"><i class="fas fa-eye"></i></button>
+                            <button type="button" class="password-toggle" onclick="togglePassword('password', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
                         </div>
                         <div id="passwordStrength" class="password-strength"></div>
                         <div id="strengthText" class="strength-text"></div>
@@ -86,7 +86,7 @@
                         <label class="form-label" for="password_confirmation">Konfirmasi Password <span class="text-danger">*</span></label>
                         <div class="password-wrapper">
                             <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required autocomplete="new-password">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', this)"><i class="fas fa-eye"></i></button>
+                            <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
                         </div>
                     </div>
 
@@ -135,8 +135,9 @@
     function togglePassword(fieldId, btn) {
         const field = document.getElementById(fieldId);
         const icon = btn.querySelector('i');
-        if (field.type === 'password') { field.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
-        else { field.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+        // Konvensi: password tersembunyi = eye-slash, terlihat = eye
+        if (field.type === 'password') { field.type = 'text'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+        else { field.type = 'password'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
     }
     const passwordInput = document.getElementById('password');
     const strengthBar = document.getElementById('passwordStrength');

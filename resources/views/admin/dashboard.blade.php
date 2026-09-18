@@ -56,7 +56,7 @@
          ============================================ --}}
     <div class="row g-3 mb-4">
         <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
-            <div class="stat-card" style="min-width: 0;">
+            <div class="stat-card h-100" style="min-width: 0;">
                 <div class="stat-icon" style="background: #dbeafe; color: #1d4ed8;">
                     <i class="fas fa-users"></i>
                 </div>
@@ -67,7 +67,7 @@
             </div>
         </div>
         <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
-            <div class="stat-card" style="min-width: 0;">
+            <div class="stat-card h-100" style="min-width: 0;">
                 <div class="stat-icon" style="background: #dcfce7; color: #166534;">
                     <i class="fas fa-file-lines"></i>
                 </div>
@@ -78,7 +78,7 @@
             </div>
         </div>
         <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
-            <div class="stat-card" style="min-width: 0;">
+            <div class="stat-card h-100" style="min-width: 0;">
                 <div class="stat-icon" style="background: #dbeafe; color: #005B9C;">
                     <i class="fas fa-newspaper"></i>
                 </div>
@@ -89,7 +89,7 @@
             </div>
         </div>
         <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
-            <div class="stat-card" style="min-width: 0;">
+            <div class="stat-card h-100" style="min-width: 0;">
                 <div class="stat-icon" style="background: #fef3c7; color: #92400e;">
                     <i class="fas fa-clock"></i>
                 </div>
@@ -116,7 +116,7 @@
                 <div class="row g-2">
                     @can('news.create')
                     <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                        <a href="{{ route('admin.news.create') }}" class="quick-action-btn">
+                        <a href="{{ route('admin.news.create') }}" class="quick-action-btn h-100">
                             <div class="quick-action-icon" style="background: #dbeafe; color: #1d4ed8;">
                                 <i class="fas fa-plus"></i>
                             </div>
@@ -130,7 +130,7 @@
 
                     @can('announcements.create')
                     <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                        <a href="{{ route('admin.announcements.create') }}" class="quick-action-btn">
+                        <a href="{{ route('admin.announcements.create') }}" class="quick-action-btn h-100">
                             <div class="quick-action-icon" style="background: #fef3c7; color: #92400e;">
                                 <i class="fas fa-plus"></i>
                             </div>
@@ -144,7 +144,7 @@
 
                     @can('users.create')
                     <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                        <a href="{{ route('admin.users.create') }}" class="quick-action-btn">
+                        <a href="{{ route('admin.users.create') }}" class="quick-action-btn h-100">
                             <div class="quick-action-icon" style="background: #f3e8ff; color: #7c3aed;">
                                 <i class="fas fa-user-plus"></i>
                             </div>
@@ -324,6 +324,15 @@
     #dashboardSearchInput::placeholder { color: rgba(255,255,255,0.6); }
     #dashboardSearchInput:focus::placeholder { color: rgba(255,255,255,0.8); }
     .search-hidden { display: none !important; }
+
+    /* ===== Height Equalizer: kartu statistik & aksi cepat seragam =====
+       - .row Bootstrap sudah align-items: stretch → class h-100 di markup
+         membuat setiap card mengikuti tinggi row (sama tinggi, presisi).
+       - min-height seragam jadi baseline agar kartu 1-baris tidak lebih
+         pendek; kartu "Draft / Menunggu Publikasi" (label 2 baris) tidak
+         membengkak sendiri karena semua kartu ikut setinggi itu. */
+    .stat-card { min-height: 100px; }
+    .quick-action-btn { min-height: 92px; }
 </style>
 @endpush
 

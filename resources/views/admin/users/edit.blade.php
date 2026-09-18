@@ -209,7 +209,7 @@
                         <label class="form-label" for="password">Password Baru</label>
                         <div class="password-wrapper">
                             <input type="password" id="password" name="password" class="form-control" autocomplete="new-password" placeholder="Kosongkan jika tidak ingin mengubah">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password', this)"><i class="fas fa-eye"></i></button>
+                            <button type="button" class="password-toggle" onclick="togglePassword('password', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
                         </div>
                         <p class="help-text">Biarkan kosong jika tidak ingin mengubah password</p>
                         @error('password') <div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div> @enderror
@@ -219,7 +219,7 @@
                         <label class="form-label" for="password_confirmation">Konfirmasi Password Baru</label>
                         <div class="password-wrapper">
                             <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" autocomplete="new-password">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', this)"><i class="fas fa-eye"></i></button>
+                            <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', this)" aria-label="Tampilkan password"><i class="fas fa-eye-slash"></i></button>
                         </div>
                     </div>
 
@@ -306,8 +306,9 @@
     function togglePassword(fieldId, btn) {
         const field = document.getElementById(fieldId);
         const icon = btn.querySelector('i');
-        if (field.type === 'password') { field.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
-        else { field.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+        // Konvensi: password tersembunyi = eye-slash, terlihat = eye
+        if (field.type === 'password') { field.type = 'text'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+        else { field.type = 'password'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
     }
 
     /* ===== Kirim OTP via AJAX + countdown 60 detik ===== */

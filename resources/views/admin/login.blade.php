@@ -257,7 +257,7 @@
                         autocomplete="current-password"
                         placeholder="Masukkan password">
                     <button type="button" class="password-toggle" onclick="togglePassword()" tabindex="-1">
-                        <i class="fas fa-eye" id="toggleIcon"></i>
+                        <i class="fas fa-eye-slash" id="toggleIcon"></i>
                     </button>
                 </div>
                 @error('password')
@@ -286,14 +286,15 @@
     function togglePassword() {
         var field = document.getElementById('password');
         var icon = document.getElementById('toggleIcon');
+        // Konvensi: password tersembunyi = eye-slash, terlihat = eye
         if (field.type === 'password') {
             field.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            field.type = 'password';
             icon.classList.remove('fa-eye-slash');
             icon.classList.add('fa-eye');
+        } else {
+            field.type = 'password';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
         }
     }
 </script>
