@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use App\Models\Gallery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -37,16 +37,17 @@ class GalleryController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        // Nama pembuat tiap foto (dari log aktivitas aksi 'create' modul 'galeri')
-        $creatorNames = ActivityLog::query()
-            ->where('module', 'galeri')
-            ->where('action', 'create')
-            ->where('subject_type', Gallery::class)
-            ->whereIn('subject_id', $galleries->getCollection()->pluck('id'))
-            ->orderBy('id')
-            ->get()
-            ->groupBy('subject_id')
-            ->map(fn ($logs) => $logs->first()->user_name)
+        // Nama pembuat tiap foto (dari file log aktivitas aksi 'create' modul 'galeri')
+        $galleryIds = $galleries->getCollection()->pluck('id')->all();
+        $creatorNames = collect(ActivityLogger::readEntries())
+            ->filter(fn (array $e) => ($e['event_type'] ?? '') === 'create'
+                && ($e['module'] ?? '') === 'galeri'
+                && ($e['payload']['subject_type'] ?? null) === Gallery::class
+                && in_array($e['payload']['subject_id'] ?? null, $galleryIds))
+            ->groupBy(fn (array $e) => $e['payload']['subject_id'])
+            // readEntries urut terbaru → terlama; balik agar pembuat
+            // ter pertama yang tercatat (kakak lama dulu, seperti ORDER BY id).
+            ->map(fn ($logs) => $logs->reverse()->first()['actor_name'] ?? 'Sistem')
             ->all();
 
         return view('admin.galeri.index', compact('galleries', 'creatorNames'));
@@ -87,7 +88,11 @@ class GalleryController extends Controller
 
         $gallery = Gallery::create($validated);
 
-        ActivityLog::record('galeri', 'create', "menambahkan foto galeri \"{$gallery->judul}\"", $gallery);
+        ActivityLogger::log('create', null, [
+            'module'      => 'galeri',
+            'description' => "menambahkan foto galeri \"{$gallery->judul}\"",
+            'subject'     => $gallery,
+        ]);
 
         return redirect()
             ->route('admin.galeri.index')
@@ -144,7 +149,11 @@ class GalleryController extends Controller
 
         $gallery->update($validated);
 
-        ActivityLog::record('galeri', 'update', "mengubah foto galeri \"{$gallery->judul}\"", $gallery);
+        ActivityLogger::log('update', null, [
+            'module'      => 'galeri',
+            'description' => "mengubah foto galeri \"{$gallery->judul}\"",
+            'subject'     => $gallery,
+        ]);
 
         return redirect()
             ->route('admin.galeri.index')
@@ -162,12 +171,11 @@ class GalleryController extends Controller
 
         $gallery->update(['status' => $newStatus]);
 
-        ActivityLog::record(
-            'galeri',
-            $newStatus === 'publikasi' ? 'publish' : 'unpublish',
-            ($newStatus === 'publikasi' ? 'memublikasikan foto galeri "' : 'menarik foto galeri "') . $gallery->judul . '"',
-            $gallery
-        );
+        ActivityLogger::log($newStatus === 'publikasi' ? 'publish' : 'unpublish', null, [
+            'module'      => 'galeri',
+            'description' => ($newStatus === 'publikasi' ? 'memublikasikan foto galeri "' : 'menarik foto galeri "') . $gallery->judul . '"',
+            'subject'     => $gallery,
+        ]);
 
         return redirect()
             ->route('admin.galeri.index')
@@ -184,7 +192,11 @@ class GalleryController extends Controller
     {
         $gallery = Gallery::findOrFail($id);
 
-        ActivityLog::record('galeri', 'delete', "menghapus foto galeri \"{$gallery->judul}\"", $gallery);
+        ActivityLogger::log('delete', null, [
+            'module'      => 'galeri',
+            'description' => "menghapus foto galeri \"{$gallery->judul}\"",
+            'subject'     => $gallery,
+        ]);
 
         if (!empty($gallery->file_gambar) && Storage::disk('public')->exists($gallery->file_gambar)) {
             Storage::disk('public')->delete($gallery->file_gambar);

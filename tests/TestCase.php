@@ -5,7 +5,9 @@ namespace Tests;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Storage;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -30,7 +32,15 @@ abstract class TestCase extends BaseTestCase
             $_SERVER[$name] = $value;
         }
 
-        return parent::createApplication();
+        $app = parent::createApplication();
+
+        // Log aktivitas kini berbasis file (disk "activity" → storage/logs).
+        // Fake GLOBAL di semua test agar: (1) test tidak pernah menulis ke
+        // storage/logs development, (2) tiap test mulai dari kondisi kosong.
+        Storage::fake(ActivityLogger::DISK);
+        ActivityLogger::flushLineCache();
+
+        return $app;
     }
 
     /**

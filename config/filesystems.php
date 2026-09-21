@@ -47,6 +47,19 @@ return [
             'report' => false,
         ],
 
+        /*
+        |----------------------------------------------------------------------
+        | Disk log aktivitas (JSONL) — satu folder dengan log framework
+        | (storage/logs). File aktivitas: activity-YYYY-MM-DD.jsonl.
+        |----------------------------------------------------------------------
+        */
+        'activity' => [
+            'driver' => 'local',
+            'root' => storage_path('logs'),
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

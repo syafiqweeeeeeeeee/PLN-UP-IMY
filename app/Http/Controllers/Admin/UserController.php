@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendOtpPasswordMail;
-use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -56,7 +56,11 @@ class UserController extends Controller
         // permission:) mengenali role user ini, bukan hanya kolom users.role_id.
         $user->roles()->sync([$role->id]);
 
-        ActivityLog::record('pengguna', 'create', "menambahkan akun pengguna \"{$user->name}\" ({$user->email})", $user);
+        ActivityLogger::log('create', null, [
+            'module'      => 'pengguna',
+            'description' => "menambahkan akun pengguna \"{$user->name}\" ({$user->email})",
+            'subject'     => $user,
+        ]);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Pengguna berhasil ditambahkan.');
@@ -199,7 +203,11 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        ActivityLog::record('pengguna', 'delete', "menghapus akun pengguna \"{$user->name}\" ({$user->email})", $user);
+        ActivityLogger::log('delete', null, [
+            'module'      => 'pengguna',
+            'description' => "menghapus akun pengguna \"{$user->name}\" ({$user->email})",
+            'subject'     => $user,
+        ]);
 
         $user->delete();
 

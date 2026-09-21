@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use App\Models\ContactMessage;
 use App\Models\News;
 use App\Models\Role;
@@ -169,19 +169,30 @@ class TopbarTest extends TestCase
     }
 
     /**
-     * Buat log dengan timestamp custom. created_at TIDAK fillable di
-     * model (dengan sengaja), jadi di-set via assignment langsung.
+     * Buat log di file JSONL dengan timestamp custom (pemetaan dari
+     * versi DB: module/action/description → module/event_type/description).
      */
-    private function createLog(array $attributes, $at = null): ActivityLog
+    private function createLog(array $attributes, $at = null): void
     {
-        $log = ActivityLog::create($attributes);
+        $timestamp = $at ?? now();
 
-        if ($at !== null) {
-            $log->created_at = $at;
-            $log->save();
-        }
-
-        return $log;
+        ActivityLogger::appendEntry(ActivityLogger::filePathFor($timestamp), [
+            'id'         => (string) \Illuminate\Support\Str::uuid(),
+            'timestamp'  => $timestamp->copy()->utc()->toISOString(),
+            'event_type' => $attributes['action'] ?? 'update',
+            'module'     => $attributes['module'] ?? 'sistem',
+            'actor'      => [
+                'id'    => null,
+                'name'  => $attributes['user_name'] ?? 'Sistem',
+                'email' => null,
+                'role'  => null,
+            ],
+            'context'    => ['ip' => '127.0.0.1', 'user_agent' => 'test'],
+            'payload'    => [
+                'description' => $attributes['description'] ?? '',
+                'module_label' => ActivityLogger::moduleLabel($attributes['module'] ?? 'sistem'),
+            ],
+        ]);
     }
 
     public function test_search_logs_by_hari_ini(): void

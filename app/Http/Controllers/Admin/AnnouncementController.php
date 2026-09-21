@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use App\Models\Announcement;
 use Illuminate\Http\Request;
 
@@ -45,7 +45,11 @@ class AnnouncementController extends Controller
 
         $announcement = Announcement::create($validated);
 
-        ActivityLog::record('pengumuman', 'create', "membuat pengumuman \"{$announcement->title}\"", $announcement);
+        ActivityLogger::log('create', null, [
+            'module'      => 'pengumuman',
+            'description' => "membuat pengumuman \"{$announcement->title}\"",
+            'subject'     => $announcement,
+        ]);
 
         return redirect()->route('admin.announcements.index')
             ->with('success', 'Pengumuman berhasil dibuat.');
@@ -84,7 +88,11 @@ class AnnouncementController extends Controller
 
         $announcement->update($validated);
 
-        ActivityLog::record('pengumuman', 'update', "mengubah pengumuman \"{$announcement->title}\"", $announcement);
+        ActivityLogger::log('update', null, [
+            'module'      => 'pengumuman',
+            'description' => "mengubah pengumuman \"{$announcement->title}\"",
+            'subject'     => $announcement,
+        ]);
 
         return redirect()->route('admin.announcements.index')
             ->with('success', 'Pengumuman berhasil diperbarui.');
@@ -92,7 +100,11 @@ class AnnouncementController extends Controller
 
     public function destroy(Announcement $announcement)
     {
-        ActivityLog::record('pengumuman', 'delete', "menghapus pengumuman \"{$announcement->title}\"", $announcement);
+        ActivityLogger::log('delete', null, [
+            'module'      => 'pengumuman',
+            'description' => "menghapus pengumuman \"{$announcement->title}\"",
+            'subject'     => $announcement,
+        ]);
 
         $announcement->delete();
 
@@ -109,12 +121,11 @@ class AnnouncementController extends Controller
             'published_at' => $published ? now() : null,
         ]);
 
-        ActivityLog::record(
-            'pengumuman',
-            $published ? 'publish' : 'unpublish',
-            ($published ? 'memublikasikan pengumuman "' : 'menarik pengumuman "') . $announcement->title . '"',
-            $announcement
-        );
+        ActivityLogger::log($published ? 'publish' : 'unpublish', null, [
+            'module'      => 'pengumuman',
+            'description' => ($published ? 'memublikasikan pengumuman "' : 'menarik pengumuman "') . $announcement->title . '"',
+            'subject'     => $announcement,
+        ]);
 
         return back()
             ->with('success', $published

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use App\Models\Page;
 use App\Models\PageSection;
 use App\Models\Role;
@@ -52,7 +52,11 @@ class PageController extends Controller
             return $page;
         });
 
-        ActivityLog::record('halaman', 'create', "membuat halaman \"{$page->title}\" (" . $page->sections()->count() . " section)", $page);
+        ActivityLogger::log('create', null, [
+            'module'      => 'halaman',
+            'description' => "membuat halaman \"{$page->title}\" (" . $page->sections()->count() . " section)",
+            'subject'     => $page,
+        ]);
 
         // Kembali ke Daftar Halaman (bukan tetap di form) + notifikasi sukses
         return redirect()->route('admin.pages.index')
@@ -87,7 +91,11 @@ class PageController extends Controller
             $this->syncSections($request, $page);
         });
 
-        ActivityLog::record('halaman', 'update', "mengubah halaman \"{$page->title}\" (" . $page->sections()->count() . " section)", $page);
+        ActivityLogger::log('update', null, [
+            'module'      => 'halaman',
+            'description' => "mengubah halaman \"{$page->title}\" (" . $page->sections()->count() . " section)",
+            'subject'     => $page,
+        ]);
 
         // Kembali ke Daftar Halaman (bukan tetap di form) + notifikasi sukses
         return redirect()->route('admin.pages.index')
@@ -96,7 +104,11 @@ class PageController extends Controller
 
     public function destroy(Page $page): RedirectResponse
     {
-        ActivityLog::record('halaman', 'delete', "menghapus halaman \"{$page->title}\"", $page);
+        ActivityLogger::log('delete', null, [
+            'module'      => 'halaman',
+            'description' => "menghapus halaman \"{$page->title}\"",
+            'subject'     => $page,
+        ]);
 
         $page->delete();
 
@@ -112,12 +124,11 @@ class PageController extends Controller
 
         $page->update(['status' => $published]);
 
-        ActivityLog::record(
-            'halaman',
-            $published === Page::STATUS_PUBLISHED ? 'publish' : 'unpublish',
-            ($published === Page::STATUS_PUBLISHED ? 'memublikasikan halaman "' : 'menarik halaman "') . $page->title . '"',
-            $page
-        );
+        ActivityLogger::log($published === Page::STATUS_PUBLISHED ? 'publish' : 'unpublish', null, [
+            'module'      => 'halaman',
+            'description' => ($published === Page::STATUS_PUBLISHED ? 'memublikasikan halaman "' : 'menarik halaman "') . $page->title . '"',
+            'subject'     => $page,
+        ]);
 
         return back()->with('success', $published === Page::STATUS_PUBLISHED
             ? 'Halaman berhasil dipublikasikan.'

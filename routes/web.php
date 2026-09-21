@@ -400,7 +400,7 @@ Route::middleware(['auth'])->group(function () {
         // Log Aktivitas — hanya untuk yang punya permission activity_logs.view (role Administrator)
         Route::middleware('permission:activity_logs.view')->group(function () {
             Route::get('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-logs.index');
-            Route::delete('activity-logs/{activity_log}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'destroy'])->name('activity-logs.destroy');
+            Route::delete('activity-logs/{uuid}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'destroy'])->name('activity-logs.destroy');
             Route::delete('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'clear'])->name('activity-logs.clear');
         });
 

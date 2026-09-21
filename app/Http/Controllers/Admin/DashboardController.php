@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use App\Models\Announcement;
 use App\Models\ContactMessage;
 use App\Models\Gallery;
@@ -38,30 +38,28 @@ class DashboardController extends Controller
         ];
 
         /* =========================================================
-           AKTIVITAS TERBARU — dari log aktivitas sungguhan
+           AKTIVITAS TERBARU — dari file log aktivitas (JSONL)
            ========================================================= */
 
-        $activities = ActivityLog::query()
-            ->latest()
-            ->take(6)
-            ->get()
-            ->map(function ($log) {
+        $activities = collect(ActivityLogger::readEntries(limit: 6))
+            ->map(function (array $log) {
                 // Pecah deskripsi "membuat berita \"Judul\"" menjadi aksi + objek
-                $action = $log->description;
+                $description = $log['description'];
+                $action = $description;
                 $object = '';
 
-                if (preg_match('/^(.*?)\s*"([^"]+)"\s*$/', $log->description, $m)) {
+                if (preg_match('/^(.*?)\s*"([^"]+)"\s*$/', $description, $m)) {
                     $action = trim($m[1]);
                     $object = $m[2];
                 }
 
                 return [
-                    'user'   => $log->user_name ?? 'Sistem',
+                    'user'   => $log['actor_name'] ?? 'Sistem',
                     'action' => $action,
-                    'object' => $object !== '' ? $object : $log->module_label,
-                    'time'   => $log->created_at->locale('id')->diffForHumans(),
-                    'icon'   => 'fas ' . $log->action_icon,
-                    'color'  => $log->action_color,
+                    'object' => $object !== '' ? $object : $log['module_label'],
+                    'time'   => $log['timestamp']->locale('id')->diffForHumans(),
+                    'icon'   => 'fas ' . $log['action_icon'],
+                    'color'  => $log['action_color'],
                 ];
             })
             ->toArray();

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use App\Models\Menu;
 use App\Models\Page;
 use Illuminate\Http\RedirectResponse;
@@ -68,7 +68,11 @@ class MenuController extends Controller
 
         $menu = Menu::create($validated);
 
-        ActivityLog::record('menu', 'create', "menambah menu \"{$menu->label}\"", $menu);
+        ActivityLogger::log('create', null, [
+            'module'      => 'menu',
+            'description' => "menambah menu \"{$menu->label}\"",
+            'subject'     => $menu,
+        ]);
 
         return redirect()->route('admin.menus.index')
             ->with('success', "Menu \"{$menu->label}\" berhasil ditambahkan dan langsung tampil di navbar.");
@@ -100,7 +104,11 @@ class MenuController extends Controller
 
         $menu->update($validated);
 
-        ActivityLog::record('menu', 'update', "mengubah menu \"{$menu->label}\"", $menu);
+        ActivityLogger::log('update', null, [
+            'module'      => 'menu',
+            'description' => "mengubah menu \"{$menu->label}\"",
+            'subject'     => $menu,
+        ]);
 
         return redirect()->route('admin.menus.index')
             ->with('success', "Menu \"{$menu->label}\" berhasil diperbarui.");
@@ -111,7 +119,11 @@ class MenuController extends Controller
         $label = $menu->label;
         $menu->delete(); // submenunya ikut terhapus oleh FK cascade
 
-        ActivityLog::record('menu', 'delete', "menghapus menu \"{$label}\" (termasuk submenunya)", $menu);
+        ActivityLogger::log('delete', null, [
+            'module'      => 'menu',
+            'description' => "menghapus menu \"{$label}\" (termasuk submenunya)",
+            'subject'     => $menu,
+        ]);
 
         return redirect()->route('admin.menus.index')
             ->with('success', "Menu \"{$label}\" berhasil dihapus.");
@@ -121,12 +133,11 @@ class MenuController extends Controller
     {
         $menu->update(['is_active' => ! $menu->is_active]);
 
-        ActivityLog::record(
-            'menu',
-            'update',
-            ($menu->is_active ? 'mengaktifkan menu "' : 'menyembunyikan menu "') . $menu->label . '"',
-            $menu
-        );
+        ActivityLogger::log('update', null, [
+            'module'      => 'menu',
+            'description' => ($menu->is_active ? 'mengaktifkan menu "' : 'menyembunyikan menu "') . $menu->label . '"',
+            'subject'     => $menu,
+        ]);
 
         return back()->with('success', $menu->is_active
             ? "Menu \"{$menu->label}\" ditampilkan kembali di navbar."

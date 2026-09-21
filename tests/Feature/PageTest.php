@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use App\Models\Page;
 use App\Models\PageSection;
 use App\Models\Role;
@@ -488,10 +488,11 @@ class PageTest extends TestCase
         ]);
 
         $this->assertTrue(
-            ActivityLog::where('module', 'halaman')
-                ->where('action', 'create')
-                ->where('description', 'like', '%Halaman Terlog%')
-                ->exists()
+            collect(ActivityLogger::readEntries())->contains(fn ($e) =>
+                ($e['module'] ?? '') === 'halaman'
+                && ($e['event_type'] ?? '') === 'create'
+                && str_contains((string) ($e['description'] ?? ''), 'Halaman Terlog')
+            )
         );
     }
 }

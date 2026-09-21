@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use App\Models\ContactMessage;
 use Illuminate\Http\Request;
 
@@ -94,12 +94,11 @@ class ContactMessageController extends Controller
             'read_at' => $validated['status'] === ContactMessage::STATUS_BELUM_DIBACA ? null : ($contactMessage->read_at ?? now()),
         ]);
 
-        ActivityLog::record(
-            'permohonan',
-            'update',
-            "mengubah status permohonan \"{$contactMessage->subjek}\" dari {$old} menjadi {$contactMessage->status_label}",
-            $contactMessage
-        );
+        ActivityLogger::log('update', null, [
+            'module'      => 'permohonan',
+            'description' => "mengubah status permohonan \"{$contactMessage->subjek}\" dari {$old} menjadi {$contactMessage->status_label}",
+            'subject'     => $contactMessage,
+        ]);
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -125,12 +124,11 @@ class ContactMessageController extends Controller
 
     public function destroy(ContactMessage $contactMessage)
     {
-        ActivityLog::record(
-            'permohonan',
-            'delete',
-            "menghapus permohonan \"{$contactMessage->subjek}\" dari {$contactMessage->nama}",
-            $contactMessage
-        );
+        ActivityLogger::log('delete', null, [
+            'module'      => 'permohonan',
+            'description' => "menghapus permohonan \"{$contactMessage->subjek}\" dari {$contactMessage->nama}",
+            'subject'     => $contactMessage,
+        ]);
 
         $subjek = $contactMessage->subjek;
         $contactMessage->delete();

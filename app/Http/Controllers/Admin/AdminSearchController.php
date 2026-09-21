@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use App\Models\Announcement;
 use App\Models\ContactMessage;
 use App\Models\Gallery;
@@ -130,11 +130,11 @@ class AdminSearchController extends Controller
                 ->get(['id', 'subjek', 'nama', 'status'])
             : collect();
 
-        // Log aktivitas: tabel paling cepat tumbuh — pencarian teks
-        // dibatasi 30 hari terakhir; pencarian berbasis waktu memakai
-        // range created_at yang terindeks (lihat parseTimeQuery()).
+        // Log aktivitas: sekarang berbasis file JSONL — pencarian teks
+        // dibatasi 30 hari terakhir; ekspresi waktu dipetakan ke rentang
+        // file tanggal terkait (lihat parseTimeQuery()).
         $logs = Gate::allows('activity_logs.view')
-            ? $this->searchLogs($q)
+            ? collect($this->searchLogs($q))
             : collect();
 
         /* =========================================================
@@ -217,10 +217,10 @@ class AdminSearchController extends Controller
             [
                 'label' => 'Log Aktivitas',
                 'icon'  => 'fa-clipboard-list',
-                'items' => $logs->map(fn (ActivityLog $l) => [
-                    'title' => $l->description,
+                'items' => $logs->map(fn (array $l) => [
+                    'title' => $l['description'],
                     'url'   => route('admin.activity-logs.index'),
-                    'meta'  => $l->created_at->locale('id')->translatedFormat('d M Y H:i'),
+                    'meta'  => $l['timestamp']->locale('id')->translatedFormat('d M Y H:i'),
                 ])->all(),
             ],
         ]);
@@ -248,37 +248,54 @@ class AdminSearchController extends Controller
     private const MONTH_RE = 'januari|februari|maret|march|april|agustus|september|oktober|november|desember|august|agt|agu|sept|okt|des|jan|feb|mar|apr|mei|may|jun|jul|aug|sep|oct|nov|dec';
 
     /**
-     * Cari log aktivitas: teks biasa ATAU ekspresi waktu.
+     * Cari log aktivitas (file JSONL): teks biasa ATAU ekspresi waktu.
      *
-     * - Teks biasa  : LIKE description + dibatasi 30 hari terakhir.
-     * - Ekspresi    : range created_at (terindeks) — mis. "hari ini",
-     *   "kemarin", "17 sep 2026", "sep 2026", "01:53", "3 jam terakhir",
-     *   atau kombinasi teks + waktu ("login hari ini").
+     * - Teks biasa  : contains description + dibatasi 30 hari terakhir.
+     * - Ekspresi    : rentang tanggal/waktu — mis. "hari ini", "kemarin",
+     *   "17 sep 2026", "sep 2026", "01:53", "3 jam terakhir", atau
+     *   kombinasi teks + waktu ("login hari ini").
      */
-    private function searchLogs(string $q): Collection
+    private function searchLogs(string $q): array
     {
         $time = $this->parseTimeQuery($q);
-        $query = ActivityLog::query();
 
         if ($time === null) {
-            $query->where('description', 'like', "%{$q}%")
-                  ->where('created_at', '>=', now()->subDays(30));
-        } else {
-            $query->whereBetween('created_at', [$time['start'], $time['end']]);
+            // Teks biasa: baca 30 hari terakhir, filter description.
+            $entries = ActivityLogger::readEntries(now()->subDays(30)->startOfDay());
+            $needle = mb_strtolower($q);
 
-            if ($time['time_equal'] !== null) {
-                $query->whereTime('created_at', $time['time_equal']);
-            }
-            if ($time['time_from'] !== null) {
-                $query->whereTime('created_at', '>=', $time['time_from'])
-                      ->whereTime('created_at', '<=', $time['time_to']);
-            }
-            if ($time['text'] !== '') {
-                $query->where('description', 'like', "%{$time['text']}%");
-            }
+            return array_slice(array_values(array_filter(
+                $entries,
+                fn (array $e) => str_contains(mb_strtolower((string) $e['description']), $needle)
+            )), 0, 5);
         }
 
-        return $query->latest()->limit(5)->get(['id', 'description', 'created_at']);
+        // Ekspresi waktu: petakan rentang ke file tanggal terkait.
+        $entries = ActivityLogger::readEntries($time['start']->copy()->startOfDay());
+
+        return array_slice(array_values(array_filter(
+            $entries,
+            function (array $e) use ($time) {
+                $ts = $e['timestamp'];
+
+                if ($ts->lt($time['start']) || $ts->gt($time['end'])) {
+                    return false;
+                }
+                if ($time['time_equal'] !== null && $ts->format('H:i:s') !== $time['time_equal']) {
+                    return false;
+                }
+                if ($time['time_from'] !== null
+                    && ($ts->format('H:i:s') < $time['time_from'] || $ts->format('H:i:s') > $time['time_to'])) {
+                    return false;
+                }
+                if ($time['text'] !== ''
+                    && ! str_contains(mb_strtolower((string) $e['description']), mb_strtolower($time['text']))) {
+                    return false;
+                }
+
+                return true;
+            }
+        )), 0, 5);
     }
 
     /**

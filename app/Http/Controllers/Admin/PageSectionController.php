@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use App\Models\Page;
 use App\Models\PageSection;
 use Illuminate\Http\RedirectResponse;
@@ -30,7 +30,11 @@ class PageSectionController extends Controller
             'sort_order' => $maxOrder + 1,
         ]);
 
-        ActivityLog::record('halaman', 'update', "menambah section {$section->typeLabel()} di halaman \"{$page->title}\"", $page);
+        ActivityLogger::log('update', null, [
+            'module'      => 'halaman',
+            'description' => "menambah section {$section->typeLabel()} di halaman \"{$page->title}\"",
+            'subject'     => $page,
+        ]);
 
         return redirect()->route('admin.pages.edit', $page)
             ->with('success', 'Section ditambahkan. Isi kontennya lalu simpan.');
@@ -44,7 +48,11 @@ class PageSectionController extends Controller
             'data' => PageSection::buildData($section->type, (array) $request->all()),
         ]);
 
-        ActivityLog::record('halaman', 'update', "mengubah section {$section->typeLabel()} di halaman \"{$page->title}\"", $page);
+        ActivityLogger::log('update', null, [
+            'module'      => 'halaman',
+            'description' => "mengubah section {$section->typeLabel()} di halaman \"{$page->title}\"",
+            'subject'     => $page,
+        ]);
 
         return redirect()->route('admin.pages.edit', $page)
             ->with('success', 'Konten section berhasil disimpan.');
@@ -57,7 +65,11 @@ class PageSectionController extends Controller
         $label = $section->typeLabel();
         $section->delete();
 
-        ActivityLog::record('halaman', 'update', "menghapus section {$label} di halaman \"{$page->title}\"", $page);
+        ActivityLogger::log('update', null, [
+            'module'      => 'halaman',
+            'description' => "menghapus section {$label} di halaman \"{$page->title}\"",
+            'subject'     => $page,
+        ]);
 
         return redirect()->route('admin.pages.edit', $page)
             ->with('success', 'Section dihapus.');

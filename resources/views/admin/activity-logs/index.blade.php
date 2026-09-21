@@ -5,6 +5,33 @@
 
 @push('styles')
 <style>
+    .log-day-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.65rem 1rem;
+        background: linear-gradient(90deg, rgba(0,91,156,0.08), rgba(0,91,156,0.02));
+        border-left: 4px solid var(--pln-blue, #005b9c);
+        border-radius: 8px;
+        margin: 1.25rem 0 0.5rem;
+    }
+    .log-day-header:first-child { margin-top: 0.25rem; }
+    .log-day-title {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #1e3a5f;
+        letter-spacing: 0.3px;
+    }
+    .log-day-count {
+        margin-left: auto;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+        background: #f1f5f9;
+        padding: 0.15rem 0.6rem;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
     .log-action-badge {
         display: inline-flex;
         align-items: center;
@@ -203,6 +230,28 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
     }
+
+    /* Pagination manual (pola page-pagination) */
+    .log-pagination { display: flex; gap: 0.4rem; justify-content: center; padding: 1rem 0 0.25rem; }
+    .log-page-btn {
+        min-width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #fff;
+        color: #374151;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        padding: 0 0.6rem;
+        transition: all 0.15s ease;
+    }
+    .log-page-btn:hover { border-color: var(--pln-blue); color: var(--pln-blue); }
+    .log-page-btn.active { background: var(--pln-blue, #005b9c); border-color: var(--pln-blue, #005b9c); color: #fff; }
+    .log-page-btn.disabled { opacity: 0.45; pointer-events: none; }
 </style>
 @endpush
 
@@ -221,9 +270,9 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-clipboard-list header-icon"></i>Riwayat Aktivitas</h5>
-            <p>Semua aksi admin/karyawan terhadap berita, pengumuman, akun, dan sistem tercatat di sini</p>
+            <p>Semua aksi admin/karyawan terhadap berita, pengumuman, akun, dan sistem tercatat di sini (file log JSONL harian)</p>
         </div>
-        <button type="button" class="btn-corp btn-corp-danger-soft" onclick="document.getElementById('clearAllModal').classList.add('show')" @if($logs->total() === 0) disabled @endif>
+        <button type="button" class="btn-corp btn-corp-danger-soft" onclick="document.getElementById('clearAllModal').classList.add('show')" @if($total === 0) disabled @endif>
             <i class="fas fa-broom"></i> Bersihkan Semua
         </button>
     </div>
@@ -233,9 +282,14 @@
         <div class="stat-chip">
             <span class="stat-dot blue"></span>
             Total Log
-            <span class="stat-number">{{ $logs->total() }}</span>
+            <span class="stat-number">{{ $total }}</span>
         </div>
-        @if($filters['module'] || $filters['action'] || $filters['q'])
+        <div class="stat-chip">
+            <span class="stat-dot" style="background:#0284c7;"></span>
+            Ditampilkan
+            <span class="stat-number">{{ $shownCount }}</span>
+        </div>
+        @if($filters['module'] || $filters['event_type'] || $filters['q'])
         <a href="{{ route('admin.activity-logs.index') }}" class="stat-chip" style="text-decoration:none;">
             <i class="fas fa-xmark" style="color:#ef4444; font-size:0.7rem;"></i>
             Filter aktif — klik untuk reset
@@ -251,7 +305,7 @@
     <div class="page-filter-bar">
         <div class="search-wrapper">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" name="q" value="{{ $filters['q'] }}" class="filter-input" placeholder="Cari aktivitas / nama pengguna...">
+            <input type="text" name="q" value="{{ $filters['q'] }}" class="filter-input" placeholder="Cari nama / email pengguna...">
         </div>
         <div class="filter-divider"></div>
         <select name="module" class="filter-input" style="width:auto;">
@@ -260,10 +314,10 @@
                 <option value="{{ $key }}" @selected($filters['module'] === $key)>{{ $label }}</option>
             @endforeach
         </select>
-        <select name="action" class="filter-input" style="width:auto;">
+        <select name="event_type" class="filter-input" style="width:auto;">
             <option value="">Semua Aksi</option>
-            @foreach ($actions as $key => $label)
-                <option value="{{ $key }}" @selected($filters['action'] === $key)>{{ $label }}</option>
+            @foreach ($eventTypes as $key => $label)
+                <option value="{{ $key }}" @selected($filters['event_type'] === $key)>{{ $label }}</option>
             @endforeach
         </select>
         <button type="submit" class="btn-corp btn-corp-primary btn-corp-sm">
@@ -273,73 +327,92 @@
 </form>
 
 {{-- ============================================
-     LOG TABLE
+     LOG TABLE — dikelompokkan per hari (header tanggal)
      ============================================ --}}
 <div class="dash-card">
-            <div class="table-responsive">
-                <table class="table table-logs align-middle">
-                    <thead>
-                        <tr style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280;">
-                            <th style="width: 140px;">Pengguna</th>
-                            <th style="width: 130px;">Aksi</th>
-                            <th>Aktivitas</th>
-                            <th style="width: 150px;">Waktu</th>
-                            <th style="width: 60px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($logs as $log)
-                            <tr>
-                                <td>
-                                    <div class="log-user">
-                                        <div class="log-avatar">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($log->user_name ?? '?', 0, 2)) }}</div>
-                                        <div>
-                                            <div class="log-user-name">{{ $log->user_name ?? 'Sistem' }}</div>
-                                            <div class="log-user-role">{{ $log->user_role ?: '—' }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="log-action-badge" style="background: {{ $log->action_color }}1a; color: {{ $log->action_color }};">
-                                        <i class="fas {{ $log->action_icon }}"></i> {{ $log->action_label }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="log-module-badge">{{ $log->module_label }}</span>
-                                    <div class="log-desc mt-1">{{ $log->description }}</div>
-                                    @if($log->ip_address)
-                                        <div class="log-ip"><i class="fas fa-globe me-1"></i>{{ $log->ip_address }}</div>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="log-time">{{ $tgl($log->created_at) }}</div>
-                                    <div class="log-ip">{{ $log->created_at->locale('id')->diffForHumans() }}</div>
-                                </td>
-                                <td class="text-end">
-                                    <button type="button" class="action-btn delete" title="Hapus log ini"
-                                            onclick="openLogDeleteModal('{{ route('admin.activity-logs.destroy', $log) }}', '{{ addslashes($log->description) }}')">
-                                        <i class="fas fa-trash" style="font-size: 0.75rem;"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5">
-                                    <div class="empty-state">
-                                        <i class="fas fa-clipboard-list"></i>
-                                        <h6>Belum ada log aktivitas</h6>
-                                        <p>Aktivitas admin/karyawan akan tercatat otomatis di sini.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+    @forelse ($groups as $group)
+        {{-- HEADER PER HARI: "Today - Monday, September 21, 2026" --}}
+        <div class="log-day-header">
+            <i class="fas fa-calendar-day" style="color: var(--pln-blue, #005b9c); font-size: 0.85rem;"></i>
+            <span class="log-day-title">{{ $group['label'] }}</span>
+            <span class="log-day-count">{{ count($group['entries']) }} aktivitas</span>
+        </div>
 
-            <div class="page-pagination">
-                {{ $logs->links() }}
-            </div>
+        <div class="table-responsive">
+            <table class="table table-logs align-middle">
+                <thead>
+                    <tr style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280;">
+                        <th style="width: 140px;">Pengguna</th>
+                        <th style="width: 130px;">Aksi</th>
+                        <th>Aktivitas</th>
+                        <th style="width: 150px;">Waktu</th>
+                        <th style="width: 60px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($group['entries'] as $log)
+                        <tr>
+                            <td>
+                                <div class="log-user">
+                                    <div class="log-avatar">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($log['actor_name'] ?? '?', 0, 2)) }}</div>
+                                    <div>
+                                        <div class="log-user-name">{{ $log['actor_name'] ?? 'Sistem' }}</div>
+                                        <div class="log-user-role">{{ ($log['actor_role'] ?? '') ?: '—' }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="log-action-badge" style="background: {{ $log['action_color'] }}1a; color: {{ $log['action_color'] }};">
+                                    <i class="fas {{ $log['action_icon'] }}"></i> {{ $log['action_label'] }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="log-module-badge">{{ $log['module_label'] }}</span>
+                                <div class="log-desc mt-1">{{ $log['description'] }}</div>
+                                @if($log['ip'])
+                                    <div class="log-ip"><i class="fas fa-globe me-1"></i>{{ $log['ip'] }}</div>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="log-time">{{ $tgl($log['timestamp']) }}</div>
+                                <div class="log-ip">{{ $log['timestamp']->locale('id')->diffForHumans() }}</div>
+                            </td>
+                            <td class="text-end">
+                                <button type="button" class="action-btn delete" title="Hapus log ini"
+                                        onclick="openLogDeleteModal('{{ route('admin.activity-logs.destroy', $log['id']) }}', '{{ addslashes($log['description']) }}')">
+                                    <i class="fas fa-trash" style="font-size: 0.75rem;"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @empty
+        <div class="empty-state">
+            <i class="fas fa-clipboard-list"></i>
+            <h6>Belum ada log aktivitas</h6>
+            <p>Aktivitas admin/karyawan akan tercatat otomatis di sini.</p>
+        </div>
+    @endforelse
+
+    {{-- Pagination manual per grup hari --}}
+    @if($lastPage > 1)
+        <div class="log-pagination">
+            <a href="{{ route('admin.activity-logs.index', array_merge($filters, ['page' => $currentPage - 1])) }}"
+               class="log-page-btn @if($currentPage <= 1) disabled @endif" aria-label="Sebelumnya">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            @for ($p = 1; $p <= $lastPage; $p++)
+                <a href="{{ route('admin.activity-logs.index', array_merge($filters, ['page' => $p])) }}"
+                   class="log-page-btn @if($p === $currentPage) active @endif">{{ $p }}</a>
+            @endfor
+            <a href="{{ route('admin.activity-logs.index', array_merge($filters, ['page' => $currentPage + 1])) }}"
+               class="log-page-btn @if($currentPage >= $lastPage) disabled @endif" aria-label="Berikutnya">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    @endif
 </div>
 
 {{-- Modal konfirmasi bersihkan semua --}}
@@ -347,7 +420,7 @@
     <div class="modal-pln-dialog">
         <h6 class="modal-pln-title">Bersihkan Semua Log?</h6>
         <p style="font-size: 0.85rem; color: #6b7280;">
-            Seluruh <strong>{{ $logs->total() }}</strong> entri log akan dihapus permanen.
+            Seluruh <strong>{{ $total }}</strong> entri log (semua file harian) akan dihapus permanen.
             Aksi ini sendiri akan tetap tercatat sebagai satu entri log baru.
         </p>
         <div class="d-flex justify-content-end gap-2 mt-3">
