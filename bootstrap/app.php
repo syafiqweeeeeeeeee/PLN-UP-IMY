@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'permission' => \App\Http\Middleware\PermissionMiddleware::class,
             'page.visible' => \App\Http\Middleware\EnsurePageVisible::class,
+            'admin.access' => \App\Http\Middleware\EnsureNotKaryawan::class,
+            'karyawan.access' => \App\Http\Middleware\EnsureKaryawan::class,
         ]);
 
         /* ---- Trust semua proxy (ngrok / cloudflare tunnel / LB) ----

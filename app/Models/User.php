@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 
 class User extends Authenticatable
 {
@@ -43,6 +44,70 @@ class User extends Authenticatable
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'role_user')->withTimestamps();
+    }
+
+    /**
+     * Nama-nama seluruh role aktif milik user ini (pivot role_user
+     * + kolom fallback role_id), sudah unik & tanpa nilai kosong.
+     *
+     * @return Collection<int, string>
+     */
+    public function roleNames(): Collection
+    {
+        $names = $this->relationLoaded('roles')
+            ? $this->roles->pluck('name')
+            : $this->roles()->pluck('roles.name');
+
+        if ($this->role_id) {
+            $role = $this->relationLoaded('role') ? $this->role : $this->role()->first();
+
+            if ($role !== null && ! $role->isInactive()) {
+                $names->push($role->name);
+            }
+        }
+
+        return $names->filter()->unique()->values();
+    }
+
+    /**
+     * Apakah akun ini Karyawan murni (ber-role "Karyawan" tanpa role
+     * admin lain)? Dipakai middleware admin.access & redirect login.
+     */
+    public function isKaryawan(): bool
+    {
+        if (! $this->exists) {
+            return false;
+        }
+
+        $names = $this->roleNames();
+
+        if ($names->isNotEmpty()) {
+            return $names->contains('Karyawan') && $names->reject(fn ($n) => $n === 'Karyawan')->isEmpty();
+        }
+
+        // Fallback akun lama tanpa pivot: kolom users.role
+        return ($this->role ?? '') === 'Karyawan';
+    }
+
+    /**
+     * Apakah akun ini akun admin / pengelola (role apa pun selain
+     * Karyawan)? Akun tanpa role sama sekali dianggap bukan admin.
+     */
+    public function isAdmin(): bool
+    {
+        if (! $this->exists) {
+            return false;
+        }
+
+        $names = $this->roleNames();
+
+        if ($names->isNotEmpty()) {
+            return $names->contains(fn ($n) => $n !== 'Karyawan');
+        }
+
+        $legacy = (string) ($this->role ?? '');
+
+        return $legacy !== '' && $legacy !== 'user' && $legacy !== 'Karyawan';
     }
 
     public function hasPermission(string $permission): bool

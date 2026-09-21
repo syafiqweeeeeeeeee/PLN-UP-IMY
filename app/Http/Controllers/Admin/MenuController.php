@@ -312,9 +312,6 @@ class MenuController extends Controller
             'galeri'                => 'Galeri',
             'layanan.daftar'        => 'Daftar Layanan',
             'layanan.faq'           => 'FAQ Layanan',
-            'hubungi-kami'          => 'Hubungi Kami',
-            'lokasi'                => 'Lokasi',
-            'sosial-media'          => 'Sosial Media',
             'pages.index'           => 'Semua Halaman CMS',
         ];
 

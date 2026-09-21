@@ -31,9 +31,9 @@ class Menu extends Model
 
     /** Penjelasan awam per tipe — tampil di form admin. */
     public const TYPE_DESCRIPTIONS = [
-        self::TYPE_ROUTE => 'Untuk halaman bawaan situs seperti Berita, Galeri, atau Kontak. Tinggal pilih dari daftar.',
+        self::TYPE_ROUTE => 'Untuk halaman bawaan situs seperti Berita atau Galeri. Tinggal pilih dari daftar.',
         self::TYPE_PAGE  => 'Untuk halaman yang kamu buat lewat menu "Halaman" di admin. Kalau halamannya masih draft atau khusus karyawan tertentu, menu ini otomatis disembunyikan dari pengunjung yang tidak berhak.',
-        self::TYPE_URL   => 'Untuk alamat lain: situs eksternal (contoh: https://web.pln.co.id) atau alamat dalam situs ini (contoh: /kontak/lokasi).',
+        self::TYPE_URL   => 'Untuk alamat lain: situs eksternal (contoh: https://web.pln.co.id) atau alamat dalam situs ini (contoh: /informasi/galeri).',
     ];
 
     protected $fillable = [

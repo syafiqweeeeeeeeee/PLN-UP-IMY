@@ -62,8 +62,9 @@ class UserController extends Controller
             'subject'     => $user,
         ]);
 
+        // Selalu kembali ke Daftar Pengguna dengan notifikasi sukses.
         return redirect()->route('admin.users.index')
-            ->with('success', 'Pengguna berhasil ditambahkan.');
+            ->with('success', 'Pengguna baru berhasil ditambahkan!');
     }
 
     public function show(User $user)

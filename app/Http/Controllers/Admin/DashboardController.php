@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\ActivityLogger;
 use App\Models\Announcement;
-use App\Models\ContactMessage;
 use App\Models\Gallery;
 use App\Models\News;
 use App\Models\Page;
@@ -118,16 +117,6 @@ class DashboardController extends Controller
     private function buildNotifications(int $totalDraftContent): array
     {
         $notifications = [];
-
-        $unreadMessages = ContactMessage::unreadCount();
-        if ($unreadMessages > 0) {
-            $notifications[] = [
-                'message' => $unreadMessages . ' permohonan belum dibaca',
-                'type'    => 'warning',
-                'time'    => 'sekarang',
-                'icon'    => 'fas fa-inbox',
-            ];
-        }
 
         if ($totalDraftContent > 0) {
             $notifications[] = [

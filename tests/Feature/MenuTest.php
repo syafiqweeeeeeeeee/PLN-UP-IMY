@@ -81,8 +81,7 @@ class MenuTest extends TestCase
             ->assertSee('Tentang Kami')
             ->assertSee('Profil Perusahaan')
             ->assertSee('Visi &amp; Misi', false)
-            ->assertSee('Layanan')
-            ->assertSee('Kontak');
+            ->assertSee('Layanan');
     }
 
     public function test_menu_seeder_creates_beranda_as_first_nav_item(): void
@@ -221,7 +220,7 @@ class MenuTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.menus.create'))
             ->assertOk()
-            ->assertSee('Mau mengarah ke mana?')
+            ->assertSee('Mau mengarah ke mana saat diklik?')
             ->assertSee('Tambah Menu');
     }
 
@@ -359,7 +358,7 @@ class MenuTest extends TestCase
             ->post(route('admin.menus.store'), [
                 'label' => 'Menu Default',
                 'type'  => 'url',
-                'url'   => '/kontak/lokasi',
+                'url'   => '/informasi/galeri',
                 'is_active' => '1',
             ])
             ->assertRedirect(route('admin.menus.index'));

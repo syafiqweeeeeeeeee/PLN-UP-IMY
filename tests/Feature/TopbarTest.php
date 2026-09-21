@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Services\ActivityLogger;
+use App\Models\ActivityLog;
 use App\Models\ContactMessage;
 use App\Models\News;
 use App\Models\Role;
@@ -26,7 +26,6 @@ class TopbarTest extends TestCase
             'users.view',
             'menus.view',
             'roles.view',
-            'contact_messages.view',
             'activity_logs.view',
         ], [
             'name' => 'Budi Santoso',
@@ -69,17 +68,8 @@ class TopbarTest extends TestCase
             ->assertSee('Tidak ada notifikasi');
     }
 
-    public function test_notification_shows_unread_permohonan_and_draft(): void
+    public function test_notification_shows_unread_draft_content(): void
     {
-        ContactMessage::create([
-            'nama'     => 'Pengirim',
-            'email'    => 'pengirim@example.com',
-            'telepon'  => '081234567890',
-            'kategori' => ContactMessage::KATEGORI_UMUM,
-            'subjek'   => 'Subjek',
-            'pesan'    => 'Pesan uji.',
-        ]);
-
         News::create([
             'title' => 'Berita Draft Notif', 'slug' => 'berita-draft-notif', 'category' => 'umum',
             'excerpt' => 'e', 'content' => 'c', 'author' => 'a', 'is_published' => false,
@@ -88,9 +78,7 @@ class TopbarTest extends TestCase
         $response = $this->actingAs($this->adminUser())->get(route('admin.dashboard'));
 
         $response->assertOk()
-            ->assertSee('permohonan belum dibaca')
-            ->assertSee('konten masih draft')
-            ->assertSee('notification-dot', false);
+            ->assertSee('konten masih draft');
     }
 
     /* =========================================================

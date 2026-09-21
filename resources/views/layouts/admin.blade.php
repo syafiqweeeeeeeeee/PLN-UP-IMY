@@ -240,18 +240,6 @@
 
                 {{-- ===== LAINNYA ===== --}}
                 <div class="sidebar-section-label">Lainnya</div>
-                @can('contact_messages.view')
-                <a href="{{ route('admin.contact-messages.index') }}" class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
-                    <span class="link-icon"><i class="fas fa-paper-plane"></i></span>
-                    Permohonan
-                    @php
-                        $unreadPermohonan = \App\Models\ContactMessage::unreadCount();
-                    @endphp
-                    @if ($unreadPermohonan > 0)
-                        <span class="badge" title="{{ $unreadPermohonan }} pesan belum dibaca">{{ $unreadPermohonan > 99 ? '99+' : $unreadPermohonan }}</span>
-                    @endif
-                </a>
-                @endcan
 
                 @can('activity_logs.view')
                 <a href="{{ route('admin.activity-logs.index') }}"
@@ -338,11 +326,6 @@
                                     <div>Tidak ada notifikasi</div>
                                 </div>
                             @endforelse
-                            @if (($topbarNotifs['unread_count'] ?? 0) > 0)
-                                <a href="{{ route('admin.contact-messages.index') }}" class="topbar-dropdown-footer">
-                                    Lihat semua permohonan <i class="fas fa-arrow-right"></i>
-                                </a>
-                            @endif
                         </div>
                     </div>
 

@@ -22,7 +22,7 @@
             <p style="margin: 0 0 14px;">Yth. <strong>{{ $recipientName }}</strong>,</p>
             <p style="margin: 0 0 18px;">
                 Kami menerima permintaan untuk <strong>mengubah password</strong> akun Anda di
-                <strong>E-PPID PLN Nusantara Power</strong>. Gunakan kode One-Time Password (OTP)
+                <strong>PLN Nusantara Power</strong>. Gunakan kode One-Time Password (OTP)
                 di bawah ini untuk memverifikasi perubahan tersebut.
             </p>
         </td>

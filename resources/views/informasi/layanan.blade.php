@@ -1062,11 +1062,9 @@
                 <div class="spl-contact">
                     <div class="spl-contact-text">
                         <h3>Butuh bantuan lebih lanjut?</h3>
-                        <p>Hubungi tim layanan informasi kami untuk panduan prosedur dan berkas permohonan.</p>
+                        <p>Silakan ajukan pertanyaan melalui saluran resmi PPID PT PLN Nusantara Power.</p>
                     </div>
-                    <a href="{{ route('hubungi-kami') }}" class="btn-spl-contact">
-                        <i class="fas fa-headset"></i> Hubungi Kami
-                    </a>
+                </div>
                 </div>
 
             </div>

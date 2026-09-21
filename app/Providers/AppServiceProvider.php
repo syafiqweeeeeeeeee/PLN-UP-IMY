@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\View\Composers\KaryawanLayoutComposer;
 use App\Http\View\Composers\TopbarComposer;
 use App\Services\MenuBuilderService;
 use Illuminate\Pagination\Paginator;
@@ -42,5 +43,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Topbar admin: data user asli + notifikasi dinamis dari database.
         View::composer('layouts.admin', TopbarComposer::class);
+
+        // Header portal karyawan: nama, role, dan inisial avatar user login.
+        // Didaftarkan juga ke view karyawan.* agar data tersedia di
+        // child view (mis. kartu avatar di halaman profil).
+        View::composer(['layouts.karyawan', 'karyawan.*'], KaryawanLayoutComposer::class);
     }
 }

@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Announcement;
-use App\Models\ContactMessage;
+use App\Models\ActivityLog;
 use App\Models\Gallery;
 use App\Models\News;
 use App\Models\Page;
@@ -88,21 +88,16 @@ class DashboardTest extends TestCase
         }
     }
 
-    public function test_dashboard_notifications_reflect_unread_permohonan(): void
+    public function test_dashboard_notifications_show_all_clear_message_when_no_tasks(): void
     {
-        ContactMessage::create([
-            'nama'    => 'Pengirim Uji',
-            'email'   => 'pengirim@example.com',
-            'telepon' => '081234567890',
-            'kategori' => ContactMessage::KATEGORI_UMUM,
-            'subjek'  => 'Subjek Uji',
-            'pesan'   => 'Isi pesan uji notifikasi.',
-        ]);
-
         $response = $this->actingAs($this->adminUser())->get(route('admin.dashboard'));
 
-        $response->assertOk()
-            ->assertSee('permohonan belum dibaca');
+        $response->assertOk();
+
+        $notifications = $response->viewData('notifications');
+
+        $this->assertNotEmpty($notifications);
+        $this->assertNotContains('permohonan belum dibaca', array_column($notifications, 'message'));
     }
 
     public function test_dashboard_shows_storage_summary_when_disk_readable(): void

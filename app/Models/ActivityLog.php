@@ -105,7 +105,6 @@ class ActivityLog extends Model
             'pengumuman'  => 'Pengumuman',
             'galeri'      => 'Galeri',
             'pengguna'    => 'Pengguna',
-            'permohonan'  => 'Permohonan',
             'role'        => 'Role & Hak Akses',
             'autentikasi' => 'Autentikasi',
             'log'         => 'Log Aktivitas',

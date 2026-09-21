@@ -2,15 +2,14 @@
 
 namespace App\Http\View\Composers;
 
-use App\Models\ContactMessage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /**
  * Data topbar admin:
  * - $topbarUser: nama, email, role, inisial avatar, URL profil (user login asli).
- * - $topbarNotifs: notifikasi dinamis dari kondisi data (permohonan belum
- *   dibaca, konten draft). Red dot hanya tampil bila ada notifikasi belum
+ * - $topbarNotifs: notifikasi dinamis dari kondisi data (konten draft).
+ *   Red dot hanya tampil bila ada notifikasi belum
  *   dibaca — bukan lagi hardcode.
  */
 class TopbarComposer
@@ -60,20 +59,6 @@ class TopbarComposer
     {
         $items = [];
 
-        $unreadPermohonan = ContactMessage::unreadCount();
-        if ($unreadPermohonan > 0) {
-            $latest = ContactMessage::query()->unread()->latest()->first();
-
-            $items[] = [
-                'text'   => $unreadPermohonan . ' permohonan belum dibaca',
-                'url'    => route('admin.contact-messages.index'),
-                'icon'   => 'fas fa-inbox',
-                'tone'   => 'red',
-                'time'   => $latest?->created_at?->locale('id')->diffForHumans() ?? 'sekarang',
-                'unread' => true,
-            ];
-        }
-
         // Draft gabungan berita + pengumuman + halaman
         $draftNews          = DB::table('news')->where('is_published', false)->count();
         $draftAnnouncements = DB::table('announcements')->where('is_published', false)->count();
@@ -93,7 +78,7 @@ class TopbarComposer
 
         return [
             'items'        => $items,
-            'unread_count' => $unreadPermohonan > 0 ? 1 : 0,
+            'unread_count' => 0,
         ];
     }
 }

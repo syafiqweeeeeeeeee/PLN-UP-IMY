@@ -64,16 +64,6 @@ class MenuBuilderService
                 ['label' => 'FAQ',            'route' => 'layanan.faq',    'i18n' => 'nav.services_faq'],
             ],
         ],
-        [
-            'label' => 'Kontak',
-            'icon'  => 'fa-envelope',
-            'i18n'  => 'nav.contact',
-            'children' => [
-                ['label' => 'Hubungi Kami', 'route' => 'hubungi-kami',  'i18n' => 'nav.contact_us'],
-                ['label' => 'Lokasi',       'route' => 'lokasi',        'i18n' => 'nav.contact_location'],
-                ['label' => 'Sosial Media', 'route' => 'sosial-media',  'i18n' => 'nav.contact_social'],
-            ],
-        ],
     ];
 
     public function treeFor(?User $user): array

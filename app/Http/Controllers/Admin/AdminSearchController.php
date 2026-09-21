@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\ActivityLogger;
 use App\Models\Announcement;
-use App\Models\ContactMessage;
 use App\Models\Gallery;
 use App\Models\Menu;
 use App\Models\News;
@@ -22,7 +21,7 @@ use Illuminate\Support\Facades\Gate;
  * Endpoint pencarian topbar admin (Ctrl+K / ikon kaca pembesar).
  *
  * Mencari di SEMUA modul admin — konten (berita, pengumuman, halaman,
- * galeri) maupun manajemen (pengguna, menu, role, permohonan, log
+ * galeri) maupun manajemen (pengguna, menu, role, log
  * aktivitas). Hasil JSON dikelompokkan per tipe konten.
  *
  * Aturan hak akses: modul hanya dicari jika user punya permission
@@ -89,7 +88,7 @@ class AdminSearchController extends Controller
             : collect();
 
         /* =========================================================
-           MANAJEMEN — pengguna, menu, role, permohonan, log
+           MANAJEMEN — pengguna, menu, role, log
            ========================================================= */
 
         $users = Gate::allows('users.view')
@@ -130,9 +129,9 @@ class AdminSearchController extends Controller
                 ->get(['id', 'subjek', 'nama', 'status'])
             : collect();
 
-        // Log aktivitas: sekarang berbasis file JSONL — pencarian teks
-        // dibatasi 30 hari terakhir; ekspresi waktu dipetakan ke rentang
-        // file tanggal terkait (lihat parseTimeQuery()).
+        // Log aktivitas: tabel paling cepat tumbuh — pencarian teks
+        // dibatasi 30 hari terakhir; pencarian berbasis waktu memakai
+        // range created_at yang terindeks (lihat parseTimeQuery()).
         $logs = Gate::allows('activity_logs.view')
             ? collect($this->searchLogs($q))
             : collect();
@@ -203,15 +202,6 @@ class AdminSearchController extends Controller
                     'title' => $r->name,
                     'url'   => route('admin.roles.edit', $r),
                     'meta'  => $r->status ? 'Aktif' : 'Nonaktif',
-                ])->all(),
-            ],
-            [
-                'label' => 'Permohonan',
-                'icon'  => 'fa-paper-plane',
-                'items' => $messages->map(fn (ContactMessage $c) => [
-                    'title' => $c->subjek,
-                    'url'   => route('admin.contact-messages.show', $c),
-                    'meta'  => $c->nama,
                 ])->all(),
             ],
             [

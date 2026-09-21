@@ -37,31 +37,6 @@ return [
 
     /*
     |----------------------------------------------------------------------
-    | Google reCAPTCHA v3 — proteksi anti-spam form kontak publik
-    |----------------------------------------------------------------------
-    | Isi RECAPTCHA_SITE_KEY & RECAPTCHA_SECRET di file .env. Jika keduanya
-    | kosong, verifikasi dilewati (fallback dev) dan form tetap berfungsi.
-    */
-    // Validasi form kontak publik
-    'contact' => [
-        // Cek DNS domain email (email:rfc,dns). Test suite mematikan ini via
-        // phpunit.xml agar tidak bergantung jaringan; default production: aktif.
-        'validate_email_dns' => env('CONTACT_VALIDATE_EMAIL_DNS', true),
-    ],
-
-    /*
-    |----------------------------------------------------------------------
-    | Google reCAPTCHA v3 — proteksi anti-spam form kontak publik
-    |----------------------------------------------------------------------
-    */
-    'recaptcha' => [
-        'site_key'  => env('RECAPTCHA_SITE_KEY'),
-        'secret'    => env('RECAPTCHA_SECRET_KEY'),
-        'min_score' => (float) env('RECAPTCHA_MIN_SCORE', 0.5),
-    ],
-
-    /*
-    |----------------------------------------------------------------------
     | Akun admin awal — dipakai AdminUserSeeder saat fresh install
     |----------------------------------------------------------------------
     | Wajib dioverride lewat .env di lingkungan produksi agar akun

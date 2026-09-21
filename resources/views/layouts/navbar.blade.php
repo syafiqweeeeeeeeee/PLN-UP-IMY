@@ -99,7 +99,7 @@
                 @endforeach
 
                 {{-- [ELEMEN BARU] Language Switcher (Globe) —
-                     persis di antara "Kontak" dan tombol "Login" --}}
+                     persis di antara menu terakhir dan tombol "Login" --}}
                 <li class="nav-item lang-switcher" id="lang-switcher">
                     <button class="nav-link lang-toggle" type="button" id="langToggle" aria-expanded="false" aria-haspopup="true" title="Bahasa / Language">
                         <i class="fas fa-globe lang-globe"></i> <span id="lang-current">ID</span>

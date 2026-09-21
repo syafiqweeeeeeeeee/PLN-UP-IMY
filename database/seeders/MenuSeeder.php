@@ -46,14 +46,6 @@ class MenuSeeder extends Seeder
                     ['label' => 'FAQ',            'type' => 'route', 'route_name' => 'layanan.faq',    'sort_order' => 2],
                 ],
             ],
-            [
-                'label' => 'Kontak', 'icon' => 'fa-envelope', 'sort_order' => 5, 'type' => 'url', 'url' => '#',
-                'children' => [
-                    ['label' => 'Hubungi Kami', 'type' => 'route', 'route_name' => 'hubungi-kami', 'sort_order' => 1],
-                    ['label' => 'Lokasi',       'type' => 'route', 'route_name' => 'lokasi',       'sort_order' => 2],
-                    ['label' => 'Sosial Media', 'type' => 'route', 'route_name' => 'sosial-media', 'sort_order' => 3],
-                ],
-            ],
         ];
 
         foreach ($tree as $group) {

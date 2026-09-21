@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\ContactMessage;
 use App\Models\News;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -150,36 +149,6 @@ class RbacTest extends TestCase
     }
 
     /* =========================================================
-       PERMOHONAN
-       ========================================================= */
-
-    public function test_contact_messages_status_update_is_gated(): void
-    {
-        $message = ContactMessage::create([
-            'nama' => 'Pengirim', 'email' => 'p@example.com', 'telepon' => '081234567890',
-            'kategori' => 'pertanyaan_umum', 'subjek' => 'Uji Gate', 'pesan' => 'Isi pesan.',
-        ]);
-
-        $viewerOnly = $this->userWithPermissions(['contact_messages.view']);
-        $updater    = $this->userWithPermissions(['contact_messages.update']);
-
-        // Boleh lihat...
-        $this->actingAs($viewerOnly)
-            ->get(route('admin.contact-messages.index'))
-            ->assertOk();
-
-        // ...tapi tidak boleh ubah status
-        $this->actingAs($viewerOnly)
-            ->post(route('admin.contact-messages.update-status', $message), ['status' => 'selesai'])
-            ->assertForbidden();
-
-        // Yang punya permission update boleh
-        $this->actingAs($updater)
-            ->postJson(route('admin.contact-messages.update-status', $message), ['status' => 'selesai'])
-            ->assertOk();
-    }
-
-    /* =========================================================
        ROLES
        ========================================================= */
 
@@ -219,7 +188,7 @@ class RbacTest extends TestCase
     {
         $full = $this->userWithPermissions([
             'dashboard.view', 'news.view', 'users.view', 'galleries.view',
-            'announcements.view', 'contact_messages.view',
+            'announcements.view',
         ]);
 
         $this->actingAs($full)

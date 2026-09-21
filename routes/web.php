@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\PageDisplayController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GalleryController;
@@ -89,21 +87,6 @@ Route::get('/halaman', [PageDisplayController::class, 'index'])->name('pages.ind
 Route::get('/halaman/{page:slug}', [PageDisplayController::class, 'show'])
     ->middleware('page.visible')
     ->name('pages.show');
-
-Route::get('/kontak/hubungi-kami', function () {
-    return view('kontak.hubungi_kami');
-})->name('hubungi-kami');
-
-// Form kontak publik — simpan pesan ke tabel contact_messages (masuk ke admin Permohonan)
-Route::post('/kontak/hubungi-kami', [ContactController::class, 'store'])->name('kontak.store');
-
-Route::get('/kontak/lokasi', function () {
-    return view('kontak.lokasi');
-})->name('lokasi');
-
-Route::get('/kontak/sosial-media', function () {
-    return view('kontak.sosial-media');
-})->name('sosial-media');
 
 Route::get('/layanan/daftar', function () {
     return view('layanan.daftar_layanan');
@@ -285,6 +268,28 @@ Route::get('/layanan/{slug}', function ($slug) use ($layananData) {
     return view('layanan.detail_layanan', ['layanan' => $layananData[$slug]]);
 })->name('layanan.detail');
 
+// ============================================================
+// PORTAL KARYAWAN (Employee Portal)
+// ------------------------------------------------------------
+// Area internal terpisah dari panel admin. Seluruh halaman
+// view-only; konten dibatasi auth + middleware karyawan.access
+// (menolak role selain Karyawan murni).
+// ============================================================
+Route::middleware(['auth', 'karyawan.access'])->prefix('karyawan')->name('karyawan.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Karyawan\PortalController::class, 'dashboard'])->name('dashboard');
+    Route::get('/informasi', [\App\Http\Controllers\Karyawan\PortalController::class, 'informasi'])->name('informasi');
+    Route::get('/informasi/{type}/{slug}', [\App\Http\Controllers\Karyawan\PortalController::class, 'informasiDetail'])
+        ->where(['type' => 'berita|pengumuman'])
+        ->name('informasi.detail');
+    Route::get('/layanan', [\App\Http\Controllers\Karyawan\PortalController::class, 'layanan'])->name('layanan');
+    Route::get('/layanan/{slug}', [\App\Http\Controllers\Karyawan\PortalController::class, 'layananDetail'])->name('layanan.detail');
+    Route::get('/link', [\App\Http\Controllers\Karyawan\PortalController::class, 'link'])->name('link');
+
+    // Profil — satu-satunya bagian yang bisa diubah karyawan
+    Route::get('/profil', [\App\Http\Controllers\Karyawan\PortalController::class, 'profil'])->name('profil');
+    Route::put('/profil', [\App\Http\Controllers\Karyawan\PortalController::class, 'updateProfil'])->name('profil.update');
+});
+
 // Admin Dashboard
 // Register: tidak ada pendaftaran mandiri — arahkan ke halaman login admin
 Route::get('/register', function () {
@@ -297,7 +302,7 @@ Route::post('/admin/login', [\App\Http\Controllers\Auth\LoginController::class, 
 Route::post('/admin/logout', [\App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
 // Admin Dashboard
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'admin.access'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -344,18 +349,6 @@ Route::middleware(['auth'])->group(function () {
         });
         Route::middleware('permission:news.delete')->group(function () {
             Route::delete('news/{news}', [NewsController::class, 'destroy'])->name('news.destroy');
-        });
-
-        // Permohonan & Pesan Masuk (dari form kontak publik) — gate per aksi
-        Route::middleware('permission:contact_messages.view')->group(function () {
-            Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
-            Route::get('contact-messages/{contact_message}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
-        });
-        Route::middleware('permission:contact_messages.update')->group(function () {
-            Route::post('contact-messages/{contact_message}/status', [ContactMessageController::class, 'updateStatus'])->name('contact-messages.update-status');
-        });
-        Route::middleware('permission:contact_messages.delete')->group(function () {
-            Route::delete('contact-messages/{contact_message}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
         });
 
         // Galeri / Gallery — gate per aksi

@@ -707,11 +707,9 @@
                 <div class="faq-contact">
                     <div class="faq-contact-text">
                         <h3>Belum menemukan jawaban yang Anda cari?</h3>
-                        <p>Hubungi tim layanan informasi kami untuk bantuan lebih lanjut.</p>
+                        <p>Silakan ajukan pertanyaan melalui saluran resmi PPID PT PLN Nusantara Power.</p>
                     </div>
-                    <a href="{{ route('hubungi-kami') }}" class="btn-faq-contact">
-                        <i class="fas fa-headset"></i> Hubungi Kami
-                    </a>
+                </div>
                 </div>
 
             </div>
