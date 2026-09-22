@@ -31,12 +31,17 @@ class LoginController extends Controller
 
         Auth::login($user, $request->boolean('remember'));
 
-        ActivityLog::record('autentikasi', 'login', "melakukan login ke panel admin", $user);
+        ActivityLogger::log('login', $user, [
+            'module'      => 'autentikasi',
+            'description' => $user->isKaryawan()
+                ? 'melakukan login ke portal karyawan'
+                : 'melakukan login ke panel admin',
+        ]);
 
         $request->session()->regenerate();
 
         // Karyawan → portal karyawan; role lain → panel admin.
-        $fallback = $menujuPortal ? route('karyawan.dashboard') : route('admin.dashboard');
+        $fallback = $user->isKaryawan() ? route('karyawan.dashboard') : route('admin.dashboard');
 
         $intended = $request->session()->pull('url.intended', $fallback);
 
