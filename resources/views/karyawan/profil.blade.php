@@ -25,11 +25,11 @@
             <hr class="kry-divider" style="width:100%;">
 
             <div style="text-align:left; font-size:0.84rem; color:#64748b; display:flex; flex-direction:column; gap:10px;">
-                <span><i class="fas fa-phone" style="width:18px; color:#00599c;"></i>
+                <span><i class="fas fa-phone" style="width:18px; color:#008fa8;"></i>
                     {{ $user->no_hp ?? 'Belum ada nomor HP' }}</span>
-                <span><i class="fas fa-location-dot" style="width:18px; color:#00599c;"></i>
+                <span><i class="fas fa-location-dot" style="width:18px; color:#008fa8;"></i>
                     {{ $user->alamat ?? 'Belum ada alamat' }}</span>
-                <span><i class="fas fa-calendar" style="width:18px; color:#00599c;"></i>
+                <span><i class="fas fa-calendar" style="width:18px; color:#008fa8;"></i>
                     Terdaftar {{ $user->created_at?->translatedFormat('d F Y') }}</span>
             </div>
         </aside>

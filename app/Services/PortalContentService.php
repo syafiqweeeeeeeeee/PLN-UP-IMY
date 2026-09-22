@@ -45,7 +45,7 @@ class PortalContentService
                 'url'         => 'https://mail.pln.co.id',
                 'category'    => 'umum',
                 'icon'        => 'fa-envelope',
-                'color'       => '#00599c',
+                'color'       => '#008fa8',
                 'description' => 'Email resmi korporat PLN untuk komunikasi internal dan eksternal.',
             ],
             [
@@ -54,7 +54,7 @@ class PortalContentService
                 'url'         => 'https://sdm.pln.co.id',
                 'category'    => 'umum',
                 'icon'        => 'fa-users',
-                'color'       => '#00897b',
+                'color'       => '#007790',
                 'description' => 'Data kepegawaian, slip gaji, cuti, dan layanan kehumanian lainnya.',
             ],
             [
@@ -63,7 +63,7 @@ class PortalContentService
                 'url'         => 'https://eoffice.pln.co.id',
                 'category'    => 'umum',
                 'icon'        => 'fa-file-lines',
-                'color'       => '#6d4c41',
+                'color'       => '#0097b8',
                 'description' => 'Surat menyurat digital, disposisi, dan arsip dokumen persuratan.',
             ],
             [
@@ -72,7 +72,7 @@ class PortalContentService
                 'url'         => 'https://presensi.pln.co.id',
                 'category'    => 'umum',
                 'icon'        => 'fa-fingerprint',
-                'color'       => '#5e35b1',
+                'color'       => '#00566b',
                 'description' => 'Absensi kerja harian dan rekap kehadiran karyawan.',
             ],
             [
@@ -81,7 +81,7 @@ class PortalContentService
                 'url'         => 'https://k2.pln.co.id',
                 'category'    => 'umum',
                 'icon'        => 'fa-newspaper',
-                'color'       => '#0277bd',
+                'color'       => '#003d4d',
                 'description' => 'Portal berita dan informasi internal PT PLN (Persero).',
             ],
 
@@ -92,7 +92,7 @@ class PortalContentService
                 'url'         => 'https://scada.pln-np.co.id',
                 'category'    => 'operasi',
                 'icon'        => 'fa-gauge-high',
-                'color'       => '#e65100',
+                'color'       => '#00b0c8',
                 'description' => 'Pemantauan real-time parameter operasi unit dan jaringan pembangkit.',
             ],
             [
@@ -101,7 +101,7 @@ class PortalContentService
                 'url'         => 'https://cmms.pln-np.co.id',
                 'category'    => 'pemeliharaan',
                 'icon'        => 'fa-screwdriver-wrench',
-                'color'       => '#37474f',
+                'color'       => '#00566b',
                 'description' => 'Work order, jadwal overhauls, dan riwayat pemeliharaan peralatan.',
             ],
             [
@@ -110,7 +110,7 @@ class PortalContentService
                 'url'         => 'https://sifin.pln-np.co.id',
                 'category'    => 'keuangan',
                 'icon'        => 'fa-coins',
-                'color'       => '#2e7d32',
+                'color'       => '#007790',
                 'description' => 'Pengajuan anggaran, verifikasi invoice, dan laporan keuangan unit.',
             ],
             [
@@ -119,7 +119,7 @@ class PortalContentService
                 'url'         => 'https://ek3.pln-np.co.id',
                 'category'    => 'k3',
                 'icon'        => 'fa-helmet-safety',
-                'color'       => '#c62828',
+                'color'       => '#003d4d',
                 'description' => 'Izin kerja, hazard report, dan pelaporan insiden K3 lingkungan kerja.',
             ],
             [
@@ -128,7 +128,7 @@ class PortalContentService
                 'url'         => 'https://simadm.pln-np.co.id',
                 'category'    => 'keuangan',
                 'icon'        => 'fa-folder-open',
-                'color'       => '#455a64',
+                'color'       => '#0097b8',
                 'description' => 'Kelola aset kantor, inventaris, dan administrasi umum unit kerja.',
             ],
         ];
@@ -146,7 +146,7 @@ class PortalContentService
                 'slug'        => 'pengajuan-cuti',
                 'name'        => 'Pengajuan Cuti',
                 'icon'        => 'fa-calendar-check',
-                'color'       => '#00599c',
+                'color'       => '#008fa8',
                 'description' => 'Prosedur pengajuan cuti tahunan, sakit, dan cuti khusus melalui atasan langsung.',
                 'steps'       => [
                     'Isi formulir cuti di Portal SDM atau formulir fisik dari HRD.',
@@ -161,7 +161,7 @@ class PortalContentService
                 'slug'        => 'layanan-it',
                 'name'        => 'Layanan IT',
                 'icon'        => 'fa-headset',
-                'color'       => '#0277bd',
+                'color'       => '#00b0c8',
                 'description' => 'Bantuan teknis: akun, laptop, jaringan, aplikasi kerja, dan reset password.',
                 'steps'       => [
                     'Buat tiket melalui Helpdesk IT atau email it-support@pln-np.co.id.',
@@ -175,7 +175,7 @@ class PortalContentService
                 'slug'        => 'layanan-fasilitas',
                 'name'        => 'Layanan Fasilitas',
                 'icon'        => 'fa-building',
-                'color'       => '#00695c',
+                'color'       => '#007790',
                 'description' => 'Permintaan ruang rapat, perbaikan fasilitas kantor, dan inventaris.',
                 'steps'       => [
                     'Ajukan permohonan via SIM Administrasi (modul Fasilitas).',
@@ -189,7 +189,7 @@ class PortalContentService
                 'slug'        => 'perjalanan-dinas',
                 'name'        => 'Perjalanan Dinas',
                 'icon'        => 'fa-plane-departure',
-                'color'       => '#6a1b9a',
+                'color'       => '#0097b8',
                 'description' => 'Pengajuan SPD, tiket, dan reimbursable biaya perjalanan dinas.',
                 'steps'       => [
                     'Susun rencana perjalanan dan rincian estimasi biaya.',
@@ -203,7 +203,7 @@ class PortalContentService
                 'slug'        => 'klaim-kesehatan',
                 'name'        => 'Klaim Kesehatan',
                 'icon'        => 'fa-notes-medical',
-                'color'       => '#c62828',
+                'color'       => '#00566b',
                 'description' => 'Pengajuan reimbursement biaya pengobatan untuk karyawan dan keluarga.',
                 'steps'       => [
                     'Siapkan bukti bayar asli, resep, dan diagnosa dokter.',
@@ -217,7 +217,7 @@ class PortalContentService
                 'slug'        => 'peminjaman-apd',
                 'name'        => 'Peminjaman APD',
                 'icon'        => 'fa-helmet-safety',
-                'color'       => '#e65100',
+                'color'       => '#003d4d',
                 'description' => 'Permintaan Alat Pelindung Diri untuk pekerjaan lapangan dan area risiko.',
                 'steps'       => [
                     'Cek ketersediaan stok APD di E-K3 Safety (modul Gudang APD).',

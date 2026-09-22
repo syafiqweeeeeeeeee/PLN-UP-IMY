@@ -19,7 +19,7 @@
         <div class="kry-detail-content">
             <p>{{ $service['description'] }}</p>
 
-            <h3 style="font-size:0.95rem; font-weight:800; color:#00599c; margin:24px 0 4px;">
+            <h3 style="font-size:0.95rem; font-weight:800; color:#00566b; margin:24px 0 4px;">
                 <i class="fas fa-list-ol"></i> Langkah-langkah
             </h3>
 

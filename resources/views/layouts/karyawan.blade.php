@@ -32,11 +32,13 @@
         <div class="kry-container kry-topbar-inner">
 
             <a href="{{ route('karyawan.dashboard') }}" class="kry-brand">
-                <img src="{{ asset('assets/images/logo-pln.png') }}" alt="Logo PLN"
+                {{-- Emblem persegi logo-pln1.png — sama dengan logo hero
+                     landing page publik (home.blade.php) & favicon --}}
+                <img src="{{ asset('assets/images/logo-pln1.png') }}" alt="Logo PLN Nusantara Power"
                      onerror="this.style.display='none';" />
                 <span class="kry-brand-text">
-                    <strong>Portal Karyawan</strong>
-                    <small>PLN Nusantara Power</small>
+                    <strong>PLN Nusantara Power</strong>
+                    <small>Portal Karyawan</small>
                 </span>
             </a>
 

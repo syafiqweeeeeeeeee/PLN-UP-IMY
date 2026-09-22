@@ -2,18 +2,25 @@
  * ============================================================
  * PORTAL KARYAWAN — karyawan.css
  * ------------------------------------------------------------
- * Tema visual PLN NP: biru navy dominan (#00599c / #002f5d),
- * aksen kuning PLN (#ffd600 / #ffeb3b), background light gray
- * (#f8fafc). Minimalis, banyak whitespace, tanpa gradien lebay.
+ * Tema visual PLN NP — DIKUNCI ke palet Halaman Publik
+ * (layouts/app.blade.php & gambar referensi landing page):
+ *   Toska gelap  #008fa8  (--kry-teal,  = --pln-blue publik)
+ *   Toska tua    #00566b  (--kry-teal-dark, tone hero/gradasi)
+ *   Kuning PLN   #FFE600  (--kry-yellow, = --pln-yellow publik)
+ * Background konten tetap terang (putih kartu / light gray)
+ * agar teks nyaman dibaca; toska dipakai untuk header, ikon,
+ * border aksen, dan elemen brand.
  * ============================================================
  */
 
 :root {
-    --kry-navy:      #00599c;
-    --kry-navy-dark: #002f5d;
-    --kry-navy-soft: #e7f0f8;
-    --kry-yellow:    #ffd600;
-    --kry-yellow-2:  #ffeb3b;
+    --kry-teal:      #008fa8;   /* = --pln-blue di halaman publik */
+    --kry-teal-dark: #00566b;   /* tone gelap hero publik */
+    --kry-teal-deep: #003d4d;   /* footer / teks judul tua */
+    --kry-teal-soft: #e6f4f7;   /* chip / latar ikon lembut */
+    --kry-yellow:    #FFE600;   /* = --pln-yellow di halaman publik */
+    --kry-navy-dark: var(--kry-teal-deep);  /* kompat. judul lama */
+    --kry-navy-soft: var(--kry-teal-soft);  /* kompat. chip lama */
     --kry-bg:        #f8fafc;
     --kry-card:      #ffffff;
     --kry-line:      #e2e8f0;
@@ -21,7 +28,7 @@
     --kry-muted:     #64748b;
     --kry-radius:    14px;
     --kry-shadow:    0 1px 3px rgba(15, 23, 42, 0.06);
-    --kry-shadow-lg: 0 10px 28px rgba(0, 47, 93, 0.10);
+    --kry-shadow-lg: 0 10px 28px rgba(0, 86, 107, 0.12);
 }
 
 * { box-sizing: border-box; }
@@ -50,8 +57,9 @@ a { text-decoration: none; color: inherit; }
 /* ================= TOPBAR ================= */
 
 .kry-topbar {
-    background: #fff;
-    border-bottom: 1px solid var(--kry-line);
+    /* Header toska gelap — persis navbar publik (.navbar-pln) */
+    background: var(--kry-teal);
+    box-shadow: 0 2px 12px rgba(0, 143, 168, 0.25);
     position: sticky;
     top: 0;
     z-index: 50;
@@ -74,6 +82,7 @@ a { text-decoration: none; color: inherit; }
 .kry-brand img {
     height: 34px;
     width: auto;
+    border-radius: 8px; /* emblem persegi melengkung seperti brand navbar publik */
 }
 
 .kry-brand-text {
@@ -85,12 +94,12 @@ a { text-decoration: none; color: inherit; }
 .kry-brand-text strong {
     font-size: 0.95rem;
     font-weight: 700;
-    color: var(--kry-navy-dark);
+    color: #fff;
 }
 
 .kry-brand-text small {
     font-size: 0.7rem;
-    color: var(--kry-muted);
+    color: rgba(255, 255, 255, 0.75);
     letter-spacing: 0.4px;
 }
 
@@ -99,9 +108,12 @@ a { text-decoration: none; color: inherit; }
 .kry-nav {
     display: flex;
     gap: 4px;
-    flex: 1;
+    margin-left: auto; /* menu rata kanan, bersebelahan dengan user chip */
 }
 
+/* Menu putih di atas toska; hover = putih di atas pill transparan
+   (meniru .navbar-pln .nav-link:hover publik). Item aktif = teks
+   kuning PLN + underline kuning (pola .nav-link.active publik). */
 .kry-nav-link {
     display: inline-flex;
     align-items: center;
@@ -110,20 +122,21 @@ a { text-decoration: none; color: inherit; }
     border-radius: 999px;
     font-size: 0.86rem;
     font-weight: 600;
-    color: var(--kry-muted);
+    color: rgba(255, 255, 255, 0.88);
     transition: color .18s ease, background .18s ease;
 }
 
 .kry-nav-link i { font-size: 0.8rem; }
 
 .kry-nav-link:hover {
-    color: var(--kry-navy);
-    background: var(--kry-navy-soft);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
 }
 
 .kry-nav-link.active {
-    color: var(--kry-navy-dark);
-    background: var(--kry-navy-soft);
+    color: var(--kry-yellow);
+    background: rgba(255, 230, 0, 0.10);
+    box-shadow: inset 0 -2px 0 var(--kry-yellow);
 }
 
 /* ---- User chip ---- */
@@ -146,16 +159,16 @@ a { text-decoration: none; color: inherit; }
 }
 
 .kry-user-chip:hover {
-    background: var(--kry-bg);
-    border-color: var(--kry-line);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
 .kry-avatar {
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: var(--kry-navy);
-    color: #fff;
+    background: var(--kry-yellow);
+    color: var(--kry-teal-dark);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -173,19 +186,19 @@ a { text-decoration: none; color: inherit; }
 .kry-user-name {
     font-size: 0.83rem;
     font-weight: 700;
-    color: var(--kry-text);
+    color: #fff;
     white-space: nowrap;
 }
 
 .kry-user-role {
     font-size: 0.68rem;
-    color: var(--kry-muted);
+    color: rgba(255, 255, 255, 0.75);
 }
 
 .kry-avatar-btn {
     border: none;
     background: transparent;
-    color: var(--kry-muted);
+    color: rgba(255, 255, 255, 0.85);
     cursor: pointer;
     padding: 6px;
     border-radius: 8px;
@@ -193,8 +206,8 @@ a { text-decoration: none; color: inherit; }
 }
 
 .kry-avatar-btn:hover {
-    background: var(--kry-bg);
-    color: var(--kry-navy);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
 }
 
 /* ---- Dropdown akun ---- */
@@ -281,7 +294,7 @@ a { text-decoration: none; color: inherit; }
     margin: 0 0 6px;
     font-size: 1.5rem;
     font-weight: 800;
-    color: var(--kry-navy-dark);
+    color: var(--kry-teal-deep);
     letter-spacing: -0.2px;
 }
 
@@ -298,7 +311,7 @@ a { text-decoration: none; color: inherit; }
     margin-bottom: 14px;
 }
 
-.kry-breadcrumb a { color: var(--kry-navy); font-weight: 600; }
+.kry-breadcrumb a { color: var(--kry-teal); font-weight: 600; }
 .kry-breadcrumb a:hover { text-decoration: underline; }
 
 /* Card dasar */
@@ -325,7 +338,7 @@ a { text-decoration: none; color: inherit; }
     margin: 0 0 4px;
     font-size: 1.55rem;
     font-weight: 800;
-    color: var(--kry-navy-dark);
+    color: var(--kry-teal-deep);
     letter-spacing: -0.2px;
 }
 
@@ -335,16 +348,18 @@ a { text-decoration: none; color: inherit; }
     font-size: 0.92rem;
 }
 
+/* Badge aksen kuning PLN (meniru tombol Login kuning navbar publik) */
 .kry-greeting-badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     background: var(--kry-yellow);
-    color: var(--kry-navy-dark);
+    color: var(--kry-teal-dark);
     font-weight: 700;
     font-size: 0.78rem;
     padding: 8px 16px;
     border-radius: 999px;
+    box-shadow: 0 2px 10px rgba(255, 230, 0, 0.35);
 }
 
 /* Stat ringkas */
@@ -366,8 +381,8 @@ a { text-decoration: none; color: inherit; }
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: var(--kry-navy-soft);
-    color: var(--kry-navy);
+    background: var(--kry-teal);
+    color: #fff;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -378,7 +393,7 @@ a { text-decoration: none; color: inherit; }
 .kry-stat-value {
     font-size: 1.25rem;
     font-weight: 800;
-    color: var(--kry-navy-dark);
+    color: var(--kry-teal-deep);
     line-height: 1.2;
 }
 
@@ -403,18 +418,18 @@ a { text-decoration: none; color: inherit; }
     margin: 0;
     font-size: 1.08rem;
     font-weight: 800;
-    color: var(--kry-navy-dark);
+    color: var(--kry-teal-deep);
     display: flex;
     align-items: center;
     gap: 9px;
 }
 
-.kry-section-head h2 i { color: var(--kry-navy); font-size: 0.95rem; }
+.kry-section-head h2 i { color: var(--kry-teal); font-size: 0.95rem; }
 
 .kry-link-more {
     font-size: 0.8rem;
     font-weight: 700;
-    color: var(--kry-navy);
+    color: var(--kry-teal);
 }
 
 .kry-link-more:hover { text-decoration: underline; }
@@ -439,13 +454,14 @@ a { text-decoration: none; color: inherit; }
     transform: translateY(-2px);
 }
 
+/* Header kartu ber-tone toska: gradien gelap hero publik */
 .kry-news-thumb {
     height: 150px;
-    background: var(--kry-navy-soft);
+    background: linear-gradient(135deg, var(--kry-teal) 0%, var(--kry-teal-dark) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--kry-navy);
+    color: rgba(255, 255, 255, 0.85);
     font-size: 1.6rem;
     overflow: hidden;
 }
@@ -473,10 +489,11 @@ a { text-decoration: none; color: inherit; }
     gap: 6px;
 }
 
+/* Tag kuning PLN lembut (selaras badge kuning brand) */
 .kry-news-date .kry-tag {
     color: #8a6d00;
     background: #fff8d6;
-    border: 1px solid #f5e38a;
+    border: 1px solid var(--kry-yellow);
     padding: 1px 8px;
     border-radius: 999px;
     font-size: 0.66rem;
@@ -501,6 +518,8 @@ a { text-decoration: none; color: inherit; }
     flex: 1;
 }
 
+/* Tombol aksi utama = kuning PLN, teks toska tua (meniru
+   .btn-hero-primary / .btn-login halaman publik) */
 .kry-btn-more {
     align-self: flex-start;
     display: inline-flex;
@@ -508,16 +527,17 @@ a { text-decoration: none; color: inherit; }
     gap: 7px;
     font-size: 0.79rem;
     font-weight: 700;
-    color: var(--kry-navy);
+    color: var(--kry-teal-dark);
     padding: 7px 14px;
     border-radius: 999px;
-    border: 1px solid var(--kry-line);
+    border: 1px solid transparent;
+    background: var(--kry-yellow);
     transition: all .18s ease;
 }
 
 .kry-btn-more:hover {
-    background: var(--kry-navy);
-    border-color: var(--kry-navy);
+    background: var(--kry-teal);
+    border-color: var(--kry-teal);
     color: #fff;
 }
 
@@ -569,7 +589,7 @@ a { text-decoration: none; color: inherit; }
 .kry-service-link {
     font-size: 0.8rem;
     font-weight: 700;
-    color: var(--kry-navy);
+    color: var(--kry-teal);
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -608,8 +628,8 @@ a { text-decoration: none; color: inherit; }
 
 .kry-filter-select:focus {
     outline: none;
-    border-color: var(--kry-navy);
-    box-shadow: 0 0 0 3px rgba(0, 89, 156, 0.12);
+    border-color: var(--kry-teal);
+    box-shadow: 0 0 0 3px rgba(0, 143, 168, 0.15);
 }
 
 /* Tab filter (pilihan kedua di samping dropdown) */
@@ -632,15 +652,16 @@ a { text-decoration: none; color: inherit; }
     transition: all .18s ease;
 }
 
+/* Active tab indicator = kuning PLN dengan teks toska tua */
 .kry-filter-tab:hover {
-    border-color: var(--kry-navy);
-    color: var(--kry-navy);
+    border-color: var(--kry-teal);
+    color: var(--kry-teal);
 }
 
 .kry-filter-tab.active {
-    background: var(--kry-navy);
-    border-color: var(--kry-navy);
-    color: #fff;
+    background: var(--kry-yellow);
+    border-color: var(--kry-yellow);
+    color: var(--kry-teal-dark);
 }
 
 .kry-link-grid {
@@ -701,9 +722,9 @@ a { text-decoration: none; color: inherit; }
     letter-spacing: 0.3px;
     padding: 2px 9px;
     border-radius: 999px;
-    background: var(--kry-navy-soft);
-    color: var(--kry-navy);
-    border: 1px solid #d3e3f2;
+    background: var(--kry-teal-soft);
+    color: var(--kry-teal-dark);
+    border: 1px solid #bfe3ea;
     text-transform: uppercase;
 }
 
@@ -719,16 +740,17 @@ a { text-decoration: none; color: inherit; }
     gap: 7px;
     font-size: 0.78rem;
     font-weight: 700;
-    color: var(--kry-navy);
+    color: var(--kry-teal-dark);
     padding: 7px 14px;
     border-radius: 999px;
-    border: 1px solid var(--kry-line);
+    border: 1px solid transparent;
+    background: var(--kry-yellow);
     transition: all .18s ease;
 }
 
 .kry-btn-open:hover {
-    background: var(--kry-navy);
-    border-color: var(--kry-navy);
+    background: var(--kry-teal);
+    border-color: var(--kry-teal);
     color: #fff;
 }
 
@@ -760,15 +782,15 @@ a { text-decoration: none; color: inherit; }
     margin: 0 0 18px;
     font-size: 1.45rem;
     font-weight: 800;
-    color: var(--kry-navy-dark);
+    color: var(--kry-teal-deep);
     line-height: 1.35;
 }
 
 .kry-detail-hero {
     height: 240px;
     border-radius: 12px;
-    background: var(--kry-navy-soft);
-    color: var(--kry-navy);
+    background: linear-gradient(135deg, var(--kry-teal) 0%, var(--kry-teal-dark) 100%);
+    color: rgba(255, 255, 255, 0.85);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -821,7 +843,7 @@ a { text-decoration: none; color: inherit; }
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: var(--kry-navy);
+    background: var(--kry-teal);
     color: #fff;
     font-weight: 700;
     font-size: 0.78rem;
@@ -835,9 +857,9 @@ a { text-decoration: none; color: inherit; }
     align-items: center;
     gap: 9px;
     margin-top: 22px;
-    background: var(--kry-navy-soft);
-    border: 1px solid #d3e3f2;
-    color: var(--kry-navy-dark);
+    background: var(--kry-teal-soft);
+    border: 1px solid #bfe3ea;
+    color: var(--kry-teal-deep);
     font-size: 0.82rem;
     font-weight: 600;
     padding: 10px 16px;
@@ -899,7 +921,7 @@ a { text-decoration: none; color: inherit; }
     width: 84px;
     height: 84px;
     border-radius: 50%;
-    background: var(--kry-navy);
+    background: linear-gradient(135deg, var(--kry-teal) 0%, var(--kry-teal-dark) 100%);
     color: #fff;
     font-size: 1.6rem;
     font-weight: 800;
@@ -913,7 +935,7 @@ a { text-decoration: none; color: inherit; }
     margin: 0 0 2px;
     font-size: 1.05rem;
     font-weight: 800;
-    color: var(--kry-navy-dark);
+    color: var(--kry-teal-deep);
 }
 
 .kry-profile-side > p {
@@ -925,7 +947,7 @@ a { text-decoration: none; color: inherit; }
 .kry-profile-side .kry-role-badge {
     display: inline-block;
     background: var(--kry-yellow);
-    color: var(--kry-navy-dark);
+    color: var(--kry-teal-dark);
     font-size: 0.72rem;
     font-weight: 700;
     padding: 4px 14px;
@@ -938,7 +960,7 @@ a { text-decoration: none; color: inherit; }
     margin: 0 0 20px;
     font-size: 1rem;
     font-weight: 800;
-    color: var(--kry-navy-dark);
+    color: var(--kry-teal-deep);
 }
 
 .kry-field { margin-bottom: 18px; }
@@ -967,8 +989,8 @@ a { text-decoration: none; color: inherit; }
 
 .kry-input:focus {
     outline: none;
-    border-color: var(--kry-navy);
-    box-shadow: 0 0 0 3px rgba(0, 89, 156, 0.12);
+    border-color: var(--kry-teal);
+    box-shadow: 0 0 0 3px rgba(0, 143, 168, 0.15);
 }
 
 .kry-input:disabled {
@@ -992,12 +1014,14 @@ a { text-decoration: none; color: inherit; }
     margin: 26px 0;
 }
 
+/* Tombol simpan = kuning PLN dengan teks toska tua (konsisten
+   tombol aksi utama ala halaman publik) */
 .kry-btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 9px;
-    background: var(--kry-navy);
-    color: #fff;
+    background: var(--kry-yellow);
+    color: var(--kry-teal-dark);
     border: none;
     border-radius: 10px;
     font-family: inherit;
@@ -1009,15 +1033,18 @@ a { text-decoration: none; color: inherit; }
 }
 
 .kry-btn-primary:hover {
-    background: var(--kry-navy-dark);
+    background: var(--kry-teal);
+    color: #fff;
     transform: translateY(-1px);
 }
 
 /* ================= FOOTER ================= */
 
 .kry-footer {
-    background: var(--kry-navy-dark);
-    color: rgba(255, 255, 255, 0.75);
+    /* Footer toska — persis .footer-pln halaman publik */
+    background: var(--kry-teal);
+    color: rgba(255, 255, 255, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
     padding: 18px 0;
     font-size: 0.76rem;
 }
