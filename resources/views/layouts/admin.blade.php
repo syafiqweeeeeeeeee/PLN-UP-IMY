@@ -189,6 +189,15 @@
                 </a>
                 @endcan
 
+                @can('tamu.view')
+                <a href="{{ route('admin.tamu.index') }}"
+                   class="sidebar-link @if(request()->routeIs('admin.tamu.*')) active @endif"
+                   data-no-router>
+                    <span class="link-icon"><i class="fas fa-id-card"></i></span>
+                    <span class="link-text">Data Tamu</span>
+                </a>
+                @endcan
+
                 @can('announcements.view')
                 <a href="{{ route('admin.announcements.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.announcements.*')) active @endif"

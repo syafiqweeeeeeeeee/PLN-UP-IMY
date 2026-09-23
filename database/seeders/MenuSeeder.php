@@ -42,8 +42,8 @@ class MenuSeeder extends Seeder
             [
                 'label' => 'Layanan', 'icon' => 'fa-concierge-bell', 'sort_order' => 4, 'type' => 'url', 'url' => '#',
                 'children' => [
-                    ['label' => 'Daftar Layanan', 'type' => 'route', 'route_name' => 'layanan.daftar', 'sort_order' => 1],
-                    ['label' => 'FAQ',            'type' => 'route', 'route_name' => 'layanan.faq',    'sort_order' => 2],
+                    ['label' => 'FAQ',                  'type' => 'route', 'route_name' => 'layanan.faq',    'sort_order' => 1],
+                    ['label' => 'Form Registrasi Tamu', 'type' => 'route', 'route_name' => 'layanan.registrasi-tamu', 'sort_order' => 2],
                 ],
             ],
         ];

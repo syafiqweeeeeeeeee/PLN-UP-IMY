@@ -100,6 +100,26 @@ class MenuTest extends TestCase
             ->assertSee('>Beranda</span>', false);
     }
 
+    public function test_seeded_menus_render_i18n_attributes(): void
+    {
+        // Regresi: menu dari database kehilangan key i18n sehingga
+        // language switcher tidak menerjemahkan item navbar.
+        $this->seed(\Database\Seeders\MenuSeeder::class);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('data-i18n="nav.home"', false)
+            ->assertSee('data-i18n="nav.about"', false)
+            ->assertSee('data-i18n="nav.about_profile"', false)
+            ->assertSee('data-i18n="nav.info_news"', false)
+            ->assertSee('data-i18n="nav.info_announcements"', false)
+            ->assertSee('data-i18n="nav.info_gallery"', false)
+            ->assertSee('data-i18n="nav.services"', false)
+            ->assertSee('data-i18n="nav.services_faq"', false)
+            ->assertSee('data-i18n="nav.services_registration"', false)
+            ->assertSee('Form Registrasi Tamu', false);
+    }
+
     public function test_navbar_renders_dynamic_menus_from_database(): void
     {
         [$parent, $berita, $halaman] = $this->createMenus();

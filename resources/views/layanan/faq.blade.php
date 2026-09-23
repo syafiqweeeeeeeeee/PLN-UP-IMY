@@ -90,41 +90,16 @@
         font-size: 0.75rem;
     }
 
-    .faq-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: linear-gradient(135deg, #ffdd33 0%, var(--faq-yellow) 100%);
-        color: var(--faq-navy);
-        font-weight: 800;
-        font-size: 0.68rem;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        padding: 0.45rem 1.2rem;
-        border-radius: 4px;
+    .faq-logo {
+        height: 52px;
+        width: auto;
+        max-width: 260px;
+        object-fit: contain;
         margin-bottom: 1.2rem;
         position: relative;
         z-index: 2;
-        box-shadow: 0 4px 15px rgba(255, 209, 0, 0.25);
-        border: 1px solid rgba(255, 209, 0, 0.6);
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));
     }
-
-    .faq-badge::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: 4px;
-        background: repeating-linear-gradient(
-            135deg,
-            transparent,
-            transparent 4px,
-            rgba(255, 255, 255, 0.12) 4px,
-            rgba(255, 255, 255, 0.12) 8px
-        );
-        pointer-events: none;
-    }
-
-    .faq-badge i { font-size: 0.75rem; }
 
     .faq-hero h1 {
         font-size: 2.4rem;
@@ -525,6 +500,9 @@
     .faq-item:nth-child(4) { animation-delay: 0.20s; }
     .faq-item:nth-child(5) { animation-delay: 0.25s; }
     .faq-item:nth-child(6) { animation-delay: 0.30s; }
+    .faq-item:nth-child(7) { animation-delay: 0.35s; }
+    .faq-item:nth-child(8) { animation-delay: 0.40s; }
+    .faq-item:nth-child(9) { animation-delay: 0.45s; }
 </style>
 
 <div class="faq-page">
@@ -545,9 +523,7 @@
                 </nav>
             </div>
 
-            <div class="faq-badge">
-                <i class="fas fa-bolt"></i> PLN NUSANTARA POWER
-            </div>
+            <img src="{{ asset('assets/images/logo-pln.png') }}" alt="PLN Nusantara Power" class="faq-logo" />
 
             <h1>Pertanyaan yang <span class="accent">Sering Diajukan</span> (FAQ)</h1>
 
@@ -654,13 +630,59 @@
                         <div class="faq-answer" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
                             <div class="faq-answer-inner">
                                 <p>Daftar layanan publik dapat diakses langsung melalui menu
-                                <a href="{{ route('layanan.daftar') }}">&ldquo;Layanan&rdquo;</a> pada bilah
-                                navigasi utama website ini.</p>
+                                &ldquo;Layanan&rdquo; pada bilah navigasi utama website ini.</p>
                             </div>
                         </div>
                     </div>
 
-                    {{-- 5. Karir & Umum --}}
+                    {{-- 5. Layanan & Kemitraan: Registrasi Tamu --}}
+                    <div class="faq-item" data-category="layanan">
+                        <button class="faq-question" type="button" id="faq-q-7"
+                                aria-expanded="false" aria-controls="faq-a-7">
+                            <span class="faq-q-text">Mengapa pengunjung wajib mengisi form registrasi tamu sebelum masuk?</span>
+                            <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
+                        </button>
+                        <div class="faq-answer" id="faq-a-7" role="region" aria-labelledby="faq-q-7">
+                            <div class="faq-answer-inner">
+                                <p>Pengisian form registrasi tamu dilakukan untuk pendataan identitas, menjaga standar
+                                keamanan dan K3L (Keselamatan dan Kesehatan Kerja Lingkungan) di area objek vital nasional,
+                                serta memastikan pejabat/divisi yang dituju siap menerima kunjungan Anda.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 6. Layanan & Kemitraan: Registrasi Tamu --}}
+                    <div class="faq-item" data-category="layanan">
+                        <button class="faq-question" type="button" id="faq-q-8"
+                                aria-expanded="false" aria-controls="faq-a-8">
+                            <span class="faq-q-text">Dokumen apa saja yang wajib disiapkan saat mengisi form registrasi tamu?</span>
+                            <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
+                        </button>
+                        <div class="faq-answer" id="faq-a-8" role="region" aria-labelledby="faq-q-8">
+                            <div class="faq-answer-inner">
+                                <p>Anda perlu menyiapkan Nomor KTP/NIK, data diri (nama, instansi, nomor WhatsApp),
+                                serta mengunggah foto/scan KTP asli yang jelas (format JPG/PNG, ukuran maks. 2MB).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 7. Layanan & Kemitraan: Registrasi Tamu --}}
+                    <div class="faq-item" data-category="layanan">
+                        <button class="faq-question" type="button" id="faq-q-9"
+                                aria-expanded="false" aria-controls="faq-a-9">
+                            <span class="faq-q-text">Apa yang harus dilakukan setelah berhasil mengirim form pendaftaran tamu?</span>
+                            <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
+                        </button>
+                        <div class="faq-answer" id="faq-a-9" role="region" aria-labelledby="faq-q-9">
+                            <div class="faq-answer-inner">
+                                <p>Setibanya di lokasi, silakan tunjukkan bukti pendaftaran atau nama Anda kepada petugas
+                                keamanan (Security) atau Resepsionis di Lobi Utama untuk konfirmasi dan pengambilan
+                                Visitor Badge / Pass Tamu.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 8. Karir & Umum --}}
                     <div class="faq-item" data-category="karir">
                         <button class="faq-question" type="button" id="faq-q-5"
                                 aria-expanded="false" aria-controls="faq-a-5">
@@ -676,7 +698,7 @@
                         </div>
                     </div>
 
-                    {{-- 6. Karir & Umum --}}
+                    {{-- 9. Karir & Umum --}}
                     <div class="faq-item" data-category="karir">
                         <button class="faq-question" type="button" id="faq-q-6"
                                 aria-expanded="false" aria-controls="faq-a-6">

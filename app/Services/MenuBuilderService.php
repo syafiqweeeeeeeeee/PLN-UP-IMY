@@ -60,11 +60,48 @@ class MenuBuilderService
             'icon'  => 'fa-concierge-bell',
             'i18n'  => 'nav.services',
             'children' => [
-                ['label' => 'Daftar Layanan', 'route' => 'layanan.daftar', 'i18n' => 'nav.services_list'],
-                ['label' => 'FAQ',            'route' => 'layanan.faq',    'i18n' => 'nav.services_faq'],
+                ['label' => 'FAQ',                 'route' => 'layanan.faq',    'i18n' => 'nav.services_faq'],
+                ['label' => 'Form Registrasi Tamu', 'route' => 'layanan.registrasi-tamu', 'i18n' => 'nav.services_registration'],
             ],
         ],
     ];
+
+    /**
+     * Pemetaan menu bawaan ke key i18n (public/js/i18n.js).
+     * Key = nama route untuk menu daun, label untuk grup dropdown.
+     * Menu dengan label/route di luar daftar ini tetap tampil —
+     * hanya tidak ikut dialihbahasakan (i18n = null).
+     */
+    private const I18N_BY_KEY = [
+        'home'                => 'nav.home',
+        'Beranda'             => 'nav.home',
+        'Tentang Kami'        => 'nav.about',
+        'profil-perusahaan'   => 'nav.about_profile',
+        'sejarah'             => 'nav.about_history',
+        'visi-misi'           => 'nav.about_vision_mission',
+        'struktur-organisasi' => 'nav.about_structure',
+        'Informasi'           => 'nav.information',
+        'berita'              => 'nav.info_news',
+        'pengumuman'          => 'nav.info_announcements',
+        'galeri'              => 'nav.info_gallery',
+        'Layanan'             => 'nav.services',
+        'layanan.faq'         => 'nav.services_faq',
+        'layanan.registrasi-tamu' => 'nav.services_registration',
+        'tamu.create'          => 'nav.services_registration', // kompatibilitas menu lama di DB
+    ];
+
+    /**
+     * Key i18n untuk menu database: cocokkan route_name (daun)
+     * lalu label (grup/daun tanpa route). Null bila tidak dikenal.
+     */
+    private function resolveI18n(Menu $menu): ?string
+    {
+        if ($menu->route_name && isset(self::I18N_BY_KEY[$menu->route_name])) {
+            return self::I18N_BY_KEY[$menu->route_name];
+        }
+
+        return self::I18N_BY_KEY[$menu->label] ?? null;
+    }
 
     public function treeFor(?User $user): array
     {
@@ -108,7 +145,7 @@ class MenuBuilderService
                 'menu'     => $menu,
                 'label'    => $menu->label,
                 'icon'     => $menu->icon !== null && trim($menu->icon) !== '' ? $menu->icon : null,
-                'i18n'     => null,
+                'i18n'     => $this->resolveI18n($menu),
                 'url'      => $url,
                 'target'   => null, // grup dropdown tidak membuka tab baru
                 'children' => $children,
@@ -131,7 +168,7 @@ class MenuBuilderService
             'menu'     => $menu,
             'label'    => $menu->label,
             'icon'     => $menu->icon !== null && trim($menu->icon) !== '' ? $menu->icon : null,
-            'i18n'     => null,
+            'i18n'     => $this->resolveI18n($menu),
             'url'      => $url,
             'target'   => $menu->htmlTarget(),
             'children' => $children,

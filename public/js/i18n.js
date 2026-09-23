@@ -33,9 +33,9 @@
             'nav.info_articles': 'Artikel',
             'nav.info_gallery': 'Galeri',
             'nav.services': 'Layanan',
-            'nav.services_list': 'Daftar Layanan',
             'nav.services_info': 'Informasi Layanan',
             'nav.services_faq': 'FAQ',
+            'nav.services_registration': 'Form Registrasi Tamu',
             'nav.login': 'Login',
             'lang.indonesian': 'Bahasa Indonesia',
             'lang.english': 'English',
@@ -52,6 +52,19 @@
             'region.title': 'Wilayah Operasional PT PLN Nusantara Power',
             'region.subtitle': 'Cakupan area kerja dan pembangkitan di berbagai wilayah Indonesia',
 
+            /* ---------- BANNER SLIDER ---------- */
+            'banner.line_scope': 'Cakupan Area Pembangkitan',
+            'banner.wilayah1': 'Wilayah Operasional 1',
+            'banner.wilayah2': 'Wilayah Operasional 2',
+            'banner.line_network': 'Diagram Jaringan Kelistrikan',
+            'banner.interkoneksi': 'Sistem Interkoneksi',
+            'banner.prev': 'Sebelumnya',
+            'banner.next': 'Berikutnya',
+
+            /* ---------- BADGE TOKO APLIKASI ---------- */
+            'store.google_small': 'Dapatkan di',
+            'store.apple_small': 'Unduh di',
+
             /* ---------- MEKANISME / ALUR ---------- */
             /* ---------- PROMO PLN MOBILE ---------- */
             'mobile.title': 'Mulai Pengalaman Baru di PLN Mobile',
@@ -65,8 +78,6 @@
             'services.menu1_desc': 'Informasi mengenai layanan informasi publik yang tersedia di PPID.',
             'services.menu2_title': 'Berita',
             'services.menu2_desc': 'Baca kabar dan informasi terbaru seputar kegiatan PLTU Indramayu.',
-            'services.menu3_title': 'Daftar Layanan',
-            'services.menu3_desc': 'Lihat daftar layanan informasi publik yang dapat diakses masyarakat.',
             'services.menu4_title': 'FAQ',
             'services.menu4_desc': 'Temukan jawaban atas pertanyaan yang sering diajukan seputar layanan.',
 
@@ -209,9 +220,9 @@
             'nav.info_articles': 'Articles',
             'nav.info_gallery': 'Gallery',
             'nav.services': 'Services',
-            'nav.services_list': 'Service List',
             'nav.services_info': 'Service Information',
             'nav.services_faq': 'FAQ',
+            'nav.services_registration': 'Guest Registration Form',
             'nav.login': 'Login',
             'lang.indonesian': 'Bahasa Indonesia',
             'lang.english': 'English',
@@ -228,6 +239,19 @@
             'region.title': 'PT PLN Nusantara Power Operational Region',
             'region.subtitle': 'Work area and generation coverage across various regions of Indonesia',
 
+            /* ---------- BANNER SLIDER ---------- */
+            'banner.line_scope': 'Generation Area Coverage',
+            'banner.wilayah1': 'Operational Region 1',
+            'banner.wilayah2': 'Operational Region 2',
+            'banner.line_network': 'Electrical Network Diagram',
+            'banner.interkoneksi': 'Interconnection System',
+            'banner.prev': 'Previous',
+            'banner.next': 'Next',
+
+            /* ---------- BADGE TOKO APLIKASI ---------- */
+            'store.google_small': 'Get it on',
+            'store.apple_small': 'Download on the',
+
             /* ---------- PROMO PLN MOBILE ---------- */
             'mobile.title': 'Start a New Experience with PLN Mobile',
             'mobile.subtitle': 'All your electricity and home needs in 1 PLN Mobile app — everything is easier!',
@@ -240,8 +264,6 @@
             'services.menu1_desc': 'Information about the public information services available at PPID.',
             'services.menu2_title': 'News',
             'services.menu2_desc': 'Read the latest news and updates about PLTU Indramayu activities.',
-            'services.menu3_title': 'Service List',
-            'services.menu3_desc': 'Browse the list of public information services accessible to the public.',
             'services.menu4_title': 'FAQ',
             'services.menu4_desc': 'Find answers to frequently asked questions about our services.',
 

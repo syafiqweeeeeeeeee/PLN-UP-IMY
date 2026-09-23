@@ -492,8 +492,8 @@
                         <div class="carousel-item banner-slide active" data-bs-interval="5000">
                             <img src="{{ asset('assets/halaman_utama/wilayah operasional1.png') }}" alt="Wilayah Operasional 1" decoding="async" draggable="false" ondragstart="return false;">
                             <div class="banner-caption">
-                                <span class="banner-line">Cakupan Area Pembangkitan</span>
-                                <span class="banner-highlight">Wilayah Operasional 1</span>
+                                <span class="banner-line" data-i18n="banner.line_scope">Cakupan Area Pembangkitan</span>
+                                <span class="banner-highlight" data-i18n="banner.wilayah1">Wilayah Operasional 1</span>
                             </div>
                         </div>
 
@@ -501,8 +501,8 @@
                         <div class="carousel-item banner-slide" data-bs-interval="5000">
                             <img src="{{ asset('assets/halaman_utama/wilayah operasional2.png') }}" alt="Wilayah Operasional 2" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
                             <div class="banner-caption">
-                                <span class="banner-line">Cakupan Area Pembangkitan</span>
-                                <span class="banner-highlight">Wilayah Operasional 2</span>
+                                <span class="banner-line" data-i18n="banner.line_scope">Cakupan Area Pembangkitan</span>
+                                <span class="banner-highlight" data-i18n="banner.wilayah2">Wilayah Operasional 2</span>
                             </div>
                         </div>
 
@@ -510,8 +510,8 @@
                         <div class="carousel-item banner-slide" data-bs-interval="5000">
                             <img src="{{ asset('assets/halaman_utama/sistem interkoneksi.png') }}" alt="Sistem Interkoneksi" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
                             <div class="banner-caption">
-                                <span class="banner-line">Diagram Jaringan Kelistrikan</span>
-                                <span class="banner-highlight">Sistem Interkoneksi</span>
+                                <span class="banner-line" data-i18n="banner.line_network">Diagram Jaringan Kelistrikan</span>
+                                <span class="banner-highlight" data-i18n="banner.interkoneksi">Sistem Interkoneksi</span>
                             </div>
                         </div>
 
@@ -520,11 +520,11 @@
                     {{-- Panah prev/next (muncul saat hover) --}}
                     <button class="carousel-control-prev" type="button" data-bs-target="#bannerSlider" data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Sebelumnya</span>
+                        <span class="visually-hidden" data-i18n="banner.prev">Sebelumnya</span>
                     </button>
                     <button class="carousel-control-next" type="button" data-bs-target="#bannerSlider" data-bs-slide="next">
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Berikutnya</span>
+                        <span class="visually-hidden" data-i18n="banner.next">Berikutnya</span>
                     </button>
 
                 </div>
@@ -567,16 +567,6 @@
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <a href="{{ route('layanan.daftar') }}" class="menu-card d-block text-decoration-none">
-                    <div class="icon-circle" style="background: linear-gradient(135deg, var(--pln-yellow), #ffcc00); color: #1a1a2e;">
-                        <i class="fas fa-concierge-bell"></i>
-                    </div>
-                    <h5 data-i18n="services.menu3_title">Daftar Layanan</h5>
-                    <p data-i18n="services.menu3_desc">Lihat daftar layanan informasi publik yang dapat diakses masyarakat.</p>
-                </a>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
                 <a href="{{ route('layanan.faq') }}" class="menu-card d-block text-decoration-none">
                     <div class="icon-circle" style="background: linear-gradient(135deg, var(--pln-red), #ff5555)">
                         <i class="fas fa-circle-question"></i>
@@ -615,7 +605,7 @@
                             target="_blank" rel="noopener" class="badge-store">
                             <i class="fab fa-google-play store-icon"></i>
                             <span>
-                                <small>Get it on</small>
+                                <small data-i18n="store.google_small">Get it on</small>
                                 <strong>Google Play</strong>
                             </span>
                         </a>
@@ -623,7 +613,7 @@
                             target="_blank" rel="noopener" class="badge-store">
                             <i class="fab fa-apple store-icon"></i>
                             <span>
-                                <small>Download on the</small>
+                                <small data-i18n="store.apple_small">Download on the</small>
                                 <strong>App Store</strong>
                             </span>
                         </a>
