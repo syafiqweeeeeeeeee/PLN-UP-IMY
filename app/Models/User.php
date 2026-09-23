@@ -61,6 +61,7 @@ class User extends Authenticatable
         'level_jabatan',
         'department',
         'sub_department',
+        'email_verified_at',
         'no_hp',
         'alamat',
     ];

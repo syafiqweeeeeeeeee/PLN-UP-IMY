@@ -74,6 +74,34 @@
         box-shadow: 0 4px 12px rgba(255, 230, 0, 0.4);
         transform: translateY(-1px);
     }
+    /* Toggle switch status (pengganti Edit) — skema warna sama dengan daftar:
+       ON hijau = aktif; OFF oranye soft = nonaktif/belum verifikasi. */
+    .btn-toggle-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #f59e0b;
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+    }
+    .btn-toggle-status:hover {
+        background: #d97706;
+    }
+    .btn-toggle-status.on {
+        background: #16a34a;
+    }
+    .btn-toggle-status.on:hover {
+        background: #15803d;
+    }
+    .btn-toggle-status:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
     .btn-delete {
         background: #fee2e2;
         color: #b91c1c;
@@ -155,9 +183,19 @@
                     </div>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('admin.users.edit', $user) }}" class="btn-edit">
-                        <i class="fas fa-pen me-1"></i> Edit
-                    </a>
+                    @if (auth()->id() === $user->id)
+                        <button type="button" class="btn-toggle-status off" disabled title="Akun Anda sendiri tidak dapat dinonaktifkan">
+                            <i class="fas fa-toggle-off me-1"></i> Akun Anda
+                        </button>
+                    @else
+                        <button type="button"
+                                class="btn-toggle-status {{ $user->email_verified_at ? 'on' : 'off' }}"
+                                title="{{ $user->email_verified_at ? 'Akun aktif — klik untuk menonaktifkan' : 'Akun nonaktif — klik untuk mengaktifkan' }}"
+                                onclick="toggleUserStatusFromShow({{ $user->id }}, '{{ addslashes($user->name) }}', {{ $user->email_verified_at ? 'false' : 'true' }})">
+                            <i class="fas fa-toggle-{{ $user->email_verified_at ? 'on' : 'off' }} me-1"></i>
+                            {{ $user->email_verified_at ? 'Aktif' : 'Nonaktif' }}
+                        </button>
+                    @endif
                     <form action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
@@ -275,4 +313,76 @@
         </div>
     </div>
 </div>
+
+{{-- Toggle status dari halaman Detail — pola sama dengan daftar pengguna.
+     WAJIB inline di content agar router.js mengeksekusi ulang setelah SPA. --}}
+<script>
+    function toggleUserStatusFromShow(userId, userName, activate) {
+        const verb = activate ? 'Aktifkan' : 'Nonaktifkan';
+
+        // Popup konfirmasi SweetAlert2 — konsisten dengan design system.
+        Swal.fire({
+            title: activate ? 'Aktifkan Pengguna?' : 'Nonaktifkan Pengguna?',
+            html: 'Akun <strong>"' + userName + '"</strong> akan ' +
+                (activate
+                    ? 'ditandai <strong style="color:#16a34a">Aktif</strong>.'
+                    : 'ditandai <strong style="color:#d97706">Nonaktif</strong>.'),
+            icon: activate ? 'question' : 'warning',
+            showCancelButton: true,
+            confirmButtonText: activate ? 'Ya, Aktifkan' : 'Ya, Nonaktifkan',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: activate ? '#16a34a' : '#d97706',
+            cancelButtonColor: '#6b7280',
+            focusCancel: true
+        }).then(function (result) {
+            if (!result.isConfirmed) return;
+
+            fetch('/admin/users/' + userId + '/toggle-status', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ status: activate ? 'active' : 'inactive' })
+            })
+            .then(function (res) {
+                return res.json().catch(function () {
+                    throw new Error('Terjadi kesalahan server (HTTP ' + res.status + ').');
+                });
+            })
+            .then(function (data) {
+                if (data.success) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message || 'Status pengguna berhasil diperbarui.',
+                        showConfirmButton: false,
+                        timer: 2500,
+                        timerProgressBar: true
+                    }).then(function () { window.location.reload(); });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal memperbarui status',
+                        text: data.message || 'Silakan coba lagi.',
+                        confirmButtonText: 'Mengerti',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            })
+            .catch(function (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal memperbarui status',
+                    text: (err && err.message) ? err.message : 'Terjadi kesalahan jaringan.',
+                    confirmButtonText: 'Mengerti',
+                    confirmButtonColor: '#dc2626'
+                });
+            });
+        });
+    }
+</script>
 @endsection

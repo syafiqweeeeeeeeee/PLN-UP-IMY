@@ -19,7 +19,7 @@ class UserOrgHierarchyTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** Admin dengan permission users.create/edit. */
+    /** Admin dengan permission users.create (edit fitur dihapus, hanya toggle). */
     private function admin(): User
     {
         return $this->userWithPermissions(['users.view', 'users.create', 'users.edit']);
@@ -143,27 +143,4 @@ class UserOrgHierarchyTest extends TestCase
             ->assertSessionHasErrors('sub_department');
     }
 
-    public function test_update_hierarchy_fields_for_existing_user(): void
-    {
-        $target = User::factory()->create([
-            'level_jabatan' => 'manager_bidang',
-            'department'    => 'operasi',
-        ]);
-
-        $this->actingAs($this->admin())
-            ->put(route('admin.users.update', $target), [
-                'name'          => 'Nama Baru',
-                'email'         => $target->email,
-                'role_id'       => $this->role()->id,
-                'level_jabatan' => 'staf_spv',
-                'department'    => 'operasi',
-                'sub_department' => 'asmen_kimia_lab',
-            ]);
-
-        $target->refresh();
-
-        $this->assertSame('staf_spv', $target->level_jabatan);
-        $this->assertSame('operasi', $target->department);
-        $this->assertSame('asmen_kimia_lab', $target->sub_department);
-    }
 }

@@ -122,6 +122,80 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
     }
+
+    /* ===== Toggle status akun (pengganti tombol Edit) =====
+       Kotak rounded PERSIS news-action-btn (30×30, radius 7) agar
+       sejajar dengan tombol Lihat & Hapus. Di dalamnya ada mini-switch
+       yang fit. Skema warna:
+       - AKTIF    → kotak hijau muda soft, switch hijau (knob kanan).
+       - NONAKTIF → kotak oranye muda soft, switch oranye (knob kiri). */
+    .user-switch {
+        width: 30px;
+        height: 30px;
+        border: none;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background 0.2s ease;
+    }
+    /* Mini-switch di dalam kotak */
+    .user-switch .track {
+        position: relative;
+        width: 20px;
+        height: 12px;
+        border-radius: 999px;
+        transition: background 0.25s ease;
+    }
+    .user-switch .knob {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+        transition: transform 0.25s ease;
+    }
+    /* AKTIF: kotak hijau muda + switch hijau, knob di kanan */
+    .user-switch.on { background: #dcfce7; }
+    .user-switch.on:hover { background: #bbf7d0; }
+    .user-switch.on .track { background: #16a34a; }
+    .user-switch.on:hover .track { background: #15803d; }
+    .user-switch.on .knob { transform: translateX(8px); }
+    /* NONAKTIF: kotak oranye muda + switch oranye, knob di kiri */
+    .user-switch.off { background: #fef3c7; }
+    .user-switch.off:hover { background: #fde68a; }
+    .user-switch.off .track { background: #f59e0b; }
+    .user-switch.off:hover .track { background: #d97706; }
+    .user-switch:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+    /* ===== Kepadatan kolom aksi & baris tabel ===== */
+    /* Gap rapat antar 3 tombol aksi (Lihat, Switch, Hapus) */
+    .user-action-group {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+    }
+    /* Baris lebih ramping: padding sel diperketat */
+    .dash-card .admin-table tbody td {
+        padding-top: 0.45rem;
+        padding-bottom: 0.45rem;
+    }
+    /* Avatar ikut dipadatkan agar tinggi baris konsisten ramping */
+    .avatar-placeholder {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
 </style>
 @endpush
 
@@ -241,14 +315,32 @@
                             {{ $user->created_at->format('d M Y') }}
                         </span>
                     </td>
+                    @php
+                        $isVerified = (bool) $user->email_verified_at;
+                        $isSelf = auth()->id() === $user->id;
+                    @endphp
                     <td class="td-actions">
-                        <div class="d-flex gap-1 justify-content-end">
+                        <div class="user-action-group">
                             <a href="{{ route('admin.users.show', $user) }}" class="news-action-btn edit" style="background: #dbeafe; color: #1d4ed8;" title="Lihat Detail">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{{ route('admin.users.edit', $user) }}" class="news-action-btn edit" title="Edit">
-                                <i class="fas fa-pen"></i>
-                            </a>
+                            @if (! $isSelf)
+                                {{-- Toggle status akun (pengganti Edit): kotak 30×30
+                                     berisi mini-switch — hijau = aktif, oranye = nonaktif. --}}
+                                <button type="button"
+                                        class="user-switch {{ $isVerified ? 'on' : 'off' }}"
+                                        role="switch" aria-checked="{{ $isVerified ? 'true' : 'false' }}"
+                                        title="{{ $isVerified ? 'Akun aktif — klik untuk menonaktifkan' : 'Akun nonaktif — klik untuk mengaktifkan' }}"
+                                        onclick="toggleUserStatus({{ $user->id }}, '{{ addslashes($user->name) }}', {{ $isVerified ? 'false' : 'true' }})">
+                                    <span class="track"><span class="knob"></span></span>
+                                </button>
+                            @else
+                                <button type="button" class="user-switch off" disabled
+                                        role="switch" aria-checked="false"
+                                        title="Akun Anda sendiri tidak dapat dinonaktifkan">
+                                    <span class="track"><span class="knob"></span></span>
+                                </button>
+                            @endif
                             <button type="button" class="news-action-btn delete" title="Hapus"
                                     onclick="openUserDeleteModal({{ $user->id }}, '{{ addslashes($user->name) }}')">
                                 <i class="fas fa-trash"></i>
@@ -375,5 +467,89 @@
 
         searchInput?.addEventListener('input', applyFilters);
     })();
+</script>
+{{-- ============================================================
+     Script toggle status akun — WAJIB di dalam content (bukan
+     @push('scripts')) agar router.js mengeksekusi ulang setelah
+     navigasi SPA. Sukses → Toast Notification (SweetAlert2).
+     ============================================================ --}}
+<script>
+    // Guard re-eksekusi: hindari listener ganda saat router.js
+    // menjalankan ulang script ini setelah swap konten.
+    if (!window.__userToggleBound) {
+        window.__userToggleBound = true;
+
+        window.toggleUserStatus = function(userId, userName, activate) {
+            const verb = activate ? 'Aktifkan' : 'Nonaktifkan';
+
+            // Popup konfirmasi SweetAlert2 — konsisten dengan design system
+            // (menggantikan confirm() bawaan browser).
+            Swal.fire({
+                title: activate ? 'Aktifkan Pengguna?' : 'Nonaktifkan Pengguna?',
+                html: `Akun <strong>"${userName}"</strong> akan ` +
+                    (activate
+                        ? 'ditandai <strong style="color:#16a34a">Aktif</strong>.'
+                        : 'ditandai <strong style="color:#d97706">Nonaktif</strong>.'),
+                icon: activate ? 'question' : 'warning',
+                showCancelButton: true,
+                confirmButtonText: activate ? 'Ya, Aktifkan' : 'Ya, Nonaktifkan',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: activate ? '#16a34a' : '#d97706',
+                cancelButtonColor: '#6b7280',
+                focusCancel: true
+            }).then(function (result) {
+                if (!result.isConfirmed) return;
+
+                fetch(`/admin/users/${userId}/toggle-status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ status: activate ? 'active' : 'inactive' })
+                })
+                .then(function (res) {
+                    return res.json().catch(function () {
+                        throw new Error('Terjadi kesalahan server (HTTP ' + res.status + ').');
+                    });
+                })
+                .then(function (data) {
+                    if (data.success) {
+                        // Toast Notification sukses (tidak perlu klik).
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: data.message || 'Status pengguna berhasil diperbarui.',
+                            showConfirmButton: false,
+                            timer: 2500,
+                            timerProgressBar: true
+                        });
+                        // Segarkan daftar agar badge status ikut berubah.
+                        setTimeout(function () { window.location.reload(); }, 700);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal memperbarui status',
+                            text: data.message || 'Silakan coba lagi.',
+                            confirmButtonText: 'Mengerti',
+                            confirmButtonColor: '#dc2626'
+                        });
+                    }
+                })
+                .catch(function (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal memperbarui status',
+                        text: (err && err.message) ? err.message : 'Terjadi kesalahan jaringan.',
+                        confirmButtonText: 'Mengerti',
+                        confirmButtonColor: '#dc2626'
+                    });
+                });
+            });
+        };
+    }
 </script>
 @endsection

@@ -315,13 +315,9 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             Route::post('users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
         });
         Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+        // Toggle status akun (Aktif ⇄ Nonaktif) — pengganti fitur Edit Pengguna.
         Route::middleware('permission:users.edit')->group(function () {
-            Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
-            Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
-            // Kirim OTP verifikasi perubahan password ke email user yang diedit
-            Route::post('users/{user}/send-otp', [\App\Http\Controllers\Admin\UserController::class, 'sendOtp'])->name('users.send-otp');
-            // Verifikasi OTP instan (auto-validate saat 6 digit terisi)
-            Route::post('users/{user}/verify-otp', [\App\Http\Controllers\Admin\UserController::class, 'verifyOtp'])->name('users.verify-otp');
+            Route::patch('users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
         });
         Route::middleware('permission:users.delete')->group(function () {
             Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
