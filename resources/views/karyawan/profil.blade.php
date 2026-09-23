@@ -20,7 +20,10 @@
             <div class="kry-profile-avatar">{{ $karyawanUser['initials'] }}</div>
             <h2>{{ $user->name }}</h2>
             <p>{{ $user->email }}</p>
-            <span class="kry-role-badge">{{ $user->role ?? 'Karyawan' }}</span>
+            <span class="kry-role-badge">{{ $karyawanUser['jabatan'] }}</span>
+            @if (isset($karyawanUser['role']) && $karyawanUser['role'] !== ($karyawanUser['jabatan'] ?? ''))
+                <p style="font-size:0.75rem; color:#64748b; margin:0.35rem 0 0;">Hak akses: {{ $karyawanUser['role'] }}</p>
+            @endif
 
             <hr class="kry-divider" style="width:100%;">
 

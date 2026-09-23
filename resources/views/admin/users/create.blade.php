@@ -203,6 +203,61 @@
                 </div>
             </div>
 
+            {{-- ===== Hirarki Organisasi: 3 dropdown dinamis ===== --}}
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="form-group-label" for="level_jabatan">
+                        Level Jabatan (Role Utama) <span class="required">*</span>
+                    </label>
+                    <select id="level_jabatan" name="level_jabatan" class="form-input" required>
+                        <option value="">-- Pilih Level --</option>
+                        @foreach(\App\Models\User::LEVEL_JABATAN as $code => $label)
+                            <option value="{{ $code }}" {{ old('level_jabatan') === $code ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @error('level_jabatan')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="col-md-4" id="deptWrapper">
+                <div class="form-group">
+                    <label class="form-group-label" for="department">
+                        Bidang Utama <span class="required required-dept">*</span>
+                    </label>
+                    <select id="department" name="department" class="form-input">
+                        <option value="">-- Pilih Bidang --</option>
+                        @foreach(\App\Models\User::DEPARTMENTS as $code => $label)
+                            <option value="{{ $code }}" {{ old('department') === $code ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <div class="form-hint flex" id="deptHint" style="display:none;">
+                        <i class="far fa-lightbulb"></i> Wajib dipilih untuk Manager Bidang & Staf/Asmen/Spv.
+                    </div>
+                    @error('department')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="col-md-4" id="subDeptWrapper">
+                <div class="form-group">
+                    <label class="form-group-label" for="sub_department">
+                        Sub-Bidang / Bagian <span class="required required-sub">*</span>
+                    </label>
+                    <select id="sub_department" name="sub_department" class="form-input">
+                        <option value="">-- Pilih Sub-Bidang --</option>
+                    </select>
+                    <div class="form-hint flex" id="subHint" style="display:none;">
+                        <i class="far fa-lightbulb"></i> Daftar sub-bidang saat ini tersedia untuk Bidang Operasi.
+                    </div>
+                    @error('sub_department')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
             <div class="col-md-6">
                 <div class="form-group">
                     <label class="form-group-label" for="no_hp">
@@ -262,6 +317,95 @@
         if (field.type === 'password') { field.type = 'text'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
         else { field.type = 'password'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
     }
+
+    /* ===== Hirarki Organisasi — Dynamic Dropdown =====
+       - Administrator / Senior Manager → dept & sub disembunyikan + disabled.
+       - Manager Bidang → dept wajib, sub disembunyikan.
+       - Staf/Asmen/Spv → dept & sub wajib (sub terisi sesuai dept). */
+    (function () {
+        const levelSelect = document.getElementById('level_jabatan');
+        if (!levelSelect || levelSelect.dataset.hierarchyBound) return;   // anti double-bind
+        levelSelect.dataset.hierarchyBound = '1';
+
+        const SUBS = @json(\App\Models\User::SUB_DEPARTMENTS);
+        const deptSelect  = document.getElementById('department');
+        const subSelect   = document.getElementById('sub_department');
+        const deptWrapper = document.getElementById('deptWrapper');
+        const subWrapper  = document.getElementById('subDeptWrapper');
+        const deptHint    = document.getElementById('deptHint');
+        const subHint     = document.getElementById('subHint');
+        const deptReqStar = document.querySelector('.required-dept');
+        const subReqStar  = document.querySelector('.required-sub');
+
+        function setHidden(wrapper, select, star, hint) {
+            wrapper.style.display = 'none';
+            select.disabled = true;      // disabled → tidak dikirim ke server
+            select.required = false;
+            if (star) star.style.display = 'none';
+            if (hint) hint.style.display = 'none';
+        }
+
+        function setVisible(wrapper, select, star, hint, required) {
+            wrapper.style.display = '';
+            select.disabled = false;
+            select.required = required;
+            if (star) star.style.display = required ? '' : 'none';
+            if (hint) hint.style.display = '';
+        }
+
+        function fillSubOptions(deptCode) {
+            // Reset: sisakan placeholder lalu isi opsi sesuai dept terpilih.
+            subSelect.innerHTML = '<option value="">-- Pilih Sub-Bidang --</option>';
+            const subs = SUBS[deptCode] || {};
+            Object.keys(subs).forEach(function (code) {
+                const opt = document.createElement('option');
+                opt.value = code;
+                opt.textContent = subs[code];
+                subSelect.appendChild(opt);
+            });
+        }
+
+        function applyHierarchy() {
+            const level = levelSelect.value;
+
+            if (level === 'administrator' || level === 'senior_manager') {
+                // Akses global → dept & sub disembunyikan + disabled.
+                setHidden(deptWrapper, deptSelect, deptReqStar, deptHint);
+                setHidden(subWrapper, subSelect, subReqStar, subHint);
+            } else if (level === 'manager_bidang') {
+                setVisible(deptWrapper, deptSelect, deptReqStar, deptHint, true);
+                setHidden(subWrapper, subSelect, subReqStar, subHint);
+            } else if (level === 'staf_spv') {
+                setVisible(deptWrapper, deptSelect, deptReqStar, deptHint, true);
+                setVisible(subWrapper, subSelect, subReqStar, subHint, true);
+            } else {
+                // Level belum dipilih: tampilkan dept (opsional), sembunyikan sub.
+                setVisible(deptWrapper, deptSelect, deptReqStar, deptHint, false);
+                setHidden(subWrapper, subSelect, subReqStar, subHint);
+            }
+        }
+
+        // Ganti dept saat staf/spv → opsi sub di-reset sesuai dept baru.
+        deptSelect.addEventListener('change', function () {
+            fillSubOptions(this.value);
+            if (!this.value) subSelect.value = '';
+        });
+
+        levelSelect.addEventListener('change', applyHierarchy);
+
+        // Restore tampilan setelah validasi gagal (old input) atau level pre-selected.
+        if (levelSelect.value) {
+            applyHierarchy();
+            const oldDept = @json(old('department'));
+            if (oldDept && deptSelect.value === oldDept) {
+                fillSubOptions(oldDept);
+                const oldSub = @json(old('sub_department'));
+                if (oldSub) subSelect.value = oldSub;
+            }
+        } else {
+            applyHierarchy();
+        }
+    })();
     const passwordInput = document.getElementById('password');
     const strengthBar = document.getElementById('passwordStrength');
     const strengthText = document.getElementById('strengthText');

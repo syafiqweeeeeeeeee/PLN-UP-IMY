@@ -204,30 +204,137 @@ class KaryawanPortalTest extends TestCase
             ->assertNotFound();
     }
 
-    public function test_portal_link_page_shows_all_ten_links_with_badges(): void
+    public function test_portal_link_page_shows_umum_links_for_user_without_hierarchy(): void
     {
+        // Akun tanpa data hierarki (level/bidang kosong) → hanya link Akses Umum.
         $user = $this->karyawanUser();
 
-        $response = $this->actingAs($user)->get(route('karyawan.link'));
-
-        $response->assertOk()
-            // 5 akses umum
+        $this->actingAs($user)->get(route('karyawan.link'))
+            ->assertOk()
             ->assertSee('Web Email PLN')
             ->assertSee('Portal SDM')
             ->assertSee('E-Office')
             ->assertSee('Presensi Online')
             ->assertSee('Portal K2')
-            // 5 per bidang
+            ->assertDontSee('SCADA Monitoring')
+            ->assertDontSee('CMMS Pemeliharaan')
+            // Tombol buka website target _blank
+            ->assertSee('target="_blank"', false);
+    }
+
+    /* =========================================================
+       HIRARKI ORGANISASI — FILTERING KONTEN PORTAL
+       ========================================================= */
+
+    public function test_senior_manager_sees_all_links_and_full_filters(): void
+    {
+        $user = $this->karyawanUser([
+            'level_jabatan' => 'senior_manager',
+            'role'          => 'Karyawan',
+        ]);
+
+        $this->actingAs($user)->get(route('karyawan.link'))
+            ->assertOk()
+            // Semua 10 link
             ->assertSee('SCADA Monitoring')
             ->assertSee('CMMS Pemeliharaan')
             ->assertSee('SI-FIN Keuangan')
             ->assertSee('E-K3 Safety')
             ->assertSee('SIM Administrasi')
-            // Filter options
+            // Filter lengkap
             ->assertSee('Semua Link')
             ->assertSee('Bidang Operasi')
-            // Tombol buka website target _blank
-            ->assertSee('target="_blank"', false);
+            ->assertSee('Bidang Pemeliharaan');
+    }
+
+    public function test_manager_bidang_sees_department_links_and_umum_only(): void
+    {
+        $user = $this->karyawanUser([
+            'level_jabatan' => 'manager_bidang',
+            'department'    => 'operasi',
+        ]);
+
+        $this->actingAs($user)->get(route('karyawan.link'))
+            ->assertOk()
+            // Link umum + link Bidang Operasi
+            ->assertSee('Web Email PLN')
+            ->assertSee('SCADA Monitoring')
+            // Link bidang lain disembunyikan
+            ->assertDontSee('CMMS Pemeliharaan')
+            ->assertDontSee('E-K3 Safety');
+    }
+
+    public function test_staf_spv_locked_to_own_sub_department(): void
+    {
+        $user = $this->karyawanUser([
+            'level_jabatan' => 'staf_spv',
+            'department'    => 'operasi',
+            'sub_department' => 'asmen_prod_a',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('karyawan.link'));
+
+        $response->assertOk()
+            ->assertSee('Web Email PLN')
+            ->assertSee('SCADA Monitoring')
+            ->assertDontSee('CMMS Pemeliharaan')
+            ->assertDontSee('E-K3 Safety')
+            // Indikator terkunci pada sub-bidang sendiri
+            ->assertSee('terkunci');
+    }
+
+    public function test_administrator_sees_all_links_on_portal(): void
+    {
+        $user = $this->karyawanUser(['level_jabatan' => 'administrator']);
+
+        $this->actingAs($user)->get(route('karyawan.link'))
+            ->assertOk()
+            ->assertSee('SCADA Monitoring')
+            ->assertSee('SIM Administrasi');
+    }
+
+    public function test_header_shows_dynamic_jabatan_with_department(): void
+    {
+        // Staf/Asmen/Spv: "<Sub-Bidang> (<Bidang>)"
+        $user = $this->karyawanUser([
+            'level_jabatan' => 'staf_spv',
+            'department'    => 'operasi',
+            'sub_department' => 'asmen_prod_a',
+        ]);
+
+        $this->actingAs($user)->get(route('karyawan.dashboard'))
+            ->assertOk()
+            ->assertSee('Asisten Manager Prod A (Operasi)');
+
+        // Manager Bidang: "Manager Bidang (Operasi)"
+        $manager = $this->karyawanUser([
+            'level_jabatan' => 'manager_bidang',
+            'department'    => 'operasi',
+        ]);
+
+        $this->actingAs($manager)->get(route('karyawan.dashboard'))
+            ->assertOk()
+            ->assertSee('Manager Bidang (Operasi)');
+    }
+
+    public function test_layanan_filtered_by_hierarchy(): void
+    {
+        // Manager Bidang Operasi: layanan umum + milik bidang operasi;
+        // layanan bidang lain disembunyikan.
+        $user = $this->karyawanUser([
+            'level_jabatan' => 'manager_bidang',
+            'department'    => 'operasi',
+        ]);
+
+        $this->actingAs($user)->get(route('karyawan.layanan'))
+            ->assertOk()
+            ->assertSee('Pengajuan Cuti')
+            ->assertDontSee('Peminjaman APD');
+
+        // Detail layanan di luar scope → 404.
+        $this->actingAs($user)
+            ->get(route('karyawan.layanan.detail', 'peminjaman-apd'))
+            ->assertNotFound();
     }
 
     public function test_portal_link_data_has_five_umum_and_five_bidang(): void

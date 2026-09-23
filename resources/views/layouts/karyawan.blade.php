@@ -67,7 +67,7 @@
                     <span class="kry-avatar">{{ $karyawanUser['initials'] }}</span>
                     <span class="kry-user-meta">
                         <span class="kry-user-name">{{ $karyawanUser['name'] }}</span>
-                        <span class="kry-user-role">{{ $karyawanUser['role'] }}</span>
+                        <span class="kry-user-role">{{ $karyawanUser['jabatan'] }}</span>
                     </span>
                 </a>
 

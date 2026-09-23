@@ -7,6 +7,7 @@ use App\Models\ContactMessage;
 use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

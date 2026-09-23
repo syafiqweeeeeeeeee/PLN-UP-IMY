@@ -219,6 +219,9 @@ class ActivityLogTest extends TestCase
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'role_id'  => $role->id,
+            'level_jabatan' => 'staf_spv',
+            'department'    => 'operasi',
+            'sub_department' => 'spv_chcb_a',
         ]);
 
         $this->assertTrue(collect($this->allLines())->contains(fn ($l) =>

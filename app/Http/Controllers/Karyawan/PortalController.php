@@ -20,16 +20,20 @@ class PortalController extends Controller
 {
     /**
      * Dashboard portal: ringkasan pengumuman, layanan, dan link kerja.
+     * Semua data ter-scope sesuai Hirarki Organisasi user yang login
+     * (level jabatan / bidang / sub-bidang).
      */
     public function dashboard(): View
     {
+        $user = auth()->user();
+
         return view('karyawan.dashboard', [
-            'user'             => auth()->user(),
+            'user'             => $user,
             'announcements'    => $this->publishedAnnouncements(3),
             'news'             => $this->publishedNews(3),
             'totalInformasi'   => $this->publishedAnnouncements()->count() + $this->publishedNews()->count(),
-            'internalServices' => PortalContentService::internalServices(),
-            'workLinks'        => PortalContentService::workLinks(),
+            'internalServices' => PortalContentService::internalServicesFor($user),
+            'workLinks'        => PortalContentService::workLinksFor($user),
             'linkFilters'      => PortalContentService::linkFilters(),
         ]);
     }
@@ -82,12 +86,12 @@ class PortalController extends Controller
     }
 
     /**
-     * Tab Layanan: grid layanan internal (view only).
+     * Tab Layanan: grid layanan internal (view only), ter-scope hierarki user.
      */
     public function layanan(): View
     {
         return view('karyawan.layanan', [
-            'services' => PortalContentService::internalServices(),
+            'services' => PortalContentService::internalServicesFor(auth()->user()),
         ]);
     }
 
@@ -96,26 +100,36 @@ class PortalController extends Controller
      */
     public function layananDetail(string $slug): View
     {
-        $service = PortalContentService::internalService($slug);
+        $user    = auth()->user();
+        $service = collect(PortalContentService::internalServicesFor($user))
+            ->firstWhere('slug', $slug);
 
+        // Layanan di luar scope hierarki user → 404.
         abort_if($service === null, 404);
 
         return view('karyawan.layanan_detail', [
             'service' => $service,
-            'others'  => collect(PortalContentService::internalServices())
+            'others'  => collect(PortalContentService::internalServicesFor($user))
                 ->reject(fn ($s) => $s['slug'] === $slug)
                 ->values(),
         ]);
     }
 
     /**
-     * Tab Link: direktori 10 tautan alat kerja + filter kategori.
+     * Tab Link: direktori tautan alat kerja + filter kategori.
+     * Link ter-filter sesuai Hirarki Organisasi user; filter UI
+     * (tabs) di-layout sesuai level: Manager/Senior Manager dapat
+     * beralih antar sub-bidang, Staf/Asmen terkunci di bagiannya.
      */
     public function link(): View
     {
+        $user = auth()->user();
+
         return view('karyawan.link', [
-            'links'   => PortalContentService::workLinks(),
-            'filters' => PortalContentService::linkFilters(),
+            'links'      => PortalContentService::workLinksFor($user),
+            'filters'    => PortalContentService::linkFiltersFor($user),
+            'linkAccess' => PortalContentService::linkAccessFor($user),
+            'authUser'   => $user,
         ]);
     }
 

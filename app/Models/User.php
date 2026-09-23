@@ -14,15 +14,90 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    /** Level Jabatan (Role Utama) — Hirarki Organisasi. */
+    public const LEVEL_JABATAN = [
+        'administrator' => 'Administrator',
+        'senior_manager' => 'Senior Manager',
+        'manager_bidang' => 'Manager Bidang',
+        'staf_spv'      => 'Supervisor / Asisten Manager / Staf',
+    ];
+
+    /** Bidang Utama (Department) — Hirarki Organisasi. */
+    public const DEPARTMENTS = [
+        'operasi'          => 'Operasi',
+        'pemeliharaan'     => 'Pemeliharaan',
+        'engineering'      => 'Engineering',
+        'business_support' => 'Business Support',
+        'k3_kam'           => 'K3 & KAM',
+        'lingkungan'       => 'Lingkungan',
+    ];
+
+    /**
+     * Sub-Bidang / Bagian sampel per Bidang Utama (tahap awal: Bidang Operasi).
+     * Struktur: ['kode_department' => ['kode_sub' => 'Label', ...]].
+     */
+    public const SUB_DEPARTMENTS = [
+        'operasi' => [
+            'asmen_prod_a'    => 'Asisten Manager Prod A',
+            'asmen_prod_b'    => 'Asisten Manager Prod B',
+            'asmen_prod_c'    => 'Asisten Manager Prod C',
+            'asmen_prod_d'    => 'Asisten Manager Prod D',
+            'spv_chcb_a'      => 'Supervisor CHCB A',
+            'spv_chcb_b'      => 'Supervisor CHCB B',
+            'spv_chcb_c'      => 'Supervisor CHCB C',
+            'spv_chcb_d'      => 'Supervisor CHCB D',
+            'asmen_renops'    => 'Asisten Manager RenOps',
+            'asmen_niaga_bb'  => 'Asisten Manager Niaga BB',
+            'asmen_kimia_lab' => 'Asisten Manager Kimia & Lab',
+        ],
+    ];
+
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
         'role_id',
+        'level_jabatan',
+        'department',
+        'sub_department',
         'no_hp',
         'alamat',
     ];
+
+    /**
+     * Apakah level jabatan ini mewajibkan pemilihan Sub-Bidang?
+     * Staf / Asisten Manager / Supervisor wajib menentukan bagian spesifiknya.
+     * Null (belum diisi / akun lama) → tidak wajib.
+     */
+    public static function subDepartmentRequired(?string $level): bool
+    {
+        return $level === 'staf_spv';
+    }
+
+    /**
+     * Apakah level jabatan ini berhak akses global (tanpa Bidang Utama)?
+     * Senior Manager & Administrator: akses lintas bidang.
+     * Null (belum diisi / akun lama) → bukan global.
+     */
+    public static function isGlobalLevel(?string $level): bool
+    {
+        return in_array($level, ['senior_manager', 'administrator'], true);
+    }
+
+    /**
+     * Label Sub-Bidang dari pasangan kode department & sub_department
+     * (mis. "operasi", "spv_chcb_b" → "Supervisor CHCB B"). Statis agar
+     * bisa dipakai dengan maupun tanpa instance model.
+     */
+    public static function subDepartmentLabel(?string $department, ?string $subDepartment): ?string
+    {
+        if ($department === null || $subDepartment === null) {
+            return null;
+        }
+
+        return static::SUB_DEPARTMENTS[$department][$subDepartment] ?? null;
+    }
 
     protected $hidden = [
         'password',
@@ -35,6 +110,14 @@ class User extends Authenticatable
         'created_at'        => 'datetime',
         'updated_at'        => 'datetime',
     ];
+
+    /**
+     * Kode department yang sudah punya daftar sub-bidang (tahap awal: operasi).
+     */
+    public static function departmentsWithSubs(): array
+    {
+        return array_keys(static::SUB_DEPARTMENTS);
+    }
 
     public function role(): BelongsTo
     {

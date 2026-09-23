@@ -2,11 +2,16 @@
 
 namespace App\Http\View\Composers;
 
+use App\Models\User;
 use Illuminate\View\View;
 
 /**
- * Data header Portal Karyawan: nama karyawan yang login, role,
- * dan inisial avatar (maks 2 huruf) — pola sama dengan TopbarComposer.
+ * Data header Portal Karyawan: nama karyawan yang login, jabatan/bidang
+ * (Hirarki Organisasi), dan inisial avatar (maks 2 huruf) — pola sama
+ * dengan TopbarComposer.
+ *
+ * Contoh tampilan jabatan: "Asisten Manager Prod A (Operasi)" —
+ * kombinasi Sub-Bidang + Bidang Utama dari data form Pengguna.
  */
 class KaryawanLayoutComposer
 {
@@ -18,8 +23,37 @@ class KaryawanLayoutComposer
             'name'     => $user?->name ?? 'Karyawan',
             'email'    => $user?->email ?? '',
             'role'     => $user?->role ?? 'Karyawan',
+            'jabatan'  => self::jabatanLabel($user),
             'initials' => $this->initials($user?->name ?? '?'),
         ]);
+    }
+
+    /**
+     * Label jabatan dinamis untuk header & profil:
+     * - Sub-bidang terisi → "Asisten Manager Prod A (Operasi)".
+     * - Hanya bidang      → "Manager Bidang (Operasi)".
+     * - Senior Manager    → "Senior Manager" (akses global).
+     * - Tanpa data        → fallback kolom role / "Karyawan".
+     */
+    public static function jabatanLabel(?User $user): string
+    {
+        if ($user === null) {
+            return 'Karyawan';
+        }
+
+        $levelLabel = User::LEVEL_JABATAN[$user->level_jabatan] ?? null;
+        $deptLabel  = User::DEPARTMENTS[$user->department] ?? null;
+        $subLabel   = User::subDepartmentLabel($user->department, $user->sub_department);
+
+        if ($subLabel !== null) {
+            return $deptLabel !== null ? "{$subLabel} ({$deptLabel})" : $subLabel;
+        }
+
+        if ($levelLabel !== null) {
+            return $deptLabel !== null ? "{$levelLabel} ({$deptLabel})" : $levelLabel;
+        }
+
+        return $user->role ?? 'Karyawan';
     }
 
     /**
