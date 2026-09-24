@@ -72,14 +72,14 @@
                                 @endif
                                 <span @if (!empty($item['i18n'])) data-i18n="{{ $item['i18n'] }}" @endif>{{ $item['label'] }}</span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-dark">
+                            <ul class="dropdown-menu">
                                 @foreach ($item['children'] as $child)
                                     <li>
-                                        <a class="dropdown-item {{ $isActiveUrl($child['url'] ?? null) ? 'active' : '' }}" href="{{ $child['url'] }}" @if (!empty($child['target'])) target="{{ $child['target'] }}" rel="noopener" @endif @if (!empty($child['i18n'])) data-i18n="{{ $child['i18n'] }}" @endif>
+                                        <a class="dropdown-item {{ $isActiveUrl($child['url'] ?? null) ? 'active' : '' }}" href="{{ $child['url'] }}" @if (!empty($child['target'])) target="{{ $child['target'] }}" rel="noopener" @endif>
                                             @if ($child['icon'])
                                                 <i class="fas {{ $child['icon'] }} me-1"></i>
                                             @endif
-                                            {{ $child['label'] }}
+                                            <span @if (!empty($child['i18n'])) data-i18n="{{ $child['i18n'] }}" @endif>{{ $child['label'] }}</span>
                                         </a>
                                     </li>
                                 @endforeach

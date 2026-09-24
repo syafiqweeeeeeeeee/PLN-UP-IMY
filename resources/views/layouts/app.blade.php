@@ -184,11 +184,6 @@
                 border-top-color: var(--pln-yellow);
             }
 
-            .navbar-pln .dropdown-menu .dropdown-item.active {
-                color: var(--pln-yellow);
-                background: rgba(255, 230, 0, 0.10);
-            }
-
             .navbar-pln .navbar-toggler {
                 border: 2px solid rgba(255, 255, 255, 0.5);
                 padding: 0.3rem 0.6rem;
@@ -199,13 +194,15 @@
             }
 
             .navbar-pln .dropdown-menu {
-                background: var(--pln-dark);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 10px;
-                padding: 0.5rem 0;
-                margin-top: 0.5rem;
-                min-width: 200px;
-                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+                /* Toska gelap selaras navbar (#008fa8) — satu keluarga warna,
+                   bukan navy gelap, agar header & dropdown terasa menyatu. */
+                background: linear-gradient(180deg, #007790 0%, #00566b 100%);
+                border: 1px solid rgba(255, 255, 255, 0.14);
+                border-radius: 12px;
+                padding: 0.45rem;
+                margin-top: 0.6rem !important;
+                min-width: 230px;
+                box-shadow: 0 14px 34px rgba(0, 60, 75, 0.35);
                 animation: dropdownFade 0.2s ease;
                 z-index: 1055;
             }
@@ -216,16 +213,30 @@
             }
 
             .navbar-pln .dropdown-menu .dropdown-item {
-                color: rgba(255, 255, 255, 0.75);
+                color: rgba(255, 255, 255, 0.92);
                 font-size: 0.85rem;
-                padding: 0.45rem 1.25rem;
+                font-weight: 500;
+                padding: 0.55rem 1rem;
+                border-radius: 8px;
                 transition: all 0.2s ease;
             }
 
             .navbar-pln .dropdown-menu .dropdown-item:hover {
                 color: #fff;
-                background: rgba(255, 230, 0, 0.1);
-                padding-left: 1.5rem;
+                background: rgba(255, 255, 255, 0.1);
+                padding-left: 1.15rem;
+            }
+
+            /* Item aktif: teks kuning PLN + latar lembut — konsisten dengan
+               penanda menu aktif di navbar (underline kuning). */
+            .navbar-pln .dropdown-menu .dropdown-item.active {
+                color: var(--pln-yellow);
+                background: rgba(255, 230, 0, 0.12);
+                font-weight: 600;
+            }
+
+            .navbar-pln .dropdown-menu .dropdown-item i {
+                opacity: 0.85;
             }
 
             .btn-login {
@@ -482,12 +493,15 @@
                 padding: 2rem 1.5rem;
                 text-align: center;
                 box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-                transition: all 0.3s ease;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                /* Tinggi card seragam satu baris (dipadukan class h-100 di view) */
+                height: 100%;
             }
 
+            /* Hover halus: terangkat sedikit + shadow lembut toska */
             .menu-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 8px 24px rgba(0, 143, 168, 0.15);
+                transform: translateY(-6px);
+                box-shadow: 0 14px 30px rgba(0, 60, 75, 0.18);
             }
 
             .footer-pln {
@@ -499,6 +513,18 @@
             .footer-pln h6 { color: #fff; font-weight: 600; margin-bottom: 1rem; font-size: 0.95rem; }
             .footer-pln p, .footer-pln a { color: rgba(255, 255, 255, 0.7); font-size: 0.88rem; line-height: 1.8; }
             .footer-pln a:hover { color: var(--pln-yellow); }
+
+            /* Kolom "Hubungi Kami": jarak antar baris kontak yang seragam
+               (alamat, telepon, email) agar tetap rapi & seimbang. */
+            .footer-pln .footer-contact li + li { margin-top: 0.65rem; }
+
+            .footer-pln .footer-contact a {
+                display: flex;
+                align-items: flex-start;
+            }
+
+            /* Ikon sejajar dengan baris pertama teks (untuk alamat yang panjang) */
+            .footer-pln .footer-contact a i { margin-top: 0.3rem; }
 
             .footer-pln .footer-bottom {
                 border-top: 1px solid rgba(255, 255, 255, 0.15);

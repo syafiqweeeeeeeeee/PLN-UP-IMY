@@ -86,7 +86,7 @@
             {{-- Hubungi Kami --}}
             <div class="col-lg-3 col-md-4">
                 <h6 data-i18n="footer.contact">Hubungi Kami</h6>
-                <ul class="list-unstyled footer-links">
+                <ul class="list-unstyled footer-links footer-contact">
                     <li>
                         <a href="https://maps.app.goo.gl/aaiYc4iGye87N4gd7"
                            target="_blank"
@@ -113,10 +113,6 @@
                             <i class="fas fa-envelope me-2" style="color: var(--pln-cyan)"></i>
                             <span data-i18n="footer.email">upid@plnnusantarapower.co.id</span>
                         </a>
-                    </li>
-                    <li>
-                        <i class="fas fa-clock me-2" style="color: var(--pln-cyan)"></i>
-                        <span data-i18n="footer.hours">Senin – Jumat (08.00 – 16.00 WIB)</span>
                     </li>
                 </ul>
             </div>

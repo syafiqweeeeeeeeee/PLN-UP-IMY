@@ -341,6 +341,9 @@
         font-size: 1.35rem;
         margin: 0 auto 1rem;
         color: #fff;
+        /* Warna ikon SERAGAM untuk semua card layanan: gradient toska PLN
+           (dipindah dari inline style agar ketiga card konsisten satu CSS). */
+        background: linear-gradient(135deg, var(--pln-blue), var(--pln-cyan));
     }
 
     .menu-card h5 { font-weight: 600; font-size: 0.95rem; color: var(--pln-blue); margin-bottom: 0.4rem; }
@@ -545,10 +548,12 @@
             </p>
         </div>
 
-        <div class="row g-4">
-            <div class="col-lg-3 col-md-6">
-                <a href="{{ route('informasi.layanan') }}" class="menu-card d-block text-decoration-none">
-                    <div class="icon-circle" style="background: linear-gradient(135deg, var(--pln-blue), var(--pln-cyan))">
+        {{-- justify-content-center: baris 3 card (col-md-6 col-lg-4) dipusatkan
+             persis di tengah — tanpa ruang kosong menumpuk di kanan. --}}
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4 col-md-6">
+                <a href="{{ route('informasi.layanan') }}" class="menu-card d-block text-decoration-none h-100">
+                    <div class="icon-circle">
                         <i class="fas fa-circle-info"></i>
                     </div>
                     <h5 data-i18n="services.menu1_title">Informasi Layanan</h5>
@@ -556,9 +561,9 @@
                 </a>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <a href="{{ route('berita') }}" class="menu-card d-block text-decoration-none">
-                    <div class="icon-circle" style="background: linear-gradient(135deg, var(--pln-cyan), var(--pln-blue))">
+            <div class="col-lg-4 col-md-6">
+                <a href="{{ route('berita') }}" class="menu-card d-block text-decoration-none h-100">
+                    <div class="icon-circle">
                         <i class="fas fa-newspaper"></i>
                     </div>
                     <h5 data-i18n="services.menu2_title">Berita</h5>
@@ -566,9 +571,9 @@
                 </a>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <a href="{{ route('layanan.faq') }}" class="menu-card d-block text-decoration-none">
-                    <div class="icon-circle" style="background: linear-gradient(135deg, var(--pln-red), #ff5555)">
+            <div class="col-lg-4 col-md-6">
+                <a href="{{ route('layanan.faq') }}" class="menu-card d-block text-decoration-none h-100">
+                    <div class="icon-circle">
                         <i class="fas fa-circle-question"></i>
                     </div>
                     <h5 data-i18n="services.menu4_title">FAQ</h5>

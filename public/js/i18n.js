@@ -103,7 +103,6 @@
             'footer.label_email': 'Email Resmi',
             'footer.email': 'upid@plnnusantarapower.co.id',
             'footer.label_hours': 'Jam Layanan',
-            'footer.hours': 'Senin – Jumat (08.00 – 16.00 WIB)',
             'footer.copyright': '© 2026 PT PLN Nusantara Power UP PLTU Indramayu — Hak Cipta Dilindungi.',
 
             /* ---------- HALAMAN SEJARAH ---------- */
@@ -330,7 +329,6 @@
             'footer.label_email': 'Official Email',
             'footer.email': 'upid@plnnusantarapower.co.id',
             'footer.label_hours': 'Service Hours',
-            'footer.hours': 'Monday \u2013 Friday (08.00 \u2013 16.00 WIB)',
             'footer.copyright': '\u00a9 2026 PT PLN Nusantara Power UP PLTU Indramayu \u2014 All Rights Reserved.',
 
             /* ---------- SEJARAH PAGE ---------- */

@@ -311,6 +311,7 @@ class MenuController extends Controller
             'informasi.layanan'     => 'Informasi Layanan',
             'galeri'                => 'Galeri',
             'layanan.faq'           => 'FAQ Layanan',
+            'layanan.registrasi-tamu' => 'Form Registrasi Tamu',
             'pages.index'           => 'Semua Halaman CMS',
         ];
 
