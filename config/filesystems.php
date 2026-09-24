@@ -38,6 +38,23 @@ return [
             'report' => false,
         ],
 
+        /*
+        |--------------------------------------------------------------
+        | Disk privat — dokumen sensitif (foto KTP, surat permohonan)
+        | TIDAK bisa diakses via URL publik /storage. File hanya
+        | disajikan lewat controller ber-auth (TamuDocumentController)
+        | dengan pengecekan permission, mis. admin.tamu.ktp.
+        |--------------------------------------------------------------
+        */
+        'private' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/documents'),
+            'serve' => true,
+            'throw' => false,
+            'report' => false,
+            'visibility' => 'private',
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

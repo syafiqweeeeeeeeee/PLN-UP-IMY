@@ -171,9 +171,15 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         Route::middleware('permission:tamu.view')->group(function () {
             Route::get('tamu', [\App\Http\Controllers\Admin\TamuController::class, 'index'])->name('tamu.index');
             Route::get('tamu/export', [\App\Http\Controllers\Admin\TamuController::class, 'export'])->name('tamu.export');
+
+            // Dokumen privat tamu (KTP & surat) — disajikan dari disk private,
+            // tidak bisa diakses via /storage. Wajib auth + tamu.view.
+            Route::get('tamu/{tamu}/ktp', [\App\Http\Controllers\TamuDocumentController::class, 'ktp'])->name('tamu.ktp');
+            Route::get('tamu/{tamu}/surat', [\App\Http\Controllers\TamuDocumentController::class, 'surat'])->name('tamu.surat');
         });
         Route::middleware('permission:tamu.create')->group(function () {
             Route::post('tamu', [\App\Http\Controllers\Admin\TamuController::class, 'store'])->name('tamu.store');
+            Route::put('tamu/{tamu}', [\App\Http\Controllers\Admin\TamuController::class, 'update'])->name('tamu.update');
         });
         Route::middleware('permission:tamu.checkout')->group(function () {
             Route::patch('tamu/{tamu}/checkout', [\App\Http\Controllers\Admin\TamuController::class, 'checkout'])->name('tamu.checkout');

@@ -9,7 +9,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Migrasi satu arah: tabel activity_logs → file JSONL harian
+ * Migrasi satu ajadirah: tabel activity_logs → file JSONL harian
  * (activity-YYYY-MM-DD.jsonl) sesuai created_at tiap baris, dengan
  * tetap menjaga batas maksimal baris per file (chunking otomatis).
  *

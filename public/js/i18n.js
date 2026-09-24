@@ -203,7 +203,48 @@
             'galeri.filter_dokumentasi': 'Dokumentasi',
             'galeri.filter_seremonial': 'Seremonial',
             'galeri.empty': 'Belum ada foto pada kategori ini.',
-            'galeri.count': '{n} foto ditampilkan'
+            'galeri.count': '{n} foto ditampilkan',
+
+            /* ---------- FORM REGISTRASI TAMU ---------- */
+            'form.title': 'Form Registrasi Tamu',
+            'form.subtitle': 'Silakan lengkapi data diri Anda untuk pendaftaran kunjungan.',
+            'form.section_identity': 'Data Diri',
+            'form.section_documents': 'Dokumen',
+            'form.section_visit': 'Detail Kunjungan',
+            'form.label_nik': 'NIK / No. KTP',
+            'form.label_nama': 'Nama Lengkap',
+            'form.label_instansi': 'Perusahaan / Instansi',
+            'form.label_nohp': 'No. WhatsApp / HP',
+            'form.label_email': 'Email',
+            'form.label_tujuan': 'Orang / Divisi yang Ditemui',
+            'form.label_tanggal': 'Tanggal & Jam Kunjungan',
+            'form.label_jumlah': 'Jumlah Tamu',
+            'form.label_keperluan': 'Maksud & Keperluan Kunjungan',
+            'form.ph_nik': 'Masukkan 16 digit NIK',
+            'form.ph_nama': 'Nama sesuai KTP',
+            'form.ph_instansi': 'Nama instansi asal',
+            'form.ph_nohp': '08xxxxxxxxxx',
+            'form.ph_email': 'nama@email.com',
+            'form.ph_tujuan': 'Nama orang / divisi tujuan',
+            'form.ph_keperluan': 'Jelaskan singkat maksud dan keperluan kunjungan Anda...',
+            'form.doc_ktp': 'Foto KTP',
+            'form.doc_ktp_hint': 'JPG / PNG, maks 2MB',
+            'form.doc_surat_divider': 'Surat Permohonan / Undangan (Opsional)',
+            'form.doc_surat_label': 'Upload Surat dari Perusahaan',
+            'form.doc_surat_hint': 'PDF, maks 5MB',
+            'form.dz_ktp_title': 'Klik untuk memilih foto KTP',
+            'form.dz_ktp_hint': 'atau seret & letakkan di sini',
+            'form.dz_surat_title': 'Klik untuk memilih file surat (PDF)',
+            'form.dz_surat_hint': 'Opsional — surat permohonan/undangan resmi dari perusahaan Anda',
+            'form.btn_hapus': 'Hapus',
+            'form.btn_ganti': 'Ganti',
+            'form.btn_submit': 'Daftar Sekarang',
+            'form.btn_note': 'Wajib diisi. Data Anda aman & hanya untuk keperluan registrasi.',
+            'form.footnote': 'Data Anda disimpan aman dan hanya digunakan untuk keperluan registrasi kunjungan.',
+            'form.error_heading': 'Periksa kembali isian berikut:',
+            'form.success_title': 'Data Anda Berhasil Dikirim!',
+            'form.success_text': 'Menunggu konfirmasi admin.<br>Silakan cek email / WhatsApp Anda untuk informasi selanjutnya.',
+            'form.btn_done': 'Selesai'
         },
 
         en: {
@@ -389,7 +430,48 @@
             'galeri.filter_dokumentasi': 'Documentation',
             'galeri.filter_seremonial': 'Ceremonial',
             'galeri.empty': 'No photos in this category yet.',
-            'galeri.count': '{n} photos shown'
+            'galeri.count': '{n} photos shown',
+
+            /* ---------- GUEST REGISTRATION FORM ---------- */
+            'form.title': 'Guest Registration Form',
+            'form.subtitle': 'Please complete your details to register your visit.',
+            'form.section_identity': 'Personal Data',
+            'form.section_documents': 'Documents',
+            'form.section_visit': 'Visit Details',
+            'form.label_nik': 'ID Number (NIK)',
+            'form.label_nama': 'Full Name',
+            'form.label_instansi': 'Company / Institution',
+            'form.label_nohp': 'WhatsApp / Phone Number',
+            'form.label_email': 'Email',
+            'form.label_tujuan': 'Person / Division to Meet',
+            'form.label_tanggal': 'Visit Date & Time',
+            'form.label_jumlah': 'Number of Guests',
+            'form.label_keperluan': 'Purpose of Visit',
+            'form.ph_nik': 'Enter your 16-digit NIK',
+            'form.ph_nama': 'Name as on ID card',
+            'form.ph_instansi': 'Your institution name',
+            'form.ph_nohp': '08xxxxxxxxxx',
+            'form.ph_email': 'name@email.com',
+            'form.ph_tujuan': 'Person / division to meet',
+            'form.ph_keperluan': 'Briefly describe the purpose of your visit...',
+            'form.doc_ktp': 'ID Card Photo',
+            'form.doc_ktp_hint': 'JPG / PNG, max 2MB',
+            'form.doc_surat_divider': 'Request / Invitation Letter (Optional)',
+            'form.doc_surat_label': 'Upload Letter from Your Company',
+            'form.doc_surat_hint': 'PDF, max 5MB',
+            'form.dz_ktp_title': 'Click to choose your ID card photo',
+            'form.dz_ktp_hint': 'or drag & drop it here',
+            'form.dz_surat_title': 'Click to choose a letter file (PDF)',
+            'form.dz_surat_hint': 'Optional — official request/invitation letter from your company',
+            'form.btn_hapus': 'Remove',
+            'form.btn_ganti': 'Replace',
+            'form.btn_submit': 'Register Now',
+            'form.btn_note': 'Required fields. Your data is safe & used only for registration.',
+            'form.footnote': 'Your data is stored securely and used only for visit registration purposes.',
+            'form.error_heading': 'Please review the following fields:',
+            'form.success_title': 'Your Data Has Been Sent!',
+            'form.success_text': 'Awaiting admin confirmation.<br>Please check your email / WhatsApp for further information.',
+            'form.btn_done': 'Done'
         }
     };
 
@@ -434,6 +516,15 @@
                    dalam terjemahan tetap terjaga. Karena dictionary dikontrol
                    oleh developer (bukan user input), ini aman dari XSS. */
                 el.innerHTML = text;
+            }
+        });
+
+        /* Placeholder input/textarea (key di data-i18n-placeholder) */
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+            const key = el.getAttribute('data-i18n-placeholder');
+            const text = getTranslation(lang, key);
+            if (text !== null) {
+                el.setAttribute('placeholder', text);
             }
         });
 

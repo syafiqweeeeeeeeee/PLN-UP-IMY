@@ -117,7 +117,7 @@ class AdminTamuTest extends TestCase
 
     public function test_store_accepts_optional_ktp_upload(): void
     {
-        Storage::fake('public');
+        Storage::fake('private');
         $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
 
         $this->actingAs($admin)
@@ -127,7 +127,7 @@ class AdminTamuTest extends TestCase
             ->assertRedirect(route('admin.tamu.index'));
 
         $tamu = Tamu::where('nik', '3201999000000001')->first();
-        Storage::disk('public')->assertExists($tamu->foto_ktp);
+        Storage::disk('private')->assertExists($tamu->foto_ktp);
     }
 
     public function test_store_requires_tamu_create_permission(): void
@@ -185,10 +185,10 @@ class AdminTamuTest extends TestCase
 
     public function test_destroy_deletes_tamu_and_ktp_file(): void
     {
-        Storage::fake('public');
+        Storage::fake('private');
         $admin = $this->adminWithPermissions(['tamu.view', 'tamu.delete']);
         $tamu = $this->createTamu();
-        Storage::disk('public')->put($tamu->foto_ktp, 'dummy');
+        Storage::disk('private')->put($tamu->foto_ktp, 'dummy');
 
         $this->actingAs($admin)
             ->delete(route('admin.tamu.destroy', $tamu))
@@ -196,7 +196,7 @@ class AdminTamuTest extends TestCase
             ->assertSessionHas('success');
 
         $this->assertDatabaseMissing('tamus', ['id' => $tamu->id]);
-        Storage::disk('public')->assertMissing($tamu->foto_ktp);
+        Storage::disk('private')->assertMissing($tamu->foto_ktp);
     }
 
     public function test_destroy_requires_tamu_delete_permission(): void
@@ -270,5 +270,73 @@ class AdminTamuTest extends TestCase
         $content = $response->streamedContent();
         $this->assertStringContainsString('Budi Export', $content);
         $this->assertStringNotContainsString('Ani Tersembunyi', $content);
+    }
+
+    /* =========================================================
+       DOKUMEN PRIVAT (KTP & SURAT)
+       ========================================================= */
+
+    public function test_ktp_document_requires_login(): void
+    {
+        $tamu = $this->createTamu();
+
+        // Tamu tamu (belum login) tidak bisa mengakses foto KTP
+        $this->get(route('admin.tamu.ktp', $tamu))->assertRedirect(route('login'));
+    }
+
+    public function test_ktp_document_requires_tamu_view_permission(): void
+    {
+        // User login TANPA permission tamu.view → ditolak (403)
+        $user = User::factory()->create();
+        $tamu = $this->createTamu();
+
+        $this->actingAs($user)
+            ->get(route('admin.tamu.ktp', $tamu))
+            ->assertForbidden();
+    }
+
+    public function test_ktp_document_streams_file_for_authorized_admin(): void
+    {
+        Storage::fake('private');
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $tamu = $this->createTamu();
+        Storage::disk('private')->put($tamu->foto_ktp, 'fake-image-bytes');
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.tamu.ktp', $tamu))
+            ->assertOk();
+
+        $this->assertSame('fake-image-bytes', $response->streamedContent());
+    }
+
+    public function test_ktp_document_404_when_tamu_has_no_ktp(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $tamu = $this->createTamu(['foto_ktp' => null]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.tamu.ktp', $tamu))
+            ->assertNotFound();
+    }
+
+    public function test_surat_document_streams_for_authorized_admin(): void
+    {
+        Storage::fake('private');
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $tamu = $this->createTamu(['surat_jalan' => 'surat/abc.pdf']);
+        Storage::disk('private')->put($tamu->surat_jalan, '%PDF-fake');
+
+        $this->actingAs($admin)
+            ->get(route('admin.tamu.surat', $tamu))
+            ->assertOk();
+    }
+
+    public function test_ktp_url_points_to_private_route_not_public_storage(): void
+    {
+        $tamu = $this->createTamu();
+
+        // URL tidak boleh lagi mengarah ke /storage (publik)
+        $this->assertStringNotContainsString('/storage/', $tamu->foto_ktp_url);
+        $this->assertStringContainsString('/ktp', $tamu->foto_ktp_url);
     }
 }

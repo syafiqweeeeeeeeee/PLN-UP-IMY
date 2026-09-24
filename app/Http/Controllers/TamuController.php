@@ -34,9 +34,11 @@ class TamuController extends Controller
             ],
 
             'nama'           => ['required', 'string', 'max:150'],
-            'instansi'       => ['nullable', 'string', 'max:150'],
+            // Wajib: identitas perusahaan/instansi asal tamu
+            'instansi'       => ['required', 'string', 'max:150'],
             'no_hp'          => ['required', 'string', 'max:25', 'regex:/^[0-9+\-\s()]+$/'],
-            'email'          => ['nullable', 'email', 'max:150'],
+            // Wajib: untuk konfirmasi & komunikasi kunjungan
+            'email'          => ['required', 'email', 'max:150'],
 
             // Foto KTP: wajib, gambar jpg/png, maksimal 2MB (2048 kilobyte)
             'foto_ktp' => [
@@ -57,6 +59,15 @@ class TamuController extends Controller
                 'after_or_equal:today',
             ],
 
+            // Surat permohonan/undangan resmi dari perusahaan: opsional,
+            // namun bila diunggah harus PDF maks 5MB
+            'surat_jalan' => [
+                'nullable',
+                'file',
+                'mimes:pdf',
+                'max:5120',
+            ],
+
             'keperluan'      => ['required', 'string', 'max:2000'],
         ], [
             'nik.required'        => 'NIK / No. KTP wajib diisi.',
@@ -64,9 +75,13 @@ class TamuController extends Controller
             'nik.unique'          => 'NIK ini sudah terdaftar sebelumnya.',
             'nama.required'       => 'Nama lengkap wajib diisi.',
             'nama.max'            => 'Nama lengkap maksimal :max karakter.',
+            'instansi.required'   => 'Perusahaan / instansi wajib diisi.',
             'no_hp.required'      => 'No. WhatsApp / HP wajib diisi.',
             'no_hp.regex'         => 'Format No. WhatsApp / HP tidak valid.',
+            'email.required'      => 'Email wajib diisi.',
             'email.email'         => 'Format email tidak valid.',
+            'surat_jalan.mimes'    => 'File surat harus berformat PDF.',
+            'surat_jalan.max'      => 'Ukuran file surat maksimal :max kilobyte (5MB).',
             'foto_ktp.required'   => 'Foto KTP wajib diunggah.',
             'foto_ktp.image'      => 'File harus berupa gambar.',
             'foto_ktp.mimes'      => 'Foto KTP harus berformat JPG atau PNG.',
@@ -81,9 +96,17 @@ class TamuController extends Controller
         ]);
 
         /* =========================================================
-           2. SIMPAN FILE KTP ke storage/app/public/ktp
+           2. SIMPAN FILE KTP & SURAT ke DISK PRIVATE
+              (storage/app/private/documents — tidak bisa diakses
+              via URL publik /storage; disajikan lewat controller
+              ber-auth TamuDocumentController)
+              - KTP   -> ktp/   (gambar jpg/png)
+              - Surat -> surat/ (PDF, wajib)
            ========================================================= */
-        $path = $request->file('foto_ktp')->store('ktp', 'public');
+        $path      = $request->file('foto_ktp')->store('ktp', 'private');
+        $pathSurat = $request->hasFile('surat_jalan')
+            ? $request->file('surat_jalan')->store('surat', 'private')
+            : null;
 
         /* =========================================================
            3. INSERT DATA
@@ -91,10 +114,11 @@ class TamuController extends Controller
         Tamu::create([
             'nik'            => $validated['nik'],
             'nama'           => $validated['nama'],
-            'instansi'       => $validated['instansi'] ?? null,
+            'instansi'       => $validated['instansi'],
             'no_hp'          => $validated['no_hp'],
-            'email'          => $validated['email'] ?? null,
+            'email'          => $validated['email'],
             'foto_ktp'       => $path,
+            'surat_jalan'    => $pathSurat, // null bila tanpa surat
             'tujuan_ditemui' => $validated['tujuan_ditemui'],
             'jumlah_tamu'    => $validated['jumlah_tamu'],
             'tanggal_kunjungan' => $validated['tanggal_kunjungan'],

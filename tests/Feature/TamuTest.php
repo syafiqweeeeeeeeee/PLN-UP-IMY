@@ -25,6 +25,7 @@ class TamuTest extends TestCase
             'no_hp'          => '081234567890',
             'email'          => 'budi@majujaya.id',
             'foto_ktp'       => UploadedFile::fake()->image('ktp.png', 400, 250),
+            'surat_jalan'    => UploadedFile::fake()->create('surat.pdf', 500, 'application/pdf'),
             'tujuan_ditemui' => 'Divisi Humas',
             'jumlah_tamu'    => '2',
             'tanggal_kunjungan' => now()->addDay()->format('Y-m-d\TH:i'),
@@ -42,7 +43,8 @@ class TamuTest extends TestCase
             ->assertOk()
             ->assertSee('Form Registrasi Tamu')
             ->assertSee('NIK / No. KTP')
-            ->assertSee('Upload Foto KTP')
+            ->assertSee('Foto KTP')
+            ->assertSee('Surat Permohonan / Undangan (Opsional)')
             ->assertSee('Maksud &amp; Keperluan Kunjungan', false);
     }
 
@@ -52,7 +54,7 @@ class TamuTest extends TestCase
 
     public function test_store_creates_tamu_and_saves_ktp(): void
     {
-        Storage::fake('public');
+        Storage::fake('private');
 
         $response = $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload());
 
@@ -69,9 +71,54 @@ class TamuTest extends TestCase
             $tamu->tanggal_kunjungan->format('Y-m-d H:i')
         );
 
-        // File tersimpan di storage/app/public/ktp (fake)
-        Storage::disk('public')->assertExists($tamu->foto_ktp);
+        // File tersimpan di disk private (storage/app/private/documents/ktp)
+        Storage::disk('private')->assertExists($tamu->foto_ktp);
         $this->assertStringStartsWith('ktp/', $tamu->foto_ktp);
+
+        // Surat PDF juga tersimpan di disk private
+        Storage::disk('private')->assertExists($tamu->surat_jalan);
+        $this->assertStringStartsWith('surat/', $tamu->surat_jalan);
+    }
+
+    /* =========================================================
+       STORE — VALIDASI SURAT (PDF)
+       ========================================================= */
+
+    public function test_store_succeeds_without_surat_pdf(): void
+    {
+        Storage::fake('private');
+
+        // Surat kini opsional: tanpa surat pun pendaftaran tetap valid
+        $response = $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
+            'surat_jalan' => null,
+        ]));
+
+        $response->assertRedirect(route('layanan.registrasi-tamu'))
+            ->assertSessionHas('success');
+
+        $tamu = Tamu::where('nik', '3201123456780001')->first();
+        $this->assertNotNull($tamu);
+        $this->assertNull($tamu->surat_jalan);
+        Storage::disk('private')->assertExists($tamu->foto_ktp);
+    }
+
+    public function test_store_rejects_non_pdf_surat(): void
+    {
+        Storage::fake('private');
+
+        $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
+            'surat_jalan' => UploadedFile::fake()->create('surat.docx', 300,
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
+        ]))->assertSessionHasErrors(['surat_jalan']);
+    }
+
+    public function test_store_rejects_surat_over_5mb(): void
+    {
+        Storage::fake('private');
+
+        $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
+            'surat_jalan' => UploadedFile::fake()->create('surat.pdf', 5121, 'application/pdf'),
+        ]))->assertSessionHasErrors(['surat_jalan']);
     }
 
     /* =========================================================
@@ -108,7 +155,7 @@ class TamuTest extends TestCase
 
     public function test_store_rejects_ktp_over_2mb(): void
     {
-        Storage::fake('public');
+        Storage::fake('private');
 
         $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
             'foto_ktp' => UploadedFile::fake()->create('ktp.png', 2049, 'image/png'),
@@ -117,7 +164,7 @@ class TamuTest extends TestCase
 
     public function test_store_rejects_non_image_ktp(): void
     {
-        Storage::fake('public');
+        Storage::fake('private');
 
         $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
             'foto_ktp' => UploadedFile::fake()->create('ktp.pdf', 500, 'application/pdf'),

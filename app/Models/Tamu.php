@@ -22,6 +22,7 @@ class Tamu extends Model
         'no_hp',
         'email',
         'foto_ktp',
+        'surat_jalan',
         'tujuan_ditemui',
         'jumlah_tamu',
         'tanggal_kunjungan',
@@ -38,11 +39,77 @@ class Tamu extends Model
     ];
 
     /**
-     * URL publik foto KTP (disk 'public').
+     * URL foto KTP — disajikan lewat route PRIVAT (admin.tamu.ktp)
+     * yang meng-stream file dari disk private.
+     *
+     * Route berada di grup middleware auth + permission:tamu.view,
+     * sehingga foto KTP tidak bisa diakses publik via /storage.
+     * Relatif agar valid di host/port mana pun.
      */
     public function getFotoKtpUrlAttribute(): string
     {
-        return Storage::disk('public')->url($this->foto_ktp);
+        return route('admin.tamu.ktp', $this);
+    }
+
+    /**
+     * URL surat permohonan PDF — juga lewat route privat (admin.tamu.surat).
+     * Null bila tamu tidak memiliki lampiran surat.
+     */
+    public function getSuratJalanUrlAttribute(): ?string
+    {
+        if (! $this->surat_jalan) {
+            return null;
+        }
+
+        return route('admin.tamu.surat', $this);
+    }
+
+    /**
+     * Nomor HP dalam format internasional (awalan 08 -> 62)
+     * untuk link click-to-chat WhatsApp.
+     */
+    public function getWaNumberAttribute(): string
+    {
+        $digits = preg_replace('/\D/', '', (string) $this->no_hp);
+
+        // 0xxxxxxxxxx  -> 62xxxxxxxxxx
+        // 8xxxxxxxxxx  -> 62xxxxxxxxxx (user lupa mengetik 0)
+        // 62xxxxxxxxxx -> sudah benar
+        if (str_starts_with($digits, '0')) {
+            $digits = '62' . substr($digits, 1);
+        } elseif (str_starts_with($digits, '8')) {
+            $digits = '62' . $digits;
+        }
+
+        return $digits;
+    }
+
+    /**
+     * URL click-to-chat WhatsApp dengan template pesan konfirmasi
+     * kunjungan yang sudah terisi nama tamu.
+     */
+    public function getWaChatUrlAttribute(): string
+    {
+        $message = "Halo Bpk/Ibu {$this->nama}, terkait pendaftaran kunjungan "
+            . "Anda di PT PLN Nusantara Power UP PLTU Indramayu, "
+            . "kami ingin mengonfirmasi jadwal kunjungan Anda. Terima kasih.";
+
+        return 'https://wa.me/' . $this->wa_number . '?text=' . rawurlencode($message);
+    }
+
+    /**
+     * Link mailto dengan subjek email otomatis (konfirmasi kunjungan).
+     * Null bila tamu tidak mengisi email.
+     */
+    public function getMailtoUrlAttribute(): ?string
+    {
+        if (! $this->email) {
+            return null;
+        }
+
+        $subject = 'Konfirmasi Kunjungan Tamu - PLN Nusantara Power';
+
+        return 'mailto:' . $this->email . '?subject=' . rawurlencode($subject);
     }
 
     /**
