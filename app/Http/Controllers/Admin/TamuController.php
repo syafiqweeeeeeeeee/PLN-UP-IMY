@@ -112,9 +112,10 @@ class TamuController extends Controller
         $validated = $request->validate([
             'nik' => ['required', 'digits:16', 'unique:tamus,nik,' . $tamu->id],
             'nama' => ['required', 'string', 'max:150'],
-            'instansi' => ['nullable', 'string', 'max:150'],
+            // Selaras form registrasi publik: instansi & email wajib
+            'instansi' => ['required', 'string', 'max:150'],
             'no_hp' => ['required', 'string', 'max:25', 'regex:/^[0-9+\-\s()]+$/'],
-            'email' => ['nullable', 'email', 'max:150'],
+            'email' => ['required', 'email', 'max:150'],
             'foto_ktp' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'surat_jalan' => ['nullable', 'file', 'mimes:pdf', 'max:5120'],
             'tujuan_ditemui' => ['required', 'string', 'max:150'],

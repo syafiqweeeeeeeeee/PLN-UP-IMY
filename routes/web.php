@@ -256,6 +256,11 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         Route::get('/search', \App\Http\Controllers\Admin\AdminSearchController::class)
             ->name('search');
 
+        // Lonceng notifikasi topbar: poll JSON (dot & badge live) + tandai
+        // tamu sudah dilihat saat dropdown dibuka.
+        Route::get('/notifications/poll', [\App\Http\Controllers\Admin\NotificationController::class, 'poll'])->name('notifications.poll');
+        Route::post('/notifications/seen', [\App\Http\Controllers\Admin\NotificationController::class, 'seen'])->name('notifications.seen');
+
         // Halaman CMS (Page Management) — permission per aksi
         Route::middleware('permission:pages.view')->group(function () {
             Route::get('pages', [\App\Http\Controllers\Admin\PageController::class, 'index'])->name('pages.index');

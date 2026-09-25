@@ -169,9 +169,12 @@
         letter-spacing: 0.5px;
         border-bottom: 1px solid #eef2f7;
         white-space: nowrap;
+        background: #f9fafb;
     }
+    .tamu-table thead th.text-right { text-align: right; }
+    html.theme-dark .tamu-table thead th { background: var(--panel); border-color: var(--line); }
     .tamu-table tbody td {
-        padding: 0.85rem 1rem;
+        padding: 0.9rem 1rem;
         border-bottom: 1px solid #f3f4f6;
         vertical-align: middle;
         font-size: 0.84rem;
@@ -179,15 +182,52 @@
     }
     .tamu-table tbody tr:last-child td { border-bottom: none; }
     .tamu-table tbody tr { transition: background 0.15s ease; }
-    .tamu-table tbody tr:hover { background: #f8fafc; }
+
+    /* Baris genap diberi latar tipis (zebra) agar mudah dipindai */
+    .tamu-table tbody tr:nth-child(even) { background: #fafbfd; }
+    .tamu-table tbody tr:hover { background: #eff6ff; }
     html.theme-dark .tamu-table tbody td { color: var(--ink-body); border-color: var(--line); }
+    html.theme-dark .tamu-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
     html.theme-dark .tamu-table tbody tr:hover { background: var(--panel); }
 
-    .tamu-waktu { font-size: 0.8rem; white-space: nowrap; }
-    .tamu-waktu .jam { color: #9ca3af; font-size: 0.72rem; }
+    /* ===== Kolom Waktu Daftar: nomor + tanggal/jam bertumpuk ===== */
+    .tamu-waktu-row { display: flex; align-items: center; gap: 0.6rem; }
+    .tamu-no-badge {
+        min-width: 28px;
+        height: 28px;
+        padding: 0 6px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: 0.72rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    html.theme-dark .tamu-no-badge { background: var(--panel); color: var(--ink-muted); }
+    .tamu-waktu { font-size: 0.78rem; white-space: nowrap; line-height: 1.5; }
+    .tamu-waktu .tgl {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-weight: 600;
+        color: var(--pln-text);
+    }
+    .tamu-waktu .tgl i { color: #9ca3af; font-size: 0.68rem; width: 12px; text-align: center; }
+    .tamu-waktu .jam {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: #9ca3af;
+        font-size: 0.72rem;
+    }
+    .tamu-waktu .jam i { font-size: 0.66rem; width: 12px; text-align: center; }
+
     .tamu-nama { font-weight: 700; color: var(--pln-text); }
-    .tamu-nik  { font-size: 0.75rem; color: #9ca3af; font-family: monospace; }
-    .tamu-hp   { font-size: 0.75rem; color: #6b7280; }
+    .tamu-nik  { font-size: 0.74rem; color: #9ca3af; font-family: monospace; letter-spacing: 0.4px; }
+    .tamu-hp   { font-size: 0.75rem; color: #6b7280; margin-top: 0.1rem; }
 
     /* ===== Kontak langsung (click-to-chat / click-to-email) ===== */
     .wa-chat-link {
@@ -209,7 +249,10 @@
         color: #2563eb;
         font-size: 0.78rem;
         text-decoration: none;
-        word-break: break-all;
+        max-width: 170px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         transition: color 0.15s ease;
     }
     .mailto-link:hover { color: #1d4ed8; text-decoration: underline; }
@@ -226,7 +269,13 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    .tamu-instansi { font-size: 0.8rem; }
+    .tamu-instansi {
+        font-size: 0.8rem;
+        max-width: 170px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
     /* Thumbnail KTP */
     .ktp-thumb {
@@ -373,6 +422,60 @@
     }
     .tamu-modal-close:hover { background: #e2e8f0; color: #dc2626; }
     .tamu-modal-body { padding: 1.25rem; }
+
+    /* ===== Form sections dalam modal (selaras form registrasi publik) ===== */
+    .tamu-form-section-head {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1.1rem 0 0.9rem;
+        padding: 0.45rem 0.75rem;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+        border-radius: 10px;
+    }
+    .tamu-form-section-head:first-child { margin-top: 0; }
+    .tamu-form-section-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        background: var(--pln-blue);
+        color: #fff;
+        font-size: 0.68rem;
+    }
+    .tamu-form-section-title {
+        font-weight: 700;
+        font-size: 0.78rem;
+        color: var(--pln-text);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .edit-char-counter {
+        font-size: 0.7rem;
+        color: #9ca3af;
+        font-variant-numeric: tabular-nums;
+    }
+    .edit-required-note {
+        margin: 0;
+        font-size: 0.72rem;
+        color: #9ca3af;
+    }
+    .edit-file-selected {
+        margin-top: 0.4rem;
+        font-size: 0.72rem;
+        color: #2563eb;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        border-radius: 8px;
+        padding: 0.35rem 0.6rem;
+        word-break: break-all;
+    }
+
+    /* Utilitas toggle sembunyikan elemen (dipakai modal edit) */
+    .hidden { display: none !important; }
     .tamu-modal-body img.ktp-full {
         width: 100%;
         border-radius: 10px;
@@ -554,12 +657,17 @@
             @forelse ($tamus as $tamu)
             <tr>
                 <td class="tamu-waktu">
-                    <strong>{{ ($tamus->currentPage() - 1) * $tamus->perPage() + $loop->iteration }}</strong><br>
-                    <span class="jam">{{ $tamu->created_at->format('d M Y, H:i') }}</span>
+                    <div class="tamu-waktu-row">
+                        <span class="tamu-no-badge">{{ ($tamus->currentPage() - 1) * $tamus->perPage() + $loop->iteration }}</span>
+                        <div>
+                            <span class="tgl"><i class="fas fa-calendar-day"></i>{{ $tamu->created_at->translatedFormat('d M Y') }}</span><br>
+                            <span class="jam"><i class="fas fa-clock"></i>{{ $tamu->created_at->format('H:i') }}</span>
+                        </div>
+                    </div>
                 </td>
                 <td>
                     <div class="tamu-nama">{{ $tamu->nama }}</div>
-                    <div class="tamu-nik">{{ $tamu->nik }}</div>
+                    <div class="tamu-nik">NIK {{ $tamu->nik }}</div>
                     <div class="tamu-hp">
                         <a href="{{ $tamu->wa_chat_url }}" target="_blank" rel="noopener" class="wa-chat-link"
                            title="Chat WhatsApp ke {{ $tamu->no_hp }} (terbuka di tab baru)">
@@ -567,11 +675,11 @@
                         </a>
                     </div>
                 </td>
-                <td class="tamu-instansi">{{ $tamu->instansi ?? '—' }}</td>
+                <td class="tamu-instansi" title="{{ $tamu->instansi }}">{{ $tamu->instansi ?? '—' }}</td>
                 <td>
                     @if ($tamu->email)
                         <a href="{{ $tamu->mailto_url }}" class="mailto-link"
-                           title="Kirim email konfirmasi ke {{ $tamu->email }}">
+                           title="{{ $tamu->email }} — kirim email konfirmasi">
                             <i class="fas fa-envelope"></i> {{ $tamu->email }}
                         </a>
                     @else
@@ -811,76 +919,116 @@
             @csrf
             @method('PUT')
             <div class="tamu-modal-body">
+
+                {{-- ========== SEKSI 1: DATA DIRI (selaras form registrasi publik) ========== --}}
+                <div class="tamu-form-section-head">
+                    <span class="tamu-form-section-icon"><i class="fas fa-user"></i></span>
+                    <span class="tamu-form-section-title">Data Diri</span>
+                </div>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">NIK / No. KTP <span class="text-danger">*</span></label>
-                        <input type="text" name="nik" id="edit-nik" inputmode="numeric" maxlength="16" required
-                               class="form-control" placeholder="16 digit NIK" style="font-size:0.85rem;">
+                        <input type="text" name="nik" id="edit-nik" inputmode="numeric" maxlength="16" required autocomplete="off"
+                               class="form-control" placeholder="Masukkan 16 digit NIK" style="font-size:0.85rem;">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Nama Lengkap <span class="text-danger">*</span></label>
-                        <input type="text" name="nama" id="edit-nama" required class="form-control"
+                        <input type="text" name="nama" id="edit-nama" required autocomplete="name" class="form-control"
                                placeholder="Nama sesuai KTP" style="font-size:0.85rem;">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Perusahaan / Instansi</label>
-                        <input type="text" name="instansi" id="edit-instansi" class="form-control"
-                               placeholder="Opsional" style="font-size:0.85rem;">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Perusahaan / Instansi <span class="text-danger">*</span></label>
+                        <input type="text" name="instansi" id="edit-instansi" required autocomplete="organization" class="form-control"
+                               placeholder="Nama instansi asal" style="font-size:0.85rem;">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">No. WhatsApp / HP <span class="text-danger">*</span></label>
-                        <input type="tel" name="no_hp" id="edit-no_hp" required class="form-control"
+                        <input type="tel" name="no_hp" id="edit-no_hp" required autocomplete="tel" class="form-control"
                                placeholder="08xxxxxxxxxx" style="font-size:0.85rem;">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Email</label>
-                        <input type="email" name="email" id="edit-email" class="form-control"
-                               placeholder="Opsional" style="font-size:0.85rem;">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Email <span class="text-danger">*</span></label>
+                        <input type="email" name="email" id="edit-email" required autocomplete="email" class="form-control"
+                               placeholder="nama@email.com" style="font-size:0.85rem;">
                     </div>
+                </div>
+
+                {{-- ========== SEKSI 2: DOKUMEN (selaras form registrasi publik) ========== --}}
+                <div class="tamu-form-section-head">
+                    <span class="tamu-form-section-icon"><i class="fas fa-id-card"></i></span>
+                    <span class="tamu-form-section-title">Dokumen</span>
+                </div>
+                <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Ganti Foto KTP <small class="text-muted">(opsional)</small></label>
-                        <input type="file" name="foto_ktp" accept="image/jpeg,image/png" class="form-control" style="font-size:0.8rem;">
-                        <small class="text-muted" style="font-size:0.7rem;">Kosongkan jika tidak ingin mengganti foto.</small>
+                        <input type="file" name="foto_ktp" id="edit-foto_ktp" accept="image/jpeg,image/png" class="form-control" style="font-size:0.8rem;"
+                               onchange="showEditFileName(this, 'edit-ktp-filename')">
+                        <small class="text-muted" style="font-size:0.7rem;">JPG / PNG, maks 2MB — kosongkan jika tidak ingin mengganti.</small>
+                        <div id="edit-ktp-filename" class="edit-file-selected" style="display:none;"></div>
                         <div id="edit-ktp-preview" class="hidden mt-1">
                             <img src="" alt="KTP saat ini" class="ktp-thumb" style="width:72px;height:46px;">
                         </div>
                         <div id="edit-ktp-empty" class="hidden">
                             <small class="text-muted" style="font-size:0.7rem;"><i class="fas fa-image me-1"></i>Belum ada foto KTP.</small>
                         </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Ganti Surat Permohonan <small class="text-muted">(opsional)</small></label>
+                        <input type="file" name="surat_jalan" id="edit-surat_jalan" accept="application/pdf" class="form-control" style="font-size:0.8rem;"
+                               onchange="showEditFileName(this, 'edit-surat-filename')">
+                        <small class="text-muted" style="font-size:0.7rem;">PDF, maks 5MB — kosongkan jika tidak ingin mengganti.</small>
+                        <div id="edit-surat-filename" class="edit-file-selected" style="display:none;"></div>
                         <div id="edit-surat-link" class="hidden mt-1">
                             <a id="edit-surat-url" href="#" target="_blank" rel="noopener" style="font-size:0.75rem; color:#2563eb; text-decoration:none;">
                                 <i class="fas fa-file-pdf me-1" style="color:#dc2626;"></i>Lihat surat saat ini (PDF)
                             </a>
                         </div>
+                        <div id="edit-surat-empty" class="hidden">
+                            <small class="text-muted" style="font-size:0.7rem;"><i class="fas fa-file-circle-xmark me-1"></i>Belum ada surat permohonan.</small>
+                        </div>
                     </div>
-                    <div class="col-md-6">
+                </div>
+
+                {{-- ========== SEKSI 3: DETAIL KUNJUNGAN (selaras form registrasi publik) ========== --}}
+                <div class="tamu-form-section-head">
+                    <span class="tamu-form-section-icon"><i class="fas fa-calendar-check"></i></span>
+                    <span class="tamu-form-section-title">Detail Kunjungan</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Orang / Divisi yang Ditemui <span class="text-danger">*</span></label>
                         <input type="text" name="tujuan_ditemui" id="edit-tujuan_ditemui" required class="form-control"
-                               placeholder="Nama orang / divisi" style="font-size:0.85rem;">
+                               placeholder="Nama orang / divisi tujuan" style="font-size:0.85rem;">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-6">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Tanggal &amp; Jam Kunjungan <span class="text-danger">*</span></label>
+                        <input type="datetime-local" name="tanggal_kunjungan" id="edit-tanggal_kunjungan" required
+                               class="form-control" style="font-size:0.85rem;">
+                    </div>
+                    <div class="col-md-6">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jumlah Tamu <span class="text-danger">*</span></label>
                         <input type="number" name="jumlah_tamu" id="edit-jumlah_tamu" min="1" max="100" required
                                class="form-control" style="font-size:0.85rem;">
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Tanggal & Jam <span class="text-danger">*</span></label>
-                        <input type="datetime-local" name="tanggal_kunjungan" id="edit-tanggal_kunjungan" required
-                               class="form-control" style="font-size:0.85rem;">
-                    </div>
                     <div class="col-12">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Maksud & Keperluan <span class="text-danger">*</span></label>
-                        <textarea name="keperluan" id="edit-keperluan" rows="3" required maxlength="2000"
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label class="form-label" style="font-size:0.78rem; font-weight:600; margin-bottom:0;">Maksud &amp; Keperluan Kunjungan <span class="text-danger">*</span></label>
+                            <span class="edit-char-counter"><span id="edit-keperluan-count">0</span>/2000</span>
+                        </div>
+                        <textarea name="keperluan" id="edit-keperluan" rows="4" required maxlength="2000"
                                   class="form-control"
-                                  placeholder="Jelaskan singkat keperluan kunjungan..." style="font-size:0.85rem;"></textarea>
+                                  placeholder="Jelaskan singkat maksud dan keperluan kunjungan Anda..." style="font-size:0.85rem;"></textarea>
                     </div>
                 </div>
             </div>
-            <div class="tamu-modal-header" style="border-top:1px solid #eef2f7; border-bottom:none; justify-content:flex-end; gap:0.6rem;">
-                <button type="button" class="btn-corp btn-corp-soft" onclick="closeTamuModal('editModal')">Batal</button>
-                <button type="submit" class="btn-corp btn-corp-primary">
-                    <i class="fas fa-floppy-disk me-1"></i> Simpan Perubahan
-                </button>
+            <div class="tamu-modal-header" style="border-top:1px solid #eef2f7; border-bottom:none; justify-content:space-between; gap:0.6rem;">
+                <p class="edit-required-note"><span class="text-danger">*</span> Wajib diisi. Data disimpan aman hanya untuk keperluan registrasi kunjungan.</p>
+                <div style="display:flex; gap:0.6rem;">
+                    <button type="button" class="btn-corp btn-corp-soft" onclick="closeTamuModal('editModal')">Batal</button>
+                    <button type="submit" class="btn-corp btn-corp-primary">
+                        <i class="fas fa-floppy-disk me-1"></i> Simpan Perubahan
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -975,6 +1123,29 @@
     /* ===== Modal Edit (pop-up) ===== */
     const editUrlTemplate = '{{ route('admin.tamu.update', ['tamu' => ':id']) }}';
 
+    /* Tampilkan nama file yang baru dipilih pada modal edit (KTP/surat) */
+    function showEditFileName(input, targetId) {
+        const target = document.getElementById(targetId);
+        if (!target) return;
+        const file = input.files && input.files[0];
+        if (file) {
+            target.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+            target.style.display = 'block';
+        } else {
+            target.textContent = '';
+            target.style.display = 'none';
+        }
+    }
+
+    /* Penghitung karakter Maksud & Keperluan pada modal edit */
+    const editKeperluanInput = document.getElementById('edit-keperluan');
+    const editKeperluanCount = document.getElementById('edit-keperluan-count');
+    if (editKeperluanInput && editKeperluanCount) {
+        editKeperluanInput.addEventListener('input', function () {
+            editKeperluanCount.textContent = this.value.length;
+        });
+    }
+
     function openEditModal(t) {
         if (!t || !t.id) return;
 
@@ -991,10 +1162,15 @@
         document.getElementById('edit-jumlah_tamu').value = t.jumlah || 1;
         document.getElementById('edit-tanggal_kunjungan').value = t.tanggal_input || '';
         document.getElementById('edit-keperluan').value = t.keperluan || '';
+        if (editKeperluanCount) editKeperluanCount.textContent = (t.keperluan || '').length;
 
         /* Reset pilihan file agar tidak terbawa dari edit sebelumnya */
-        const fileInput = form.querySelector('input[type="file"]');
-        if (fileInput) fileInput.value = '';
+        const ktpInput = document.getElementById('edit-foto_ktp');
+        if (ktpInput) ktpInput.value = '';
+        const suratInput = document.getElementById('edit-surat_jalan');
+        if (suratInput) suratInput.value = '';
+        showEditFileName(ktpInput, 'edit-ktp-filename');
+        showEditFileName(suratInput, 'edit-surat-filename');
 
         /* Preview KTP saat ini */
         const prevWrap = document.getElementById('edit-ktp-preview');
@@ -1010,11 +1186,14 @@
 
         /* Link surat saat ini (PDF) */
         const suratWrap = document.getElementById('edit-surat-link');
+        const suratEmpty = document.getElementById('edit-surat-empty');
         if (t.surat) {
             document.getElementById('edit-surat-url').href = t.surat;
             suratWrap.classList.remove('hidden');
+            suratEmpty.classList.add('hidden');
         } else {
             suratWrap.classList.add('hidden');
+            suratEmpty.classList.remove('hidden');
         }
 
         openTamuModal('editModal');

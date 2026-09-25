@@ -2,18 +2,22 @@
 
 namespace App\Http\View\Composers;
 
-use Illuminate\Support\Facades\DB;
+use App\Services\NotificationService;
 use Illuminate\View\View;
 
 /**
  * Data topbar admin:
  * - $topbarUser: nama, email, role, inisial avatar, URL profil (user login asli).
- * - $topbarNotifs: notifikasi dinamis dari kondisi data (konten draft).
- *   Red dot hanya tampil bila ada notifikasi belum
- *   dibaca — bukan lagi hardcode.
+ * - $topbarNotifs: notifikasi dinamis dari NotificationService
+ *   (tamu baru = belum dibaca, konten draft). Red dot hanya tampil
+ *   bila ada notifikasi belum dibaca — bukan lagi hardcode.
  */
 class TopbarComposer
 {
+    public function __construct(protected NotificationService $notifications)
+    {
+    }
+
     public function compose(View $view): void
     {
         $user = auth()->user();
@@ -27,7 +31,7 @@ class TopbarComposer
         ];
 
         $view->with('topbarUser', $topbarUser);
-        $view->with('topbarNotifs', $this->notifications());
+        $view->with('topbarNotifs', $this->notifications->build());
     }
 
     /**
@@ -48,37 +52,5 @@ class TopbarComposer
         }
 
         return $initials;
-    }
-
-    /**
-     * Notifikasi dinamis dari kondisi data terkini.
-     *
-     * @return array{items: array<int, array{text: string, url: string, icon: string, tone: string, time: string, unread: bool}>, unread_count: int}
-     */
-    private function notifications(): array
-    {
-        $items = [];
-
-        // Draft gabungan berita + pengumuman + halaman
-        $draftNews          = DB::table('news')->where('is_published', false)->count();
-        $draftAnnouncements = DB::table('announcements')->where('is_published', false)->count();
-        $draftPages         = DB::table('pages')->where('status', 'draft')->count();
-        $totalDraft         = $draftNews + $draftAnnouncements + $draftPages;
-
-        if ($totalDraft > 0) {
-            $items[] = [
-                'text'   => $totalDraft . ' konten masih draft',
-                'url'    => route('admin.news.index'),
-                'icon'   => 'fas fa-clock',
-                'tone'   => 'amber',
-                'time'   => 'sekarang',
-                'unread' => false,
-            ];
-        }
-
-        return [
-            'items'        => $items,
-            'unread_count' => 0,
-        ];
     }
 }

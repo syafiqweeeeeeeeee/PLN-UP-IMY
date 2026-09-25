@@ -310,31 +310,31 @@
                         <i class="fas fa-moon"></i>
                     </button>
 
-                    {{-- NOTIFIKASI — dropdown dari data nyata (permohonan belum dibaca, draft) --}}
+                    {{-- NOTIFIKASI — dropdown dari data nyata (tamu baru belum dibaca, draft) --}}
                     <div class="topbar-dropdown-wrap">
                         <button class="topbar-icon-btn" id="notifBtn" title="Notifikasi" aria-label="Notifikasi"
                                 aria-haspopup="true" aria-expanded="false" data-dropdown-toggle="notifDropdown">
                             <i class="fas fa-bell"></i>
-                            @if (($topbarNotifs['unread_count'] ?? 0) > 0)
-                                <span class="notification-dot"></span>
-                            @endif
+                            <span class="notif-badge-btn" id="notifBadge" hidden>0</span>
                         </button>
                         <div class="topbar-dropdown" id="notifDropdown" role="menu" aria-label="Daftar notifikasi">
                             <div class="topbar-dropdown-head">Notifikasi</div>
-                            @forelse ($topbarNotifs['items'] as $notif)
-                                <a href="{{ $notif['url'] }}" class="topbar-dropdown-item {{ $notif['unread'] ? 'is-unread' : '' }}">
-                                    <span class="topbar-dropdown-icon {{ $notif['tone'] }}"><i class="{{ $notif['icon'] }}"></i></span>
-                                    <span class="topbar-dropdown-body">
-                                        <span class="topbar-dropdown-text">{{ $notif['text'] }}</span>
-                                        <span class="topbar-dropdown-time">{{ $notif['time'] }}</span>
-                                    </span>
-                                </a>
-                            @empty
-                                <div class="topbar-dropdown-empty">
-                                    <i class="fas fa-check-circle"></i>
-                                    <div>Tidak ada notifikasi</div>
-                                </div>
-                            @endforelse
+                            <div id="notifList">
+                                @forelse ($topbarNotifs['items'] as $notif)
+                                    <a href="{{ $notif['url'] }}" class="topbar-dropdown-item {{ $notif['unread'] ? 'is-unread' : '' }}">
+                                        <span class="topbar-dropdown-icon {{ $notif['tone'] }}"><i class="{{ $notif['icon'] }}"></i></span>
+                                        <span class="topbar-dropdown-body">
+                                            <span class="topbar-dropdown-text">{{ $notif['text'] }}</span>
+                                            <span class="topbar-dropdown-time">{{ $notif['time'] }}</span>
+                                        </span>
+                                    </a>
+                                @empty
+                                    <div class="topbar-dropdown-empty">
+                                        <i class="fas fa-check-circle"></i>
+                                        <div>Tidak ada notifikasi</div>
+                                    </div>
+                                @endforelse
+                            </div>
                         </div>
                     </div>
 
@@ -647,6 +647,142 @@
                     set: set,
                     isDark: function () { return document.documentElement.classList.contains('theme-dark'); }
                 };
+            })();
+        </script>
+
+        {{-- ============================================================
+             LONCENG NOTIFIKASI — polling tamu baru (badge angka saja)
+             ----------------------------------------------------------
+             - Poll tiap 30 detik ke admin/notifications/poll.
+             - Badge angka di lonceng = jumlah tamu belum dilihat
+               (1, 2, 3, ... — tanpa pop-up/toast).
+             - Membuka dropdown → daftar notifikasi TETAP tampil
+               (biar kelihatan notifikasinya apa).
+             - Menutup dropdown → baru tandai sudah dibaca (angka hilang).
+             ============================================================ --}}
+        <script>
+            (function () {
+                'use strict';
+
+                var POLL_URL  = '{{ route('admin.notifications.poll') }}';
+                var SEEN_URL  = '{{ route('admin.notifications.seen') }}';
+                var CSRF      = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                var INTERVAL  = 30000; // 30 detik
+                var lastKnownTamuId = {{ (int) ($topbarNotifs['latest_tamu_id'] ?? 0) }};
+                var seenTamuId      = {{ (int) ($topbarNotifs['seen_tamu_id'] ?? 0) }};
+                var timer = null;
+
+                function badgeEl()  { return document.getElementById('notifBadge'); }
+                function listEl()   { return document.getElementById('notifList'); }
+
+                function escapeHtml(str) {
+                    return String(str).replace(/[&<>"']/g, function (c) {
+                        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+                    });
+                }
+
+                function applyUnread(count) {
+                    var badge = badgeEl();
+                    if (badge) {
+                        badge.hidden = !(count > 0);
+                        badge.textContent = count > 99 ? '99+' : String(count);
+                    }
+                    var btn = document.getElementById('notifBtn');
+                    if (btn) btn.classList.toggle('has-unread', count > 0);
+                }
+
+                function renderItems(items) {
+                    var list = listEl();
+                    if (!list) return;
+
+                    if (!items.length) {
+                        list.innerHTML = '<div class="topbar-dropdown-empty">' +
+                            '<i class="fas fa-check-circle"></i><div>Tidak ada notifikasi</div></div>';
+                        return;
+                    }
+
+                    list.innerHTML = items.map(function (n) {
+                        return '<a href="' + n.url + '" class="topbar-dropdown-item ' + (n.unread ? 'is-unread' : '') + '">' +
+                            '<span class="topbar-dropdown-icon ' + escapeHtml(n.tone) + '"><i class="' + escapeHtml(n.icon) + '"></i></span>' +
+                            '<span class="topbar-dropdown-body">' +
+                                '<span class="topbar-dropdown-text">' + escapeHtml(n.text) + '</span>' +
+                                '<span class="topbar-dropdown-time">' + escapeHtml(n.time) + '</span>' +
+                            '</span>' +
+                        '</a>';
+                    }).join('');
+                }
+
+                function poll() {
+                    fetch(POLL_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(function (res) { return res.ok ? res.json() : null; })
+                        .then(function (data) {
+                            if (!data) return;
+
+                            applyUnread(data.unread_count || 0);
+                            renderItems(data.items || []);
+
+                            lastKnownTamuId = data.latest_tamu_id || 0;
+                            seenTamuId      = data.seen_tamu_id || 0;
+                        })
+                        .catch(function () { /* diam: poll berikutnya mencoba lagi */ });
+                }
+
+                function markSeen() {
+                    applyUnread(0);
+
+                    fetch(SEEN_URL, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': CSRF
+                        }
+                    }).catch(function () {});
+                }
+
+                /* Buka dropdown → segarkan daftar notifikasi (jangan dihapus
+                   dulu — admin harus tetap bisa melihat isinya) */
+                document.addEventListener('click', function (e) {
+                    var trigger = e.target.closest ? e.target.closest('#notifBtn') : null;
+                    if (!trigger) return;
+
+                    var dd = document.getElementById('notifDropdown');
+                    var willOpen = dd && !dd.classList.contains('open');
+
+                    if (willOpen) {
+                        poll();
+                    }
+                });
+
+                /* Dropdown DITUTUP (klik di luar, Escape, dll.) → tandai
+                   tamu sudah dibaca. Selama terbuka, daftar tetap utuh. */
+                var notifDropdown = document.getElementById('notifDropdown');
+                if (notifDropdown) {
+                    var wasNotifOpen = false;
+                    new MutationObserver(function () {
+                        var isOpen = notifDropdown.classList.contains('open');
+                        if (isOpen) {
+                            wasNotifOpen = true;
+                        } else if (wasNotifOpen) {
+                            wasNotifOpen = false;
+                            markSeen();
+                        }
+                    }).observe(notifDropdown, { attributes: true, attributeFilter: ['class'] });
+                }
+
+                /* Polling berkala */
+                function start() {
+                    if (timer) clearInterval(timer);
+                    timer = setInterval(function () { poll(); }, INTERVAL);
+                }
+
+                poll();
+                start();
+
+                // Sinkron saat kembali ke tab / online kembali
+                document.addEventListener('visibilitychange', function () {
+                    if (!document.hidden) poll();
+                });
+                window.addEventListener('online', function () { poll(); });
             })();
         </script>
 

@@ -362,6 +362,44 @@ html.theme-dark .topbar-icon-btn:hover { color: var(--pln-cyan); }
     border: 2px solid var(--bg-card);
 }
 
+/* Badge angka pada tombol lonceng (jumlah tamu belum dilihat) */
+.notif-badge-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px; 
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--pln-red);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    border: 1.5px solid var(--bg-card);
+    pointer-events: none;
+}
+
+/* Lonceng “berdetak” saat ada tamu baru: animasi ring halus */
+@keyframes bellRing {
+    0%, 25%, 50%, 75%, 100% { transform: rotate(0deg); }
+    10% { transform: rotate(12deg); }
+    20% { transform: rotate(-10deg); }
+    30% { transform: rotate(8deg); }
+    40% { transform: rotate(-6deg); }
+    50% { transform: rotate(0deg); }
+}
+.topbar-icon-btn.has-unread i.fa-bell {
+    animation: bellRing 1.2s ease-in-out 2;
+    transform-origin: top center;
+}
+.topbar-icon-btn.has-unread {
+    color: var(--pln-blue);
+}
+html.theme-dark .topbar-icon-btn.has-unread { color: var(--pln-cyan); }
+
 .topbar-divider {
     width: 1px;
     height: 28px;

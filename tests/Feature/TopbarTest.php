@@ -64,8 +64,9 @@ class TopbarTest extends TestCase
     {
         $response = $this->actingAs($this->adminUser())->get(route('admin.dashboard'));
 
+        // Badge angka ada di markup tetapi ber-atribut hidden (tidak tampil)
         $response->assertOk()
-            ->assertDontSee('notification-dot', false)
+            ->assertSee('id="notifBadge" hidden', false)
             ->assertSee('Tidak ada notifikasi');
     }
 
@@ -80,6 +81,82 @@ class TopbarTest extends TestCase
 
         $response->assertOk()
             ->assertSee('konten masih draft');
+    }
+
+    /* =========================================================
+       NOTIFIKASI TAMU BARU — lonceng (bell)
+       ========================================================= */
+
+    private function tamuPayload(): array
+    {
+        return [
+            'nik'            => '3201999000000091',
+            'nama'           => 'Tamu Lonceng',
+            'instansi'       => 'PT Uji Coba',
+            'no_hp'          => '081298765400',
+            'email'          => 'lonceng@contoh.id',
+            'tujuan_ditemui' => 'Divisi IT',
+            'jumlah_tamu'    => '1',
+            'tanggal_kunjungan' => now()->addDay()->format('Y-m-d\\TH:i'),
+            'keperluan'      => 'Audit sistem.',
+        ];
+    }
+
+    public function test_bell_shows_dot_and_item_when_new_tamu_exists(): void
+    {
+        // Tamu terdaftar (id 1) sebelum admin membuka notifikasi
+        \App\Models\Tamu::create($this->tamuPayload());
+
+        $response = $this->actingAs($this->adminUser())->get(route('admin.dashboard'));
+
+        $response->assertOk()
+            ->assertSee('1 tamu baru mendaftar')
+            ->assertSee('notif-badge-btn', false);
+    }
+
+    public function test_bell_dot_disappears_after_marking_seen(): void
+    {
+        \App\Models\Tamu::create($this->tamuPayload());
+
+        // Buka dropdown → mark seen
+        $this->actingAs($this->adminUser())
+            ->postJson(route('admin.notifications.seen'))
+            ->assertOk()
+            ->assertJsonPath('unread_count', 0);
+
+        // Poll berikutnya: unread 0, dot hilang
+        $this->actingAs($this->adminUser())
+            ->getJson(route('admin.notifications.poll'))
+            ->assertOk()
+            ->assertJsonPath('unread_count', 0);
+
+        $response = $this->actingAs($this->adminUser())->get(route('admin.dashboard'));
+        $response->assertOk()
+            ->assertDontSee('1 tamu baru mendaftar');
+    }
+
+    public function test_poll_reports_new_tamu_as_unread(): void
+    {
+        // Belum ada tamu → unread 0
+        $this->actingAs($this->adminUser())
+            ->getJson(route('admin.notifications.poll'))
+            ->assertOk()
+            ->assertJsonPath('unread_count', 0);
+
+        // Tamu baru masuk → unread naik
+        $tamu = \App\Models\Tamu::create($this->tamuPayload());
+
+        $this->actingAs($this->adminUser())
+            ->getJson(route('admin.notifications.poll'))
+            ->assertOk()
+            ->assertJsonPath('unread_count', 1)
+            ->assertJsonPath('latest_tamu_id', $tamu->id);
+    }
+
+    public function test_notification_endpoints_require_authentication(): void
+    {
+        $this->getJson(route('admin.notifications.poll'))->assertStatus(401);
+        $this->postJson(route('admin.notifications.seen'))->assertStatus(401);
     }
 
     /* =========================================================
