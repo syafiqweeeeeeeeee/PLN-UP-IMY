@@ -8,18 +8,36 @@ use Illuminate\Support\Facades\DB;
  * NotificationService — sumber tunggal notifikasi topbar admin.
  *
  * Item notifikasi dibangun dari kondisi data terkini:
- * - Tamu baru (belum dilihat admin mana pun): dibandingkan dengan
- *   id terakhir yang sudah dilihat (session "tamu_last_seen_id",
- *   berbagi antar user admin — front office cukup satu watchlist).
+ * - Tamu baru (belum dilihat admin yang sedang login): dibandingkan dengan
+ *   id tamu terakhir yang sudah dilihat AKUN TERSEBUT — kolom
+ *   users.last_seen_tamu_id (per-akun, permanen lintas sesi & perangkat).
  * - Konten masih draft (berita + pengumuman + halaman).
  *
- * unread_count kini nyata: tamu yang belum dilihat. Dot merah pada
+ * unread_count kini nyata: tamu yang belum dilihat akun ini. Dot merah pada
  * lonceng tampil persis saat ada tamu masuk yang belum dibuka.
  */
 class NotificationService
 {
-    /** Key session penanda id tamu terakhir yang sudah dilihat. */
-    public const SEEN_KEY = 'tamu_last_seen_id';
+    /**
+     * Penanda id tamu terakhir yang sudah dilihat user — kolom DB per-akun
+     * (users.last_seen_tamu_id), menggantikan session "tamu_last_seen_id".
+     */
+    public const SEEN_COLUMN = 'last_seen_tamu_id';
+
+    /**
+     * Ambil id tamu terakhir yang sudah dilihat user yang sedang login.
+     * Belum login / tidak ditemukan → 0 (semua tamu dianggap belum dibaca).
+     */
+    private function seenTamuId(): int
+    {
+        $user = auth()->user();
+
+        if ($user === null || ! $user instanceof \App\Models\User) {
+            return 0;
+        }
+
+        return (int) ($user->{self::SEEN_COLUMN} ?? 0);
+    }
 
     /**
      * Susun daftar notifikasi + jumlah belum dibaca.
@@ -32,7 +50,7 @@ class NotificationService
 
         $latestTamu = DB::table('tamus')->orderByDesc('id')->first();
         $latestTamuId = $latestTamu?->id;
-        $seenTamuId = (int) session(self::SEEN_KEY, 0);
+        $seenTamuId = $this->seenTamuId();
 
         $newTamuCount = 0;
         if ($latestTamuId !== null) {
@@ -77,13 +95,20 @@ class NotificationService
     }
 
     /**
-     * Tandai seluruh tamu sudah dilihat (dipanggil saat admin membuka
-     * dropdown notifikasi): simpan id tamu terkini ke session.
+     * Tandai seluruh tamu sudah dilihat (dipanggil saat admin menutup
+     * dropdown notifikasi): simpan id tamu terkini ke kolom DB akun yang
+     * sedang login — permanen untuk akun tersebut, lintas sesi/perangkat.
      */
     public function markTamuSeen(): void
     {
-        $latestId = DB::table('tamus')->max('id');
+        $user = auth()->user();
 
-        session([self::SEEN_KEY => (int) $latestId]);
+        if ($user === null || ! $user instanceof \App\Models\User) {
+            return;
+        }
+
+        $latestId = (int) DB::table('tamus')->max('id');
+
+        $user->forceFill([self::SEEN_COLUMN => $latestId])->save();
     }
 }

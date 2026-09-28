@@ -1,0 +1,6493 @@
+# The proper term is pseudo_replica_mode, but we use this compatibility alias
+# to make the statement usable on server versions 8.0.24 and older.
+/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=1*/;
+/*!50003 SET @OLD_COMPLETION_TYPE=@@COMPLETION_TYPE,COMPLETION_TYPE=0*/;
+DELIMITER /*!*/;
+# at 4
+#260928  8:16:11 server id 1  end_log_pos 126 CRC32 0xcbdfd2c9 	Start: binlog v 4, server v 8.0.30 created 260928  8:16:11 at startup
+ROLLBACK/*!*/;
+BINLOG '
+27+5ag8BAAAAegAAAH4AAAAAAAQAOC4wLjMwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAADbv7lqEwANAAgAAAAABAAEAAAAYgAEGggAAAAICAgCAAAACgoKKioAEjQA
+CigAAcnS38s=
+'/*!*/;
+# at 126
+#260928  8:16:11 server id 1  end_log_pos 157 CRC32 0xe3402082 	Previous-GTIDs
+# [empty]
+# at 157
+#260928  8:17:43 server id 1  end_log_pos 236 CRC32 0xc2cbb5ff 	Anonymous_GTID	last_committed=0	sequence_number=1	rbr_only=yes	original_committed_timestamp=1790558263216690	immediate_commit_timestamp=1790558263216690	transaction_length=746
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558263216690 (2026-09-28 08:17:43.216690 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558263216690 (2026-09-28 08:17:43.216690 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558263216690*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 236
+#260928  8:17:43 server id 1  end_log_pos 317 CRC32 0x4f846691 	Query	thread_id=8	exec_time=0	error_code=0
+SET TIMESTAMP=1790558263/*!*/;
+SET @@session.pseudo_thread_id=8/*!*/;
+SET @@session.foreign_key_checks=1, @@session.sql_auto_is_null=0, @@session.unique_checks=1, @@session.autocommit=1/*!*/;
+SET @@session.sql_mode=1168113696/*!*/;
+SET @@session.auto_increment_increment=1, @@session.auto_increment_offset=1/*!*/;
+/*!\C utf8mb4 *//*!*/;
+SET @@session.character_set_client=224,@@session.collation_connection=224,@@session.collation_server=255/*!*/;
+SET @@session.lc_time_names=0/*!*/;
+SET @@session.collation_database=DEFAULT/*!*/;
+/*!80011 SET @@session.default_collation_for_utf8mb4=255*//*!*/;
+BEGIN
+/*!*/;
+# at 317
+#260928  8:17:43 server id 1  end_log_pos 391 CRC32 0xaaffcb12 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 391
+#260928  8:17:43 server id 1  end_log_pos 872 CRC32 0x7526eef9 	Write_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+N8C5ahMBAAAASgAAAIcBAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4BLL/6o=
+N8C5ah4BAAAA4QEAAGgDAAAAAFMAAAAAAAEAAgAG/wIoAGhoYWxUR0NsV2dYUmdWNWpreXNHWU5P
+aklNb0lPSUVwQUZNMTRsRFAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4w
+OyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJv
+bWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzYQAQAAWVRvek9udHpPalk2SWw5MGIydGxiaUk3Y3pv
+ME1Eb2lWVmhpUVdGTFkza3lkRlF5VEdWRVdrcEZVemxQY1hGWWJXUmxibTFXZDJOb1NHaG1RekJZ
+VFNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002TWpFNkltaDBk
+SEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQ0k3Y3pvMU9pSnliM1YwWlNJN2N6bzBPaUpvYjIxbElq
+dDljem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9pYm1W
+M0lqdGhPakE2ZTMxOWZRPT03wLlq+e4mdQ==
+'/*!*/;
+# at 872
+#260928  8:17:43 server id 1  end_log_pos 903 CRC32 0xf1988e38 	Xid = 50
+COMMIT/*!*/;
+# at 903
+#260928  8:18:54 server id 1  end_log_pos 982 CRC32 0xbacaab26 	Anonymous_GTID	last_committed=1	sequence_number=2	rbr_only=yes	original_committed_timestamp=1790558334841737	immediate_commit_timestamp=1790558334841737	transaction_length=1266
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558334841737 (2026-09-28 08:18:54.841737 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558334841737 (2026-09-28 08:18:54.841737 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558334841737*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 982
+#260928  8:18:54 server id 1  end_log_pos 1072 CRC32 0x6ff403d6 	Query	thread_id=9	exec_time=0	error_code=0
+SET TIMESTAMP=1790558334/*!*/;
+BEGIN
+/*!*/;
+# at 1072
+#260928  8:18:54 server id 1  end_log_pos 1146 CRC32 0x39fbdd2f 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 1146
+#260928  8:18:54 server id 1  end_log_pos 2138 CRC32 0xf1f4d672 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+fsC5ahMBAAAASgAAAHoEAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4C/d+zk=
+fsC5ah8BAAAA4AMAAFoIAAAAAFMAAAAAAAEAAgAG//8CKABoaGFsVEdDbFdnWFJnVjVqa3lzR1lO
+T2pJTW9JT0lFcEFGTTE0bERQCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2EAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVlZoaVFXRkxZM2t5ZEZReVRHVkVXa3BGVXpsUGNYRlliV1JsYm0xV2QyTm9TR2htUXpC
+WVRTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk1qRTZJbWgw
+ZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUNJN2N6bzFPaUp5YjNWMFpTSTdjem8wT2lKb2IyMWxJ
+anQ5Y3pvMk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdmWE02TXpvaWJt
+VjNJanRoT2pBNmUzMTlmUT09N8C5agIoAGhoYWxUR0NsV2dYUmdWNWpreXNHWU5PaklNb0lPSUVw
+QUZNMTRsRFAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsg
+eDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMTUzLjAu
+MC4wIFNhZmFyaS81MzcuMzZQAQAAWVRvek9udHpPalk2SWw5MGIydGxiaUk3Y3pvME1Eb2lWVmhp
+UVdGTFkza3lkRlF5VEdWRVdrcEZVemxQY1hGWWJXUmxibTFXZDJOb1NHaG1RekJZVFNJN2N6bzVP
+aUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002TlRBNkltaDBkSEE2THk4eE1q
+Y3VNQzR3TGpFNk9EQXdNQzlzWVhsaGJtRnVMMlp2Y20wdGNtVm5hWE4wY21GemFTMTBZVzExSWp0
+ek9qVTZJbkp2ZFhSbElqdHpPakl6T2lKc1lYbGhibUZ1TG5KbFoybHpkSEpoYzJrdGRHRnRkU0k3
+ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxk
+eUk3WVRvd09udDlmWDA9fsC5anLW9PE=
+'/*!*/;
+# at 2138
+#260928  8:18:54 server id 1  end_log_pos 2169 CRC32 0xef5dada4 	Xid = 98
+COMMIT/*!*/;
+# at 2169
+#260928  8:19:04 server id 1  end_log_pos 2248 CRC32 0x9deb89ad 	Anonymous_GTID	last_committed=2	sequence_number=3	rbr_only=yes	original_committed_timestamp=1790558344880863	immediate_commit_timestamp=1790558344880863	transaction_length=1266
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558344880863 (2026-09-28 08:19:04.880863 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558344880863 (2026-09-28 08:19:04.880863 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558344880863*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 2248
+#260928  8:19:04 server id 1  end_log_pos 2338 CRC32 0x32251731 	Query	thread_id=10	exec_time=0	error_code=0
+SET TIMESTAMP=1790558344/*!*/;
+BEGIN
+/*!*/;
+# at 2338
+#260928  8:19:04 server id 1  end_log_pos 2412 CRC32 0x8e7a1d87 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 2412
+#260928  8:19:04 server id 1  end_log_pos 3404 CRC32 0x515ce24e 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+iMC5ahMBAAAASgAAAGwJAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4Icdeo4=
+iMC5ah8BAAAA4AMAAEwNAAAAAFMAAAAAAAEAAgAG//8CKABoaGFsVEdDbFdnWFJnVjVqa3lzR1lO
+T2pJTW9JT0lFcEFGTTE0bERQCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2UAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVlZoaVFXRkxZM2t5ZEZReVRHVkVXa3BGVXpsUGNYRlliV1JsYm0xV2QyTm9TR2htUXpC
+WVRTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk5UQTZJbWgw
+ZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5c1lYbGhibUZ1TDJadmNtMHRjbVZuYVhOMGNtRnph
+UzEwWVcxMUlqdHpPalU2SW5KdmRYUmxJanR6T2pJek9pSnNZWGxoYm1GdUxuSmxaMmx6ZEhKaGMy
+a3RkR0Z0ZFNJN2ZYTTZOam9pWDJac1lYTm9JanRoT2pJNmUzTTZNem9pYjJ4a0lqdGhPakE2ZTMx
+ek9qTTZJbTVsZHlJN1lUb3dPbnQ5ZlgwPX7AuWoCKABoaGFsVEdDbFdnWFJnVjVqa3lzR1lOT2pJ
+TW9JT0lFcEFGTTE0bERQCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsg
+V2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21l
+LzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2EAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBN
+RG9pVlZoaVFXRkxZM2t5ZEZReVRHVkVXa3BGVXpsUGNYRlliV1JsYm0xV2QyTm9TR2htUXpCWVRT
+STdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk1qRTZJbWgwZEhB
+Nkx5OHhNamN1TUM0d0xqRTZPREF3TUNJN2N6bzFPaUp5YjNWMFpTSTdjem8wT2lKb2IyMWxJanQ5
+Y3pvMk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdmWE02TXpvaWJtVjNJ
+anRoT2pBNmUzMTlmUT09iMC5ak7iXFE=
+'/*!*/;
+# at 3404
+#260928  8:19:04 server id 1  end_log_pos 3435 CRC32 0xe894a97a 	Xid = 146
+COMMIT/*!*/;
+# at 3435
+#260928  8:19:08 server id 1  end_log_pos 3514 CRC32 0xd977ee09 	Anonymous_GTID	last_committed=3	sequence_number=4	rbr_only=yes	original_committed_timestamp=1790558348963128	immediate_commit_timestamp=1790558348963128	transaction_length=1218
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558348963128 (2026-09-28 08:19:08.963128 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558348963128 (2026-09-28 08:19:08.963128 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558348963128*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 3514
+#260928  8:19:08 server id 1  end_log_pos 3604 CRC32 0x9d8a5970 	Query	thread_id=11	exec_time=0	error_code=0
+SET TIMESTAMP=1790558348/*!*/;
+BEGIN
+/*!*/;
+# at 3604
+#260928  8:19:08 server id 1  end_log_pos 3678 CRC32 0xa3494584 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 3678
+#260928  8:19:08 server id 1  end_log_pos 4622 CRC32 0x09c864ad 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+jMC5ahMBAAAASgAAAF4OAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4IRFSaM=
+jMC5ah8BAAAAsAMAAA4SAAAAAFMAAAAAAAEAAgAG//8CKABoaGFsVEdDbFdnWFJnVjVqa3lzR1lO
+T2pJTW9JT0lFcEFGTTE0bERQCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2EAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVlZoaVFXRkxZM2t5ZEZReVRHVkVXa3BGVXpsUGNYRlliV1JsYm0xV2QyTm9TR2htUXpC
+WVRTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk1qRTZJbWgw
+ZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUNJN2N6bzFPaUp5YjNWMFpTSTdjem8wT2lKb2IyMWxJ
+anQ5Y3pvMk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdmWE02TXpvaWJt
+VjNJanRoT2pBNmUzMTlmUT09iMC5agIoAGhoYWxUR0NsV2dYUmdWNWpreXNHWU5PaklNb0lPSUVw
+QUZNMTRsRFAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsg
+eDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMTUzLjAu
+MC4wIFNhZmFyaS81MzcuMzYgAQAAWVRvek9udHpPalk2SWw5MGIydGxiaUk3Y3pvME1Eb2lWVmhp
+UVdGTFkza3lkRlF5VEdWRVdrcEZVemxQY1hGWWJXUmxibTFXZDJOb1NHaG1RekJZVFNJN2N6bzVP
+aUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1q
+Y3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lK
+c2IyZHBiaUk3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6
+T2pNNkltNWxkeUk3WVRvd09udDlmWDA9jMC5aq1kyAk=
+'/*!*/;
+# at 4622
+#260928  8:19:08 server id 1  end_log_pos 4653 CRC32 0xf6fffe51 	Xid = 194
+COMMIT/*!*/;
+# at 4653
+#260928  8:19:37 server id 1  end_log_pos 4732 CRC32 0x24c12e5d 	Anonymous_GTID	last_committed=4	sequence_number=5	rbr_only=yes	original_committed_timestamp=1790558377790410	immediate_commit_timestamp=1790558377790410	transaction_length=1718
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558377790410 (2026-09-28 08:19:37.790410 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558377790410 (2026-09-28 08:19:37.790410 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558377790410*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 4732
+#260928  8:19:37 server id 1  end_log_pos 4822 CRC32 0x2382146b 	Query	thread_id=12	exec_time=0	error_code=0
+SET TIMESTAMP=1790558377/*!*/;
+BEGIN
+/*!*/;
+# at 4822
+#260928  8:19:37 server id 1  end_log_pos 4896 CRC32 0xce5ad791 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 4896
+#260928  8:19:37 server id 1  end_log_pos 6340 CRC32 0xe9187974 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+qcC5ahMBAAAASgAAACATAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4JHXWs4=
+qcC5ah8BAAAApAUAAMQYAAAAAFMAAAAAAAEAAgAG//8CKABoaGFsVEdDbFdnWFJnVjVqa3lzR1lO
+T2pJTW9JT0lFcEFGTTE0bERQCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVlZoaVFXRkxZM2t5ZEZReVRHVkVXa3BGVXpsUGNYRlliV1JsYm0xV2QyTm9TR2htUXpC
+WVRTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16TTZJbWgw
+ZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlzYjJkcGJpSTdjem8xT2lKeWIzVjBa
+U0k3Y3pvMU9pSnNiMmRwYmlJN2ZYTTZOam9pWDJac1lYTm9JanRoT2pJNmUzTTZNem9pYjJ4a0lq
+dGhPakE2ZTMxek9qTTZJbTVsZHlJN1lUb3dPbnQ5ZlgwPYzAuWoCKABoaGFsVEdDbFdnWFJnVjVq
+a3lzR1lOT2pJTW9JT0lFcEFGTTE0bERQCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2BAMAAFlUbzFPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pVlZoaVFXRkxZM2t5ZEZReVRHVkVXa3BGVXpsUGNYRlliV1JsYm0xV2QyTm9T
+R2htUXpCWVRTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16
+TTZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlzYjJkcGJpSTdjem8xT2lK
+eWIzVjBaU0k3Y3pvMU9pSnNiMmRwYmlJN2ZYTTZOam9pWDJac1lYTm9JanRoT2pJNmUzTTZNem9p
+YjJ4a0lqdGhPakk2ZTJrNk1EdHpPakV3T2lKZmIyeGtYMmx1Y0hWMElqdHBPakU3Y3pvMk9pSmxj
+bkp2Y25NaU8zMXpPak02SW01bGR5STdZVG93T250OWZYTTZNVEE2SWw5dmJHUmZhVzV3ZFhRaU8y
+RTZNVHA3Y3pvMU9pSmxiV0ZwYkNJN2N6b3lNVG9pYzNsaFptbHhkMnhrYmpCQVoyMWhhV3d1WTI5
+dElqdDljem8yT2lKbGNuSnZjbk1pTzA4Nk16RTZJa2xzYkhWdGFXNWhkR1ZjVTNWd2NHOXlkRnhX
+YVdWM1JYSnliM0pDWVdjaU9qRTZlM002TnpvaUFDb0FZbUZuY3lJN1lUb3hPbnR6T2pjNkltUmxa
+bUYxYkhRaU8wODZNams2SWtsc2JIVnRhVzVoZEdWY1UzVndjRzl5ZEZ4TlpYTnpZV2RsUW1Gbklq
+b3lPbnR6T2pFeE9pSUFLZ0J0WlhOellXZGxjeUk3WVRveE9udHpPalU2SW1WdFlXbHNJanRoT2pF
+NmUyazZNRHR6T2pRek9pSlVhR1Z6WlNCamNtVmtaVzUwYVdGc2N5QmtieUJ1YjNRZ2JXRjBZMmdn
+YjNWeUlISmxZMjl5WkhNdUlqdDlmWE02T1RvaUFDb0FabTl5YldGMElqdHpPamc2SWpwdFpYTnpZ
+V2RsSWp0OWZYMTmpwLlqdHkY6Q==
+'/*!*/;
+# at 6340
+#260928  8:19:37 server id 1  end_log_pos 6371 CRC32 0x217ae605 	Xid = 206
+COMMIT/*!*/;
+# at 6371
+#260928  8:19:38 server id 1  end_log_pos 6450 CRC32 0x1f20b0eb 	Anonymous_GTID	last_committed=5	sequence_number=6	rbr_only=yes	original_committed_timestamp=1790558378069297	immediate_commit_timestamp=1790558378069297	transaction_length=1718
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558378069297 (2026-09-28 08:19:38.069297 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558378069297 (2026-09-28 08:19:38.069297 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558378069297*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 6450
+#260928  8:19:38 server id 1  end_log_pos 6540 CRC32 0x33feba33 	Query	thread_id=13	exec_time=0	error_code=0
+SET TIMESTAMP=1790558378/*!*/;
+BEGIN
+/*!*/;
+# at 6540
+#260928  8:19:38 server id 1  end_log_pos 6614 CRC32 0x2c9b27ef 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 6614
+#260928  8:19:38 server id 1  end_log_pos 8058 CRC32 0x0e36bc60 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+qsC5ahMBAAAASgAAANYZAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4O8nmyw=
+qsC5ah8BAAAApAUAAHofAAAAAFMAAAAAAAEAAgAG//8CKABoaGFsVEdDbFdnWFJnVjVqa3lzR1lO
+T2pJTW9JT0lFcEFGTTE0bERQCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2BAMAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVlZoaVFXRkxZM2t5ZEZReVRHVkVXa3BGVXpsUGNYRlliV1JsYm0xV2QyTm9TR2htUXpC
+WVRTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16TTZJbWgw
+ZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlzYjJkcGJpSTdjem8xT2lKeWIzVjBa
+U0k3Y3pvMU9pSnNiMmRwYmlJN2ZYTTZOam9pWDJac1lYTm9JanRoT2pJNmUzTTZNem9pYjJ4a0lq
+dGhPakk2ZTJrNk1EdHpPakV3T2lKZmIyeGtYMmx1Y0hWMElqdHBPakU3Y3pvMk9pSmxjbkp2Y25N
+aU8zMXpPak02SW01bGR5STdZVG93T250OWZYTTZNVEE2SWw5dmJHUmZhVzV3ZFhRaU8yRTZNVHA3
+Y3pvMU9pSmxiV0ZwYkNJN2N6b3lNVG9pYzNsaFptbHhkMnhrYmpCQVoyMWhhV3d1WTI5dElqdDlj
+em8yT2lKbGNuSnZjbk1pTzA4Nk16RTZJa2xzYkhWdGFXNWhkR1ZjVTNWd2NHOXlkRnhXYVdWM1JY
+SnliM0pDWVdjaU9qRTZlM002TnpvaUFDb0FZbUZuY3lJN1lUb3hPbnR6T2pjNkltUmxabUYxYkhR
+aU8wODZNams2SWtsc2JIVnRhVzVoZEdWY1UzVndjRzl5ZEZ4TlpYTnpZV2RsUW1Gbklqb3lPbnR6
+T2pFeE9pSUFLZ0J0WlhOellXZGxjeUk3WVRveE9udHpPalU2SW1WdFlXbHNJanRoT2pFNmUyazZN
+RHR6T2pRek9pSlVhR1Z6WlNCamNtVmtaVzUwYVdGc2N5QmtieUJ1YjNRZ2JXRjBZMmdnYjNWeUlI
+SmxZMjl5WkhNdUlqdDlmWE02T1RvaUFDb0FabTl5YldGMElqdHpPamc2SWpwdFpYTnpZV2RsSWp0
+OWZYMTmpwLlqAigAaGhhbFRHQ2xXZ1hSZ1Y1amt5c0dZTk9qSU1vSU9JRXBBRk0xNGxEUAkxMjcu
+MC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2Vi
+S2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xNTMuMC4wLjAgU2FmYXJpLzUz
+Ny4zNiABAABZVG96T250ek9qWTZJbDkwYjJ0bGJpSTdjem8wTURvaVZWaGlRV0ZMWTNreWRGUXlU
+R1ZFV2twRlV6bFBjWEZZYldSbGJtMVdkMk5vU0dobVF6QllUU0k3Y3pvNU9pSmZjSEpsZG1sdmRY
+TWlPMkU2TWpwN2N6b3pPaUoxY213aU8zTTZNek02SW1oMGRIQTZMeTh4TWpjdU1DNHdMakU2T0RB
+d01DOWhaRzFwYmk5c2IyZHBiaUk3Y3pvMU9pSnliM1YwWlNJN2N6bzFPaUpzYjJkcGJpSTdmWE02
+TmpvaVgyWnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZ
+VG93T250OWZYMD2qwLlqYLw2Dg==
+'/*!*/;
+# at 8058
+#260928  8:19:38 server id 1  end_log_pos 8089 CRC32 0x5208f73d 	Xid = 254
+COMMIT/*!*/;
+# at 8089
+#260928  8:19:51 server id 1  end_log_pos 8168 CRC32 0xedc33be9 	Anonymous_GTID	last_committed=6	sequence_number=7	rbr_only=yes	original_committed_timestamp=1790558391571231	immediate_commit_timestamp=1790558391571231	transaction_length=762
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558391571231 (2026-09-28 08:19:51.571231 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558391571231 (2026-09-28 08:19:51.571231 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558391571231*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 8168
+#260928  8:19:51 server id 1  end_log_pos 8249 CRC32 0x7a71b360 	Query	thread_id=14	exec_time=0	error_code=0
+SET TIMESTAMP=1790558391/*!*/;
+BEGIN
+/*!*/;
+# at 8249
+#260928  8:19:51 server id 1  end_log_pos 8323 CRC32 0xbb035909 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 8323
+#260928  8:19:51 server id 1  end_log_pos 8820 CRC32 0x57aeb392 	Delete_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+t8C5ahMBAAAASgAAAIMgAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4AlZA7s=
+t8C5aiABAAAA8QEAAHQiAAAAAFMAAAAAAAEAAgAG/wIoAGhoYWxUR0NsV2dYUmdWNWpreXNHWU5P
+aklNb0lPSUVwQUZNMTRsRFAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4w
+OyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJv
+bWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzYgAQAAWVRvek9udHpPalk2SWw5MGIydGxiaUk3Y3pv
+ME1Eb2lWVmhpUVdGTFkza3lkRlF5VEdWRVdrcEZVemxQY1hGWWJXUmxibTFXZDJOb1NHaG1RekJZ
+VFNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002TXpNNkltaDBk
+SEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6bzFPaUp5YjNWMFpT
+STdjem8xT2lKc2IyZHBiaUk3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0
+aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWDA9qsC5apKzrlc=
+'/*!*/;
+# at 8820
+#260928  8:19:51 server id 1  end_log_pos 8851 CRC32 0x8e07bc28 	Xid = 266
+COMMIT/*!*/;
+# at 8851
+#260928  8:19:52 server id 1  end_log_pos 8930 CRC32 0xcc83f121 	Anonymous_GTID	last_committed=7	sequence_number=8	rbr_only=yes	original_committed_timestamp=1790558392783008	immediate_commit_timestamp=1790558392783008	transaction_length=854
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558392783008 (2026-09-28 08:19:52.783008 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558392783008 (2026-09-28 08:19:52.783008 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558392783008*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 8930
+#260928  8:19:52 server id 1  end_log_pos 9011 CRC32 0x7de05851 	Query	thread_id=14	exec_time=0	error_code=0
+SET TIMESTAMP=1790558392/*!*/;
+BEGIN
+/*!*/;
+# at 9011
+#260928  8:19:52 server id 1  end_log_pos 9085 CRC32 0x75e2994e 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 9085
+#260928  8:19:52 server id 1  end_log_pos 9674 CRC32 0x3043b90c 	Write_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+uMC5ahMBAAAASgAAAH0jAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4E6Z4nU=
+uMC5ah4BAAAATQIAAMolAAAAAFMAAAAAAAEAAgAG/wAoAGJ2UWQ3bHI0MmhZZzFpemNHblRkSWpL
+TDhRbVlDMFZIZzFlVktrZlMEAAAAAAAAAAkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dz
+IE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vj
+a28pIENocm9tZS8xNTMuMC4wLjAgU2FmYXJpLzUzNy4zNnQBAABZVG8wT250ek9qWTZJbDkwYjJ0
+bGJpSTdjem8wTURvaVMzVXlOMU4zYkhOc2FteHdTVXhFZDI5MVdqazJVM0ZTTkhscGFqRjJRalUx
+ZG5aRlJWWm5hU0k3Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pPaUoxY213aU8zTTZN
+ek02SW1oMGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5c2IyZHBiaUk3Y3pvMU9p
+SnliM1YwWlNJN2N6bzFPaUpzYjJkcGJpSTdmWE02TmpvaVgyWnNZWE5vSWp0aE9qSTZlM002TXpv
+aWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250OWZYTTZOVEE2SW14dloybHVYM2Rs
+WWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUwWXpkbU5UaGxZVFJsTXpBNU9EbGtJ
+anRwT2pRN2ZRPT24wLlqDLlDMA==
+'/*!*/;
+# at 9674
+#260928  8:19:52 server id 1  end_log_pos 9705 CRC32 0x61af7b0e 	Xid = 284
+COMMIT/*!*/;
+# at 9705
+#260928  8:19:54 server id 1  end_log_pos 9784 CRC32 0x52070539 	Anonymous_GTID	last_committed=8	sequence_number=9	rbr_only=yes	original_committed_timestamp=1790558394538498	immediate_commit_timestamp=1790558394538498	transaction_length=1438
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558394538498 (2026-09-28 08:19:54.538498 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558394538498 (2026-09-28 08:19:54.538498 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558394538498*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 9784
+#260928  8:19:54 server id 1  end_log_pos 9874 CRC32 0x6a20aa4e 	Query	thread_id=15	exec_time=0	error_code=0
+SET TIMESTAMP=1790558394/*!*/;
+BEGIN
+/*!*/;
+# at 9874
+#260928  8:19:54 server id 1  end_log_pos 9948 CRC32 0xf48f2dbe 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 9948
+#260928  8:19:54 server id 1  end_log_pos 11112 CRC32 0x5250586b 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+usC5ahMBAAAASgAAANwmAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4L4tj/Q=
+usC5ah8BAAAAjAQAAGgrAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzZ0AQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6bzFP
+aUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16
+b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1WDNk
+bFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVPRGxr
+SWp0cE9qUTdmUT09uMC5agAoAGJ2UWQ3bHI0MmhZZzFpemNHblRkSWpLTDhRbVlDMFZIZzFlVktr
+ZlMEAAAAAAAAAAkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0
+OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xNTMu
+MC4wLjAgU2FmYXJpLzUzNy4zNogBAABZVG8wT250ek9qWTZJbDkwYjJ0bGJpSTdjem8wTURvaVMz
+VXlOMU4zYkhOc2FteHdTVXhFZDI5MVdqazJVM0ZTTkhscGFqRjJRalUxZG5aRlJWWm5hU0k3Y3pv
+NU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pPaUoxY213aU8zTTZNemM2SW1oMGRIQTZMeTh4
+TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5a1lYTm9ZbTloY21RaU8zTTZOVG9pY205MWRHVWlP
+M002TVRVNkltRmtiV2x1TG1SaGMyaGliMkZ5WkNJN2ZYTTZOam9pWDJac1lYTm9JanRoT2pJNmUz
+TTZNem9pYjJ4a0lqdGhPakE2ZTMxek9qTTZJbTVsZHlJN1lUb3dPbnQ5ZlhNNk5UQTZJbXh2WjJs
+dVgzZGxZbDgxT1dKaE16WmhaR1JqTW1JeVpqazBNREUxT0RCbU1ERTBZemRtTlRobFlUUmxNekE1
+T0Rsa0lqdHBPalE3ZlE9PbrAuWprWFBS
+'/*!*/;
+# at 11112
+#260928  8:19:54 server id 1  end_log_pos 11143 CRC32 0x7bb1dca2 	Xid = 476
+COMMIT/*!*/;
+# at 11143
+#260928  8:19:55 server id 1  end_log_pos 11222 CRC32 0xf9cea4b6 	Anonymous_GTID	last_committed=9	sequence_number=10	rbr_only=yes	original_committed_timestamp=1790558395186718	immediate_commit_timestamp=1790558395186718	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558395186718 (2026-09-28 08:19:55.186718 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558395186718 (2026-09-28 08:19:55.186718 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558395186718*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 11222
+#260928  8:19:55 server id 1  end_log_pos 11312 CRC32 0x8046a66e 	Query	thread_id=16	exec_time=0	error_code=0
+SET TIMESTAMP=1790558395/*!*/;
+BEGIN
+/*!*/;
+# at 11312
+#260928  8:19:55 server id 1  end_log_pos 11386 CRC32 0x695f0b52 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 11386
+#260928  8:19:55 server id 1  end_log_pos 12570 CRC32 0xf5589c34 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+u8C5ahMBAAAASgAAAHosAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4FILX2k=
+u8C5ah8BAAAAoAQAABoxAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT26wLlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09u8C5ajScWPU=
+'/*!*/;
+# at 12570
+#260928  8:19:55 server id 1  end_log_pos 12601 CRC32 0x4d879b01 	Xid = 509
+COMMIT/*!*/;
+# at 12601
+#260928  8:20:25 server id 1  end_log_pos 12680 CRC32 0xfb081f50 	Anonymous_GTID	last_committed=10	sequence_number=11	rbr_only=yes	original_committed_timestamp=1790558425142712	immediate_commit_timestamp=1790558425142712	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558425142712 (2026-09-28 08:20:25.142712 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558425142712 (2026-09-28 08:20:25.142712 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558425142712*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 12680
+#260928  8:20:25 server id 1  end_log_pos 12770 CRC32 0x72cdbc3e 	Query	thread_id=17	exec_time=0	error_code=0
+SET TIMESTAMP=1790558425/*!*/;
+BEGIN
+/*!*/;
+# at 12770
+#260928  8:20:25 server id 1  end_log_pos 12844 CRC32 0x241f8e53 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 12844
+#260928  8:20:25 server id 1  end_log_pos 14028 CRC32 0x1351c789 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+2cC5ahMBAAAASgAAACwyAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4FOOHyQ=
+2cC5ah8BAAAAoAQAAMw2AAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT27wLlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT092cC5aonHURM=
+'/*!*/;
+# at 14028
+#260928  8:20:25 server id 1  end_log_pos 14059 CRC32 0x8a078ea9 	Xid = 542
+COMMIT/*!*/;
+# at 14059
+#260928  8:20:55 server id 1  end_log_pos 14138 CRC32 0x8f467184 	Anonymous_GTID	last_committed=11	sequence_number=12	rbr_only=yes	original_committed_timestamp=1790558455120197	immediate_commit_timestamp=1790558455120197	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558455120197 (2026-09-28 08:20:55.120197 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558455120197 (2026-09-28 08:20:55.120197 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558455120197*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 14138
+#260928  8:20:55 server id 1  end_log_pos 14228 CRC32 0x439944e4 	Query	thread_id=18	exec_time=0	error_code=0
+SET TIMESTAMP=1790558455/*!*/;
+BEGIN
+/*!*/;
+# at 14228
+#260928  8:20:55 server id 1  end_log_pos 14302 CRC32 0xae03e892 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 14302
+#260928  8:20:55 server id 1  end_log_pos 15486 CRC32 0x22ac6426 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+98C5ahMBAAAASgAAAN43AAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4JLoA64=
+98C5ah8BAAAAoAQAAH48AAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3ZwLlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT0998C5aiZkrCI=
+'/*!*/;
+# at 15486
+#260928  8:20:55 server id 1  end_log_pos 15517 CRC32 0x551baf53 	Xid = 575
+COMMIT/*!*/;
+# at 15517
+#260928  8:21:25 server id 1  end_log_pos 15596 CRC32 0x7c14393f 	Anonymous_GTID	last_committed=12	sequence_number=13	rbr_only=yes	original_committed_timestamp=1790558485131603	immediate_commit_timestamp=1790558485131603	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558485131603 (2026-09-28 08:21:25.131603 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558485131603 (2026-09-28 08:21:25.131603 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558485131603*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 15596
+#260928  8:21:25 server id 1  end_log_pos 15686 CRC32 0x4e2247f5 	Query	thread_id=19	exec_time=0	error_code=0
+SET TIMESTAMP=1790558485/*!*/;
+BEGIN
+/*!*/;
+# at 15686
+#260928  8:21:25 server id 1  end_log_pos 15760 CRC32 0xbc3a689d 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 15760
+#260928  8:21:25 server id 1  end_log_pos 16944 CRC32 0xe9f97bd1 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+FcG5ahMBAAAASgAAAJA9AAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4J1oOrw=
+FcG5ah8BAAAAoAQAADBCAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT33wLlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09FcG5atF7+ek=
+'/*!*/;
+# at 16944
+#260928  8:21:25 server id 1  end_log_pos 16975 CRC32 0x6660e31e 	Xid = 608
+COMMIT/*!*/;
+# at 16975
+#260928  8:21:55 server id 1  end_log_pos 17054 CRC32 0x1a74793e 	Anonymous_GTID	last_committed=13	sequence_number=14	rbr_only=yes	original_committed_timestamp=1790558515142017	immediate_commit_timestamp=1790558515142017	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558515142017 (2026-09-28 08:21:55.142017 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558515142017 (2026-09-28 08:21:55.142017 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558515142017*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 17054
+#260928  8:21:55 server id 1  end_log_pos 17144 CRC32 0x9590a85b 	Query	thread_id=20	exec_time=0	error_code=0
+SET TIMESTAMP=1790558515/*!*/;
+BEGIN
+/*!*/;
+# at 17144
+#260928  8:21:55 server id 1  end_log_pos 17218 CRC32 0xf7cb8c93 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 17218
+#260928  8:21:55 server id 1  end_log_pos 18402 CRC32 0x30ea2127 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+M8G5ahMBAAAASgAAAEJDAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4JOMy/c=
+M8G5ah8BAAAAoAQAAOJHAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT0VwblqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09M8G5aich6jA=
+'/*!*/;
+# at 18402
+#260928  8:21:55 server id 1  end_log_pos 18433 CRC32 0x99d709db 	Xid = 641
+COMMIT/*!*/;
+# at 18433
+#260928  8:22:25 server id 1  end_log_pos 18512 CRC32 0xa00af37b 	Anonymous_GTID	last_committed=14	sequence_number=15	rbr_only=yes	original_committed_timestamp=1790558545144443	immediate_commit_timestamp=1790558545144443	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558545144443 (2026-09-28 08:22:25.144443 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558545144443 (2026-09-28 08:22:25.144443 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558545144443*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 18512
+#260928  8:22:25 server id 1  end_log_pos 18602 CRC32 0x2cd7b361 	Query	thread_id=21	exec_time=0	error_code=0
+SET TIMESTAMP=1790558545/*!*/;
+BEGIN
+/*!*/;
+# at 18602
+#260928  8:22:25 server id 1  end_log_pos 18676 CRC32 0x0fa1a2a4 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 18676
+#260928  8:22:25 server id 1  end_log_pos 19860 CRC32 0x2379ce70 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+UcG5ahMBAAAASgAAAPRIAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4KSioQ8=
+UcG5ah8BAAAAoAQAAJRNAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT0zwblqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09UcG5anDOeSM=
+'/*!*/;
+# at 19860
+#260928  8:22:25 server id 1  end_log_pos 19891 CRC32 0xf9987bbb 	Xid = 674
+COMMIT/*!*/;
+# at 19891
+#260928  8:22:55 server id 1  end_log_pos 19970 CRC32 0xe961af43 	Anonymous_GTID	last_committed=15	sequence_number=16	rbr_only=yes	original_committed_timestamp=1790558575116788	immediate_commit_timestamp=1790558575116788	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558575116788 (2026-09-28 08:22:55.116788 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558575116788 (2026-09-28 08:22:55.116788 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558575116788*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 19970
+#260928  8:22:55 server id 1  end_log_pos 20060 CRC32 0x5789efdd 	Query	thread_id=22	exec_time=0	error_code=0
+SET TIMESTAMP=1790558575/*!*/;
+BEGIN
+/*!*/;
+# at 20060
+#260928  8:22:55 server id 1  end_log_pos 20134 CRC32 0x75fc2fa2 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 20134
+#260928  8:22:55 server id 1  end_log_pos 21318 CRC32 0xd946977f 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+b8G5ahMBAAAASgAAAKZOAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4KIv/HU=
+b8G5ah8BAAAAoAQAAEZTAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT1RwblqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09b8G5an+XRtk=
+'/*!*/;
+# at 21318
+#260928  8:22:55 server id 1  end_log_pos 21349 CRC32 0x6bc4688f 	Xid = 707
+COMMIT/*!*/;
+# at 21349
+#260928  8:23:25 server id 1  end_log_pos 21428 CRC32 0x0447417f 	Anonymous_GTID	last_committed=16	sequence_number=17	rbr_only=yes	original_committed_timestamp=1790558605134348	immediate_commit_timestamp=1790558605134348	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558605134348 (2026-09-28 08:23:25.134348 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558605134348 (2026-09-28 08:23:25.134348 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558605134348*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 21428
+#260928  8:23:25 server id 1  end_log_pos 21518 CRC32 0xe6ad8749 	Query	thread_id=23	exec_time=0	error_code=0
+SET TIMESTAMP=1790558605/*!*/;
+BEGIN
+/*!*/;
+# at 21518
+#260928  8:23:25 server id 1  end_log_pos 21592 CRC32 0xa1f68228 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 21592
+#260928  8:23:25 server id 1  end_log_pos 22776 CRC32 0x230f6bcf 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+jcG5ahMBAAAASgAAAFhUAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4CiC9qE=
+jcG5ah8BAAAAoAQAAPhYAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT1vwblqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09jcG5as9rDyM=
+'/*!*/;
+# at 22776
+#260928  8:23:25 server id 1  end_log_pos 22807 CRC32 0xf44d8958 	Xid = 740
+COMMIT/*!*/;
+# at 22807
+#260928  8:24:19 server id 1  end_log_pos 22886 CRC32 0x77409876 	Anonymous_GTID	last_committed=17	sequence_number=18	rbr_only=yes	original_committed_timestamp=1790558659129677	immediate_commit_timestamp=1790558659129677	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558659129677 (2026-09-28 08:24:19.129677 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558659129677 (2026-09-28 08:24:19.129677 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558659129677*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 22886
+#260928  8:24:19 server id 1  end_log_pos 22976 CRC32 0x29e1ce41 	Query	thread_id=24	exec_time=0	error_code=0
+SET TIMESTAMP=1790558659/*!*/;
+BEGIN
+/*!*/;
+# at 22976
+#260928  8:24:19 server id 1  end_log_pos 23050 CRC32 0x636e7751 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 23050
+#260928  8:24:19 server id 1  end_log_pos 24234 CRC32 0x33631527 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+w8G5ahMBAAAASgAAAApaAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4FF3bmM=
+w8G5ah8BAAAAoAQAAKpeAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT2NwblqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09w8G5aicVYzM=
+'/*!*/;
+# at 24234
+#260928  8:24:19 server id 1  end_log_pos 24265 CRC32 0xd3a8f0ec 	Xid = 773
+COMMIT/*!*/;
+# at 24265
+#260928  8:25:19 server id 1  end_log_pos 24344 CRC32 0x81d71a4f 	Anonymous_GTID	last_committed=18	sequence_number=19	rbr_only=yes	original_committed_timestamp=1790558719123458	immediate_commit_timestamp=1790558719123458	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558719123458 (2026-09-28 08:25:19.123458 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558719123458 (2026-09-28 08:25:19.123458 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558719123458*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 24344
+#260928  8:25:19 server id 1  end_log_pos 24434 CRC32 0x3f0596c6 	Query	thread_id=25	exec_time=0	error_code=0
+SET TIMESTAMP=1790558719/*!*/;
+BEGIN
+/*!*/;
+# at 24434
+#260928  8:25:19 server id 1  end_log_pos 24508 CRC32 0x33203be4 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 24508
+#260928  8:25:19 server id 1  end_log_pos 25692 CRC32 0x28c0accc 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+/8G5ahMBAAAASgAAALxfAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4OQ7IDM=
+/8G5ah8BAAAAoAQAAFxkAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3DwblqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09/8G5asyswCg=
+'/*!*/;
+# at 25692
+#260928  8:25:19 server id 1  end_log_pos 25723 CRC32 0x11e2319b 	Xid = 806
+COMMIT/*!*/;
+# at 25723
+#260928  8:26:19 server id 1  end_log_pos 25802 CRC32 0xe7a17df7 	Anonymous_GTID	last_committed=19	sequence_number=20	rbr_only=yes	original_committed_timestamp=1790558779143120	immediate_commit_timestamp=1790558779143120	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558779143120 (2026-09-28 08:26:19.143120 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558779143120 (2026-09-28 08:26:19.143120 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558779143120*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 25802
+#260928  8:26:19 server id 1  end_log_pos 25892 CRC32 0xf281a8e1 	Query	thread_id=26	exec_time=0	error_code=0
+SET TIMESTAMP=1790558779/*!*/;
+BEGIN
+/*!*/;
+# at 25892
+#260928  8:26:19 server id 1  end_log_pos 25966 CRC32 0xb86c43ef 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 25966
+#260928  8:26:19 server id 1  end_log_pos 27150 CRC32 0x99e53336 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+O8K5ahMBAAAASgAAAG5lAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4O9DbLg=
+O8K5ah8BAAAAoAQAAA5qAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3/wblqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09O8K5ajYz5Zk=
+'/*!*/;
+# at 27150
+#260928  8:26:19 server id 1  end_log_pos 27181 CRC32 0x870f60e6 	Xid = 839
+COMMIT/*!*/;
+# at 27181
+#260928  8:27:19 server id 1  end_log_pos 27260 CRC32 0xa09409a2 	Anonymous_GTID	last_committed=20	sequence_number=21	rbr_only=yes	original_committed_timestamp=1790558839145973	immediate_commit_timestamp=1790558839145973	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558839145973 (2026-09-28 08:27:19.145973 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558839145973 (2026-09-28 08:27:19.145973 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558839145973*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 27260
+#260928  8:27:19 server id 1  end_log_pos 27350 CRC32 0x42ccd834 	Query	thread_id=27	exec_time=0	error_code=0
+SET TIMESTAMP=1790558839/*!*/;
+BEGIN
+/*!*/;
+# at 27350
+#260928  8:27:19 server id 1  end_log_pos 27424 CRC32 0x3e193cf1 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 27424
+#260928  8:27:19 server id 1  end_log_pos 28608 CRC32 0x8ed98c20 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+d8K5ahMBAAAASgAAACBrAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4PE8GT4=
+d8K5ah8BAAAAoAQAAMBvAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT07wrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09d8K5aiCM2Y4=
+'/*!*/;
+# at 28608
+#260928  8:27:19 server id 1  end_log_pos 28639 CRC32 0x33642ddf 	Xid = 872
+COMMIT/*!*/;
+# at 28639
+#260928  8:28:19 server id 1  end_log_pos 28718 CRC32 0xbe7ebb1c 	Anonymous_GTID	last_committed=21	sequence_number=22	rbr_only=yes	original_committed_timestamp=1790558899137879	immediate_commit_timestamp=1790558899137879	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558899137879 (2026-09-28 08:28:19.137879 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558899137879 (2026-09-28 08:28:19.137879 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558899137879*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 28718
+#260928  8:28:19 server id 1  end_log_pos 28808 CRC32 0x03bfda9a 	Query	thread_id=28	exec_time=0	error_code=0
+SET TIMESTAMP=1790558899/*!*/;
+BEGIN
+/*!*/;
+# at 28808
+#260928  8:28:19 server id 1  end_log_pos 28882 CRC32 0xab46e388 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 28882
+#260928  8:28:19 server id 1  end_log_pos 30066 CRC32 0x3521c679 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+s8K5ahMBAAAASgAAANJwAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4IjjRqs=
+s8K5ah8BAAAAoAQAAHJ1AAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT13wrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09s8K5annGITU=
+'/*!*/;
+# at 30066
+#260928  8:28:19 server id 1  end_log_pos 30097 CRC32 0x25b0fa96 	Xid = 905
+COMMIT/*!*/;
+# at 30097
+#260928  8:28:42 server id 1  end_log_pos 30176 CRC32 0x12711261 	Anonymous_GTID	last_committed=22	sequence_number=23	rbr_only=yes	original_committed_timestamp=1790558922676077	immediate_commit_timestamp=1790558922676077	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558922676077 (2026-09-28 08:28:42.676077 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558922676077 (2026-09-28 08:28:42.676077 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558922676077*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 30176
+#260928  8:28:42 server id 1  end_log_pos 30266 CRC32 0xfc9045ac 	Query	thread_id=29	exec_time=0	error_code=0
+SET TIMESTAMP=1790558922/*!*/;
+BEGIN
+/*!*/;
+# at 30266
+#260928  8:28:42 server id 1  end_log_pos 30340 CRC32 0xd3b2d751 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 30340
+#260928  8:28:42 server id 1  end_log_pos 31524 CRC32 0xd7848bad 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+ysK5ahMBAAAASgAAAIR2AAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4FHXstM=
+ysK5ah8BAAAAoAQAACR7AAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT2zwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09ysK5aq2LhNc=
+'/*!*/;
+# at 31524
+#260928  8:28:42 server id 1  end_log_pos 31555 CRC32 0x0189e860 	Xid = 938
+COMMIT/*!*/;
+# at 31555
+#260928  8:28:47 server id 1  end_log_pos 31634 CRC32 0x3cb98116 	Anonymous_GTID	last_committed=23	sequence_number=24	rbr_only=yes	original_committed_timestamp=1790558927578701	immediate_commit_timestamp=1790558927578701	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558927578701 (2026-09-28 08:28:47.578701 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558927578701 (2026-09-28 08:28:47.578701 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558927578701*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 31634
+#260928  8:28:47 server id 1  end_log_pos 31724 CRC32 0xf6aca95d 	Query	thread_id=31	exec_time=0	error_code=0
+SET TIMESTAMP=1790558927/*!*/;
+BEGIN
+/*!*/;
+# at 31724
+#260928  8:28:47 server id 1  end_log_pos 31798 CRC32 0xc3fc7fc1 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 31798
+#260928  8:28:47 server id 1  end_log_pos 32982 CRC32 0x32bd0db6 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+z8K5ahMBAAAASgAAADZ8AAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4MF//MM=
+z8K5ah8BAAAAoAQAANaAAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3KwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT09z8K5arYNvTI=
+'/*!*/;
+# at 32982
+#260928  8:28:47 server id 1  end_log_pos 33013 CRC32 0xcc8655de 	Xid = 1004
+COMMIT/*!*/;
+# at 33013
+#260928  8:28:49 server id 1  end_log_pos 33092 CRC32 0xe7375621 	Anonymous_GTID	last_committed=24	sequence_number=25	rbr_only=yes	original_committed_timestamp=1790558929478198	immediate_commit_timestamp=1790558929478198	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558929478198 (2026-09-28 08:28:49.478198 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558929478198 (2026-09-28 08:28:49.478198 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558929478198*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 33092
+#260928  8:28:49 server id 1  end_log_pos 33182 CRC32 0x75ee5e13 	Query	thread_id=32	exec_time=0	error_code=0
+SET TIMESTAMP=1790558929/*!*/;
+BEGIN
+/*!*/;
+# at 33182
+#260928  8:28:49 server id 1  end_log_pos 33256 CRC32 0xdfc0dccd 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 33256
+#260928  8:28:49 server id 1  end_log_pos 34440 CRC32 0x892aeda5 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+0cK5ahMBAAAASgAAAOiBAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4M3cwN8=
+0cK5ah8BAAAAoAQAAIiGAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3PwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhj
+bVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT090cK5aqXtKok=
+'/*!*/;
+# at 34440
+#260928  8:28:49 server id 1  end_log_pos 34471 CRC32 0xe426b293 	Xid = 1295
+COMMIT/*!*/;
+# at 34471
+#260928  8:28:49 server id 1  end_log_pos 34550 CRC32 0x25c438bc 	Anonymous_GTID	last_committed=25	sequence_number=26	rbr_only=yes	original_committed_timestamp=1790558929964456	immediate_commit_timestamp=1790558929964456	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558929964456 (2026-09-28 08:28:49.964456 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558929964456 (2026-09-28 08:28:49.964456 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558929964456*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 34550
+#260928  8:28:49 server id 1  end_log_pos 34640 CRC32 0x586d190d 	Query	thread_id=33	exec_time=0	error_code=0
+SET TIMESTAMP=1790558929/*!*/;
+BEGIN
+/*!*/;
+# at 34640
+#260928  8:28:49 server id 1  end_log_pos 34714 CRC32 0xcd8ef6b1 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 34714
+#260928  8:28:49 server id 1  end_log_pos 35898 CRC32 0x8e5a2e30 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+0cK5ahMBAAAASgAAAJqHAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4LH2js0=
+0cK5ah8BAAAAoAQAADqMAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOWtZWE5vWW05aGNtUWlP
+M002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJGeVpDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3RwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16ZzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6a3Zh
+M1J3SWp0ek9qVTZJbkp2ZFhSbElqdHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT090cK5ajAuWo4=
+'/*!*/;
+# at 35898
+#260928  8:28:49 server id 1  end_log_pos 35929 CRC32 0xc7adb8b9 	Xid = 1325
+COMMIT/*!*/;
+# at 35929
+#260928  8:28:50 server id 1  end_log_pos 36008 CRC32 0x378ba116 	Anonymous_GTID	last_committed=26	sequence_number=27	rbr_only=yes	original_committed_timestamp=1790558930162352	immediate_commit_timestamp=1790558930162352	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558930162352 (2026-09-28 08:28:50.162352 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558930162352 (2026-09-28 08:28:50.162352 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558930162352*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 36008
+#260928  8:28:50 server id 1  end_log_pos 36098 CRC32 0xf44ed344 	Query	thread_id=34	exec_time=0	error_code=0
+SET TIMESTAMP=1790558930/*!*/;
+BEGIN
+/*!*/;
+# at 36098
+#260928  8:28:50 server id 1  end_log_pos 36172 CRC32 0x8cf746cd 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 36172
+#260928  8:28:50 server id 1  end_log_pos 37356 CRC32 0x6f4cf21d 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+0sK5ahMBAAAASgAAAEyNAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4M1G94w=
+0sK5ah8BAAAAoAQAAOyRAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHprdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3RwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16ZzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6Z3Zh
+M1J3SWp0ek9qVTZJbkp2ZFhSbElqdHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT090sK5ah3yTG8=
+'/*!*/;
+# at 37356
+#260928  8:28:50 server id 1  end_log_pos 37387 CRC32 0xea39991c 	Xid = 1355
+COMMIT/*!*/;
+# at 37387
+#260928  8:28:50 server id 1  end_log_pos 37466 CRC32 0x02d4a2b9 	Anonymous_GTID	last_committed=27	sequence_number=28	rbr_only=yes	original_committed_timestamp=1790558930342769	immediate_commit_timestamp=1790558930342769	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558930342769 (2026-09-28 08:28:50.342769 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558930342769 (2026-09-28 08:28:50.342769 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558930342769*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 37466
+#260928  8:28:50 server id 1  end_log_pos 37556 CRC32 0x9bb1660d 	Query	thread_id=35	exec_time=0	error_code=0
+SET TIMESTAMP=1790558930/*!*/;
+BEGIN
+/*!*/;
+# at 37556
+#260928  8:28:50 server id 1  end_log_pos 37630 CRC32 0x12d75661 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 37630
+#260928  8:28:50 server id 1  end_log_pos 38814 CRC32 0xb689fe50 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+0sK5ahMBAAAASgAAAP6SAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4GFW1xI=
+0sK5ah8BAAAAoAQAAJ6XAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpndmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3SwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16ZzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6Y3Zh
+M1J3SWp0ek9qVTZJbkp2ZFhSbElqdHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT090sK5alD+ibY=
+'/*!*/;
+# at 38814
+#260928  8:28:50 server id 1  end_log_pos 38845 CRC32 0x9c22afc4 	Xid = 1385
+COMMIT/*!*/;
+# at 38845
+#260928  8:28:50 server id 1  end_log_pos 38924 CRC32 0xd41cff81 	Anonymous_GTID	last_committed=28	sequence_number=29	rbr_only=yes	original_committed_timestamp=1790558930531522	immediate_commit_timestamp=1790558930531522	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558930531522 (2026-09-28 08:28:50.531522 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558930531522 (2026-09-28 08:28:50.531522 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558930531522*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 38924
+#260928  8:28:50 server id 1  end_log_pos 39014 CRC32 0x4caeced2 	Query	thread_id=36	exec_time=0	error_code=0
+SET TIMESTAMP=1790558930/*!*/;
+BEGIN
+/*!*/;
+# at 39014
+#260928  8:28:50 server id 1  end_log_pos 39088 CRC32 0xcffc174a 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 39088
+#260928  8:28:50 server id 1  end_log_pos 40272 CRC32 0x62139412 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+0sK5ahMBAAAASgAAALCYAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4EoX/M8=
+0sK5ah8BAAAAoAQAAFCdAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpjdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3SwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16ZzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6WXZh
+M1J3SWp0ek9qVTZJbkp2ZFhSbElqdHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT090sK5ahKUE2I=
+'/*!*/;
+# at 40272
+#260928  8:28:50 server id 1  end_log_pos 40303 CRC32 0x75311e63 	Xid = 1415
+COMMIT/*!*/;
+# at 40303
+#260928  8:28:50 server id 1  end_log_pos 40382 CRC32 0xd3005c6e 	Anonymous_GTID	last_committed=29	sequence_number=30	rbr_only=yes	original_committed_timestamp=1790558930727576	immediate_commit_timestamp=1790558930727576	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558930727576 (2026-09-28 08:28:50.727576 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558930727576 (2026-09-28 08:28:50.727576 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558930727576*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 40382
+#260928  8:28:50 server id 1  end_log_pos 40472 CRC32 0xb26d3dfd 	Query	thread_id=37	exec_time=0	error_code=0
+SET TIMESTAMP=1790558930/*!*/;
+BEGIN
+/*!*/;
+# at 40472
+#260928  8:28:50 server id 1  end_log_pos 40546 CRC32 0x9d7877ff 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 40546
+#260928  8:28:50 server id 1  end_log_pos 41730 CRC32 0xc2122b42 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+0sK5ahMBAAAASgAAAGKeAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4P93eJ0=
+0sK5ah8BAAAAoAQAAAKjAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpZdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3SwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16ZzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6UXZh
+M1J3SWp0ek9qVTZJbkp2ZFhSbElqdHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT090sK5akIrEsI=
+'/*!*/;
+# at 41730
+#260928  8:28:50 server id 1  end_log_pos 41761 CRC32 0xb9df38a6 	Xid = 1445
+COMMIT/*!*/;
+# at 41761
+#260928  8:28:50 server id 1  end_log_pos 41840 CRC32 0x526f9f49 	Anonymous_GTID	last_committed=30	sequence_number=31	rbr_only=yes	original_committed_timestamp=1790558930920408	immediate_commit_timestamp=1790558930920408	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558930920408 (2026-09-28 08:28:50.920408 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558930920408 (2026-09-28 08:28:50.920408 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558930920408*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 41840
+#260928  8:28:50 server id 1  end_log_pos 41930 CRC32 0x3a689dfc 	Query	thread_id=38	exec_time=0	error_code=0
+SET TIMESTAMP=1790558930/*!*/;
+BEGIN
+/*!*/;
+# at 41930
+#260928  8:28:50 server id 1  end_log_pos 42004 CRC32 0x710188a4 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 42004
+#260928  8:28:50 server id 1  end_log_pos 43188 CRC32 0x43b6c18d 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+0sK5ahMBAAAASgAAABSkAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4KSIAXE=
+0sK5ah8BAAAAoAQAALSoAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpRdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3SwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16ZzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6VXZh
+M1J3SWp0ek9qVTZJbkp2ZFhSbElqdHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT090sK5ao3BtkM=
+'/*!*/;
+# at 43188
+#260928  8:28:50 server id 1  end_log_pos 43219 CRC32 0xc0e0b633 	Xid = 1475
+COMMIT/*!*/;
+# at 43219
+#260928  8:28:51 server id 1  end_log_pos 43298 CRC32 0x245ae7e5 	Anonymous_GTID	last_committed=31	sequence_number=32	rbr_only=yes	original_committed_timestamp=1790558931096828	immediate_commit_timestamp=1790558931096828	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558931096828 (2026-09-28 08:28:51.096828 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558931096828 (2026-09-28 08:28:51.096828 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558931096828*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 43298
+#260928  8:28:51 server id 1  end_log_pos 43388 CRC32 0x548d1316 	Query	thread_id=39	exec_time=0	error_code=0
+SET TIMESTAMP=1790558931/*!*/;
+BEGIN
+/*!*/;
+# at 43388
+#260928  8:28:51 server id 1  end_log_pos 43462 CRC32 0xb0f47abb 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 43462
+#260928  8:28:51 server id 1  end_log_pos 44646 CRC32 0x61f083e7 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+08K5ahMBAAAASgAAAMapAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4Lt69LA=
+08K5ah8BAAAAoAQAAGauAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpVdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3SwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16ZzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZh
+M1J3SWp0ek9qVTZJbkp2ZFhSbElqdHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT0908K5aueD8GE=
+'/*!*/;
+# at 44646
+#260928  8:28:51 server id 1  end_log_pos 44677 CRC32 0x6a1397af 	Xid = 1505
+COMMIT/*!*/;
+# at 44677
+#260928  8:28:54 server id 1  end_log_pos 44756 CRC32 0x3e26c065 	Anonymous_GTID	last_committed=32	sequence_number=33	rbr_only=yes	original_committed_timestamp=1790558934850683	immediate_commit_timestamp=1790558934850683	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558934850683 (2026-09-28 08:28:54.850683 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558934850683 (2026-09-28 08:28:54.850683 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558934850683*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 44756
+#260928  8:28:54 server id 1  end_log_pos 44846 CRC32 0x5dfa1fb0 	Query	thread_id=40	exec_time=0	error_code=0
+SET TIMESTAMP=1790558934/*!*/;
+BEGIN
+/*!*/;
+# at 44846
+#260928  8:28:54 server id 1  end_log_pos 44920 CRC32 0x9dbbd97f 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 44920
+#260928  8:28:54 server id 1  end_log_pos 46104 CRC32 0x8c28fd96 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+1sK5ahMBAAAASgAAAHivAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4H/Zu50=
+1sK5ah8BAAAAoAQAABi0AAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3TwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16ZzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZh
+M1J3SWp0ek9qVTZJbkp2ZFhSbElqdHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdmUT091sK5apb9KIw=
+'/*!*/;
+# at 46104
+#260928  8:28:54 server id 1  end_log_pos 46135 CRC32 0x1efa70b3 	Xid = 1538
+COMMIT/*!*/;
+# at 46135
+#260928  8:28:58 server id 1  end_log_pos 46214 CRC32 0x8d0748fe 	Anonymous_GTID	last_committed=33	sequence_number=34	rbr_only=yes	original_committed_timestamp=1790558938126540	immediate_commit_timestamp=1790558938126540	transaction_length=1494
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558938126540 (2026-09-28 08:28:58.126540 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558938126540 (2026-09-28 08:28:58.126540 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558938126540*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 46214
+#260928  8:28:58 server id 1  end_log_pos 46304 CRC32 0x921e9bbd 	Query	thread_id=41	exec_time=0	error_code=0
+SET TIMESTAMP=1790558938/*!*/;
+BEGIN
+/*!*/;
+# at 46304
+#260928  8:28:58 server id 1  end_log_pos 46378 CRC32 0xacda77a2 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 46378
+#260928  8:28:58 server id 1  end_log_pos 47598 CRC32 0xa2c79f08 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+2sK5ahMBAAAASgAAACq1AAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4KJ32qw=
+2sK5ah8BAAAAxAQAAO65AAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2ZRPT3WwrlqACgAYnZRZDdscjQyaFlnMWl6Y0du
+VGRJaktMOFFtWUMwVkhnMWVWS2tmUwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pUzNVeU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpG
+MlFqVTFkblpGUlZabmFTSTdjem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16ZzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZh
+M1J3SWp0ek9qVTZJbkp2ZFhSbElqdHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5q
+b2lYMlpzWVhOb0lqdGhPakk2ZTNNNk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRv
+d09udDlmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxa
+VzVmYVdRaU8yazZPVHQ52sK5agifx6I=
+'/*!*/;
+# at 47598
+#260928  8:28:58 server id 1  end_log_pos 47629 CRC32 0x0a6560ac 	Xid = 1559
+COMMIT/*!*/;
+# at 47629
+#260928  8:29:25 server id 1  end_log_pos 47708 CRC32 0x4624476a 	Anonymous_GTID	last_committed=34	sequence_number=35	rbr_only=yes	original_committed_timestamp=1790558965335102	immediate_commit_timestamp=1790558965335102	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558965335102 (2026-09-28 08:29:25.335102 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558965335102 (2026-09-28 08:29:25.335102 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558965335102*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 47708
+#260928  8:29:25 server id 1  end_log_pos 47798 CRC32 0xb18a3738 	Query	thread_id=42	exec_time=0	error_code=0
+SET TIMESTAMP=1790558965/*!*/;
+BEGIN
+/*!*/;
+# at 47798
+#260928  8:29:25 server id 1  end_log_pos 47872 CRC32 0x5e4ebc66 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 47872
+#260928  8:29:25 server id 1  end_log_pos 49128 CRC32 0x8160ee87 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+9cK5ahMBAAAASgAAAAC7AAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4Ga8Tl4=
+9cK5ah8BAAAA6AQAAOi/AAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDnawrlqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ59cK5aofu
+YIE=
+'/*!*/;
+# at 49128
+#260928  8:29:25 server id 1  end_log_pos 49159 CRC32 0xd41116c9 	Xid = 1592
+COMMIT/*!*/;
+# at 49159
+#260928  8:29:42 server id 1  end_log_pos 49238 CRC32 0xc7ef740d 	Anonymous_GTID	last_committed=35	sequence_number=36	rbr_only=yes	original_committed_timestamp=1790558982892011	immediate_commit_timestamp=1790558982892011	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558982892011 (2026-09-28 08:29:42.892011 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558982892011 (2026-09-28 08:29:42.892011 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558982892011*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 49238
+#260928  8:29:42 server id 1  end_log_pos 49328 CRC32 0x9f30ac7a 	Query	thread_id=43	exec_time=0	error_code=0
+SET TIMESTAMP=1790558982/*!*/;
+BEGIN
+/*!*/;
+# at 49328
+#260928  8:29:42 server id 1  end_log_pos 49402 CRC32 0xe3ed006d 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 49402
+#260928  8:29:42 server id 1  end_log_pos 50658 CRC32 0xaa75add3 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+BsO5ahMBAAAASgAAAPrAAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4G0A7eM=
+BsO5ah8BAAAA6AQAAOLFAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDn1wrlqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5BsO5atOt
+dao=
+'/*!*/;
+# at 50658
+#260928  8:29:42 server id 1  end_log_pos 50689 CRC32 0x1af6af52 	Xid = 1625
+COMMIT/*!*/;
+# at 50689
+#260928  8:29:44 server id 1  end_log_pos 50768 CRC32 0x5b9c1d6e 	Anonymous_GTID	last_committed=36	sequence_number=37	rbr_only=yes	original_committed_timestamp=1790558984940612	immediate_commit_timestamp=1790558984940612	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558984940612 (2026-09-28 08:29:44.940612 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558984940612 (2026-09-28 08:29:44.940612 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558984940612*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 50768
+#260928  8:29:44 server id 1  end_log_pos 50858 CRC32 0xa5606c22 	Query	thread_id=44	exec_time=0	error_code=0
+SET TIMESTAMP=1790558984/*!*/;
+BEGIN
+/*!*/;
+# at 50858
+#260928  8:29:44 server id 1  end_log_pos 50932 CRC32 0x92bc4847 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 50932
+#260928  8:29:44 server id 1  end_log_pos 52188 CRC32 0xcc8763f8 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+CMO5ahMBAAAASgAAAPTGAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4EdIvJI=
+CMO5ah8BAAAA6AQAANzLAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDkGw7lqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5CMO5avhj
+h8w=
+'/*!*/;
+# at 52188
+#260928  8:29:44 server id 1  end_log_pos 52219 CRC32 0xefd3a7e8 	Xid = 1658
+COMMIT/*!*/;
+# at 52219
+#260928  8:29:55 server id 1  end_log_pos 52298 CRC32 0xfb6443ac 	Anonymous_GTID	last_committed=37	sequence_number=38	rbr_only=yes	original_committed_timestamp=1790558995139059	immediate_commit_timestamp=1790558995139059	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790558995139059 (2026-09-28 08:29:55.139059 SE Asia Standard Time)
+# immediate_commit_timestamp=1790558995139059 (2026-09-28 08:29:55.139059 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790558995139059*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 52298
+#260928  8:29:55 server id 1  end_log_pos 52388 CRC32 0x36f24662 	Query	thread_id=45	exec_time=0	error_code=0
+SET TIMESTAMP=1790558995/*!*/;
+BEGIN
+/*!*/;
+# at 52388
+#260928  8:29:55 server id 1  end_log_pos 52462 CRC32 0x3bddf2e9 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 52462
+#260928  8:29:55 server id 1  end_log_pos 53718 CRC32 0x3f81aa80 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+E8O5ahMBAAAASgAAAO7MAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4Ony3Ts=
+E8O5ah8BAAAA6AQAANbRAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDkIw7lqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5E8O5aoCq
+gT8=
+'/*!*/;
+# at 53718
+#260928  8:29:55 server id 1  end_log_pos 53749 CRC32 0xca084777 	Xid = 1691
+COMMIT/*!*/;
+# at 53749
+#260928  8:30:15 server id 1  end_log_pos 53828 CRC32 0x73807e77 	Anonymous_GTID	last_committed=38	sequence_number=39	rbr_only=yes	original_committed_timestamp=1790559015016274	immediate_commit_timestamp=1790559015016274	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559015016274 (2026-09-28 08:30:15.016274 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559015016274 (2026-09-28 08:30:15.016274 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559015016274*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 53828
+#260928  8:30:15 server id 1  end_log_pos 53918 CRC32 0xfbd697d5 	Query	thread_id=46	exec_time=0	error_code=0
+SET TIMESTAMP=1790559015/*!*/;
+BEGIN
+/*!*/;
+# at 53918
+#260928  8:30:15 server id 1  end_log_pos 53992 CRC32 0x14108cff 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 53992
+#260928  8:30:15 server id 1  end_log_pos 55248 CRC32 0xf5a08776 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+J8O5ahMBAAAASgAAAOjSAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4P+MEBQ=
+J8O5ah8BAAAA6AQAANDXAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDkTw7lqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5J8O5anaH
+oPU=
+'/*!*/;
+# at 55248
+#260928  8:30:15 server id 1  end_log_pos 55279 CRC32 0xae0783a8 	Xid = 1724
+COMMIT/*!*/;
+# at 55279
+#260928  8:30:25 server id 1  end_log_pos 55358 CRC32 0xe2e5e215 	Anonymous_GTID	last_committed=39	sequence_number=40	rbr_only=yes	original_committed_timestamp=1790559025108192	immediate_commit_timestamp=1790559025108192	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559025108192 (2026-09-28 08:30:25.108192 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559025108192 (2026-09-28 08:30:25.108192 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559025108192*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 55358
+#260928  8:30:25 server id 1  end_log_pos 55448 CRC32 0x28923336 	Query	thread_id=47	exec_time=0	error_code=0
+SET TIMESTAMP=1790559025/*!*/;
+BEGIN
+/*!*/;
+# at 55448
+#260928  8:30:25 server id 1  end_log_pos 55522 CRC32 0xad80004d 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 55522
+#260928  8:30:25 server id 1  end_log_pos 56778 CRC32 0xdc0b25b4 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+McO5ahMBAAAASgAAAOLYAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4E0AgK0=
+McO5ah8BAAAA6AQAAMrdAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDknw7lqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5McO5arQl
+C9w=
+'/*!*/;
+# at 56778
+#260928  8:30:25 server id 1  end_log_pos 56809 CRC32 0x92f6f88f 	Xid = 1757
+COMMIT/*!*/;
+# at 56809
+#260928  8:31:04 server id 1  end_log_pos 56888 CRC32 0x7832dcd7 	Anonymous_GTID	last_committed=40	sequence_number=41	rbr_only=yes	original_committed_timestamp=1790559064062873	immediate_commit_timestamp=1790559064062873	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559064062873 (2026-09-28 08:31:04.062873 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559064062873 (2026-09-28 08:31:04.062873 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559064062873*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 56888
+#260928  8:31:04 server id 1  end_log_pos 56978 CRC32 0x5b38e630 	Query	thread_id=48	exec_time=0	error_code=0
+SET TIMESTAMP=1790559064/*!*/;
+BEGIN
+/*!*/;
+# at 56978
+#260928  8:31:04 server id 1  end_log_pos 57052 CRC32 0xb9aff484 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 57052
+#260928  8:31:04 server id 1  end_log_pos 58308 CRC32 0x643df28b 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+WMO5ahMBAAAASgAAANzeAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4IT0r7k=
+WMO5ah8BAAAA6AQAAMTjAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDkxw7lqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5WMO5aovy
+PWQ=
+'/*!*/;
+# at 58308
+#260928  8:31:04 server id 1  end_log_pos 58339 CRC32 0x78e3964a 	Xid = 1790
+COMMIT/*!*/;
+# at 58339
+#260928  8:31:25 server id 1  end_log_pos 58418 CRC32 0xd0496172 	Anonymous_GTID	last_committed=41	sequence_number=42	rbr_only=yes	original_committed_timestamp=1790559085108036	immediate_commit_timestamp=1790559085108036	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559085108036 (2026-09-28 08:31:25.108036 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559085108036 (2026-09-28 08:31:25.108036 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559085108036*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 58418
+#260928  8:31:25 server id 1  end_log_pos 58508 CRC32 0x920921ba 	Query	thread_id=49	exec_time=0	error_code=0
+SET TIMESTAMP=1790559085/*!*/;
+BEGIN
+/*!*/;
+# at 58508
+#260928  8:31:25 server id 1  end_log_pos 58582 CRC32 0x1aed5177 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 58582
+#260928  8:31:25 server id 1  end_log_pos 59838 CRC32 0x0a443e0f 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+bcO5ahMBAAAASgAAANbkAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4HdR7Ro=
+bcO5ah8BAAAA6AQAAL7pAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDlYw7lqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5bcO5ag8+
+RAo=
+'/*!*/;
+# at 59838
+#260928  8:31:25 server id 1  end_log_pos 59869 CRC32 0x26ac42e8 	Xid = 1823
+COMMIT/*!*/;
+# at 59869
+#260928  8:31:55 server id 1  end_log_pos 59948 CRC32 0x24329786 	Anonymous_GTID	last_committed=42	sequence_number=43	rbr_only=yes	original_committed_timestamp=1790559115162041	immediate_commit_timestamp=1790559115162041	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559115162041 (2026-09-28 08:31:55.162041 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559115162041 (2026-09-28 08:31:55.162041 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559115162041*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 59948
+#260928  8:31:55 server id 1  end_log_pos 60038 CRC32 0x5421c7d1 	Query	thread_id=50	exec_time=0	error_code=0
+SET TIMESTAMP=1790559115/*!*/;
+BEGIN
+/*!*/;
+# at 60038
+#260928  8:31:55 server id 1  end_log_pos 60112 CRC32 0x4c3b10d0 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 60112
+#260928  8:31:55 server id 1  end_log_pos 61368 CRC32 0xae73203c 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+i8O5ahMBAAAASgAAANDqAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4NAQO0w=
+i8O5ah8BAAAA6AQAALjvAAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDltw7lqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5i8O5ajwg
+c64=
+'/*!*/;
+# at 61368
+#260928  8:31:55 server id 1  end_log_pos 61399 CRC32 0xe45d56d7 	Xid = 1856
+COMMIT/*!*/;
+# at 61399
+#260928  8:32:25 server id 1  end_log_pos 61478 CRC32 0x367f9b4a 	Anonymous_GTID	last_committed=43	sequence_number=44	rbr_only=yes	original_committed_timestamp=1790559145124916	immediate_commit_timestamp=1790559145124916	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559145124916 (2026-09-28 08:32:25.124916 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559145124916 (2026-09-28 08:32:25.124916 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559145124916*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 61478
+#260928  8:32:25 server id 1  end_log_pos 61568 CRC32 0x472ca863 	Query	thread_id=51	exec_time=0	error_code=0
+SET TIMESTAMP=1790559145/*!*/;
+BEGIN
+/*!*/;
+# at 61568
+#260928  8:32:25 server id 1  end_log_pos 61642 CRC32 0x7992d967 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 61642
+#260928  8:32:25 server id 1  end_log_pos 62898 CRC32 0xaac11897 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+qcO5ahMBAAAASgAAAMrwAAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4GfZknk=
+qcO5ah8BAAAA6AQAALL1AAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDmLw7lqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5qcO5apcY
+wao=
+'/*!*/;
+# at 62898
+#260928  8:32:25 server id 1  end_log_pos 62929 CRC32 0xc6eadf7d 	Xid = 1889
+COMMIT/*!*/;
+# at 62929
+#260928  8:32:55 server id 1  end_log_pos 63008 CRC32 0x9a69b720 	Anonymous_GTID	last_committed=44	sequence_number=45	rbr_only=yes	original_committed_timestamp=1790559175119495	immediate_commit_timestamp=1790559175119495	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559175119495 (2026-09-28 08:32:55.119495 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559175119495 (2026-09-28 08:32:55.119495 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559175119495*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 63008
+#260928  8:32:55 server id 1  end_log_pos 63098 CRC32 0xb7a0d1ae 	Query	thread_id=52	exec_time=0	error_code=0
+SET TIMESTAMP=1790559175/*!*/;
+BEGIN
+/*!*/;
+# at 63098
+#260928  8:32:55 server id 1  end_log_pos 63172 CRC32 0xca9ae2fd 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 63172
+#260928  8:32:55 server id 1  end_log_pos 64428 CRC32 0xa9f2810a 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+x8O5ahMBAAAASgAAAMT2AAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4P3imso=
+x8O5ah8BAAAA6AQAAKz7AAAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDmpw7lqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5x8O5agqB
+8qk=
+'/*!*/;
+# at 64428
+#260928  8:32:55 server id 1  end_log_pos 64459 CRC32 0xe547614a 	Xid = 1922
+COMMIT/*!*/;
+# at 64459
+#260928  8:33:25 server id 1  end_log_pos 64538 CRC32 0x7a78fb9f 	Anonymous_GTID	last_committed=45	sequence_number=46	rbr_only=yes	original_committed_timestamp=1790559205139044	immediate_commit_timestamp=1790559205139044	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559205139044 (2026-09-28 08:33:25.139044 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559205139044 (2026-09-28 08:33:25.139044 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559205139044*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 64538
+#260928  8:33:25 server id 1  end_log_pos 64628 CRC32 0x971059a6 	Query	thread_id=53	exec_time=0	error_code=0
+SET TIMESTAMP=1790559205/*!*/;
+BEGIN
+/*!*/;
+# at 64628
+#260928  8:33:25 server id 1  end_log_pos 64702 CRC32 0xc2aad63c 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 64702
+#260928  8:33:25 server id 1  end_log_pos 65958 CRC32 0xd2fa101a 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+5cO5ahMBAAAASgAAAL78AAAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4DzWqsI=
+5cO5ah8BAAAA6AQAAKYBAQAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDnHw7lqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ55cO5ahoQ
++tI=
+'/*!*/;
+# at 65958
+#260928  8:33:25 server id 1  end_log_pos 65989 CRC32 0xc19545f0 	Xid = 1955
+COMMIT/*!*/;
+# at 65989
+#260928  8:33:55 server id 1  end_log_pos 66068 CRC32 0x999f83e3 	Anonymous_GTID	last_committed=46	sequence_number=47	rbr_only=yes	original_committed_timestamp=1790559235118509	immediate_commit_timestamp=1790559235118509	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559235118509 (2026-09-28 08:33:55.118509 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559235118509 (2026-09-28 08:33:55.118509 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559235118509*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 66068
+#260928  8:33:55 server id 1  end_log_pos 66158 CRC32 0x65763fd6 	Query	thread_id=54	exec_time=0	error_code=0
+SET TIMESTAMP=1790559235/*!*/;
+BEGIN
+/*!*/;
+# at 66158
+#260928  8:33:55 server id 1  end_log_pos 66232 CRC32 0xef172323 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 66232
+#260928  8:33:55 server id 1  end_log_pos 67488 CRC32 0x30fa44c8 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+A8S5ahMBAAAASgAAALgCAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4CMjF+8=
+A8S5ah8BAAAA6AQAAKAHAQAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDnlw7lqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5A8S5ashE
++jA=
+'/*!*/;
+# at 67488
+#260928  8:33:55 server id 1  end_log_pos 67519 CRC32 0x67e0d164 	Xid = 1988
+COMMIT/*!*/;
+# at 67519
+#260928  8:34:25 server id 1  end_log_pos 67598 CRC32 0x4c54af52 	Anonymous_GTID	last_committed=47	sequence_number=48	rbr_only=yes	original_committed_timestamp=1790559265102317	immediate_commit_timestamp=1790559265102317	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559265102317 (2026-09-28 08:34:25.102317 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559265102317 (2026-09-28 08:34:25.102317 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559265102317*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 67598
+#260928  8:34:25 server id 1  end_log_pos 67688 CRC32 0x96604eaa 	Query	thread_id=55	exec_time=0	error_code=0
+SET TIMESTAMP=1790559265/*!*/;
+BEGIN
+/*!*/;
+# at 67688
+#260928  8:34:25 server id 1  end_log_pos 67762 CRC32 0x8942f1a4 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 67762
+#260928  8:34:25 server id 1  end_log_pos 69018 CRC32 0x7ca87758 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+IcS5ahMBAAAASgAAALIIAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4KTxQok=
+IcS5ah8BAAAA6AQAAJoNAQAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDkDxLlqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5IcS5alh3
+qHw=
+'/*!*/;
+# at 69018
+#260928  8:34:25 server id 1  end_log_pos 69049 CRC32 0xf150fe14 	Xid = 2021
+COMMIT/*!*/;
+# at 69049
+#260928  8:34:55 server id 1  end_log_pos 69128 CRC32 0x95d5c489 	Anonymous_GTID	last_committed=48	sequence_number=49	rbr_only=yes	original_committed_timestamp=1790559295120267	immediate_commit_timestamp=1790559295120267	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559295120267 (2026-09-28 08:34:55.120267 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559295120267 (2026-09-28 08:34:55.120267 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559295120267*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 69128
+#260928  8:34:55 server id 1  end_log_pos 69218 CRC32 0x7c2a40b1 	Query	thread_id=56	exec_time=0	error_code=0
+SET TIMESTAMP=1790559295/*!*/;
+BEGIN
+/*!*/;
+# at 69218
+#260928  8:34:55 server id 1  end_log_pos 69292 CRC32 0x3ffb0cf8 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 69292
+#260928  8:34:55 server id 1  end_log_pos 70548 CRC32 0xf4e767bd 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+P8S5ahMBAAAASgAAAKwOAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4PgM+z8=
+P8S5ah8BAAAA6AQAAJQTAQAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDkhxLlqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5P8S5ar1n
+5/Q=
+'/*!*/;
+# at 70548
+#260928  8:34:55 server id 1  end_log_pos 70579 CRC32 0xb63efc96 	Xid = 2054
+COMMIT/*!*/;
+# at 70579
+#260928  8:35:28 server id 1  end_log_pos 70658 CRC32 0xf5b5f9cc 	Anonymous_GTID	last_committed=49	sequence_number=50	rbr_only=yes	original_committed_timestamp=1790559328034251	immediate_commit_timestamp=1790559328034251	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559328034251 (2026-09-28 08:35:28.034251 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559328034251 (2026-09-28 08:35:28.034251 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559328034251*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 70658
+#260928  8:35:28 server id 1  end_log_pos 70748 CRC32 0xf8999c1f 	Query	thread_id=57	exec_time=0	error_code=0
+SET TIMESTAMP=1790559328/*!*/;
+BEGIN
+/*!*/;
+# at 70748
+#260928  8:35:28 server id 1  end_log_pos 70822 CRC32 0x4ece1594 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 70822
+#260928  8:35:28 server id 1  end_log_pos 72078 CRC32 0x5dd3e13d 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+YMS5ahMBAAAASgAAAKYUAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4JQVzk4=
+YMS5ah8BAAAA6AQAAI4ZAQAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDk/xLlqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5YMS5aj3h
+010=
+'/*!*/;
+# at 72078
+#260928  8:35:28 server id 1  end_log_pos 72109 CRC32 0xf81401d8 	Xid = 2087
+COMMIT/*!*/;
+# at 72109
+#260928  8:35:39 server id 1  end_log_pos 72188 CRC32 0x0d4bb446 	Anonymous_GTID	last_committed=50	sequence_number=51	rbr_only=yes	original_committed_timestamp=1790559339526514	immediate_commit_timestamp=1790559339526514	transaction_length=1530
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559339526514 (2026-09-28 08:35:39.526514 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559339526514 (2026-09-28 08:35:39.526514 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559339526514*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 72188
+#260928  8:35:39 server id 1  end_log_pos 72278 CRC32 0x86daa973 	Query	thread_id=59	exec_time=0	error_code=0
+SET TIMESTAMP=1790559339/*!*/;
+BEGIN
+/*!*/;
+# at 72278
+#260928  8:35:39 server id 1  end_log_pos 72352 CRC32 0xf1ee8fa0 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 72352
+#260928  8:35:39 server id 1  end_log_pos 73608 CRC32 0x2727f319 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+a8S5ahMBAAAASgAAAKAaAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4KCP7vE=
+a8S5ah8BAAAA6AQAAIgfAQAAAFMAAAAAAAEAAgAG//8AKABidlFkN2xyNDJoWWcxaXpjR25UZElq
+S0w4UW1ZQzBWSGcxZVZLa2ZTBAAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzasAQAAWVRvMU9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lTM1V5TjFOM2JITnNhbXh3U1V4RWQyOTFXamsyVTNGU05IbHBhakYyUWpV
+MWRuWkZSVlpuYVNJN2N6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lPM002
+TXpnNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOTBZVzExTHpNdmEzUndJ
+anR6T2pVNkluSnZkWFJsSWp0ek9qRTBPaUpoWkcxcGJpNTBZVzExTG10MGNDSTdmWE02TmpvaVgy
+WnNZWE5vSWp0aE9qSTZlM002TXpvaWIyeGtJanRoT2pBNmUzMXpPak02SW01bGR5STdZVG93T250
+OWZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pRN2N6b3hOem9pZEdGdGRWOXNZWE4wWDNObFpXNWZh
+V1FpTzJrNk9UdDlgxLlqACgAYnZRZDdscjQyaFlnMWl6Y0duVGRJaktMOFFtWUMwVkhnMWVWS2tm
+UwQAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7
+IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1My4w
+LjAuMCBTYWZhcmkvNTM3LjM2rAEAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6bzBNRG9pUzNV
+eU4xTjNiSE5zYW14d1NVeEVkMjkxV2prMlUzRlNOSGxwYWpGMlFqVTFkblpGUlZabmFTSTdjem81
+T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16ZzZJbWgwZEhBNkx5OHhN
+amN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTkwWVcxMUx6TXZhM1J3SWp0ek9qVTZJbkp2ZFhSbElq
+dHpPakUwT2lKaFpHMXBiaTUwWVcxMUxtdDBjQ0k3ZlhNNk5qb2lYMlpzWVhOb0lqdGhPakk2ZTNN
+Nk16b2liMnhrSWp0aE9qQTZlMzF6T2pNNkltNWxkeUk3WVRvd09udDlmWE02TlRBNklteHZaMmx1
+WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVP
+RGxrSWp0cE9qUTdjem94TnpvaWRHRnRkVjlzWVhOMFgzTmxaVzVmYVdRaU8yazZPVHQ5a8S5ahnz
+Jyc=
+'/*!*/;
+# at 73608
+#260928  8:35:39 server id 1  end_log_pos 73639 CRC32 0xc7c72f08 	Xid = 2153
+COMMIT/*!*/;
+# at 73639
+#260928  8:35:53 server id 1  end_log_pos 73718 CRC32 0x3f01e4f0 	Anonymous_GTID	last_committed=51	sequence_number=52	rbr_only=yes	original_committed_timestamp=1790559353308730	immediate_commit_timestamp=1790559353308730	transaction_length=723
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559353308730 (2026-09-28 08:35:53.308730 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559353308730 (2026-09-28 08:35:53.308730 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559353308730*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 73718
+#260928  8:35:53 server id 1  end_log_pos 73810 CRC32 0x8b3c7da4 	Query	thread_id=60	exec_time=0	error_code=0
+SET TIMESTAMP=1790559353/*!*/;
+BEGIN
+/*!*/;
+# at 73810
+#260928  8:35:53 server id 1  end_log_pos 73907 CRC32 0xa55b5dd2 	Table_map: `pln_up_imy`.`users` mapped to number 91
+# at 73907
+#260928  8:35:53 server id 1  end_log_pos 74331 CRC32 0xd6061773 	Update_rows: table id 91 flags: STMT_END_F
+
+BINLOG '
+ecS5ahMBAAAAYQAAALMgAQAAAFsAAAAAAAMACnBsbl91cF9pbXkABXVzZXJzAA8IDw8PEQ8P/A8R
+EQgPDw8W/AP8A/wDAPwDUAACkAEAAPwD/AP8A9B/AQHAAgHg0l1bpQ==
+ecS5ah8BAAAAqAEAAFsiAQAAAFsAAAAAAAEAAgAP/////8BwBAAAAAAAAAAFAEFkbWluDwBhZG1p
+bkBnbWFpbC5jb20NAEFkbWluaXN0cmF0b3Jqpu8iPAAkMnkkMTIkT2N3UVlua0NzVEpvQVZ5SENH
+VUFITzgvTm9kaWNDZGJObk1NU1Z1Z1JvMEhUdVlWaC9JRGk8ADlOODAyR3oxdk1XOHRIalF0Q0NK
+cURzSWtFa2ZPcGd5SXRYMDN3Z3Q1UjQ0MGEyelBKN2d2bnRnU1p2Umqm7yJqqJFFAQAAAAAAAADA
+cAQAAAAAAAAABQBBZG1pbg8AYWRtaW5AZ21haWwuY29tDQBBZG1pbmlzdHJhdG9yaqbvIjwAJDJ5
+JDEyJE9jd1FZbmtDc1RKb0FWeUhDR1VBSE84L05vZGljQ2RiTm5NTVNWdWdSbzBIVHVZVmgvSURp
+PABDNmFkMmxkOWw1M2FHMEZ5SzgxOUZnaDlkUzB3S1VWcVRyQVR1bU1lUDdPSjlkNk1uNkU3d05T
+N1EzVW5qpu8iaqiRRQEAAAAAAAAAcxcG1g==
+'/*!*/;
+# at 74331
+#260928  8:35:53 server id 1  end_log_pos 74362 CRC32 0x3c684fce 	Xid = 2165
+COMMIT/*!*/;
+# at 74362
+#260928  8:35:53 server id 1  end_log_pos 74441 CRC32 0x3943c543 	Anonymous_GTID	last_committed=52	sequence_number=53	rbr_only=yes	original_committed_timestamp=1790559353357379	immediate_commit_timestamp=1790559353357379	transaction_length=910
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559353357379 (2026-09-28 08:35:53.357379 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559353357379 (2026-09-28 08:35:53.357379 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559353357379*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 74441
+#260928  8:35:53 server id 1  end_log_pos 74522 CRC32 0x11e5cecc 	Query	thread_id=60	exec_time=0	error_code=0
+SET TIMESTAMP=1790559353/*!*/;
+BEGIN
+/*!*/;
+# at 74522
+#260928  8:35:53 server id 1  end_log_pos 74596 CRC32 0x3f936f23 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 74596
+#260928  8:35:53 server id 1  end_log_pos 75241 CRC32 0x3fb97399 	Delete_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+ecS5ahMBAAAASgAAAGQjAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4CNvkz8=
+ecS5aiABAAAAhQIAAOklAQAAAFMAAAAAAAEAAgAG/wAoAGJ2UWQ3bHI0MmhZZzFpemNHblRkSWpL
+TDhRbVlDMFZIZzFlVktrZlMEAAAAAAAAAAkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dz
+IE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vj
+a28pIENocm9tZS8xNTMuMC4wLjAgU2FmYXJpLzUzNy4zNqwBAABZVG8xT250ek9qWTZJbDkwYjJ0
+bGJpSTdjem8wTURvaVMzVXlOMU4zYkhOc2FteHdTVXhFZDI5MVdqazJVM0ZTTkhscGFqRjJRalUx
+ZG5aRlJWWm5hU0k3Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pPaUoxY213aU8zTTZN
+emc2SW1oMGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5MFlXMTFMek12YTNSd0lq
+dHpPalU2SW5KdmRYUmxJanR6T2pFME9pSmhaRzFwYmk1MFlXMTFMbXQwY0NJN2ZYTTZOam9pWDJa
+c1lYTm9JanRoT2pJNmUzTTZNem9pYjJ4a0lqdGhPakE2ZTMxek9qTTZJbTVsZHlJN1lUb3dPbnQ5
+ZlhNNk5UQTZJbXh2WjJsdVgzZGxZbDgxT1dKaE16WmhaR1JqTW1JeVpqazBNREUxT0RCbU1ERTBZ
+emRtTlRobFlUUmxNekE1T0Rsa0lqdHBPalE3Y3pveE56b2lkR0Z0ZFY5c1lYTjBYM05sWlc1ZmFX
+UWlPMms2T1R0OWvEuWqZc7k/
+'/*!*/;
+# at 75241
+#260928  8:35:53 server id 1  end_log_pos 75272 CRC32 0x6cd54761 	Xid = 2168
+COMMIT/*!*/;
+# at 75272
+#260928  8:35:53 server id 1  end_log_pos 75351 CRC32 0xed089d2d 	Anonymous_GTID	last_committed=53	sequence_number=54	rbr_only=yes	original_committed_timestamp=1790559353404893	immediate_commit_timestamp=1790559353404893	transaction_length=634
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559353404893 (2026-09-28 08:35:53.404893 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559353404893 (2026-09-28 08:35:53.404893 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559353404893*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 75351
+#260928  8:35:53 server id 1  end_log_pos 75432 CRC32 0x4c69fb42 	Query	thread_id=60	exec_time=0	error_code=0
+SET TIMESTAMP=1790559353/*!*/;
+BEGIN
+/*!*/;
+# at 75432
+#260928  8:35:53 server id 1  end_log_pos 75506 CRC32 0xb502f43a 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 75506
+#260928  8:35:53 server id 1  end_log_pos 75875 CRC32 0xde5ed1d8 	Write_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+ecS5ahMBAAAASgAAAPImAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4Dr0ArU=
+ecS5ah4BAAAAcQEAAGMoAQAAAFMAAAAAAAEAAgAG/wIoAFUxSXRybEJRTHdlRHNJYVhNeGF6VVVm
+aFNFMEsxa2NNVDJna0pkWG8JMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4w
+OyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJv
+bWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzagAAAAWVRveU9udHpPalk2SWw5MGIydGxiaUk3Y3pv
+ME1Eb2lUR2QyWjFoR2RFRndVSEowWjNwaGQwWlhUMkV6TjFSRWVsWjFNRlZuZUdRelpESTNSemxh
+ZHlJN2N6bzJPaUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3ZlhNNk16b2li
+bVYzSWp0aE9qQTZlMzE5ZlE9PXnEuWrY0V7e
+'/*!*/;
+# at 75875
+#260928  8:35:53 server id 1  end_log_pos 75906 CRC32 0x0118772f 	Xid = 2174
+COMMIT/*!*/;
+# at 75906
+#260928  8:35:54 server id 1  end_log_pos 75985 CRC32 0x29f66e37 	Anonymous_GTID	last_committed=54	sequence_number=55	rbr_only=yes	original_committed_timestamp=1790559354953332	immediate_commit_timestamp=1790559354953332	transaction_length=1090
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559354953332 (2026-09-28 08:35:54.953332 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559354953332 (2026-09-28 08:35:54.953332 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559354953332*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 75985
+#260928  8:35:54 server id 1  end_log_pos 76075 CRC32 0xa84904d7 	Query	thread_id=61	exec_time=0	error_code=0
+SET TIMESTAMP=1790559354/*!*/;
+BEGIN
+/*!*/;
+# at 76075
+#260928  8:35:54 server id 1  end_log_pos 76149 CRC32 0x4acd6ced 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 76149
+#260928  8:35:54 server id 1  end_log_pos 76965 CRC32 0x0be7ddd5 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+esS5ahMBAAAASgAAAHUpAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4O1szUo=
+esS5ah8BAAAAMAMAAKUsAQAAAFMAAAAAAAEAAgAG//8CKABVMUl0cmxCUUx3ZURzSWFYTXhhelVV
+ZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2oAAAAFlUb3lPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpaREkzUnps
+YWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWZRPT15xLlqAigAVTFJdHJsQlFMd2VEc0lhWE14YXpVVWZoU0UwSzFr
+Y01UMmdrSmRYbwkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0
+OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xNTMu
+MC4wLjAgU2FmYXJpLzUzNy4zNhABAABZVG96T250ek9qWTZJbDkwYjJ0bGJpSTdjem8wTURvaVRH
+ZDJaMWhHZEVGd1VISjBaM3BoZDBaWFQyRXpOMVJFZWxaMU1GVm5lR1F6WkRJM1J6bGFkeUk3Y3pv
+Mk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdmWE02TXpvaWJtVjNJanRo
+T2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk1qRTZJ
+bWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUNJN2N6bzFPaUp5YjNWMFpTSTdjem8wT2lKb2Iy
+MWxJanQ5ZlE9PXrEuWrV3ecL
+'/*!*/;
+# at 76965
+#260928  8:35:54 server id 1  end_log_pos 76996 CRC32 0xcd53fa21 	Xid = 2222
+COMMIT/*!*/;
+# at 76996
+#260928  8:35:55 server id 1  end_log_pos 77075 CRC32 0x8621e09b 	Anonymous_GTID	last_committed=55	sequence_number=56	rbr_only=yes	original_committed_timestamp=1790559355236846	immediate_commit_timestamp=1790559355236846	transaction_length=1202
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559355236846 (2026-09-28 08:35:55.236846 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559355236846 (2026-09-28 08:35:55.236846 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559355236846*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 77075
+#260928  8:35:55 server id 1  end_log_pos 77165 CRC32 0xdd484e85 	Query	thread_id=62	exec_time=0	error_code=0
+SET TIMESTAMP=1790559355/*!*/;
+BEGIN
+/*!*/;
+# at 77165
+#260928  8:35:55 server id 1  end_log_pos 77239 CRC32 0x2bd9339c 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 77239
+#260928  8:35:55 server id 1  end_log_pos 78167 CRC32 0x36f8e571 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+e8S5ahMBAAAASgAAALctAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4Jwz2Ss=
+e8S5ah8BAAAAoAMAAFcxAQAAAFMAAAAAAAEAAgAG//8CKABVMUl0cmxCUUx3ZURzSWFYTXhhelVV
+ZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2EAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpaREkzUnps
+YWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TWpFNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQ0k3Y3pvMU9pSnliM1YwWlNJN2N6
+bzBPaUpvYjIxbElqdDlmUT09esS5agIoAFUxSXRybEJRTHdlRHNJYVhNeGF6VVVmaFNFMEsxa2NN
+VDJna0pkWG8JMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsg
+eDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMTUzLjAu
+MC4wIFNhZmFyaS81MzcuMzYQAQAAWVRvek9udHpPalk2SWw5MGIydGxiaUk3Y3pvME1Eb2lUR2Qy
+WjFoR2RFRndVSEowWjNwaGQwWlhUMkV6TjFSRWVsWjFNRlZuZUdRelpESTNSemxhZHlJN2N6bzJP
+aUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3ZlhNNk16b2libVYzSWp0aE9q
+QTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pPaUoxY213aU8zTTZNakU2SW1o
+MGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DSTdjem8xT2lKeWIzVjBaU0k3Y3pvME9pSm9iMjFs
+SWp0OWZRPT17xLlqceX4Ng==
+'/*!*/;
+# at 78167
+#260928  8:35:55 server id 1  end_log_pos 78198 CRC32 0xfacb623f 	Xid = 2231
+COMMIT/*!*/;
+# at 78198
+#260928  8:36:27 server id 1  end_log_pos 78277 CRC32 0x006c6a41 	Anonymous_GTID	last_committed=56	sequence_number=57	rbr_only=yes	original_committed_timestamp=1790559387200452	immediate_commit_timestamp=1790559387200452	transaction_length=1218
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559387200452 (2026-09-28 08:36:27.200452 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559387200452 (2026-09-28 08:36:27.200452 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559387200452*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 78277
+#260928  8:36:27 server id 1  end_log_pos 78367 CRC32 0x01b9bad1 	Query	thread_id=63	exec_time=0	error_code=0
+SET TIMESTAMP=1790559387/*!*/;
+BEGIN
+/*!*/;
+# at 78367
+#260928  8:36:27 server id 1  end_log_pos 78441 CRC32 0x8566f249 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 78441
+#260928  8:36:27 server id 1  end_log_pos 79385 CRC32 0x6467e748 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+m8S5ahMBAAAASgAAAGkyAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4EnyZoU=
+m8S5ah8BAAAAsAMAABk2AQAAAFMAAAAAAAEAAgAG//8CKABVMUl0cmxCUUx3ZURzSWFYTXhhelVV
+ZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2EAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpaREkzUnps
+YWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TWpFNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQ0k3Y3pvMU9pSnliM1YwWlNJN2N6
+bzBPaUpvYjIxbElqdDlmUT09e8S5agIoAFUxSXRybEJRTHdlRHNJYVhNeGF6VVVmaFNFMEsxa2NN
+VDJna0pkWG8JMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsg
+eDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMTUzLjAu
+MC4wIFNhZmFyaS81MzcuMzYgAQAAWVRvek9udHpPalk2SWw5MGIydGxiaUk3Y3pvME1Eb2lUR2Qy
+WjFoR2RFRndVSEowWjNwaGQwWlhUMkV6TjFSRWVsWjFNRlZuZUdRelpESTNSemxhZHlJN2N6bzJP
+aUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3ZlhNNk16b2libVYzSWp0aE9q
+QTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pPaUoxY213aU8zTTZNek02SW1o
+MGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5c2IyZHBiaUk3Y3pvMU9pSnliM1Yw
+WlNJN2N6bzFPaUpzYjJkcGJpSTdmWDA9m8S5akjnZ2Q=
+'/*!*/;
+# at 79385
+#260928  8:36:27 server id 1  end_log_pos 79416 CRC32 0xd8c09804 	Xid = 2279
+COMMIT/*!*/;
+# at 79416
+#260928  8:37:37 server id 1  end_log_pos 79495 CRC32 0xa71d32bd 	Anonymous_GTID	last_committed=57	sequence_number=58	rbr_only=yes	original_committed_timestamp=1790559457847280	immediate_commit_timestamp=1790559457847280	transaction_length=1718
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559457847280 (2026-09-28 08:37:37.847280 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559457847280 (2026-09-28 08:37:37.847280 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559457847280*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 79495
+#260928  8:37:37 server id 1  end_log_pos 79585 CRC32 0x2deef1af 	Query	thread_id=64	exec_time=0	error_code=0
+SET TIMESTAMP=1790559457/*!*/;
+BEGIN
+/*!*/;
+# at 79585
+#260928  8:37:37 server id 1  end_log_pos 79659 CRC32 0x03f0d3c5 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 79659
+#260928  8:37:37 server id 1  end_log_pos 81103 CRC32 0xa46d6c29 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+4cS5ahMBAAAASgAAACs3AQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4MXT8AM=
+4cS5ah8BAAAApAUAAM88AQAAAFMAAAAAAAEAAgAG//8CKABVMUl0cmxCUUx3ZURzSWFYTXhhelVV
+ZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpaREkzUnps
+YWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPZvEuWoCKABVMUl0cmxCUUx3ZURzSWFY
+TXhhelVVZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2BAMAAFlUbzFPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpa
+REkzUnpsYWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TWpwN2FU
+b3dPM002TVRBNklsOXZiR1JmYVc1d2RYUWlPMms2TVR0ek9qWTZJbVZ5Y205eWN5STdmWE02TXpv
+aWJtVjNJanRoT2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16TTZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlzYjJkcGJpSTdj
+em8xT2lKeWIzVjBaU0k3Y3pvMU9pSnNiMmRwYmlJN2ZYTTZNVEE2SWw5dmJHUmZhVzV3ZFhRaU8y
+RTZNVHA3Y3pvMU9pSmxiV0ZwYkNJN2N6b3lNVG9pYzNsaFptbHhkMnhrYmpCQVoyMWhhV3d1WTI5
+dElqdDljem8yT2lKbGNuSnZjbk1pTzA4Nk16RTZJa2xzYkhWdGFXNWhkR1ZjVTNWd2NHOXlkRnhX
+YVdWM1JYSnliM0pDWVdjaU9qRTZlM002TnpvaUFDb0FZbUZuY3lJN1lUb3hPbnR6T2pjNkltUmxa
+bUYxYkhRaU8wODZNams2SWtsc2JIVnRhVzVoZEdWY1UzVndjRzl5ZEZ4TlpYTnpZV2RsUW1Gbklq
+b3lPbnR6T2pFeE9pSUFLZ0J0WlhOellXZGxjeUk3WVRveE9udHpPalU2SW1WdFlXbHNJanRoT2pF
+NmUyazZNRHR6T2pRek9pSlVhR1Z6WlNCamNtVmtaVzUwYVdGc2N5QmtieUJ1YjNRZ2JXRjBZMmdn
+YjNWeUlISmxZMjl5WkhNdUlqdDlmWE02T1RvaUFDb0FabTl5YldGMElqdHpPamc2SWpwdFpYTnpZ
+V2RsSWp0OWZYMTnhxLlqKWxtpA==
+'/*!*/;
+# at 81103
+#260928  8:37:37 server id 1  end_log_pos 81134 CRC32 0x197018d8 	Xid = 2291
+COMMIT/*!*/;
+# at 81134
+#260928  8:37:38 server id 1  end_log_pos 81213 CRC32 0x11ed69d3 	Anonymous_GTID	last_committed=58	sequence_number=59	rbr_only=yes	original_committed_timestamp=1790559458053796	immediate_commit_timestamp=1790559458053796	transaction_length=1718
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559458053796 (2026-09-28 08:37:38.053796 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559458053796 (2026-09-28 08:37:38.053796 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559458053796*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 81213
+#260928  8:37:38 server id 1  end_log_pos 81303 CRC32 0x7f9e336b 	Query	thread_id=65	exec_time=0	error_code=0
+SET TIMESTAMP=1790559458/*!*/;
+BEGIN
+/*!*/;
+# at 81303
+#260928  8:37:38 server id 1  end_log_pos 81377 CRC32 0xb4a89908 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 81377
+#260928  8:37:38 server id 1  end_log_pos 82821 CRC32 0x0c85a265 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+4sS5ahMBAAAASgAAAOE9AQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4AiZqLQ=
+4sS5ah8BAAAApAUAAIVDAQAAAFMAAAAAAAEAAgAG//8CKABVMUl0cmxCUUx3ZURzSWFYTXhhelVV
+ZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2BAMAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpaREkzUnps
+YWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TWpwN2FUb3dPM002
+TVRBNklsOXZiR1JmYVc1d2RYUWlPMms2TVR0ek9qWTZJbVZ5Y205eWN5STdmWE02TXpvaWJtVjNJ
+anRoT2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16
+TTZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlzYjJkcGJpSTdjem8xT2lK
+eWIzVjBaU0k3Y3pvMU9pSnNiMmRwYmlJN2ZYTTZNVEE2SWw5dmJHUmZhVzV3ZFhRaU8yRTZNVHA3
+Y3pvMU9pSmxiV0ZwYkNJN2N6b3lNVG9pYzNsaFptbHhkMnhrYmpCQVoyMWhhV3d1WTI5dElqdDlj
+em8yT2lKbGNuSnZjbk1pTzA4Nk16RTZJa2xzYkhWdGFXNWhkR1ZjVTNWd2NHOXlkRnhXYVdWM1JY
+SnliM0pDWVdjaU9qRTZlM002TnpvaUFDb0FZbUZuY3lJN1lUb3hPbnR6T2pjNkltUmxabUYxYkhR
+aU8wODZNams2SWtsc2JIVnRhVzVoZEdWY1UzVndjRzl5ZEZ4TlpYTnpZV2RsUW1Gbklqb3lPbnR6
+T2pFeE9pSUFLZ0J0WlhOellXZGxjeUk3WVRveE9udHpPalU2SW1WdFlXbHNJanRoT2pFNmUyazZN
+RHR6T2pRek9pSlVhR1Z6WlNCamNtVmtaVzUwYVdGc2N5QmtieUJ1YjNRZ2JXRjBZMmdnYjNWeUlI
+SmxZMjl5WkhNdUlqdDlmWE02T1RvaUFDb0FabTl5YldGMElqdHpPamc2SWpwdFpYTnpZV2RsSWp0
+OWZYMTnhxLlqAigAVTFJdHJsQlFMd2VEc0lhWE14YXpVVWZoU0UwSzFrY01UMmdrSmRYbwkxMjcu
+MC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2Vi
+S2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xNTMuMC4wLjAgU2FmYXJpLzUz
+Ny4zNiABAABZVG96T250ek9qWTZJbDkwYjJ0bGJpSTdjem8wTURvaVRHZDJaMWhHZEVGd1VISjBa
+M3BoZDBaWFQyRXpOMVJFZWxaMU1GVm5lR1F6WkRJM1J6bGFkeUk3Y3pvMk9pSmZabXhoYzJnaU8y
+RTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdmWE02TXpvaWJtVjNJanRoT2pBNmUzMTljem81T2lK
+ZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16TTZJbWgwZEhBNkx5OHhNamN1
+TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlzYjJkcGJpSTdjem8xT2lKeWIzVjBaU0k3Y3pvMU9pSnNi
+MmRwYmlJN2ZYMD3ixLlqZaKFDA==
+'/*!*/;
+# at 82821
+#260928  8:37:38 server id 1  end_log_pos 82852 CRC32 0x0484cc68 	Xid = 2339
+COMMIT/*!*/;
+# at 82852
+#260928  8:42:50 server id 1  end_log_pos 82931 CRC32 0x88267555 	Anonymous_GTID	last_committed=59	sequence_number=60	rbr_only=yes	original_committed_timestamp=1790559770668950	immediate_commit_timestamp=1790559770668950	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559770668950 (2026-09-28 08:42:50.668950 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559770668950 (2026-09-28 08:42:50.668950 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559770668950*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 82931
+#260928  8:42:50 server id 1  end_log_pos 83012 CRC32 0x25f0066a 	Query	thread_id=66	exec_time=0	error_code=0
+SET TIMESTAMP=1790559770/*!*/;
+BEGIN
+/*!*/;
+# at 83012
+#260928  8:42:50 server id 1  end_log_pos 83077 CRC32 0xf2d416de 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 83077
+#260928  8:42:50 server id 1  end_log_pos 83180 CRC32 0xfb7ba91f 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Gsa5ahMBAAAAQQAAAIVEAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4N4W1PI=
+Gsa5aiABAAAAZwAAAOxEAQAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MTvG5LVqH6l7+w==
+'/*!*/;
+# at 83180
+#260928  8:42:50 server id 1  end_log_pos 83211 CRC32 0xe28dbe52 	Xid = 2351
+COMMIT/*!*/;
+# at 83211
+#260928  8:42:50 server id 1  end_log_pos 83290 CRC32 0x6c1ef96b 	Anonymous_GTID	last_committed=60	sequence_number=61	rbr_only=yes	original_committed_timestamp=1790559770682606	immediate_commit_timestamp=1790559770682606	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559770682606 (2026-09-28 08:42:50.682606 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559770682606 (2026-09-28 08:42:50.682606 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559770682606*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 83290
+#260928  8:42:50 server id 1  end_log_pos 83371 CRC32 0x177e5853 	Query	thread_id=66	exec_time=0	error_code=0
+SET TIMESTAMP=1790559770/*!*/;
+BEGIN
+/*!*/;
+# at 83371
+#260928  8:42:50 server id 1  end_log_pos 83436 CRC32 0x2799100b 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 83436
+#260928  8:42:50 server id 1  end_log_pos 83554 CRC32 0x2c384c70 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Gsa5ahMBAAAAQQAAAOxFAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4AsQmSc=
+Gsa5aiABAAAAdgAAAGJGAQAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDMwNTQ3ODvG5LVq
+cEw4LA==
+'/*!*/;
+# at 83554
+#260928  8:42:50 server id 1  end_log_pos 83585 CRC32 0xe378ca06 	Xid = 2357
+COMMIT/*!*/;
+# at 83585
+#260928  8:42:50 server id 1  end_log_pos 83664 CRC32 0x42547069 	Anonymous_GTID	last_committed=61	sequence_number=62	rbr_only=yes	original_committed_timestamp=1790559770684014	immediate_commit_timestamp=1790559770684014	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559770684014 (2026-09-28 08:42:50.684014 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559770684014 (2026-09-28 08:42:50.684014 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559770684014*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 83664
+#260928  8:42:50 server id 1  end_log_pos 83745 CRC32 0xf9d51cc0 	Query	thread_id=66	exec_time=0	error_code=0
+SET TIMESTAMP=1790559770/*!*/;
+BEGIN
+/*!*/;
+# at 83745
+#260928  8:42:50 server id 1  end_log_pos 83810 CRC32 0x97350a3a 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 83810
+#260928  8:42:50 server id 1  end_log_pos 83928 CRC32 0xa0702519 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Gsa5ahMBAAAAQQAAAGJHAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4DoKNZc=
+Gsa5ah4BAAAAdgAAANhHAQAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU1OTgzMDtWxrlq
+GSVwoA==
+'/*!*/;
+# at 83928
+#260928  8:42:50 server id 1  end_log_pos 83959 CRC32 0xb746fea1 	Xid = 2360
+COMMIT/*!*/;
+# at 83959
+#260928  8:42:50 server id 1  end_log_pos 84038 CRC32 0x52b267b5 	Anonymous_GTID	last_committed=62	sequence_number=63	rbr_only=yes	original_committed_timestamp=1790559770685548	immediate_commit_timestamp=1790559770685548	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559770685548 (2026-09-28 08:42:50.685548 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559770685548 (2026-09-28 08:42:50.685548 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559770685548*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 84038
+#260928  8:42:50 server id 1  end_log_pos 84119 CRC32 0xbc701c42 	Query	thread_id=66	exec_time=0	error_code=0
+SET TIMESTAMP=1790559770/*!*/;
+BEGIN
+/*!*/;
+# at 84119
+#260928  8:42:50 server id 1  end_log_pos 84184 CRC32 0x8d9d97a7 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 84184
+#260928  8:42:50 server id 1  end_log_pos 84287 CRC32 0x37740017 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Gsa5ahMBAAAAQQAAANhIAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4KeXnY0=
+Gsa5ah4BAAAAZwAAAD9JAQAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MDtWxrlqFwB0Nw==
+'/*!*/;
+# at 84287
+#260928  8:42:50 server id 1  end_log_pos 84318 CRC32 0x6b8e93ec 	Xid = 2366
+COMMIT/*!*/;
+# at 84318
+#260928  8:42:50 server id 1  end_log_pos 84397 CRC32 0x76390c6e 	Anonymous_GTID	last_committed=63	sequence_number=64	rbr_only=yes	original_committed_timestamp=1790559770732964	immediate_commit_timestamp=1790559770732964	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559770732964 (2026-09-28 08:42:50.732964 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559770732964 (2026-09-28 08:42:50.732964 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559770732964*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 84397
+#260928  8:42:50 server id 1  end_log_pos 84487 CRC32 0x8bc5d296 	Query	thread_id=66	exec_time=0	error_code=0
+SET TIMESTAMP=1790559770/*!*/;
+BEGIN
+/*!*/;
+# at 84487
+#260928  8:42:50 server id 1  end_log_pos 84552 CRC32 0xeb9746bd 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 84552
+#260928  8:42:50 server id 1  end_log_pos 84724 CRC32 0x54b4b735 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Gsa5ahMBAAAAQQAAAEhKAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4L1Gl+s=
+Gsa5ah8BAAAArAAAAPRKAQAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjA7Vsa5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MTtWxrlqNbe0
+VA==
+'/*!*/;
+# at 84724
+#260928  8:42:50 server id 1  end_log_pos 84755 CRC32 0x066e25d2 	Xid = 2370
+COMMIT/*!*/;
+# at 84755
+#260928  8:42:50 server id 1  end_log_pos 84834 CRC32 0xb0ec667b 	Anonymous_GTID	last_committed=64	sequence_number=65	rbr_only=yes	original_committed_timestamp=1790559770792255	immediate_commit_timestamp=1790559770792255	transaction_length=381
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559770792255 (2026-09-28 08:42:50.792255 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559770792255 (2026-09-28 08:42:50.792255 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559770792255*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 84834
+#260928  8:42:50 server id 1  end_log_pos 84915 CRC32 0xfb4cf1ca 	Query	thread_id=66	exec_time=0	error_code=0
+SET TIMESTAMP=1790559770/*!*/;
+BEGIN
+/*!*/;
+# at 84915
+#260928  8:42:50 server id 1  end_log_pos 84980 CRC32 0x2dd6db5d 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 84980
+#260928  8:42:50 server id 1  end_log_pos 85105 CRC32 0xc4f24309 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Gsa5ahMBAAAAQQAAAPRLAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4F3b1i0=
+Gsa5aiABAAAAfQAAAHFMAQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOmNvb2xk
+b3duOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2MNAABpOjE3OTAzMDU0
+Nzk7x+S1aglD8sQ=
+'/*!*/;
+# at 85105
+#260928  8:42:50 server id 1  end_log_pos 85136 CRC32 0x1f0afc62 	Xid = 2383
+COMMIT/*!*/;
+# at 85136
+#260928  8:42:51 server id 1  end_log_pos 85215 CRC32 0x369d15d8 	Anonymous_GTID	last_committed=65	sequence_number=66	rbr_only=yes	original_committed_timestamp=1790559771032951	immediate_commit_timestamp=1790559771032951	transaction_length=582
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559771032951 (2026-09-28 08:42:51.032951 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559771032951 (2026-09-28 08:42:51.032951 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559771032951*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 85215
+#260928  8:42:51 server id 1  end_log_pos 85296 CRC32 0x600e13c9 	Query	thread_id=66	exec_time=0	error_code=0
+SET TIMESTAMP=1790559771/*!*/;
+BEGIN
+/*!*/;
+# at 85296
+#260928  8:42:51 server id 1  end_log_pos 85361 CRC32 0xee0ef243 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 85361
+#260928  8:42:51 server id 1  end_log_pos 85687 CRC32 0x36211b1c 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+G8a5ahMBAAAAQQAAAHFNAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4EPyDu4=
+G8a5ah8BAAAARgEAALdOAQAAAGQAAAAAAAEAAgAD//8AQwBsYXJhdmVsLWNhY2hlLW90cDpwYXNz
+d29yZDo0ODcxNzU3NGE4YzBlMDcyMjc2MGYyNjNiNzViZDgyNjc0YjI0ZGNjRAAAczo2MDoiJDJ5
+JDEyJHo1SXcya050S1o2MGsvdHBtd3ZqTnVTUTRibTJPR1JjUnNrL0lPLkhmTFhQVnRkZVRqS2N1
+Ijvj5rVqAEMAbGFyYXZlbC1jYWNoZS1vdHA6cGFzc3dvcmQ6NDg3MTc1NzRhOGMwZTA3MjI3NjBm
+MjYzYjc1YmQ4MjY3NGIyNGRjY0QAAHM6NjA6IiQyeSQxMiRVTGRlb2YvanFUNGxmT3FDeDFHd0J1
+ZlNZOTlBYmdCM1J1MkJWTHQ0RFJpaWtsdHpCYlVFRyI7c8i5ahwbITY=
+'/*!*/;
+# at 85687
+#260928  8:42:51 server id 1  end_log_pos 85718 CRC32 0x4f1fcad5 	Xid = 2386
+COMMIT/*!*/;
+# at 85718
+#260928  8:42:51 server id 1  end_log_pos 85797 CRC32 0xa5d9b377 	Anonymous_GTID	last_committed=66	sequence_number=67	rbr_only=yes	original_committed_timestamp=1790559771048500	immediate_commit_timestamp=1790559771048500	transaction_length=381
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559771048500 (2026-09-28 08:42:51.048500 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559771048500 (2026-09-28 08:42:51.048500 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559771048500*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 85797
+#260928  8:42:51 server id 1  end_log_pos 85878 CRC32 0x4118fd3a 	Query	thread_id=66	exec_time=0	error_code=0
+SET TIMESTAMP=1790559771/*!*/;
+BEGIN
+/*!*/;
+# at 85878
+#260928  8:42:51 server id 1  end_log_pos 85943 CRC32 0x04de8b9a 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 85943
+#260928  8:42:51 server id 1  end_log_pos 86068 CRC32 0xdf20a573 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+G8a5ahMBAAAAQQAAALdPAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4JqL3gQ=
+G8a5ah4BAAAAfQAAADRQAQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOmNvb2xk
+b3duOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2MNAABpOjE3OTA1NTk4
+MzE7V8a5anOlIN8=
+'/*!*/;
+# at 86068
+#260928  8:42:51 server id 1  end_log_pos 86099 CRC32 0x0cebe829 	Xid = 2389
+COMMIT/*!*/;
+# at 86099
+#260928  8:42:58 server id 1  end_log_pos 86178 CRC32 0x16f9e7ea 	Anonymous_GTID	last_committed=67	sequence_number=68	rbr_only=yes	original_committed_timestamp=1790559778262954	immediate_commit_timestamp=1790559778262954	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790559778262954 (2026-09-28 08:42:58.262954 SE Asia Standard Time)
+# immediate_commit_timestamp=1790559778262954 (2026-09-28 08:42:58.262954 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790559778262954*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 86178
+#260928  8:42:58 server id 1  end_log_pos 86268 CRC32 0x5d630987 	Query	thread_id=66	exec_time=0	error_code=0
+SET TIMESTAMP=1790559778/*!*/;
+BEGIN
+/*!*/;
+# at 86268
+#260928  8:42:58 server id 1  end_log_pos 86342 CRC32 0x07b2b827 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 86342
+#260928  8:42:58 server id 1  end_log_pos 87302 CRC32 0x4dc958c9 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+Isa5ahMBAAAASgAAAEZRAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4Ce4sgc=
+Isa5ah8BAAAAwAMAAAZVAQAAAFMAAAAAAAEAAgAG//8CKABVMUl0cmxCUUx3ZURzSWFYTXhhelVV
+ZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpaREkzUnps
+YWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPeLEuWoCKABVMUl0cmxCUUx3ZURzSWFY
+TXhhelVVZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpa
+REkzUnpsYWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPSLGuWrJWMlN
+'/*!*/;
+# at 87302
+#260928  8:42:58 server id 1  end_log_pos 87333 CRC32 0x587081cf 	Xid = 2395
+COMMIT/*!*/;
+# at 87333
+#260928  9:20:14 server id 1  end_log_pos 87412 CRC32 0x7fb97247 	Anonymous_GTID	last_committed=68	sequence_number=69	rbr_only=yes	original_committed_timestamp=1790562014494067	immediate_commit_timestamp=1790562014494067	transaction_length=1218
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790562014494067 (2026-09-28 09:20:14.494067 SE Asia Standard Time)
+# immediate_commit_timestamp=1790562014494067 (2026-09-28 09:20:14.494067 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790562014494067*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 87412
+#260928  9:20:14 server id 1  end_log_pos 87502 CRC32 0xf5a4b5ef 	Query	thread_id=67	exec_time=0	error_code=0
+SET TIMESTAMP=1790562014/*!*/;
+BEGIN
+/*!*/;
+# at 87502
+#260928  9:20:14 server id 1  end_log_pos 87576 CRC32 0x34169114 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 87576
+#260928  9:20:14 server id 1  end_log_pos 88520 CRC32 0x6ff93019 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+3s65ahMBAAAASgAAABhWAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4BSRFjQ=
+3s65ah8BAAAAsAMAAMhZAQAAAFMAAAAAAAEAAgAG//8CKABVMUl0cmxCUUx3ZURzSWFYTXhhelVV
+ZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpaREkzUnps
+YWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPSLGuWoCKABVMUl0cmxCUUx3ZURzSWFY
+TXhhelVVZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2EAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpa
+REkzUnpsYWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TWpFNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQ0k3Y3pvMU9pSnliM1Yw
+WlNJN2N6bzBPaUpvYjIxbElqdDlmUT093s65ahkw+W8=
+'/*!*/;
+# at 88520
+#260928  9:20:14 server id 1  end_log_pos 88551 CRC32 0xcf910464 	Xid = 2443
+COMMIT/*!*/;
+# at 88551
+#260928  9:21:56 server id 1  end_log_pos 88630 CRC32 0xdc2a15cd 	Anonymous_GTID	last_committed=69	sequence_number=70	rbr_only=yes	original_committed_timestamp=1790562116565525	immediate_commit_timestamp=1790562116565525	transaction_length=1218
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790562116565525 (2026-09-28 09:21:56.565525 SE Asia Standard Time)
+# immediate_commit_timestamp=1790562116565525 (2026-09-28 09:21:56.565525 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790562116565525*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 88630
+#260928  9:21:56 server id 1  end_log_pos 88720 CRC32 0xaa167e3d 	Query	thread_id=68	exec_time=0	error_code=0
+SET TIMESTAMP=1790562116/*!*/;
+BEGIN
+/*!*/;
+# at 88720
+#260928  9:21:56 server id 1  end_log_pos 88794 CRC32 0xdd1186ce 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 88794
+#260928  9:21:56 server id 1  end_log_pos 89738 CRC32 0x1a24ebef 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+RM+5ahMBAAAASgAAANpaAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4M6GEd0=
+RM+5ah8BAAAAsAMAAIpeAQAAAFMAAAAAAAEAAgAG//8CKABVMUl0cmxCUUx3ZURzSWFYTXhhelVV
+ZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2EAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpaREkzUnps
+YWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TWpFNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQ0k3Y3pvMU9pSnliM1YwWlNJN2N6
+bzBPaUpvYjIxbElqdDlmUT093s65agIoAFUxSXRybEJRTHdlRHNJYVhNeGF6VVVmaFNFMEsxa2NN
+VDJna0pkWG8JMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsg
+eDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMTUzLjAu
+MC4wIFNhZmFyaS81MzcuMzYgAQAAWVRvek9udHpPalk2SWw5MGIydGxiaUk3Y3pvME1Eb2lUR2Qy
+WjFoR2RFRndVSEowWjNwaGQwWlhUMkV6TjFSRWVsWjFNRlZuZUdRelpESTNSemxhZHlJN2N6bzJP
+aUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3ZlhNNk16b2libVYzSWp0aE9q
+QTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pPaUoxY213aU8zTTZNek02SW1o
+MGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5c2IyZHBiaUk3Y3pvMU9pSnliM1Yw
+WlNJN2N6bzFPaUpzYjJkcGJpSTdmWDA9RM+5au/rJBo=
+'/*!*/;
+# at 89738
+#260928  9:21:56 server id 1  end_log_pos 89769 CRC32 0x85c84e91 	Xid = 2491
+COMMIT/*!*/;
+# at 89769
+#260928 10:00:46 server id 1  end_log_pos 89848 CRC32 0xa666298c 	Anonymous_GTID	last_committed=70	sequence_number=71	rbr_only=yes	original_committed_timestamp=1790564446599421	immediate_commit_timestamp=1790564446599421	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564446599421 (2026-09-28 10:00:46.599421 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564446599421 (2026-09-28 10:00:46.599421 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564446599421*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 89848
+#260928 10:00:46 server id 1  end_log_pos 89938 CRC32 0x63857868 	Query	thread_id=69	exec_time=0	error_code=0
+SET TIMESTAMP=1790564446/*!*/;
+BEGIN
+/*!*/;
+# at 89938
+#260928 10:00:46 server id 1  end_log_pos 90012 CRC32 0x80c11b9f 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 90012
+#260928 10:00:46 server id 1  end_log_pos 90972 CRC32 0x7acc23eb 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+Xti5ahMBAAAASgAAAJxfAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4J8bwYA=
+Xti5ah8BAAAAwAMAAFxjAQAAAFMAAAAAAAEAAgAG//8CKABVMUl0cmxCUUx3ZURzSWFYTXhhelVV
+ZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpaREkzUnps
+YWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPUTPuWoCKABVMUl0cmxCUUx3ZURzSWFY
+TXhhelVVZmhTRTBLMWtjTVQyZ2tKZFhvCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pVEdkMloxaEdkRUZ3VUhKMFozcGhkMFpYVDJFek4xUkVlbFoxTUZWbmVHUXpa
+REkzUnpsYWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPV7YuWrrI8x6
+'/*!*/;
+# at 90972
+#260928 10:00:46 server id 1  end_log_pos 91003 CRC32 0xe6d2bbd7 	Xid = 2539
+COMMIT/*!*/;
+# at 91003
+#260928 10:01:04 server id 1  end_log_pos 91082 CRC32 0xbe25d5c4 	Anonymous_GTID	last_committed=71	sequence_number=72	rbr_only=yes	original_committed_timestamp=1790564464029215	immediate_commit_timestamp=1790564464029215	transaction_length=762
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564464029215 (2026-09-28 10:01:04.029215 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564464029215 (2026-09-28 10:01:04.029215 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564464029215*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 91082
+#260928 10:01:04 server id 1  end_log_pos 91163 CRC32 0xe6573541 	Query	thread_id=70	exec_time=0	error_code=0
+SET TIMESTAMP=1790564464/*!*/;
+BEGIN
+/*!*/;
+# at 91163
+#260928 10:01:04 server id 1  end_log_pos 91237 CRC32 0x41c223cb 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 91237
+#260928 10:01:04 server id 1  end_log_pos 91734 CRC32 0x60e03c6d 	Delete_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+cNi5ahMBAAAASgAAAGVkAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4MsjwkE=
+cNi5aiABAAAA8QEAAFZmAQAAAFMAAAAAAAEAAgAG/wIoAFUxSXRybEJRTHdlRHNJYVhNeGF6VVVm
+aFNFMEsxa2NNVDJna0pkWG8JMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4w
+OyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJv
+bWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzYgAQAAWVRvek9udHpPalk2SWw5MGIydGxiaUk3Y3pv
+ME1Eb2lUR2QyWjFoR2RFRndVSEowWjNwaGQwWlhUMkV6TjFSRWVsWjFNRlZuZUdRelpESTNSemxh
+ZHlJN2N6bzJPaUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3ZlhNNk16b2li
+bVYzSWp0aE9qQTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pPaUoxY213aU8z
+TTZNek02SW1oMGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5c2IyZHBiaUk3Y3pv
+MU9pSnliM1YwWlNJN2N6bzFPaUpzYjJkcGJpSTdmWDA9Xti5am084GA=
+'/*!*/;
+# at 91734
+#260928 10:01:04 server id 1  end_log_pos 91765 CRC32 0xd940a4c7 	Xid = 2551
+COMMIT/*!*/;
+# at 91765
+#260928 10:01:04 server id 1  end_log_pos 91844 CRC32 0x2d6d9413 	Anonymous_GTID	last_committed=72	sequence_number=73	rbr_only=yes	original_committed_timestamp=1790564464073158	immediate_commit_timestamp=1790564464073158	transaction_length=854
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564464073158 (2026-09-28 10:01:04.073158 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564464073158 (2026-09-28 10:01:04.073158 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564464073158*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 91844
+#260928 10:01:04 server id 1  end_log_pos 91925 CRC32 0x215112f7 	Query	thread_id=70	exec_time=0	error_code=0
+SET TIMESTAMP=1790564464/*!*/;
+BEGIN
+/*!*/;
+# at 91925
+#260928 10:01:04 server id 1  end_log_pos 91999 CRC32 0x611a4059 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 91999
+#260928 10:01:04 server id 1  end_log_pos 92588 CRC32 0xdc14fcc1 	Write_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+cNi5ahMBAAAASgAAAF9nAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4FlAGmE=
+cNi5ah4BAAAATQIAAKxpAQAAAFMAAAAAAAEAAgAG/wAoAFkwalpYY2RoWkc0VEZZR3hjQ2VlVWt0
+dWtZc3hWRHNGejg1ZldhaVYKAAAAAAAAAAkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dz
+IE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vj
+a28pIENocm9tZS8xNTMuMC4wLjAgU2FmYXJpLzUzNy4zNnQBAABZVG8wT250ek9qWTZJbDkwYjJ0
+bGJpSTdjem8wTURvaVRXTkJaRU5aWkU4eGVXaDFUR1Y2UTJkVmJXZG5RVGhYT1hGU1IwWTVZMHhI
+YWsxalFUbHpTU0k3Y3pvMk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdm
+WE02TXpvaWJtVjNJanRoT2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9p
+SjFjbXdpTzNNNk16TTZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlzYjJk
+cGJpSTdjem8xT2lKeWIzVjBaU0k3Y3pvMU9pSnNiMmRwYmlJN2ZYTTZOVEE2SW14dloybHVYM2Rs
+WWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUwWXpkbU5UaGxZVFJsTXpBNU9EbGtJ
+anRwT2pFd08zMD1w2LlqwfwU3A==
+'/*!*/;
+# at 92588
+#260928 10:01:04 server id 1  end_log_pos 92619 CRC32 0xc60793c1 	Xid = 2569
+COMMIT/*!*/;
+# at 92619
+#260928 10:01:04 server id 1  end_log_pos 92698 CRC32 0xf126bf3d 	Anonymous_GTID	last_committed=73	sequence_number=74	rbr_only=yes	original_committed_timestamp=1790564464948156	immediate_commit_timestamp=1790564464948156	transaction_length=1438
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564464948156 (2026-09-28 10:01:04.948156 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564464948156 (2026-09-28 10:01:04.948156 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564464948156*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 92698
+#260928 10:01:04 server id 1  end_log_pos 92788 CRC32 0x5a1e9348 	Query	thread_id=71	exec_time=0	error_code=0
+SET TIMESTAMP=1790564464/*!*/;
+BEGIN
+/*!*/;
+# at 92788
+#260928 10:01:04 server id 1  end_log_pos 92862 CRC32 0x22129c82 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 92862
+#260928 10:01:04 server id 1  end_log_pos 94026 CRC32 0x6b6ce674 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+cNi5ahMBAAAASgAAAL5qAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4IKcEiI=
+cNi5ah8BAAAAjAQAAEpvAQAAAFMAAAAAAAEAAgAG//8AKABZMGpaWGNkaFpHNFRGWUd4Y0NlZVVr
+dHVrWXN4VkRzRno4NWZXYWlWCgAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzZ0AQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lUV05CWkVOWlpFOHhlV2gxVEdWNlEyZFZiV2RuUVRoWE9YRlNSMFk1WTB4
+SGFrMWpRVGx6U1NJN2N6bzJPaUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3
+ZlhNNk16b2libVYzSWp0aE9qQTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pP
+aUoxY213aU8zTTZNek02SW1oMGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5c2Iy
+ZHBiaUk3Y3pvMU9pSnliM1YwWlNJN2N6bzFPaUpzYjJkcGJpSTdmWE02TlRBNklteHZaMmx1WDNk
+bFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVPRGxr
+SWp0cE9qRXdPMzA9cNi5agAoAFkwalpYY2RoWkc0VEZZR3hjQ2VlVWt0dWtZc3hWRHNGejg1Zldh
+aVYKAAAAAAAAAAkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0
+OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xNTMu
+MC4wLjAgU2FmYXJpLzUzNy4zNogBAABZVG8wT250ek9qWTZJbDkwYjJ0bGJpSTdjem8wTURvaVRX
+TkJaRU5aWkU4eGVXaDFUR1Y2UTJkVmJXZG5RVGhYT1hGU1IwWTVZMHhIYWsxalFUbHpTU0k3Y3pv
+Mk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdmWE02TXpvaWJtVjNJanRo
+T2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16YzZJ
+bWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhjbVFpTzNNNk5U
+b2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5UQTZJbXh2WjJs
+dVgzZGxZbDgxT1dKaE16WmhaR1JqTW1JeVpqazBNREUxT0RCbU1ERTBZemRtTlRobFlUUmxNekE1
+T0Rsa0lqdHBPakV3TzMwPXDYuWp05mxr
+'/*!*/;
+# at 94026
+#260928 10:01:04 server id 1  end_log_pos 94057 CRC32 0xb33d58bc 	Xid = 2761
+COMMIT/*!*/;
+# at 94057
+#260928 10:01:05 server id 1  end_log_pos 94136 CRC32 0x9eee6a77 	Anonymous_GTID	last_committed=74	sequence_number=75	rbr_only=yes	original_committed_timestamp=1790564465343811	immediate_commit_timestamp=1790564465343811	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564465343811 (2026-09-28 10:01:05.343811 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564465343811 (2026-09-28 10:01:05.343811 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564465343811*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 94136
+#260928 10:01:05 server id 1  end_log_pos 94226 CRC32 0xfc14e8fe 	Query	thread_id=72	exec_time=0	error_code=0
+SET TIMESTAMP=1790564465/*!*/;
+BEGIN
+/*!*/;
+# at 94226
+#260928 10:01:05 server id 1  end_log_pos 94300 CRC32 0x43484e8a 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 94300
+#260928 10:01:05 server id 1  end_log_pos 95484 CRC32 0xd9d77420 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+cdi5ahMBAAAASgAAAFxwAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4IpOSEM=
+cdi5ah8BAAAAoAQAAPx0AQAAAFMAAAAAAAEAAgAG//8AKABZMGpaWGNkaFpHNFRGWUd4Y0NlZVVr
+dHVrWXN4VkRzRno4NWZXYWlWCgAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lUV05CWkVOWlpFOHhlV2gxVEdWNlEyZFZiV2RuUVRoWE9YRlNSMFk1WTB4
+SGFrMWpRVGx6U1NJN2N6bzJPaUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3
+ZlhNNk16b2libVYzSWp0aE9qQTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pP
+aUoxY213aU8zTTZNemM2SW1oMGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5a1lY
+Tm9ZbTloY21RaU8zTTZOVG9pY205MWRHVWlPM002TVRVNkltRmtiV2x1TG1SaGMyaGliMkZ5WkNJ
+N2ZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pFd08zMD1w2LlqACgAWTBqWlhjZGhaRzRURllHeGND
+ZWVVa3R1a1lzeFZEc0Z6ODVmV2FpVgoAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pVFdOQlpFTlpaRTh4ZVdoMVRHVjZRMmRWYldkblFUaFhPWEZTUjBZ
+NVkweEhhazFqUVRselNTSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2
+TURwN2ZYTTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdj
+em96T2lKMWNtd2lPM002TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJp
+OWtZWE5vWW05aGNtUWlPM002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJG
+eVpDSTdmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qRXdPMzA9cdi5aiB019k=
+'/*!*/;
+# at 95484
+#260928 10:01:05 server id 1  end_log_pos 95515 CRC32 0x2f11915c 	Xid = 2794
+COMMIT/*!*/;
+# at 95515
+#260928 10:01:12 server id 1  end_log_pos 95594 CRC32 0x7ec44c41 	Anonymous_GTID	last_committed=75	sequence_number=76	rbr_only=yes	original_committed_timestamp=1790564472766886	immediate_commit_timestamp=1790564472766886	transaction_length=857
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564472766886 (2026-09-28 10:01:12.766886 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564472766886 (2026-09-28 10:01:12.766886 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564472766886*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 95594
+#260928 10:01:12 server id 1  end_log_pos 95686 CRC32 0x9d224633 	Query	thread_id=73	exec_time=0	error_code=0
+SET TIMESTAMP=1790564472/*!*/;
+BEGIN
+/*!*/;
+# at 95686
+#260928 10:01:12 server id 1  end_log_pos 95783 CRC32 0x014ee933 	Table_map: `pln_up_imy`.`users` mapped to number 91
+# at 95783
+#260928 10:01:12 server id 1  end_log_pos 96341 CRC32 0x3b01b39b 	Update_rows: table id 91 flags: STMT_END_F
+
+BINLOG '
+eNi5ahMBAAAAYQAAACd2AQAAAFsAAAAAAAMACnBsbl91cF9pbXkABXVzZXJzAA8IDw8PEQ8P/A8R
+EQgPDw8W/AP8A/wDAPwDUAACkAEAAPwD/AP8A9B/AQHAAgHgM+lOAQ==
+eNi5ah8BAAAALgIAAFV4AQAAAFsAAAAAAAEAAgAP/////xBwCgAAAAAAAAANAHN5YWZpcSB3aWxk
+YW4VAHN5YWZpcXdsZG4wQGdtYWlsLmNvbQ0AQWRtaW5pc3RyYXRvcjwAJDJ5JDEyJHRJUDZuVmRv
+NFMxTC5QSEhaMlpuYmVFUnovVmsxVkRuU2N6NU4vN3ZHcC9vL2ZucTR0MXl1DDA4Nzc0MDk0Mzg4
+MCoARGVzYSBTbGVtYW4gQmxvayBLZXNhbWJpDQpLZWNhbWF0YW4gU2xpeWVnPABqNVhvdVRrOVNs
+SWowNDF5MjRvR1JsSDBxZHlNbUhoWVB0MmEyekx5ak9CTVhtSDVzbFNEM1EybWNYbUFqqztrarV/
+wAEAAAAAAAAAEHAKAAAAAAAAAA0Ac3lhZmlxIHdpbGRhbhUAc3lhZmlxd2xkbjBAZ21haWwuY29t
+DQBBZG1pbmlzdHJhdG9yPAAkMnkkMTIkdElQNm5WZG80UzFMLlBISFoyWm5iZUVSei9WazFWRG5T
+Y3o1Ti83dkdwL28vZm5xNHQxeXUMMDg3NzQwOTQzODgwKgBEZXNhIFNsZW1hbiBCbG9rIEtlc2Ft
+YmkNCktlY2FtYXRhbiBTbGl5ZWc8AEphWkdqcFlCNFNLVnJyOVQ1MUZVN3VQWk9PMG1nVUdkTnpM
+bG1MSlBERGkwZ1ZmQXI3andQZVQ1TGNLMGqrO2tqtX/AAQAAAAAAAACbswE7
+'/*!*/;
+# at 96341
+#260928 10:01:12 server id 1  end_log_pos 96372 CRC32 0x356e2352 	Xid = 2806
+COMMIT/*!*/;
+# at 96372
+#260928 10:01:12 server id 1  end_log_pos 96451 CRC32 0x567d3013 	Anonymous_GTID	last_committed=76	sequence_number=77	rbr_only=yes	original_committed_timestamp=1790564472771332	immediate_commit_timestamp=1790564472771332	transaction_length=874
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564472771332 (2026-09-28 10:01:12.771332 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564472771332 (2026-09-28 10:01:12.771332 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564472771332*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 96451
+#260928 10:01:12 server id 1  end_log_pos 96532 CRC32 0xd8971cb9 	Query	thread_id=73	exec_time=0	error_code=0
+SET TIMESTAMP=1790564472/*!*/;
+BEGIN
+/*!*/;
+# at 96532
+#260928 10:01:12 server id 1  end_log_pos 96606 CRC32 0x7ce496dd 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 96606
+#260928 10:01:12 server id 1  end_log_pos 97215 CRC32 0x5812b54e 	Delete_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+eNi5ahMBAAAASgAAAF55AQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4N2W5Hw=
+eNi5aiABAAAAYQIAAL97AQAAAFMAAAAAAAEAAgAG/wAoAFkwalpYY2RoWkc0VEZZR3hjQ2VlVWt0
+dWtZc3hWRHNGejg1ZldhaVYKAAAAAAAAAAkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dz
+IE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vj
+a28pIENocm9tZS8xNTMuMC4wLjAgU2FmYXJpLzUzNy4zNogBAABZVG8wT250ek9qWTZJbDkwYjJ0
+bGJpSTdjem8wTURvaVRXTkJaRU5aWkU4eGVXaDFUR1Y2UTJkVmJXZG5RVGhYT1hGU1IwWTVZMHhI
+YWsxalFUbHpTU0k3Y3pvMk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdm
+WE02TXpvaWJtVjNJanRoT2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9p
+SjFjbXdpTzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhO
+b1ltOWhjbVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3
+ZlhNNk5UQTZJbXh2WjJsdVgzZGxZbDgxT1dKaE16WmhaR1JqTW1JeVpqazBNREUxT0RCbU1ERTBZ
+emRtTlRobFlUUmxNekE1T0Rsa0lqdHBPakV3TzMwPXHYuWpOtRJY
+'/*!*/;
+# at 97215
+#260928 10:01:12 server id 1  end_log_pos 97246 CRC32 0xcda41091 	Xid = 2809
+COMMIT/*!*/;
+# at 97246
+#260928 10:01:12 server id 1  end_log_pos 97325 CRC32 0xb4064575 	Anonymous_GTID	last_committed=77	sequence_number=78	rbr_only=yes	original_committed_timestamp=1790564472778067	immediate_commit_timestamp=1790564472778067	transaction_length=634
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564472778067 (2026-09-28 10:01:12.778067 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564472778067 (2026-09-28 10:01:12.778067 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564472778067*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 97325
+#260928 10:01:12 server id 1  end_log_pos 97406 CRC32 0x858ecbdd 	Query	thread_id=73	exec_time=0	error_code=0
+SET TIMESTAMP=1790564472/*!*/;
+BEGIN
+/*!*/;
+# at 97406
+#260928 10:01:12 server id 1  end_log_pos 97480 CRC32 0xf6750dc4 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 97480
+#260928 10:01:12 server id 1  end_log_pos 97849 CRC32 0xad7c4682 	Write_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+eNi5ahMBAAAASgAAAMh8AQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4MQNdfY=
+eNi5ah4BAAAAcQEAADl+AQAAAFMAAAAAAAEAAgAG/wIoAHk0MjBTWklZdGtlQXpMc3BmSjYwUWow
+NW5kVGFTQnMxYW5iWUhHMFMJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4w
+OyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJv
+bWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzagAAAAWVRveU9udHpPalk2SWw5MGIydGxiaUk3Y3pv
+ME1Eb2lOakpuZVc1WE1ISlVNMnA0VkVwa1NWUnpVMDl1TkdNd1ltRjFhVUpMYmtkV00yNU5TRUUx
+ZHlJN2N6bzJPaUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3ZlhNNk16b2li
+bVYzSWp0aE9qQTZlMzE5ZlE9PXjYuWqCRnyt
+'/*!*/;
+# at 97849
+#260928 10:01:12 server id 1  end_log_pos 97880 CRC32 0x6d550e51 	Xid = 2815
+COMMIT/*!*/;
+# at 97880
+#260928 10:01:13 server id 1  end_log_pos 97959 CRC32 0x3303211b 	Anonymous_GTID	last_committed=78	sequence_number=79	rbr_only=yes	original_committed_timestamp=1790564473034857	immediate_commit_timestamp=1790564473034857	transaction_length=1090
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564473034857 (2026-09-28 10:01:13.034857 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564473034857 (2026-09-28 10:01:13.034857 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564473034857*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 97959
+#260928 10:01:13 server id 1  end_log_pos 98049 CRC32 0x00a78f2a 	Query	thread_id=74	exec_time=0	error_code=0
+SET TIMESTAMP=1790564473/*!*/;
+BEGIN
+/*!*/;
+# at 98049
+#260928 10:01:13 server id 1  end_log_pos 98123 CRC32 0x43217db1 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 98123
+#260928 10:01:13 server id 1  end_log_pos 98939 CRC32 0x7bf1f53a 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+edi5ahMBAAAASgAAAEt/AQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4LF9IUM=
+edi5ah8BAAAAMAMAAHuCAQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2oAAAAFlUb3lPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWZRPT142LlqAigAeTQyMFNaSVl0a2VBekxzcGZKNjBRajA1bmRUYVNC
+czFhbmJZSEcwUwkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0
+OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xNTMu
+MC4wLjAgU2FmYXJpLzUzNy4zNhABAABZVG96T250ek9qWTZJbDkwYjJ0bGJpSTdjem8wTURvaU5q
+Sm5lVzVYTUhKVU0ycDRWRXBrU1ZSelUwOXVOR013WW1GMWFVSkxia2RXTTI1TlNFRTFkeUk3Y3pv
+Mk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdmWE02TXpvaWJtVjNJanRo
+T2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk1qRTZJ
+bWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUNJN2N6bzFPaUp5YjNWMFpTSTdjem8wT2lKb2Iy
+MWxJanQ5ZlE9PXnYuWo69fF7
+'/*!*/;
+# at 98939
+#260928 10:01:13 server id 1  end_log_pos 98970 CRC32 0x0033546e 	Xid = 2863
+COMMIT/*!*/;
+# at 98970
+#260928 10:01:15 server id 1  end_log_pos 99049 CRC32 0x7d537a6f 	Anonymous_GTID	last_committed=79	sequence_number=80	rbr_only=yes	original_committed_timestamp=1790564475783777	immediate_commit_timestamp=1790564475783777	transaction_length=1218
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564475783777 (2026-09-28 10:01:15.783777 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564475783777 (2026-09-28 10:01:15.783777 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564475783777*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 99049
+#260928 10:01:15 server id 1  end_log_pos 99139 CRC32 0x79e91576 	Query	thread_id=75	exec_time=0	error_code=0
+SET TIMESTAMP=1790564475/*!*/;
+BEGIN
+/*!*/;
+# at 99139
+#260928 10:01:15 server id 1  end_log_pos 99213 CRC32 0x587dc54a 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 99213
+#260928 10:01:15 server id 1  end_log_pos 100157 CRC32 0x071ba7f1 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+e9i5ahMBAAAASgAAAI2DAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4ErFfVg=
+e9i5ah8BAAAAsAMAAD2HAQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2EAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TWpFNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQ0k3Y3pvMU9pSnliM1YwWlNJN2N6
+bzBPaUpvYjIxbElqdDlmUT09edi5agIoAHk0MjBTWklZdGtlQXpMc3BmSjYwUWowNW5kVGFTQnMx
+YW5iWUhHMFMJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsg
+eDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMTUzLjAu
+MC4wIFNhZmFyaS81MzcuMzYgAQAAWVRvek9udHpPalk2SWw5MGIydGxiaUk3Y3pvME1Eb2lOakpu
+ZVc1WE1ISlVNMnA0VkVwa1NWUnpVMDl1TkdNd1ltRjFhVUpMYmtkV00yNU5TRUUxZHlJN2N6bzJP
+aUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3ZlhNNk16b2libVYzSWp0aE9q
+QTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pPaUoxY213aU8zTTZNek02SW1o
+MGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5c2IyZHBiaUk3Y3pvMU9pSnliM1Yw
+WlNJN2N6bzFPaUpzYjJkcGJpSTdmWDA9e9i5avGnGwc=
+'/*!*/;
+# at 100157
+#260928 10:01:15 server id 1  end_log_pos 100188 CRC32 0x565c13ca 	Xid = 2911
+COMMIT/*!*/;
+# at 100188
+#260928 10:01:25 server id 1  end_log_pos 100267 CRC32 0x6b2d8a94 	Anonymous_GTID	last_committed=80	sequence_number=81	rbr_only=yes	original_committed_timestamp=1790564485514920	immediate_commit_timestamp=1790564485514920	transaction_length=1718
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564485514920 (2026-09-28 10:01:25.514920 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564485514920 (2026-09-28 10:01:25.514920 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564485514920*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 100267
+#260928 10:01:25 server id 1  end_log_pos 100357 CRC32 0x1e9fa5e8 	Query	thread_id=76	exec_time=0	error_code=0
+SET TIMESTAMP=1790564485/*!*/;
+BEGIN
+/*!*/;
+# at 100357
+#260928 10:01:25 server id 1  end_log_pos 100431 CRC32 0x48244194 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 100431
+#260928 10:01:25 server id 1  end_log_pos 101875 CRC32 0xc0ddf50b 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+hdi5ahMBAAAASgAAAE+IAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4JRBJEg=
+hdi5ah8BAAAApAUAAPONAQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPXvYuWoCKAB5NDIwU1pJWXRrZUF6THNw
+Zko2MFFqMDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2BAMAAFlUbzFPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdN
+MjVOU0VFMWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TWpwN2FU
+b3dPM002TVRBNklsOXZiR1JmYVc1d2RYUWlPMms2TVR0ek9qWTZJbVZ5Y205eWN5STdmWE02TXpv
+aWJtVjNJanRoT2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdp
+TzNNNk16TTZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlzYjJkcGJpSTdj
+em8xT2lKeWIzVjBaU0k3Y3pvMU9pSnNiMmRwYmlJN2ZYTTZNVEE2SWw5dmJHUmZhVzV3ZFhRaU8y
+RTZNVHA3Y3pvMU9pSmxiV0ZwYkNJN2N6b3lNVG9pYzNsaFptbHhkMnhrYmpCQVoyMWhhV3d1WTI5
+dElqdDljem8yT2lKbGNuSnZjbk1pTzA4Nk16RTZJa2xzYkhWdGFXNWhkR1ZjVTNWd2NHOXlkRnhX
+YVdWM1JYSnliM0pDWVdjaU9qRTZlM002TnpvaUFDb0FZbUZuY3lJN1lUb3hPbnR6T2pjNkltUmxa
+bUYxYkhRaU8wODZNams2SWtsc2JIVnRhVzVoZEdWY1UzVndjRzl5ZEZ4TlpYTnpZV2RsUW1Gbklq
+b3lPbnR6T2pFeE9pSUFLZ0J0WlhOellXZGxjeUk3WVRveE9udHpPalU2SW1WdFlXbHNJanRoT2pF
+NmUyazZNRHR6T2pRek9pSlVhR1Z6WlNCamNtVmtaVzUwYVdGc2N5QmtieUJ1YjNRZ2JXRjBZMmdn
+YjNWeUlISmxZMjl5WkhNdUlqdDlmWE02T1RvaUFDb0FabTl5YldGMElqdHpPamc2SWpwdFpYTnpZ
+V2RsSWp0OWZYMTmF2LlqC/XdwA==
+'/*!*/;
+# at 101875
+#260928 10:01:25 server id 1  end_log_pos 101906 CRC32 0xfabf6b18 	Xid = 2923
+COMMIT/*!*/;
+# at 101906
+#260928 10:01:25 server id 1  end_log_pos 101985 CRC32 0x94cb1656 	Anonymous_GTID	last_committed=81	sequence_number=82	rbr_only=yes	original_committed_timestamp=1790564485692797	immediate_commit_timestamp=1790564485692797	transaction_length=1718
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564485692797 (2026-09-28 10:01:25.692797 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564485692797 (2026-09-28 10:01:25.692797 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564485692797*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 101985
+#260928 10:01:25 server id 1  end_log_pos 102075 CRC32 0x9cdb2be8 	Query	thread_id=77	exec_time=0	error_code=0
+SET TIMESTAMP=1790564485/*!*/;
+BEGIN
+/*!*/;
+# at 102075
+#260928 10:01:25 server id 1  end_log_pos 102149 CRC32 0x70cd8b1c 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 102149
+#260928 10:01:25 server id 1  end_log_pos 103593 CRC32 0x115a090a 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+hdi5ahMBAAAASgAAAAWPAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4ByLzXA=
+hdi5ah8BAAAApAUAAKmUAQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2BAMAAFlUbzFPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TWpwN2FUb3dPM002
+TVRBNklsOXZiR1JmYVc1d2RYUWlPMms2TVR0ek9qWTZJbVZ5Y205eWN5STdmWE02TXpvaWJtVjNJ
+anRoT2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16
+TTZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlzYjJkcGJpSTdjem8xT2lK
+eWIzVjBaU0k3Y3pvMU9pSnNiMmRwYmlJN2ZYTTZNVEE2SWw5dmJHUmZhVzV3ZFhRaU8yRTZNVHA3
+Y3pvMU9pSmxiV0ZwYkNJN2N6b3lNVG9pYzNsaFptbHhkMnhrYmpCQVoyMWhhV3d1WTI5dElqdDlj
+em8yT2lKbGNuSnZjbk1pTzA4Nk16RTZJa2xzYkhWdGFXNWhkR1ZjVTNWd2NHOXlkRnhXYVdWM1JY
+SnliM0pDWVdjaU9qRTZlM002TnpvaUFDb0FZbUZuY3lJN1lUb3hPbnR6T2pjNkltUmxabUYxYkhR
+aU8wODZNams2SWtsc2JIVnRhVzVoZEdWY1UzVndjRzl5ZEZ4TlpYTnpZV2RsUW1Gbklqb3lPbnR6
+T2pFeE9pSUFLZ0J0WlhOellXZGxjeUk3WVRveE9udHpPalU2SW1WdFlXbHNJanRoT2pFNmUyazZN
+RHR6T2pRek9pSlVhR1Z6WlNCamNtVmtaVzUwYVdGc2N5QmtieUJ1YjNRZ2JXRjBZMmdnYjNWeUlI
+SmxZMjl5WkhNdUlqdDlmWE02T1RvaUFDb0FabTl5YldGMElqdHpPamc2SWpwdFpYTnpZV2RsSWp0
+OWZYMTmF2LlqAigAeTQyMFNaSVl0a2VBekxzcGZKNjBRajA1bmRUYVNCczFhbmJZSEcwUwkxMjcu
+MC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2Vi
+S2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xNTMuMC4wLjAgU2FmYXJpLzUz
+Ny4zNiABAABZVG96T250ek9qWTZJbDkwYjJ0bGJpSTdjem8wTURvaU5qSm5lVzVYTUhKVU0ycDRW
+RXBrU1ZSelUwOXVOR013WW1GMWFVSkxia2RXTTI1TlNFRTFkeUk3Y3pvMk9pSmZabXhoYzJnaU8y
+RTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdmWE02TXpvaWJtVjNJanRoT2pBNmUzMTljem81T2lK
+ZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16TTZJbWgwZEhBNkx5OHhNamN1
+TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlzYjJkcGJpSTdjem8xT2lKeWIzVjBaU0k3Y3pvMU9pSnNi
+MmRwYmlJN2ZYMD2F2LlqCglaEQ==
+'/*!*/;
+# at 103593
+#260928 10:01:25 server id 1  end_log_pos 103624 CRC32 0xfdc3414a 	Xid = 2971
+COMMIT/*!*/;
+# at 103624
+#260928 10:01:31 server id 1  end_log_pos 103703 CRC32 0x20e37d22 	Anonymous_GTID	last_committed=82	sequence_number=83	rbr_only=yes	original_committed_timestamp=1790564491041148	immediate_commit_timestamp=1790564491041148	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564491041148 (2026-09-28 10:01:31.041148 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564491041148 (2026-09-28 10:01:31.041148 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564491041148*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 103703
+#260928 10:01:31 server id 1  end_log_pos 103784 CRC32 0x4a617932 	Query	thread_id=78	exec_time=0	error_code=0
+SET TIMESTAMP=1790564491/*!*/;
+BEGIN
+/*!*/;
+# at 103784
+#260928 10:01:31 server id 1  end_log_pos 103849 CRC32 0x9bfe5a0d 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 103849
+#260928 10:01:31 server id 1  end_log_pos 103952 CRC32 0xa54d60ea 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+i9i5ahMBAAAAQQAAAKmVAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4A1a/ps=
+i9i5aiABAAAAZwAAABCWAQAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MTtWxrlq6mBNpQ==
+'/*!*/;
+# at 103952
+#260928 10:01:31 server id 1  end_log_pos 103983 CRC32 0x5b45f375 	Xid = 2983
+COMMIT/*!*/;
+# at 103983
+#260928 10:01:31 server id 1  end_log_pos 104062 CRC32 0x7faf54ca 	Anonymous_GTID	last_committed=83	sequence_number=84	rbr_only=yes	original_committed_timestamp=1790564491044526	immediate_commit_timestamp=1790564491044526	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564491044526 (2026-09-28 10:01:31.044526 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564491044526 (2026-09-28 10:01:31.044526 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564491044526*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 104062
+#260928 10:01:31 server id 1  end_log_pos 104143 CRC32 0x6f2a512a 	Query	thread_id=78	exec_time=0	error_code=0
+SET TIMESTAMP=1790564491/*!*/;
+BEGIN
+/*!*/;
+# at 104143
+#260928 10:01:31 server id 1  end_log_pos 104208 CRC32 0x2d4285ee 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 104208
+#260928 10:01:31 server id 1  end_log_pos 104326 CRC32 0x32875087 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+i9i5ahMBAAAAQQAAABCXAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4O6FQi0=
+i9i5aiABAAAAdgAAAIaXAQAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU1OTgzMDtWxrlq
+h1CHMg==
+'/*!*/;
+# at 104326
+#260928 10:01:31 server id 1  end_log_pos 104357 CRC32 0x46570341 	Xid = 2989
+COMMIT/*!*/;
+# at 104357
+#260928 10:01:31 server id 1  end_log_pos 104436 CRC32 0x76ff28ac 	Anonymous_GTID	last_committed=84	sequence_number=85	rbr_only=yes	original_committed_timestamp=1790564491046100	immediate_commit_timestamp=1790564491046100	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564491046100 (2026-09-28 10:01:31.046100 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564491046100 (2026-09-28 10:01:31.046100 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564491046100*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 104436
+#260928 10:01:31 server id 1  end_log_pos 104517 CRC32 0xf035e4ab 	Query	thread_id=78	exec_time=0	error_code=0
+SET TIMESTAMP=1790564491/*!*/;
+BEGIN
+/*!*/;
+# at 104517
+#260928 10:01:31 server id 1  end_log_pos 104582 CRC32 0x2c2a4926 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 104582
+#260928 10:01:31 server id 1  end_log_pos 104700 CRC32 0x49bc9a77 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+i9i5ahMBAAAAQQAAAIaYAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4CZJKiw=
+i9i5ah4BAAAAdgAAAPyYAQAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU2NDU1MTvH2Llq
+d5q8SQ==
+'/*!*/;
+# at 104700
+#260928 10:01:31 server id 1  end_log_pos 104731 CRC32 0xb831d5dd 	Xid = 2992
+COMMIT/*!*/;
+# at 104731
+#260928 10:01:31 server id 1  end_log_pos 104810 CRC32 0x7e2ce236 	Anonymous_GTID	last_committed=85	sequence_number=86	rbr_only=yes	original_committed_timestamp=1790564491048128	immediate_commit_timestamp=1790564491048128	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564491048128 (2026-09-28 10:01:31.048128 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564491048128 (2026-09-28 10:01:31.048128 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564491048128*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 104810
+#260928 10:01:31 server id 1  end_log_pos 104891 CRC32 0xd3e1631a 	Query	thread_id=78	exec_time=0	error_code=0
+SET TIMESTAMP=1790564491/*!*/;
+BEGIN
+/*!*/;
+# at 104891
+#260928 10:01:31 server id 1  end_log_pos 104956 CRC32 0xd249bbd5 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 104956
+#260928 10:01:31 server id 1  end_log_pos 105059 CRC32 0x89dd57c6 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+i9i5ahMBAAAAQQAAAPyZAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4NW7SdI=
+i9i5ah4BAAAAZwAAAGOaAQAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MDvH2LlqxlfdiQ==
+'/*!*/;
+# at 105059
+#260928 10:01:31 server id 1  end_log_pos 105090 CRC32 0x88039c5a 	Xid = 2998
+COMMIT/*!*/;
+# at 105090
+#260928 10:01:31 server id 1  end_log_pos 105169 CRC32 0x95e6fc24 	Anonymous_GTID	last_committed=86	sequence_number=87	rbr_only=yes	original_committed_timestamp=1790564491054439	immediate_commit_timestamp=1790564491054439	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564491054439 (2026-09-28 10:01:31.054439 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564491054439 (2026-09-28 10:01:31.054439 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564491054439*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 105169
+#260928 10:01:31 server id 1  end_log_pos 105259 CRC32 0x872272c3 	Query	thread_id=78	exec_time=0	error_code=0
+SET TIMESTAMP=1790564491/*!*/;
+BEGIN
+/*!*/;
+# at 105259
+#260928 10:01:31 server id 1  end_log_pos 105324 CRC32 0xb4436acf 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 105324
+#260928 10:01:31 server id 1  end_log_pos 105496 CRC32 0x4c6eea04 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+i9i5ahMBAAAAQQAAAGybAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4M9qQ7Q=
+i9i5ah8BAAAArAAAABicAQAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjA7x9i5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MTvH2LlqBOpu
+TA==
+'/*!*/;
+# at 105496
+#260928 10:01:31 server id 1  end_log_pos 105527 CRC32 0xd34f93f3 	Xid = 3002
+COMMIT/*!*/;
+# at 105527
+#260928 10:01:31 server id 1  end_log_pos 105606 CRC32 0x77c6a689 	Anonymous_GTID	last_committed=87	sequence_number=88	rbr_only=yes	original_committed_timestamp=1790564491097369	immediate_commit_timestamp=1790564491097369	transaction_length=381
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564491097369 (2026-09-28 10:01:31.097369 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564491097369 (2026-09-28 10:01:31.097369 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564491097369*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 105606
+#260928 10:01:31 server id 1  end_log_pos 105687 CRC32 0x1aa45582 	Query	thread_id=78	exec_time=0	error_code=0
+SET TIMESTAMP=1790564491/*!*/;
+BEGIN
+/*!*/;
+# at 105687
+#260928 10:01:31 server id 1  end_log_pos 105752 CRC32 0x3464a42f 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 105752
+#260928 10:01:31 server id 1  end_log_pos 105877 CRC32 0x9168e02d 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+i9i5ahMBAAAAQQAAABidAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4C+kZDQ=
+i9i5aiABAAAAfQAAAJWdAQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOmNvb2xk
+b3duOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2MNAABpOjE3OTA1NTk4
+MzE7V8a5ai3gaJE=
+'/*!*/;
+# at 105877
+#260928 10:01:31 server id 1  end_log_pos 105908 CRC32 0xc69e040e 	Xid = 3015
+COMMIT/*!*/;
+# at 105908
+#260928 10:01:31 server id 1  end_log_pos 105987 CRC32 0x784e332d 	Anonymous_GTID	last_committed=88	sequence_number=89	rbr_only=yes	original_committed_timestamp=1790564491340810	immediate_commit_timestamp=1790564491340810	transaction_length=582
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564491340810 (2026-09-28 10:01:31.340810 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564491340810 (2026-09-28 10:01:31.340810 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564491340810*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 105987
+#260928 10:01:31 server id 1  end_log_pos 106068 CRC32 0xd9b545aa 	Query	thread_id=78	exec_time=0	error_code=0
+SET TIMESTAMP=1790564491/*!*/;
+BEGIN
+/*!*/;
+# at 106068
+#260928 10:01:31 server id 1  end_log_pos 106133 CRC32 0xab63801f 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 106133
+#260928 10:01:31 server id 1  end_log_pos 106459 CRC32 0xda984e8d 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+i9i5ahMBAAAAQQAAAJWeAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4B+AY6s=
+i9i5ah8BAAAARgEAANufAQAAAGQAAAAAAAEAAgAD//8AQwBsYXJhdmVsLWNhY2hlLW90cDpwYXNz
+d29yZDo0ODcxNzU3NGE4YzBlMDcyMjc2MGYyNjNiNzViZDgyNjc0YjI0ZGNjRAAAczo2MDoiJDJ5
+JDEyJFVMZGVvZi9qcVQ0bGZPcUN4MUd3QnVmU1k5OUFiZ0IzUnUyQlZMdDREUmlpa2x0ekJiVUVH
+IjtzyLlqAEMAbGFyYXZlbC1jYWNoZS1vdHA6cGFzc3dvcmQ6NDg3MTc1NzRhOGMwZTA3MjI3NjBm
+MjYzYjc1YmQ4MjY3NGIyNGRjY0QAAHM6NjA6IiQyeSQxMiRLMGRyTDFETlY1d0ZXdzc4bG9RdTcu
+MzQ3RzlJdDZianZ3YUp3UjhqbW43dDJ4Z1ZqcE1ybSI749q5ao1OmNo=
+'/*!*/;
+# at 106459
+#260928 10:01:31 server id 1  end_log_pos 106490 CRC32 0xb7e506e5 	Xid = 3018
+COMMIT/*!*/;
+# at 106490
+#260928 10:01:31 server id 1  end_log_pos 106569 CRC32 0xa0e29faf 	Anonymous_GTID	last_committed=89	sequence_number=90	rbr_only=yes	original_committed_timestamp=1790564491343711	immediate_commit_timestamp=1790564491343711	transaction_length=381
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564491343711 (2026-09-28 10:01:31.343711 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564491343711 (2026-09-28 10:01:31.343711 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564491343711*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 106569
+#260928 10:01:31 server id 1  end_log_pos 106650 CRC32 0x1e635402 	Query	thread_id=78	exec_time=0	error_code=0
+SET TIMESTAMP=1790564491/*!*/;
+BEGIN
+/*!*/;
+# at 106650
+#260928 10:01:31 server id 1  end_log_pos 106715 CRC32 0x4e9818b5 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 106715
+#260928 10:01:31 server id 1  end_log_pos 106840 CRC32 0xabc9616f 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+i9i5ahMBAAAAQQAAANugAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4LUYmE4=
+i9i5ah4BAAAAfQAAAFihAQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOmNvb2xk
+b3duOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2MNAABpOjE3OTA1NjQ1
+NTE7x9i5am9hyas=
+'/*!*/;
+# at 106840
+#260928 10:01:31 server id 1  end_log_pos 106871 CRC32 0x743671da 	Xid = 3021
+COMMIT/*!*/;
+# at 106871
+#260928 10:01:35 server id 1  end_log_pos 106950 CRC32 0x7351ab23 	Anonymous_GTID	last_committed=90	sequence_number=91	rbr_only=yes	original_committed_timestamp=1790564495079535	immediate_commit_timestamp=1790564495079535	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564495079535 (2026-09-28 10:01:35.079535 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564495079535 (2026-09-28 10:01:35.079535 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564495079535*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 106950
+#260928 10:01:35 server id 1  end_log_pos 107040 CRC32 0xb5b8536f 	Query	thread_id=78	exec_time=0	error_code=0
+SET TIMESTAMP=1790564495/*!*/;
+BEGIN
+/*!*/;
+# at 107040
+#260928 10:01:35 server id 1  end_log_pos 107114 CRC32 0x5631ec5b 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 107114
+#260928 10:01:35 server id 1  end_log_pos 108074 CRC32 0x57f9bf91 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+j9i5ahMBAAAASgAAAGqiAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4FvsMVY=
+j9i5ah8BAAAAwAMAACqmAQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPYXYuWoCKAB5NDIwU1pJWXRrZUF6THNw
+Zko2MFFqMDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdN
+MjVOU0VFMWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPY/YuWqRv/lX
+'/*!*/;
+# at 108074
+#260928 10:01:35 server id 1  end_log_pos 108105 CRC32 0x61782eea 	Xid = 3027
+COMMIT/*!*/;
+# at 108105
+#260928 10:02:11 server id 1  end_log_pos 108184 CRC32 0xe601a2ca 	Anonymous_GTID	last_committed=91	sequence_number=92	rbr_only=yes	original_committed_timestamp=1790564531340180	immediate_commit_timestamp=1790564531340180	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564531340180 (2026-09-28 10:02:11.340180 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564531340180 (2026-09-28 10:02:11.340180 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564531340180*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 108184
+#260928 10:02:11 server id 1  end_log_pos 108274 CRC32 0xf7c09736 	Query	thread_id=79	exec_time=0	error_code=0
+SET TIMESTAMP=1790564531/*!*/;
+BEGIN
+/*!*/;
+# at 108274
+#260928 10:02:11 server id 1  end_log_pos 108339 CRC32 0x83cff516 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 108339
+#260928 10:02:11 server id 1  end_log_pos 108511 CRC32 0x3dc446bf 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+s9i5ahMBAAAAQQAAADOnAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4Bb1z4M=
+s9i5ah8BAAAArAAAAN+nAQAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjE7x9i5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MjvH2Llqv0bE
+PQ==
+'/*!*/;
+# at 108511
+#260928 10:02:11 server id 1  end_log_pos 108542 CRC32 0x7df5ebd0 	Xid = 3046
+COMMIT/*!*/;
+# at 108542
+#260928 10:02:11 server id 1  end_log_pos 108621 CRC32 0x115e7bc7 	Anonymous_GTID	last_committed=92	sequence_number=93	rbr_only=yes	original_committed_timestamp=1790564531398931	immediate_commit_timestamp=1790564531398931	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564531398931 (2026-09-28 10:02:11.398931 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564531398931 (2026-09-28 10:02:11.398931 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564531398931*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 108621
+#260928 10:02:11 server id 1  end_log_pos 108711 CRC32 0x1cb5fd53 	Query	thread_id=79	exec_time=0	error_code=0
+SET TIMESTAMP=1790564531/*!*/;
+BEGIN
+/*!*/;
+# at 108711
+#260928 10:02:11 server id 1  end_log_pos 108785 CRC32 0xa6d30da5 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 108785
+#260928 10:02:11 server id 1  end_log_pos 109745 CRC32 0x4d8ca3be 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+s9i5ahMBAAAASgAAAPGoAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4KUN06Y=
+s9i5ah8BAAAAwAMAALGsAQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPY/YuWoCKAB5NDIwU1pJWXRrZUF6THNw
+Zko2MFFqMDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdN
+MjVOU0VFMWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPbPYuWq+o4xN
+'/*!*/;
+# at 109745
+#260928 10:02:11 server id 1  end_log_pos 109776 CRC32 0x39585aac 	Xid = 3065
+COMMIT/*!*/;
+# at 109776
+#260928 10:03:19 server id 1  end_log_pos 109855 CRC32 0xc138467c 	Anonymous_GTID	last_committed=93	sequence_number=94	rbr_only=yes	original_committed_timestamp=1790564599087311	immediate_commit_timestamp=1790564599087311	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564599087311 (2026-09-28 10:03:19.087311 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564599087311 (2026-09-28 10:03:19.087311 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564599087311*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 109855
+#260928 10:03:19 server id 1  end_log_pos 109936 CRC32 0x4ecf3201 	Query	thread_id=80	exec_time=0	error_code=0
+SET TIMESTAMP=1790564599/*!*/;
+BEGIN
+/*!*/;
+# at 109936
+#260928 10:03:19 server id 1  end_log_pos 110001 CRC32 0x8be478f2 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 110001
+#260928 10:03:19 server id 1  end_log_pos 110104 CRC32 0xaef7e590 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+99i5ahMBAAAAQQAAALGtAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4PJ45Is=
+99i5aiABAAAAZwAAABiuAQAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MjvH2LlqkOX3rg==
+'/*!*/;
+# at 110104
+#260928 10:03:19 server id 1  end_log_pos 110135 CRC32 0x9de6da37 	Xid = 3077
+COMMIT/*!*/;
+# at 110135
+#260928 10:03:19 server id 1  end_log_pos 110214 CRC32 0xd3dad62b 	Anonymous_GTID	last_committed=94	sequence_number=95	rbr_only=yes	original_committed_timestamp=1790564599089719	immediate_commit_timestamp=1790564599089719	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564599089719 (2026-09-28 10:03:19.089719 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564599089719 (2026-09-28 10:03:19.089719 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564599089719*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 110214
+#260928 10:03:19 server id 1  end_log_pos 110295 CRC32 0x6b841a19 	Query	thread_id=80	exec_time=0	error_code=0
+SET TIMESTAMP=1790564599/*!*/;
+BEGIN
+/*!*/;
+# at 110295
+#260928 10:03:19 server id 1  end_log_pos 110360 CRC32 0x50a46653 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 110360
+#260928 10:03:19 server id 1  end_log_pos 110478 CRC32 0x904e7473 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+99i5ahMBAAAAQQAAABivAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4FNmpFA=
+99i5aiABAAAAdgAAAI6vAQAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU2NDU1MTvH2Llq
+c3ROkA==
+'/*!*/;
+# at 110478
+#260928 10:03:19 server id 1  end_log_pos 110509 CRC32 0x620c1895 	Xid = 3083
+COMMIT/*!*/;
+# at 110509
+#260928 10:03:19 server id 1  end_log_pos 110588 CRC32 0x179b431f 	Anonymous_GTID	last_committed=95	sequence_number=96	rbr_only=yes	original_committed_timestamp=1790564599091209	immediate_commit_timestamp=1790564599091209	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564599091209 (2026-09-28 10:03:19.091209 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564599091209 (2026-09-28 10:03:19.091209 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564599091209*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 110588
+#260928 10:03:19 server id 1  end_log_pos 110669 CRC32 0x6195e582 	Query	thread_id=80	exec_time=0	error_code=0
+SET TIMESTAMP=1790564599/*!*/;
+BEGIN
+/*!*/;
+# at 110669
+#260928 10:03:19 server id 1  end_log_pos 110734 CRC32 0x70e9038e 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 110734
+#260928 10:03:19 server id 1  end_log_pos 110852 CRC32 0x1f5e64fd 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+99i5ahMBAAAAQQAAAI6wAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4I4D6XA=
+99i5ah4BAAAAdgAAAASxAQAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU2NDY1OTsz2blq
+/WReHw==
+'/*!*/;
+# at 110852
+#260928 10:03:19 server id 1  end_log_pos 110883 CRC32 0x2ce506f9 	Xid = 3086
+COMMIT/*!*/;
+# at 110883
+#260928 10:03:19 server id 1  end_log_pos 110962 CRC32 0x164e773e 	Anonymous_GTID	last_committed=96	sequence_number=97	rbr_only=yes	original_committed_timestamp=1790564599092810	immediate_commit_timestamp=1790564599092810	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564599092810 (2026-09-28 10:03:19.092810 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564599092810 (2026-09-28 10:03:19.092810 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564599092810*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 110962
+#260928 10:03:19 server id 1  end_log_pos 111043 CRC32 0x2faca2e2 	Query	thread_id=80	exec_time=0	error_code=0
+SET TIMESTAMP=1790564599/*!*/;
+BEGIN
+/*!*/;
+# at 111043
+#260928 10:03:19 server id 1  end_log_pos 111108 CRC32 0x3682aacf 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 111108
+#260928 10:03:19 server id 1  end_log_pos 111211 CRC32 0xa76c8b7e 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+99i5ahMBAAAAQQAAAASyAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4M+qgjY=
+99i5ah4BAAAAZwAAAGuyAQAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MDsz2blqfotspw==
+'/*!*/;
+# at 111211
+#260928 10:03:19 server id 1  end_log_pos 111242 CRC32 0x9c152fae 	Xid = 3092
+COMMIT/*!*/;
+# at 111242
+#260928 10:03:19 server id 1  end_log_pos 111321 CRC32 0x0a89998a 	Anonymous_GTID	last_committed=97	sequence_number=98	rbr_only=yes	original_committed_timestamp=1790564599096493	immediate_commit_timestamp=1790564599096493	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564599096493 (2026-09-28 10:03:19.096493 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564599096493 (2026-09-28 10:03:19.096493 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564599096493*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 111321
+#260928 10:03:19 server id 1  end_log_pos 111411 CRC32 0x8877a484 	Query	thread_id=80	exec_time=0	error_code=0
+SET TIMESTAMP=1790564599/*!*/;
+BEGIN
+/*!*/;
+# at 111411
+#260928 10:03:19 server id 1  end_log_pos 111476 CRC32 0x857ce125 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 111476
+#260928 10:03:19 server id 1  end_log_pos 111648 CRC32 0xe7acb6dc 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+99i5ahMBAAAAQQAAAHSzAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4CXhfIU=
+99i5ah8BAAAArAAAACC0AQAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjA7M9m5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MTsz2blq3Las
+5w==
+'/*!*/;
+# at 111648
+#260928 10:03:19 server id 1  end_log_pos 111679 CRC32 0xc7592007 	Xid = 3096
+COMMIT/*!*/;
+# at 111679
+#260928 10:03:19 server id 1  end_log_pos 111758 CRC32 0x93bc8354 	Anonymous_GTID	last_committed=98	sequence_number=99	rbr_only=yes	original_committed_timestamp=1790564599559125	immediate_commit_timestamp=1790564599559125	transaction_length=865
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564599559125 (2026-09-28 10:03:19.559125 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564599559125 (2026-09-28 10:03:19.559125 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564599559125*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 111758
+#260928 10:03:19 server id 1  end_log_pos 111858 CRC32 0x64931c6c 	Query	thread_id=80	exec_time=0	error_code=0
+SET TIMESTAMP=1790564599/*!*/;
+SET @@session.time_zone='SYSTEM'/*!*/;
+BEGIN
+/*!*/;
+# at 111858
+#260928 10:03:19 server id 1  end_log_pos 111955 CRC32 0x50700175 	Table_map: `pln_up_imy`.`users` mapped to number 91
+# at 111955
+#260928 10:03:19 server id 1  end_log_pos 112513 CRC32 0x1b09c049 	Update_rows: table id 91 flags: STMT_END_F
+
+BINLOG '
+99i5ahMBAAAAYQAAAFO1AQAAAFsAAAAAAAMACnBsbl91cF9pbXkABXVzZXJzAA8IDw8PEQ8P/A8R
+EQgPDw8W/AP8A/wDAPwDUAACkAEAAPwD/AP8A9B/AQHAAgHgdQFwUA==
+99i5ah8BAAAALgIAAIG3AQAAAFsAAAAAAAEAAgAP/////xBwCgAAAAAAAAANAHN5YWZpcSB3aWxk
+YW4VAHN5YWZpcXdsZG4wQGdtYWlsLmNvbQ0AQWRtaW5pc3RyYXRvcjwAJDJ5JDEyJHRJUDZuVmRv
+NFMxTC5QSEhaMlpuYmVFUnovVmsxVkRuU2N6NU4vN3ZHcC9vL2ZucTR0MXl1DDA4Nzc0MDk0Mzg4
+MCoARGVzYSBTbGVtYW4gQmxvayBLZXNhbWJpDQpLZWNhbWF0YW4gU2xpeWVnPABKYVpHanBZQjRT
+S1ZycjlUNTFGVTd1UFpPTzBtZ1VHZE56TGxtTEpQRERpMGdWZkFyN2p3UGVUNUxjSzBqqztrarV/
+wAEAAAAAAAAAEHAKAAAAAAAAAA0Ac3lhZmlxIHdpbGRhbhUAc3lhZmlxd2xkbjBAZ21haWwuY29t
+DQBBZG1pbmlzdHJhdG9yPAAkMnkkMTIkM1FXTkd4VEhOVG1vRGpZemZTTXNyTzhpWFpUQ3VIa2NQ
+SUVtNnBEZm1aS2xyM0x1cWxtTXEMMDg3NzQwOTQzODgwKgBEZXNhIFNsZW1hbiBCbG9rIEtlc2Ft
+YmkNCktlY2FtYXRhbiBTbGl5ZWc8AEpvYXp0S1VKWDNzQk1rcm9hVlRpTTZTR2V2OTkweDEwbFNr
+QTh6cUNHUmVBa3JidGVwTzhKdVpoOGx2UmqrO2tquXaHAQAAAAAAAABJwAkb
+'/*!*/;
+# at 112513
+#260928 10:03:19 server id 1  end_log_pos 112544 CRC32 0x4c0b78cc 	Xid = 3112
+COMMIT/*!*/;
+# at 112544
+#260928 10:03:19 server id 1  end_log_pos 112623 CRC32 0x46c739f0 	Anonymous_GTID	last_committed=99	sequence_number=100	rbr_only=yes	original_committed_timestamp=1790564599581962	immediate_commit_timestamp=1790564599581962	transaction_length=436
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564599581962 (2026-09-28 10:03:19.581962 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564599581962 (2026-09-28 10:03:19.581962 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564599581962*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 112623
+#260928 10:03:19 server id 1  end_log_pos 112704 CRC32 0xf560518d 	Query	thread_id=80	exec_time=0	error_code=0
+SET TIMESTAMP=1790564599/*!*/;
+BEGIN
+/*!*/;
+# at 112704
+#260928 10:03:19 server id 1  end_log_pos 112769 CRC32 0x0b28b291 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 112769
+#260928 10:03:19 server id 1  end_log_pos 112949 CRC32 0x6a85e1d7 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+99i5ahMBAAAAQQAAAIG4AQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4JGyKAs=
+99i5aiABAAAAtAAAADW5AQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOnBhc3N3
+b3JkOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2NEAABzOjYwOiIkMnkk
+MTIkSzBkckwxRE5WNXdGV3c3OGxvUXU3LjM0N0c5SXQ2Ymp2d2FKd1I4am1uN3QyeGdWanBNcm0i
+O+PauWrX4YVq
+'/*!*/;
+# at 112949
+#260928 10:03:19 server id 1  end_log_pos 112980 CRC32 0x48d2a023 	Xid = 3115
+COMMIT/*!*/;
+# at 112980
+#260928 10:03:19 server id 1  end_log_pos 113059 CRC32 0x5770620f 	Anonymous_GTID	last_committed=100	sequence_number=101	rbr_only=yes	original_committed_timestamp=1790564599617030	immediate_commit_timestamp=1790564599617030	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564599617030 (2026-09-28 10:03:19.617030 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564599617030 (2026-09-28 10:03:19.617030 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564599617030*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 113059
+#260928 10:03:19 server id 1  end_log_pos 113149 CRC32 0x8d06cc36 	Query	thread_id=80	exec_time=0	error_code=0
+SET TIMESTAMP=1790564599/*!*/;
+BEGIN
+/*!*/;
+# at 113149
+#260928 10:03:19 server id 1  end_log_pos 113223 CRC32 0x56992e58 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 113223
+#260928 10:03:19 server id 1  end_log_pos 114183 CRC32 0x264a5161 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+99i5ahMBAAAASgAAAEe6AQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4FgumVY=
+99i5ah8BAAAAwAMAAAe+AQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPbPYuWoCKAB5NDIwU1pJWXRrZUF6THNw
+Zko2MFFqMDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdN
+MjVOU0VFMWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPffYuWphUUom
+'/*!*/;
+# at 114183
+#260928 10:03:19 server id 1  end_log_pos 114214 CRC32 0xd3dbfc70 	Xid = 3121
+COMMIT/*!*/;
+# at 114214
+#260928 10:03:34 server id 1  end_log_pos 114293 CRC32 0x404211d9 	Anonymous_GTID	last_committed=101	sequence_number=102	rbr_only=yes	original_committed_timestamp=1790564614937004	immediate_commit_timestamp=1790564614937004	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564614937004 (2026-09-28 10:03:34.937004 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564614937004 (2026-09-28 10:03:34.937004 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564614937004*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 114293
+#260928 10:03:34 server id 1  end_log_pos 114383 CRC32 0x66599e69 	Query	thread_id=81	exec_time=0	error_code=0
+SET TIMESTAMP=1790564614/*!*/;
+BEGIN
+/*!*/;
+# at 114383
+#260928 10:03:34 server id 1  end_log_pos 114448 CRC32 0xd920507e 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 114448
+#260928 10:03:34 server id 1  end_log_pos 114620 CRC32 0x9a919f7f 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Btm5ahMBAAAAQQAAABC/AQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4H5QINk=
+Btm5ah8BAAAArAAAALy/AQAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjE7M9m5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6Mjsz2blqf5+R
+mg==
+'/*!*/;
+# at 114620
+#260928 10:03:34 server id 1  end_log_pos 114651 CRC32 0x63822daa 	Xid = 3140
+COMMIT/*!*/;
+# at 114651
+#260928 10:03:34 server id 1  end_log_pos 114730 CRC32 0x95e7261b 	Anonymous_GTID	last_committed=102	sequence_number=103	rbr_only=yes	original_committed_timestamp=1790564614977279	immediate_commit_timestamp=1790564614977279	transaction_length=381
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564614977279 (2026-09-28 10:03:34.977279 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564614977279 (2026-09-28 10:03:34.977279 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564614977279*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 114730
+#260928 10:03:34 server id 1  end_log_pos 114811 CRC32 0x120defb6 	Query	thread_id=81	exec_time=0	error_code=0
+SET TIMESTAMP=1790564614/*!*/;
+BEGIN
+/*!*/;
+# at 114811
+#260928 10:03:34 server id 1  end_log_pos 114876 CRC32 0xc4283902 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 114876
+#260928 10:03:34 server id 1  end_log_pos 115001 CRC32 0xda0cf509 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Btm5ahMBAAAAQQAAALzAAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4AI5KMQ=
+Btm5aiABAAAAfQAAADnBAQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOmNvb2xk
+b3duOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2MNAABpOjE3OTA1NjQ1
+NTE7x9i5agn1DNo=
+'/*!*/;
+# at 115001
+#260928 10:03:34 server id 1  end_log_pos 115032 CRC32 0xe8d9a8e8 	Xid = 3153
+COMMIT/*!*/;
+# at 115032
+#260928 10:03:35 server id 1  end_log_pos 115111 CRC32 0x7dc896ab 	Anonymous_GTID	last_committed=103	sequence_number=104	rbr_only=yes	original_committed_timestamp=1790564615220938	immediate_commit_timestamp=1790564615220938	transaction_length=436
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564615220938 (2026-09-28 10:03:35.220938 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564615220938 (2026-09-28 10:03:35.220938 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564615220938*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 115111
+#260928 10:03:35 server id 1  end_log_pos 115192 CRC32 0xe1261fe0 	Query	thread_id=81	exec_time=0	error_code=0
+SET TIMESTAMP=1790564615/*!*/;
+BEGIN
+/*!*/;
+# at 115192
+#260928 10:03:35 server id 1  end_log_pos 115257 CRC32 0x79653bc9 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 115257
+#260928 10:03:35 server id 1  end_log_pos 115437 CRC32 0xc75d6c72 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+B9m5ahMBAAAAQQAAADnCAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4Mk7ZXk=
+B9m5ah4BAAAAtAAAAO3CAQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOnBhc3N3
+b3JkOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2NEAABzOjYwOiIkMnkk
+MTIkNFVuZGpIL3pjQ2JCYUpocjM0blFidXFOVWgvazQwT25vOE9mbGNDaE5Fa05rVnNKRXJjR2ki
+O1/buWpybF3H
+'/*!*/;
+# at 115437
+#260928 10:03:35 server id 1  end_log_pos 115468 CRC32 0x904e4c00 	Xid = 3156
+COMMIT/*!*/;
+# at 115468
+#260928 10:03:35 server id 1  end_log_pos 115547 CRC32 0x64d9f4d1 	Anonymous_GTID	last_committed=104	sequence_number=105	rbr_only=yes	original_committed_timestamp=1790564615224200	immediate_commit_timestamp=1790564615224200	transaction_length=381
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564615224200 (2026-09-28 10:03:35.224200 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564615224200 (2026-09-28 10:03:35.224200 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564615224200*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 115547
+#260928 10:03:35 server id 1  end_log_pos 115628 CRC32 0x9b445865 	Query	thread_id=81	exec_time=0	error_code=0
+SET TIMESTAMP=1790564615/*!*/;
+BEGIN
+/*!*/;
+# at 115628
+#260928 10:03:35 server id 1  end_log_pos 115693 CRC32 0x3ea14745 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 115693
+#260928 10:03:35 server id 1  end_log_pos 115818 CRC32 0x26ef2ce7 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+B9m5ahMBAAAAQQAAAO3DAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4EVHoT4=
+B9m5ah4BAAAAfQAAAGrEAQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOmNvb2xk
+b3duOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2MNAABpOjE3OTA1NjQ2
+NzU7Q9m5aucs7yY=
+'/*!*/;
+# at 115818
+#260928 10:03:35 server id 1  end_log_pos 115849 CRC32 0x6462cc34 	Xid = 3159
+COMMIT/*!*/;
+# at 115849
+#260928 10:03:39 server id 1  end_log_pos 115928 CRC32 0x5a4d9280 	Anonymous_GTID	last_committed=105	sequence_number=106	rbr_only=yes	original_committed_timestamp=1790564619385303	immediate_commit_timestamp=1790564619385303	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564619385303 (2026-09-28 10:03:39.385303 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564619385303 (2026-09-28 10:03:39.385303 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564619385303*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 115928
+#260928 10:03:39 server id 1  end_log_pos 116018 CRC32 0xd4e17f99 	Query	thread_id=81	exec_time=0	error_code=0
+SET TIMESTAMP=1790564619/*!*/;
+BEGIN
+/*!*/;
+# at 116018
+#260928 10:03:39 server id 1  end_log_pos 116092 CRC32 0x0956e52e 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 116092
+#260928 10:03:39 server id 1  end_log_pos 117052 CRC32 0x646db144 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+C9m5ahMBAAAASgAAAHzFAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4C7lVgk=
+C9m5ah8BAAAAwAMAADzJAQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPffYuWoCKAB5NDIwU1pJWXRrZUF6THNw
+Zko2MFFqMDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdN
+MjVOU0VFMWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPQvZuWpEsW1k
+'/*!*/;
+# at 117052
+#260928 10:03:39 server id 1  end_log_pos 117083 CRC32 0x545bed9f 	Xid = 3165
+COMMIT/*!*/;
+# at 117083
+#260928 10:04:05 server id 1  end_log_pos 117162 CRC32 0xca330c65 	Anonymous_GTID	last_committed=106	sequence_number=107	rbr_only=yes	original_committed_timestamp=1790564645121800	immediate_commit_timestamp=1790564645121800	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564645121800 (2026-09-28 10:04:05.121800 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564645121800 (2026-09-28 10:04:05.121800 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564645121800*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 117162
+#260928 10:04:05 server id 1  end_log_pos 117252 CRC32 0x10318f55 	Query	thread_id=82	exec_time=0	error_code=0
+SET TIMESTAMP=1790564645/*!*/;
+BEGIN
+/*!*/;
+# at 117252
+#260928 10:04:05 server id 1  end_log_pos 117317 CRC32 0xdc3bf6ea 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 117317
+#260928 10:04:05 server id 1  end_log_pos 117489 CRC32 0xb6a0264b 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Jdm5ahMBAAAAQQAAAEXKAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4Or2O9w=
+Jdm5ah8BAAAArAAAAPHKAQAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjI7M9m5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6Mzsz2blqSyag
+tg==
+'/*!*/;
+# at 117489
+#260928 10:04:05 server id 1  end_log_pos 117520 CRC32 0x9ac73ea8 	Xid = 3184
+COMMIT/*!*/;
+# at 117520
+#260928 10:04:05 server id 1  end_log_pos 117599 CRC32 0x2d9ba7b3 	Anonymous_GTID	last_committed=107	sequence_number=108	rbr_only=yes	original_committed_timestamp=1790564645584883	immediate_commit_timestamp=1790564645584883	transaction_length=865
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564645584883 (2026-09-28 10:04:05.584883 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564645584883 (2026-09-28 10:04:05.584883 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564645584883*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 117599
+#260928 10:04:05 server id 1  end_log_pos 117699 CRC32 0x28e6a00d 	Query	thread_id=82	exec_time=0	error_code=0
+SET TIMESTAMP=1790564645/*!*/;
+BEGIN
+/*!*/;
+# at 117699
+#260928 10:04:05 server id 1  end_log_pos 117796 CRC32 0xee244060 	Table_map: `pln_up_imy`.`users` mapped to number 91
+# at 117796
+#260928 10:04:05 server id 1  end_log_pos 118354 CRC32 0xd8e274b8 	Update_rows: table id 91 flags: STMT_END_F
+
+BINLOG '
+Jdm5ahMBAAAAYQAAACTMAQAAAFsAAAAAAAMACnBsbl91cF9pbXkABXVzZXJzAA8IDw8PEQ8P/A8R
+EQgPDw8W/AP8A/wDAPwDUAACkAEAAPwD/AP8A9B/AQHAAgHgYEAk7g==
+Jdm5ah8BAAAALgIAAFLOAQAAAFsAAAAAAAEAAgAP/////xBwCgAAAAAAAAANAHN5YWZpcSB3aWxk
+YW4VAHN5YWZpcXdsZG4wQGdtYWlsLmNvbQ0AQWRtaW5pc3RyYXRvcjwAJDJ5JDEyJDNRV05HeFRI
+TlRtb0RqWXpmU01zck84aVhaVEN1SGtjUElFbTZwRGZtWktscjNMdXFsbU1xDDA4Nzc0MDk0Mzg4
+MCoARGVzYSBTbGVtYW4gQmxvayBLZXNhbWJpDQpLZWNhbWF0YW4gU2xpeWVnPABKb2F6dEtVSlgz
+c0JNa3JvYVZUaU02U0dldjk5MHgxMGxTa0E4enFDR1JlQWtyYnRlcE84SnVaaDhsdlJqqztrarl2
+hwEAAAAAAAAAEHAKAAAAAAAAAA0Ac3lhZmlxIHdpbGRhbhUAc3lhZmlxd2xkbjBAZ21haWwuY29t
+DQBBZG1pbmlzdHJhdG9yPAAkMnkkMTIkUEtTTVdzU3ZsM0pJaDZCSHpkRW1UdWY5dmsvbzRrR1lj
+R1UxLzlYd2x2V0trai9WSXFRSTYMMDg3NzQwOTQzODgwKgBEZXNhIFNsZW1hbiBCbG9rIEtlc2Ft
+YmkNCktlY2FtYXRhbiBTbGl5ZWc8AEJMdERKZzRjTmxOVnQ2SHVWWEtBNXZoUGEzVmtJUFNyRVRI
+NTk2dmVGWHBjVktXNWpQaklEVzF6aEY1YWqrO2tquXa1AQAAAAAAAAC4dOLY
+'/*!*/;
+# at 118354
+#260928 10:04:05 server id 1  end_log_pos 118385 CRC32 0x6951f7ae 	Xid = 3200
+COMMIT/*!*/;
+# at 118385
+#260928 10:04:05 server id 1  end_log_pos 118464 CRC32 0xe78bd297 	Anonymous_GTID	last_committed=108	sequence_number=109	rbr_only=yes	original_committed_timestamp=1790564645590109	immediate_commit_timestamp=1790564645590109	transaction_length=436
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564645590109 (2026-09-28 10:04:05.590109 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564645590109 (2026-09-28 10:04:05.590109 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564645590109*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 118464
+#260928 10:04:05 server id 1  end_log_pos 118545 CRC32 0xcadfd204 	Query	thread_id=82	exec_time=0	error_code=0
+SET TIMESTAMP=1790564645/*!*/;
+BEGIN
+/*!*/;
+# at 118545
+#260928 10:04:05 server id 1  end_log_pos 118610 CRC32 0x163e910c 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 118610
+#260928 10:04:05 server id 1  end_log_pos 118790 CRC32 0xb578bc37 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Jdm5ahMBAAAAQQAAAFLPAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4AyRPhY=
+Jdm5aiABAAAAtAAAAAbQAQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOnBhc3N3
+b3JkOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2NEAABzOjYwOiIkMnkk
+MTIkNFVuZGpIL3pjQ2JCYUpocjM0blFidXFOVWgvazQwT25vOE9mbGNDaE5Fa05rVnNKRXJjR2ki
+O1/buWo3vHi1
+'/*!*/;
+# at 118790
+#260928 10:04:05 server id 1  end_log_pos 118821 CRC32 0x97981ea1 	Xid = 3203
+COMMIT/*!*/;
+# at 118821
+#260928 10:04:05 server id 1  end_log_pos 118900 CRC32 0xf47a0851 	Anonymous_GTID	last_committed=109	sequence_number=110	rbr_only=yes	original_committed_timestamp=1790564645612954	immediate_commit_timestamp=1790564645612954	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564645612954 (2026-09-28 10:04:05.612954 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564645612954 (2026-09-28 10:04:05.612954 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564645612954*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 118900
+#260928 10:04:05 server id 1  end_log_pos 118990 CRC32 0x9c888593 	Query	thread_id=82	exec_time=0	error_code=0
+SET TIMESTAMP=1790564645/*!*/;
+BEGIN
+/*!*/;
+# at 118990
+#260928 10:04:05 server id 1  end_log_pos 119064 CRC32 0x7daf6c9b 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 119064
+#260928 10:04:05 server id 1  end_log_pos 120024 CRC32 0x75e4f0e4 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+Jdm5ahMBAAAASgAAABjRAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4Jtsr30=
+Jdm5ah8BAAAAwAMAANjUAQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPQvZuWoCKAB5NDIwU1pJWXRrZUF6THNw
+Zko2MFFqMDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdN
+MjVOU0VFMWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPSXZuWrk8OR1
+'/*!*/;
+# at 120024
+#260928 10:04:05 server id 1  end_log_pos 120055 CRC32 0x83f7882d 	Xid = 3209
+COMMIT/*!*/;
+# at 120055
+#260928 10:04:30 server id 1  end_log_pos 120134 CRC32 0xa35f7ac3 	Anonymous_GTID	last_committed=110	sequence_number=111	rbr_only=yes	original_committed_timestamp=1790564670302721	immediate_commit_timestamp=1790564670302721	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564670302721 (2026-09-28 10:04:30.302721 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564670302721 (2026-09-28 10:04:30.302721 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564670302721*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 120134
+#260928 10:04:30 server id 1  end_log_pos 120215 CRC32 0xf6737708 	Query	thread_id=83	exec_time=0	error_code=0
+SET TIMESTAMP=1790564670/*!*/;
+BEGIN
+/*!*/;
+# at 120215
+#260928 10:04:30 server id 1  end_log_pos 120280 CRC32 0xe395be3d 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 120280
+#260928 10:04:30 server id 1  end_log_pos 120383 CRC32 0xe663a82b 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Ptm5ahMBAAAAQQAAANjVAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4D2+leM=
+Ptm5aiABAAAAZwAAAD/WAQAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6Mzsz2blqK6hj5g==
+'/*!*/;
+# at 120383
+#260928 10:04:30 server id 1  end_log_pos 120414 CRC32 0x079c2164 	Xid = 3221
+COMMIT/*!*/;
+# at 120414
+#260928 10:04:30 server id 1  end_log_pos 120493 CRC32 0xe9e88ab0 	Anonymous_GTID	last_committed=111	sequence_number=112	rbr_only=yes	original_committed_timestamp=1790564670305805	immediate_commit_timestamp=1790564670305805	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564670305805 (2026-09-28 10:04:30.305805 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564670305805 (2026-09-28 10:04:30.305805 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564670305805*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 120493
+#260928 10:04:30 server id 1  end_log_pos 120574 CRC32 0xd99ea81b 	Query	thread_id=83	exec_time=0	error_code=0
+SET TIMESTAMP=1790564670/*!*/;
+BEGIN
+/*!*/;
+# at 120574
+#260928 10:04:30 server id 1  end_log_pos 120639 CRC32 0xef0da9bc 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 120639
+#260928 10:04:30 server id 1  end_log_pos 120757 CRC32 0xb30e7356 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Ptm5ahMBAAAAQQAAAD/XAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4LypDe8=
+Ptm5aiABAAAAdgAAALXXAQAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU2NDY1OTsz2blq
+VnMOsw==
+'/*!*/;
+# at 120757
+#260928 10:04:30 server id 1  end_log_pos 120788 CRC32 0x9ec4dfaa 	Xid = 3227
+COMMIT/*!*/;
+# at 120788
+#260928 10:04:30 server id 1  end_log_pos 120867 CRC32 0x672980f0 	Anonymous_GTID	last_committed=112	sequence_number=113	rbr_only=yes	original_committed_timestamp=1790564670308177	immediate_commit_timestamp=1790564670308177	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564670308177 (2026-09-28 10:04:30.308177 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564670308177 (2026-09-28 10:04:30.308177 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564670308177*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 120867
+#260928 10:04:30 server id 1  end_log_pos 120948 CRC32 0x46811d9a 	Query	thread_id=83	exec_time=0	error_code=0
+SET TIMESTAMP=1790564670/*!*/;
+BEGIN
+/*!*/;
+# at 120948
+#260928 10:04:30 server id 1  end_log_pos 121013 CRC32 0x43a077e7 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 121013
+#260928 10:04:30 server id 1  end_log_pos 121131 CRC32 0xdb61ea1c 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Ptm5ahMBAAAAQQAAALXYAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4Od3oEM=
+Ptm5ah4BAAAAdgAAACvZAQAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU2NDczMDt62blq
+HOph2w==
+'/*!*/;
+# at 121131
+#260928 10:04:30 server id 1  end_log_pos 121162 CRC32 0x02985b70 	Xid = 3230
+COMMIT/*!*/;
+# at 121162
+#260928 10:04:30 server id 1  end_log_pos 121241 CRC32 0x1d10f429 	Anonymous_GTID	last_committed=113	sequence_number=114	rbr_only=yes	original_committed_timestamp=1790564670310583	immediate_commit_timestamp=1790564670310583	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564670310583 (2026-09-28 10:04:30.310583 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564670310583 (2026-09-28 10:04:30.310583 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564670310583*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 121241
+#260928 10:04:30 server id 1  end_log_pos 121322 CRC32 0x96d7aee7 	Query	thread_id=83	exec_time=0	error_code=0
+SET TIMESTAMP=1790564670/*!*/;
+BEGIN
+/*!*/;
+# at 121322
+#260928 10:04:30 server id 1  end_log_pos 121387 CRC32 0x9ef0ac94 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 121387
+#260928 10:04:30 server id 1  end_log_pos 121490 CRC32 0x14f55054 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Ptm5ahMBAAAAQQAAACvaAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4JSs8J4=
+Ptm5ah4BAAAAZwAAAJLaAQAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MDt62blqVFD1FA==
+'/*!*/;
+# at 121490
+#260928 10:04:30 server id 1  end_log_pos 121521 CRC32 0x8d7b1f41 	Xid = 3236
+COMMIT/*!*/;
+# at 121521
+#260928 10:04:30 server id 1  end_log_pos 121600 CRC32 0x85af5cbc 	Anonymous_GTID	last_committed=114	sequence_number=115	rbr_only=yes	original_committed_timestamp=1790564670314007	immediate_commit_timestamp=1790564670314007	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564670314007 (2026-09-28 10:04:30.314007 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564670314007 (2026-09-28 10:04:30.314007 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564670314007*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 121600
+#260928 10:04:30 server id 1  end_log_pos 121690 CRC32 0x6d67e60d 	Query	thread_id=83	exec_time=0	error_code=0
+SET TIMESTAMP=1790564670/*!*/;
+BEGIN
+/*!*/;
+# at 121690
+#260928 10:04:30 server id 1  end_log_pos 121755 CRC32 0x9888e2a5 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 121755
+#260928 10:04:30 server id 1  end_log_pos 121927 CRC32 0x00acf0c7 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Ptm5ahMBAAAAQQAAAJvbAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4KXiiJg=
+Ptm5ah8BAAAArAAAAEfcAQAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjA7etm5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MTt62blqx/Cs
+AA==
+'/*!*/;
+# at 121927
+#260928 10:04:30 server id 1  end_log_pos 121958 CRC32 0xbb845b6c 	Xid = 3240
+COMMIT/*!*/;
+# at 121958
+#260928 10:04:30 server id 1  end_log_pos 122037 CRC32 0xb8de07a7 	Anonymous_GTID	last_committed=115	sequence_number=116	rbr_only=yes	original_committed_timestamp=1790564670367782	immediate_commit_timestamp=1790564670367782	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564670367782 (2026-09-28 10:04:30.367782 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564670367782 (2026-09-28 10:04:30.367782 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564670367782*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 122037
+#260928 10:04:30 server id 1  end_log_pos 122127 CRC32 0xf61f030f 	Query	thread_id=83	exec_time=0	error_code=0
+SET TIMESTAMP=1790564670/*!*/;
+BEGIN
+/*!*/;
+# at 122127
+#260928 10:04:30 server id 1  end_log_pos 122201 CRC32 0xb8c4fd0f 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 122201
+#260928 10:04:30 server id 1  end_log_pos 123161 CRC32 0xd5c172bb 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+Ptm5ahMBAAAASgAAAFndAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4A/9xLg=
+Ptm5ah8BAAAAwAMAABnhAQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPSXZuWoCKAB5NDIwU1pJWXRrZUF6THNw
+Zko2MFFqMDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdN
+MjVOU0VFMWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPT7ZuWq7csHV
+'/*!*/;
+# at 123161
+#260928 10:04:30 server id 1  end_log_pos 123192 CRC32 0xe5757ee8 	Xid = 3259
+COMMIT/*!*/;
+# at 123192
+#260928 10:04:53 server id 1  end_log_pos 123271 CRC32 0x5d47c187 	Anonymous_GTID	last_committed=116	sequence_number=117	rbr_only=yes	original_committed_timestamp=1790564693139620	immediate_commit_timestamp=1790564693139620	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564693139620 (2026-09-28 10:04:53.139620 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564693139620 (2026-09-28 10:04:53.139620 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564693139620*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 123271
+#260928 10:04:53 server id 1  end_log_pos 123361 CRC32 0x82bd08cd 	Query	thread_id=84	exec_time=0	error_code=0
+SET TIMESTAMP=1790564693/*!*/;
+BEGIN
+/*!*/;
+# at 123361
+#260928 10:04:53 server id 1  end_log_pos 123426 CRC32 0xc5a48cfd 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 123426
+#260928 10:04:53 server id 1  end_log_pos 123598 CRC32 0xbddf90d5 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+Vdm5ahMBAAAAQQAAACLiAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4P2MpMU=
+Vdm5ah8BAAAArAAAAM7iAQAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjE7etm5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6Mjt62blq1ZDf
+vQ==
+'/*!*/;
+# at 123598
+#260928 10:04:53 server id 1  end_log_pos 123629 CRC32 0xf388c136 	Xid = 3278
+COMMIT/*!*/;
+# at 123629
+#260928 10:04:53 server id 1  end_log_pos 123708 CRC32 0x83ec3603 	Anonymous_GTID	last_committed=117	sequence_number=118	rbr_only=yes	original_committed_timestamp=1790564693170923	immediate_commit_timestamp=1790564693170923	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564693170923 (2026-09-28 10:04:53.170923 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564693170923 (2026-09-28 10:04:53.170923 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564693170923*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 123708
+#260928 10:04:53 server id 1  end_log_pos 123798 CRC32 0x00ebfe53 	Query	thread_id=84	exec_time=0	error_code=0
+SET TIMESTAMP=1790564693/*!*/;
+BEGIN
+/*!*/;
+# at 123798
+#260928 10:04:53 server id 1  end_log_pos 123872 CRC32 0x5cc99f0c 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 123872
+#260928 10:04:53 server id 1  end_log_pos 124832 CRC32 0x7273b6c6 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+Vdm5ahMBAAAASgAAAODjAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4AyfyVw=
+Vdm5ah8BAAAAwAMAAKDnAQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPT7ZuWoCKAB5NDIwU1pJWXRrZUF6THNw
+Zko2MFFqMDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdN
+MjVOU0VFMWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPVXZuWrGtnNy
+'/*!*/;
+# at 124832
+#260928 10:04:53 server id 1  end_log_pos 124863 CRC32 0x54794c3e 	Xid = 3294
+COMMIT/*!*/;
+# at 124863
+#260928 10:05:27 server id 1  end_log_pos 124942 CRC32 0x26f85d86 	Anonymous_GTID	last_committed=118	sequence_number=119	rbr_only=yes	original_committed_timestamp=1790564727086708	immediate_commit_timestamp=1790564727086708	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564727086708 (2026-09-28 10:05:27.086708 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564727086708 (2026-09-28 10:05:27.086708 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564727086708*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 124942
+#260928 10:05:27 server id 1  end_log_pos 125032 CRC32 0x7692451b 	Query	thread_id=85	exec_time=0	error_code=0
+SET TIMESTAMP=1790564727/*!*/;
+BEGIN
+/*!*/;
+# at 125032
+#260928 10:05:27 server id 1  end_log_pos 125097 CRC32 0x019e971d 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 125097
+#260928 10:05:27 server id 1  end_log_pos 125269 CRC32 0xf7b2d1b4 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+d9m5ahMBAAAAQQAAAKnoAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4B2XngE=
+d9m5ah8BAAAArAAAAFXpAQAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjI7etm5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6Mzt62blqtNGy
+9w==
+'/*!*/;
+# at 125269
+#260928 10:05:27 server id 1  end_log_pos 125300 CRC32 0x62ca73a2 	Xid = 3313
+COMMIT/*!*/;
+# at 125300
+#260928 10:05:27 server id 1  end_log_pos 125379 CRC32 0xfb842496 	Anonymous_GTID	last_committed=119	sequence_number=120	rbr_only=yes	original_committed_timestamp=1790564727110382	immediate_commit_timestamp=1790564727110382	transaction_length=381
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564727110382 (2026-09-28 10:05:27.110382 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564727110382 (2026-09-28 10:05:27.110382 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564727110382*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 125379
+#260928 10:05:27 server id 1  end_log_pos 125460 CRC32 0xda2c8e2c 	Query	thread_id=85	exec_time=0	error_code=0
+SET TIMESTAMP=1790564727/*!*/;
+BEGIN
+/*!*/;
+# at 125460
+#260928 10:05:27 server id 1  end_log_pos 125525 CRC32 0x10d6141b 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 125525
+#260928 10:05:27 server id 1  end_log_pos 125650 CRC32 0x35fdb9c6 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+d9m5ahMBAAAAQQAAAFXqAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4BsU1hA=
+d9m5aiABAAAAfQAAANLqAQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOmNvb2xk
+b3duOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2MNAABpOjE3OTA1NjQ2
+NzU7Q9m5asa5/TU=
+'/*!*/;
+# at 125650
+#260928 10:05:27 server id 1  end_log_pos 125681 CRC32 0x01f08c4f 	Xid = 3326
+COMMIT/*!*/;
+# at 125681
+#260928 10:05:27 server id 1  end_log_pos 125760 CRC32 0xc9826232 	Anonymous_GTID	last_committed=120	sequence_number=121	rbr_only=yes	original_committed_timestamp=1790564727330839	immediate_commit_timestamp=1790564727330839	transaction_length=436
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564727330839 (2026-09-28 10:05:27.330839 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564727330839 (2026-09-28 10:05:27.330839 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564727330839*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 125760
+#260928 10:05:27 server id 1  end_log_pos 125841 CRC32 0x7cb4c09c 	Query	thread_id=85	exec_time=0	error_code=0
+SET TIMESTAMP=1790564727/*!*/;
+BEGIN
+/*!*/;
+# at 125841
+#260928 10:05:27 server id 1  end_log_pos 125906 CRC32 0x10be9ff8 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 125906
+#260928 10:05:27 server id 1  end_log_pos 126086 CRC32 0xe1ad325b 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+d9m5ahMBAAAAQQAAANLrAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4PifvhA=
+d9m5ah4BAAAAtAAAAIbsAQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOnBhc3N3
+b3JkOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2NEAABzOjYwOiIkMnkk
+MTIkOXZtRU9scjJ0VlF2UmlFUzREZFV5ZVIwb3ZBdEZrWlNtVjNiRGtLVEFIVlJqc1AyU0FPei4i
+O8/buWpbMq3h
+'/*!*/;
+# at 126086
+#260928 10:05:27 server id 1  end_log_pos 126117 CRC32 0x1f8e1a46 	Xid = 3329
+COMMIT/*!*/;
+# at 126117
+#260928 10:05:27 server id 1  end_log_pos 126196 CRC32 0x369d6509 	Anonymous_GTID	last_committed=121	sequence_number=122	rbr_only=yes	original_committed_timestamp=1790564727333543	immediate_commit_timestamp=1790564727333543	transaction_length=381
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564727333543 (2026-09-28 10:05:27.333543 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564727333543 (2026-09-28 10:05:27.333543 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564727333543*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 126196
+#260928 10:05:27 server id 1  end_log_pos 126277 CRC32 0xb7339f46 	Query	thread_id=85	exec_time=0	error_code=0
+SET TIMESTAMP=1790564727/*!*/;
+BEGIN
+/*!*/;
+# at 126277
+#260928 10:05:27 server id 1  end_log_pos 126342 CRC32 0x4b60d39c 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 126342
+#260928 10:05:27 server id 1  end_log_pos 126467 CRC32 0x07294caa 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+d9m5ahMBAAAAQQAAAIbtAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4JzTYEs=
+d9m5ah4BAAAAfQAAAAPuAQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOmNvb2xk
+b3duOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2MNAABpOjE3OTA1NjQ3
+ODc7s9m5aqpMKQc=
+'/*!*/;
+# at 126467
+#260928 10:05:27 server id 1  end_log_pos 126498 CRC32 0xd18ce44b 	Xid = 3332
+COMMIT/*!*/;
+# at 126498
+#260928 10:05:31 server id 1  end_log_pos 126577 CRC32 0x09864582 	Anonymous_GTID	last_committed=122	sequence_number=123	rbr_only=yes	original_committed_timestamp=1790564731731795	immediate_commit_timestamp=1790564731731795	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564731731795 (2026-09-28 10:05:31.731795 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564731731795 (2026-09-28 10:05:31.731795 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564731731795*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 126577
+#260928 10:05:31 server id 1  end_log_pos 126658 CRC32 0x7d46ce5a 	Query	thread_id=85	exec_time=0	error_code=0
+SET TIMESTAMP=1790564731/*!*/;
+BEGIN
+/*!*/;
+# at 126658
+#260928 10:05:31 server id 1  end_log_pos 126723 CRC32 0xff2ccbaf 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 126723
+#260928 10:05:31 server id 1  end_log_pos 126826 CRC32 0xa7a5bed4 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+e9m5ahMBAAAAQQAAAAPvAQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4K/LLP8=
+e9m5aiABAAAAZwAAAGrvAQAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6Mzt62blq1L6lpw==
+'/*!*/;
+# at 126826
+#260928 10:05:31 server id 1  end_log_pos 126857 CRC32 0xbb7c3ee4 	Xid = 3338
+COMMIT/*!*/;
+# at 126857
+#260928 10:05:31 server id 1  end_log_pos 126936 CRC32 0x93c08a84 	Anonymous_GTID	last_committed=123	sequence_number=124	rbr_only=yes	original_committed_timestamp=1790564731734405	immediate_commit_timestamp=1790564731734405	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564731734405 (2026-09-28 10:05:31.734405 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564731734405 (2026-09-28 10:05:31.734405 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564731734405*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 126936
+#260928 10:05:31 server id 1  end_log_pos 127026 CRC32 0x5fb1f66a 	Query	thread_id=85	exec_time=0	error_code=0
+SET TIMESTAMP=1790564731/*!*/;
+BEGIN
+/*!*/;
+# at 127026
+#260928 10:05:31 server id 1  end_log_pos 127100 CRC32 0x309a1231 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 127100
+#260928 10:05:31 server id 1  end_log_pos 128060 CRC32 0xd1760d32 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+e9m5ahMBAAAASgAAAHzwAQAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4DESmjA=
+e9m5ah8BAAAAwAMAADz0AQAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPVXZuWoCKAB5NDIwU1pJWXRrZUF6THNw
+Zko2MFFqMDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdN
+MjVOU0VFMWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPXvZuWoyDXbR
+'/*!*/;
+# at 128060
+#260928 10:05:31 server id 1  end_log_pos 128091 CRC32 0xa761ce56 	Xid = 3341
+COMMIT/*!*/;
+# at 128091
+#260928 10:05:52 server id 1  end_log_pos 128170 CRC32 0xb55694fe 	Anonymous_GTID	last_committed=124	sequence_number=125	rbr_only=yes	original_committed_timestamp=1790564752099155	immediate_commit_timestamp=1790564752099155	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564752099155 (2026-09-28 10:05:52.099155 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564752099155 (2026-09-28 10:05:52.099155 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564752099155*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 128170
+#260928 10:05:52 server id 1  end_log_pos 128251 CRC32 0x97514433 	Query	thread_id=86	exec_time=0	error_code=0
+SET TIMESTAMP=1790564752/*!*/;
+BEGIN
+/*!*/;
+# at 128251
+#260928 10:05:52 server id 1  end_log_pos 128316 CRC32 0x87b1c24f 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 128316
+#260928 10:05:52 server id 1  end_log_pos 128434 CRC32 0xaf8daa3c 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+kNm5ahMBAAAAQQAAADz1AQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4E/CsYc=
+kNm5aiABAAAAdgAAALL1AQAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU2NDczMDt62blq
+PKqNrw==
+'/*!*/;
+# at 128434
+#260928 10:05:52 server id 1  end_log_pos 128465 CRC32 0x6ac84582 	Xid = 3356
+COMMIT/*!*/;
+# at 128465
+#260928 10:05:52 server id 1  end_log_pos 128544 CRC32 0xa5ede8e7 	Anonymous_GTID	last_committed=125	sequence_number=126	rbr_only=yes	original_committed_timestamp=1790564752102387	immediate_commit_timestamp=1790564752102387	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564752102387 (2026-09-28 10:05:52.102387 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564752102387 (2026-09-28 10:05:52.102387 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564752102387*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 128544
+#260928 10:05:52 server id 1  end_log_pos 128625 CRC32 0x79fa00a0 	Query	thread_id=86	exec_time=0	error_code=0
+SET TIMESTAMP=1790564752/*!*/;
+BEGIN
+/*!*/;
+# at 128625
+#260928 10:05:52 server id 1  end_log_pos 128690 CRC32 0x5e64d31b 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 128690
+#260928 10:05:52 server id 1  end_log_pos 128808 CRC32 0xd3491d05 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+kNm5ahMBAAAAQQAAALL2AQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4BvTZF4=
+kNm5ah4BAAAAdgAAACj3AQAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU2NDgxMjvM2blq
+BR1J0w==
+'/*!*/;
+# at 128808
+#260928 10:05:52 server id 1  end_log_pos 128839 CRC32 0x99186f12 	Xid = 3359
+COMMIT/*!*/;
+# at 128839
+#260928 10:05:52 server id 1  end_log_pos 128918 CRC32 0x3a870aab 	Anonymous_GTID	last_committed=126	sequence_number=127	rbr_only=yes	original_committed_timestamp=1790564752104415	immediate_commit_timestamp=1790564752104415	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564752104415 (2026-09-28 10:05:52.104415 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564752104415 (2026-09-28 10:05:52.104415 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564752104415*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 128918
+#260928 10:05:52 server id 1  end_log_pos 128999 CRC32 0x0b23caf3 	Query	thread_id=86	exec_time=0	error_code=0
+SET TIMESTAMP=1790564752/*!*/;
+BEGIN
+/*!*/;
+# at 128999
+#260928 10:05:52 server id 1  end_log_pos 129064 CRC32 0xf64cc767 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 129064
+#260928 10:05:52 server id 1  end_log_pos 129167 CRC32 0xff731408 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+kNm5ahMBAAAAQQAAACj4AQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4GfHTPY=
+kNm5ah4BAAAAZwAAAI/4AQAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MDvM2blqCBRz/w==
+'/*!*/;
+# at 129167
+#260928 10:05:52 server id 1  end_log_pos 129198 CRC32 0x0b9d6a19 	Xid = 3365
+COMMIT/*!*/;
+# at 129198
+#260928 10:05:52 server id 1  end_log_pos 129277 CRC32 0x74befdf5 	Anonymous_GTID	last_committed=127	sequence_number=128	rbr_only=yes	original_committed_timestamp=1790564752107421	immediate_commit_timestamp=1790564752107421	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564752107421 (2026-09-28 10:05:52.107421 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564752107421 (2026-09-28 10:05:52.107421 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564752107421*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 129277
+#260928 10:05:52 server id 1  end_log_pos 129367 CRC32 0x5c908b92 	Query	thread_id=86	exec_time=0	error_code=0
+SET TIMESTAMP=1790564752/*!*/;
+BEGIN
+/*!*/;
+# at 129367
+#260928 10:05:52 server id 1  end_log_pos 129432 CRC32 0xf0348956 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 129432
+#260928 10:05:52 server id 1  end_log_pos 129604 CRC32 0xf6f6df7e 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+kNm5ahMBAAAAQQAAAJj5AQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4FaJNPA=
+kNm5ah8BAAAArAAAAET6AQAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjA7zNm5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MTvM2blqft/2
+9g==
+'/*!*/;
+# at 129604
+#260928 10:05:52 server id 1  end_log_pos 129635 CRC32 0x495ea255 	Xid = 3369
+COMMIT/*!*/;
+# at 129635
+#260928 10:05:52 server id 1  end_log_pos 129714 CRC32 0x02e48f68 	Anonymous_GTID	last_committed=128	sequence_number=129	rbr_only=yes	original_committed_timestamp=1790564752568060	immediate_commit_timestamp=1790564752568060	transaction_length=865
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564752568060 (2026-09-28 10:05:52.568060 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564752568060 (2026-09-28 10:05:52.568060 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564752568060*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 129714
+#260928 10:05:52 server id 1  end_log_pos 129814 CRC32 0x16feb0ce 	Query	thread_id=86	exec_time=0	error_code=0
+SET TIMESTAMP=1790564752/*!*/;
+BEGIN
+/*!*/;
+# at 129814
+#260928 10:05:52 server id 1  end_log_pos 129911 CRC32 0x3fc3a03b 	Table_map: `pln_up_imy`.`users` mapped to number 91
+# at 129911
+#260928 10:05:52 server id 1  end_log_pos 130469 CRC32 0xe1b5a854 	Update_rows: table id 91 flags: STMT_END_F
+
+BINLOG '
+kNm5ahMBAAAAYQAAAHf7AQAAAFsAAAAAAAMACnBsbl91cF9pbXkABXVzZXJzAA8IDw8PEQ8P/A8R
+EQgPDw8W/AP8A/wDAPwDUAACkAEAAPwD/AP8A9B/AQHAAgHgO6DDPw==
+kNm5ah8BAAAALgIAAKX9AQAAAFsAAAAAAAEAAgAP/////xBwCgAAAAAAAAANAHN5YWZpcSB3aWxk
+YW4VAHN5YWZpcXdsZG4wQGdtYWlsLmNvbQ0AQWRtaW5pc3RyYXRvcjwAJDJ5JDEyJFBLU01Xc1N2
+bDNKSWg2Qkh6ZEVtVHVmOXZrL280a0dZY0dVMS85WHdsdldLa2ovVklxUUk2DDA4Nzc0MDk0Mzg4
+MCoARGVzYSBTbGVtYW4gQmxvayBLZXNhbWJpDQpLZWNhbWF0YW4gU2xpeWVnPABCTHRESmc0Y05s
+TlZ0Nkh1VlhLQTV2aFBhM1ZrSVBTckVUSDU5NnZlRlhwY1ZLVzVqUGpJRFcxemhGNWFqqztrarl2
+tQEAAAAAAAAAEHAKAAAAAAAAAA0Ac3lhZmlxIHdpbGRhbhUAc3lhZmlxd2xkbjBAZ21haWwuY29t
+DQBBZG1pbmlzdHJhdG9yPAAkMnkkMTIkYXpNRExFWk94bDAvMFgyNGwwLzhxZXdBc3BZaHF4VC5U
+OGhGSlRQRWtJZk80LkllQmIvVmEMMDg3NzQwOTQzODgwKgBEZXNhIFNsZW1hbiBCbG9rIEtlc2Ft
+YmkNCktlY2FtYXRhbiBTbGl5ZWc8ADRwOWVmeHluejhHM0xYbkRvbXRWU3NpMjc2b2lVbVE1WTNV
+VUtuSGwxekh4cGJyOUZBenk5WjhCUzZJRGqrO2tquXcgAQAAAAAAAABUqLXh
+'/*!*/;
+# at 130469
+#260928 10:05:52 server id 1  end_log_pos 130500 CRC32 0x634ca8dc 	Xid = 3385
+COMMIT/*!*/;
+# at 130500
+#260928 10:05:52 server id 1  end_log_pos 130579 CRC32 0x4c05aba9 	Anonymous_GTID	last_committed=129	sequence_number=130	rbr_only=yes	original_committed_timestamp=1790564752572803	immediate_commit_timestamp=1790564752572803	transaction_length=436
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564752572803 (2026-09-28 10:05:52.572803 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564752572803 (2026-09-28 10:05:52.572803 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564752572803*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 130579
+#260928 10:05:52 server id 1  end_log_pos 130660 CRC32 0xd1ef399c 	Query	thread_id=86	exec_time=0	error_code=0
+SET TIMESTAMP=1790564752/*!*/;
+BEGIN
+/*!*/;
+# at 130660
+#260928 10:05:52 server id 1  end_log_pos 130725 CRC32 0x7ea7c3e7 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 130725
+#260928 10:05:52 server id 1  end_log_pos 130905 CRC32 0x46909aea 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+kNm5ahMBAAAAQQAAAKX+AQAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4OfDp34=
+kNm5aiABAAAAtAAAAFn/AQAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOnBhc3N3
+b3JkOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2NEAABzOjYwOiIkMnkk
+MTIkOXZtRU9scjJ0VlF2UmlFUzREZFV5ZVIwb3ZBdEZrWlNtVjNiRGtLVEFIVlJqc1AyU0FPei4i
+O8/buWrqmpBG
+'/*!*/;
+# at 130905
+#260928 10:05:52 server id 1  end_log_pos 130936 CRC32 0x49a02988 	Xid = 3388
+COMMIT/*!*/;
+# at 130936
+#260928 10:05:52 server id 1  end_log_pos 131015 CRC32 0x466ad05d 	Anonymous_GTID	last_committed=130	sequence_number=131	rbr_only=yes	original_committed_timestamp=1790564752597689	immediate_commit_timestamp=1790564752597689	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564752597689 (2026-09-28 10:05:52.597689 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564752597689 (2026-09-28 10:05:52.597689 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564752597689*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 131015
+#260928 10:05:52 server id 1  end_log_pos 131105 CRC32 0x659e843c 	Query	thread_id=86	exec_time=0	error_code=0
+SET TIMESTAMP=1790564752/*!*/;
+BEGIN
+/*!*/;
+# at 131105
+#260928 10:05:52 server id 1  end_log_pos 131179 CRC32 0xb624ec8b 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 131179
+#260928 10:05:52 server id 1  end_log_pos 132139 CRC32 0x5afff707 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+kNm5ahMBAAAASgAAAGsAAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4IvsJLY=
+kNm5ah8BAAAAwAMAACsEAgAAAFMAAAAAAAEAAgAG//8CKAB5NDIwU1pJWXRrZUF6THNwZko2MFFq
+MDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdNMjVOU0VF
+MWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPXvZuWoCKAB5NDIwU1pJWXRrZUF6THNw
+Zko2MFFqMDVuZFRhU0JzMWFuYllIRzBTCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pTmpKbmVXNVhNSEpVTTJwNFZFcGtTVlJ6VTA5dU5HTXdZbUYxYVVKTGJrZFdN
+MjVOU0VFMWR5STdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPZDZuWoH9/9a
+'/*!*/;
+# at 132139
+#260928 10:05:52 server id 1  end_log_pos 132170 CRC32 0x300b1ef3 	Xid = 3394
+COMMIT/*!*/;
+# at 132170
+#260928 10:06:03 server id 1  end_log_pos 132249 CRC32 0x98a0a210 	Anonymous_GTID	last_committed=131	sequence_number=132	rbr_only=yes	original_committed_timestamp=1790564763018247	immediate_commit_timestamp=1790564763018247	transaction_length=762
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564763018247 (2026-09-28 10:06:03.018247 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564763018247 (2026-09-28 10:06:03.018247 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564763018247*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 132249
+#260928 10:06:03 server id 1  end_log_pos 132330 CRC32 0x86377e2e 	Query	thread_id=87	exec_time=0	error_code=0
+SET TIMESTAMP=1790564763/*!*/;
+BEGIN
+/*!*/;
+# at 132330
+#260928 10:06:03 server id 1  end_log_pos 132404 CRC32 0xd3323b7e 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 132404
+#260928 10:06:03 server id 1  end_log_pos 132901 CRC32 0xad61fe3d 	Delete_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+m9m5ahMBAAAASgAAADQFAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4H47MtM=
+m9m5aiABAAAA8QEAACUHAgAAAFMAAAAAAAEAAgAG/wIoAHk0MjBTWklZdGtlQXpMc3BmSjYwUWow
+NW5kVGFTQnMxYW5iWUhHMFMJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4w
+OyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJv
+bWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzYgAQAAWVRvek9udHpPalk2SWw5MGIydGxiaUk3Y3pv
+ME1Eb2lOakpuZVc1WE1ISlVNMnA0VkVwa1NWUnpVMDl1TkdNd1ltRjFhVUpMYmtkV00yNU5TRUUx
+ZHlJN2N6bzJPaUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3ZlhNNk16b2li
+bVYzSWp0aE9qQTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pPaUoxY213aU8z
+TTZNek02SW1oMGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5c2IyZHBiaUk3Y3pv
+MU9pSnliM1YwWlNJN2N6bzFPaUpzYjJkcGJpSTdmWDA9kNm5aj3+Ya0=
+'/*!*/;
+# at 132901
+#260928 10:06:03 server id 1  end_log_pos 132932 CRC32 0x60e3c9bb 	Xid = 3406
+COMMIT/*!*/;
+# at 132932
+#260928 10:06:03 server id 1  end_log_pos 133011 CRC32 0x0d7ca9b7 	Anonymous_GTID	last_committed=132	sequence_number=133	rbr_only=yes	original_committed_timestamp=1790564763045655	immediate_commit_timestamp=1790564763045655	transaction_length=854
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564763045655 (2026-09-28 10:06:03.045655 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564763045655 (2026-09-28 10:06:03.045655 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564763045655*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 133011
+#260928 10:06:03 server id 1  end_log_pos 133092 CRC32 0x41315998 	Query	thread_id=87	exec_time=0	error_code=0
+SET TIMESTAMP=1790564763/*!*/;
+BEGIN
+/*!*/;
+# at 133092
+#260928 10:06:03 server id 1  end_log_pos 133166 CRC32 0xf184eea4 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 133166
+#260928 10:06:03 server id 1  end_log_pos 133755 CRC32 0xde2b760c 	Write_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+m9m5ahMBAAAASgAAAC4IAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4KTuhPE=
+m9m5ah4BAAAATQIAAHsKAgAAAFMAAAAAAAEAAgAG/wAoAHVPdDZvbGtUUHhWNllJbFlzNDNXa3NH
+anc1THlHYVVPdTZBOFJuTkYKAAAAAAAAAAkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dz
+IE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vj
+a28pIENocm9tZS8xNTMuMC4wLjAgU2FmYXJpLzUzNy4zNnQBAABZVG8wT250ek9qWTZJbDkwYjJ0
+bGJpSTdjem8wTURvaVdHMVJUa1ZrT0U5T2NHUjFaV2h0ZDBSblMzQXhaMHBoVEVkdE1XdFlTa2h4
+VDJKQ1ltVnBkU0k3Y3pvMk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdm
+WE02TXpvaWJtVjNJanRoT2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9p
+SjFjbXdpTzNNNk16TTZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlzYjJk
+cGJpSTdjem8xT2lKeWIzVjBaU0k3Y3pvMU9pSnNiMmRwYmlJN2ZYTTZOVEE2SW14dloybHVYM2Rs
+WWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUwWXpkbU5UaGxZVFJsTXpBNU9EbGtJ
+anRwT2pFd08zMD2b2blqDHYr3g==
+'/*!*/;
+# at 133755
+#260928 10:06:03 server id 1  end_log_pos 133786 CRC32 0xa4d0a85e 	Xid = 3424
+COMMIT/*!*/;
+# at 133786
+#260928 10:06:03 server id 1  end_log_pos 133865 CRC32 0x43ea47db 	Anonymous_GTID	last_committed=133	sequence_number=134	rbr_only=yes	original_committed_timestamp=1790564763316605	immediate_commit_timestamp=1790564763316605	transaction_length=1438
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564763316605 (2026-09-28 10:06:03.316605 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564763316605 (2026-09-28 10:06:03.316605 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564763316605*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 133865
+#260928 10:06:03 server id 1  end_log_pos 133955 CRC32 0x8988ce71 	Query	thread_id=88	exec_time=0	error_code=0
+SET TIMESTAMP=1790564763/*!*/;
+BEGIN
+/*!*/;
+# at 133955
+#260928 10:06:03 server id 1  end_log_pos 134029 CRC32 0xbe0ee6b8 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 134029
+#260928 10:06:03 server id 1  end_log_pos 135193 CRC32 0x30f8fbbc 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+m9m5ahMBAAAASgAAAI0LAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4LjmDr4=
+m9m5ah8BAAAAjAQAABkQAgAAAFMAAAAAAAEAAgAG//8AKAB1T3Q2b2xrVFB4VjZZSWxZczQzV2tz
+R2p3NUx5R2FVT3U2QThSbk5GCgAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzZ0AQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lXRzFSVGtWa09FOU9jR1IxWldodGQwUm5TM0F4WjBwaFRFZHRNV3RZU2to
+eFQySkNZbVZwZFNJN2N6bzJPaUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3
+ZlhNNk16b2libVYzSWp0aE9qQTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pP
+aUoxY213aU8zTTZNek02SW1oMGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5c2Iy
+ZHBiaUk3Y3pvMU9pSnliM1YwWlNJN2N6bzFPaUpzYjJkcGJpSTdmWE02TlRBNklteHZaMmx1WDNk
+bFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJtTURFMFl6ZG1OVGhsWVRSbE16QTVPRGxr
+SWp0cE9qRXdPMzA9m9m5agAoAHVPdDZvbGtUUHhWNllJbFlzNDNXa3NHanc1THlHYVVPdTZBOFJu
+TkYKAAAAAAAAAAkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0
+OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xNTMu
+MC4wLjAgU2FmYXJpLzUzNy4zNogBAABZVG8wT250ek9qWTZJbDkwYjJ0bGJpSTdjem8wTURvaVdH
+MVJUa1ZrT0U5T2NHUjFaV2h0ZDBSblMzQXhaMHBoVEVkdE1XdFlTa2h4VDJKQ1ltVnBkU0k3Y3pv
+Mk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdmWE02TXpvaWJtVjNJanRo
+T2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk16YzZJ
+bWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhOb1ltOWhjbVFpTzNNNk5U
+b2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3ZlhNNk5UQTZJbXh2WjJs
+dVgzZGxZbDgxT1dKaE16WmhaR1JqTW1JeVpqazBNREUxT0RCbU1ERTBZemRtTlRobFlUUmxNekE1
+T0Rsa0lqdHBPakV3TzMwPZvZuWq8+/gw
+'/*!*/;
+# at 135193
+#260928 10:06:03 server id 1  end_log_pos 135224 CRC32 0x9d84e345 	Xid = 3616
+COMMIT/*!*/;
+# at 135224
+#260928 10:06:34 server id 1  end_log_pos 135303 CRC32 0xdcc23883 	Anonymous_GTID	last_committed=134	sequence_number=135	rbr_only=yes	original_committed_timestamp=1790564794167124	immediate_commit_timestamp=1790564794167124	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564794167124 (2026-09-28 10:06:34.167124 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564794167124 (2026-09-28 10:06:34.167124 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564794167124*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 135303
+#260928 10:06:34 server id 1  end_log_pos 135393 CRC32 0xca3fb423 	Query	thread_id=90	exec_time=0	error_code=0
+SET TIMESTAMP=1790564794/*!*/;
+BEGIN
+/*!*/;
+# at 135393
+#260928 10:06:34 server id 1  end_log_pos 135467 CRC32 0xd6e6d7ca 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 135467
+#260928 10:06:34 server id 1  end_log_pos 136651 CRC32 0x83012a8f 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+utm5ahMBAAAASgAAACsRAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4MrX5tY=
+utm5ah8BAAAAoAQAAMsVAgAAAFMAAAAAAAEAAgAG//8AKAB1T3Q2b2xrVFB4VjZZSWxZczQzV2tz
+R2p3NUx5R2FVT3U2QThSbk5GCgAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lXRzFSVGtWa09FOU9jR1IxWldodGQwUm5TM0F4WjBwaFRFZHRNV3RZU2to
+eFQySkNZbVZwZFNJN2N6bzJPaUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3
+ZlhNNk16b2libVYzSWp0aE9qQTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pP
+aUoxY213aU8zTTZNemM2SW1oMGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5a1lY
+Tm9ZbTloY21RaU8zTTZOVG9pY205MWRHVWlPM002TVRVNkltRmtiV2x1TG1SaGMyaGliMkZ5WkNJ
+N2ZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pFd08zMD2b2blqACgAdU90Nm9sa1RQeFY2WUlsWXM0
+M1drc0dqdzVMeUdhVU91NkE4Um5ORgoAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pV0cxUlRrVmtPRTlPY0dSMVpXaHRkMFJuUzNBeFowcGhURWR0TVd0
+WVNraHhUMkpDWW1WcGRTSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2
+TURwN2ZYTTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdj
+em96T2lKMWNtd2lPM002TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJp
+OWtZWE5vWW05aGNtUWlPM002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJG
+eVpDSTdmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qRXdPMzA9utm5ao8qAYM=
+'/*!*/;
+# at 136651
+#260928 10:06:34 server id 1  end_log_pos 136682 CRC32 0x7c6038ff 	Xid = 3682
+COMMIT/*!*/;
+# at 136682
+#260928 10:07:00 server id 1  end_log_pos 136761 CRC32 0xc8bd24b5 	Anonymous_GTID	last_committed=135	sequence_number=136	rbr_only=yes	original_committed_timestamp=1790564820434309	immediate_commit_timestamp=1790564820434309	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564820434309 (2026-09-28 10:07:00.434309 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564820434309 (2026-09-28 10:07:00.434309 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564820434309*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 136761
+#260928 10:07:00 server id 1  end_log_pos 136851 CRC32 0x2776c802 	Query	thread_id=91	exec_time=0	error_code=0
+SET TIMESTAMP=1790564820/*!*/;
+BEGIN
+/*!*/;
+# at 136851
+#260928 10:07:00 server id 1  end_log_pos 136925 CRC32 0x303a802a 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 136925
+#260928 10:07:00 server id 1  end_log_pos 138109 CRC32 0xe5eefd11 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+1Nm5ahMBAAAASgAAAN0WAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4CqAOjA=
+1Nm5ah8BAAAAoAQAAH0bAgAAAFMAAAAAAAEAAgAG//8AKAB1T3Q2b2xrVFB4VjZZSWxZczQzV2tz
+R2p3NUx5R2FVT3U2QThSbk5GCgAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lXRzFSVGtWa09FOU9jR1IxWldodGQwUm5TM0F4WjBwaFRFZHRNV3RZU2to
+eFQySkNZbVZwZFNJN2N6bzJPaUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3
+ZlhNNk16b2libVYzSWp0aE9qQTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pP
+aUoxY213aU8zTTZNemM2SW1oMGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5a1lY
+Tm9ZbTloY21RaU8zTTZOVG9pY205MWRHVWlPM002TVRVNkltRmtiV2x1TG1SaGMyaGliMkZ5WkNJ
+N2ZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pFd08zMD262blqACgAdU90Nm9sa1RQeFY2WUlsWXM0
+M1drc0dqdzVMeUdhVU91NkE4Um5ORgoAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pV0cxUlRrVmtPRTlPY0dSMVpXaHRkMFJuUzNBeFowcGhURWR0TVd0
+WVNraHhUMkpDWW1WcGRTSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2
+TURwN2ZYTTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdj
+em96T2lKMWNtd2lPM002TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJp
+OWtZWE5vWW05aGNtUWlPM002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJG
+eVpDSTdmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qRXdPMzA91Nm5ahH97uU=
+'/*!*/;
+# at 138109
+#260928 10:07:00 server id 1  end_log_pos 138140 CRC32 0xbbc09fb1 	Xid = 3715
+COMMIT/*!*/;
+# at 138140
+#260928 10:07:03 server id 1  end_log_pos 138219 CRC32 0xf0a5cc95 	Anonymous_GTID	last_committed=136	sequence_number=137	rbr_only=yes	original_committed_timestamp=1790564823587344	immediate_commit_timestamp=1790564823587344	transaction_length=1458
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564823587344 (2026-09-28 10:07:03.587344 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564823587344 (2026-09-28 10:07:03.587344 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564823587344*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 138219
+#260928 10:07:03 server id 1  end_log_pos 138309 CRC32 0xed174c98 	Query	thread_id=92	exec_time=0	error_code=0
+SET TIMESTAMP=1790564823/*!*/;
+BEGIN
+/*!*/;
+# at 138309
+#260928 10:07:03 server id 1  end_log_pos 138383 CRC32 0xf09a730d 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 138383
+#260928 10:07:03 server id 1  end_log_pos 139567 CRC32 0x34ad1526 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+19m5ahMBAAAASgAAAI8cAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4A1zmvA=
+19m5ah8BAAAAoAQAAC8hAgAAAFMAAAAAAAEAAgAG//8AKAB1T3Q2b2xrVFB4VjZZSWxZczQzV2tz
+R2p3NUx5R2FVT3U2QThSbk5GCgAAAAAAAAAJMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93
+cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdl
+Y2tvKSBDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzaIAQAAWVRvME9udHpPalk2SWw5MGIy
+dGxiaUk3Y3pvME1Eb2lXRzFSVGtWa09FOU9jR1IxWldodGQwUm5TM0F4WjBwaFRFZHRNV3RZU2to
+eFQySkNZbVZwZFNJN2N6bzJPaUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3
+ZlhNNk16b2libVYzSWp0aE9qQTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pP
+aUoxY213aU8zTTZNemM2SW1oMGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5a1lY
+Tm9ZbTloY21RaU8zTTZOVG9pY205MWRHVWlPM002TVRVNkltRmtiV2x1TG1SaGMyaGliMkZ5WkNJ
+N2ZYTTZOVEE2SW14dloybHVYM2RsWWw4MU9XSmhNelpoWkdSak1tSXlaamswTURFMU9EQm1NREUw
+WXpkbU5UaGxZVFJsTXpBNU9EbGtJanRwT2pFd08zMD3U2blqACgAdU90Nm9sa1RQeFY2WUlsWXM0
+M1drc0dqdzVMeUdhVU91NkE4Um5ORgoAAAAAAAAACTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdp
+bmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlr
+ZSBHZWNrbykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2iAEAAFlUbzBPbnR6T2pZNkls
+OTBiMnRsYmlJN2N6bzBNRG9pV0cxUlRrVmtPRTlPY0dSMVpXaHRkMFJuUzNBeFowcGhURWR0TVd0
+WVNraHhUMkpDWW1WcGRTSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2
+TURwN2ZYTTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdj
+em96T2lKMWNtd2lPM002TXpjNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJp
+OWtZWE5vWW05aGNtUWlPM002TlRvaWNtOTFkR1VpTzNNNk1UVTZJbUZrYldsdUxtUmhjMmhpYjJG
+eVpDSTdmWE02TlRBNklteHZaMmx1WDNkbFlsODFPV0poTXpaaFpHUmpNbUl5WmprME1ERTFPREJt
+TURFMFl6ZG1OVGhsWVRSbE16QTVPRGxrSWp0cE9qRXdPMzA919m5aiYVrTQ=
+'/*!*/;
+# at 139567
+#260928 10:07:03 server id 1  end_log_pos 139598 CRC32 0x83d7b2e6 	Xid = 3748
+COMMIT/*!*/;
+# at 139598
+#260928 10:07:06 server id 1  end_log_pos 139677 CRC32 0x7730bd32 	Anonymous_GTID	last_committed=137	sequence_number=138	rbr_only=yes	original_committed_timestamp=1790564826340389	immediate_commit_timestamp=1790564826340389	transaction_length=857
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564826340389 (2026-09-28 10:07:06.340389 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564826340389 (2026-09-28 10:07:06.340389 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564826340389*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 139677
+#260928 10:07:06 server id 1  end_log_pos 139769 CRC32 0xfad425e9 	Query	thread_id=93	exec_time=0	error_code=0
+SET TIMESTAMP=1790564826/*!*/;
+BEGIN
+/*!*/;
+# at 139769
+#260928 10:07:06 server id 1  end_log_pos 139866 CRC32 0xa8aba61c 	Table_map: `pln_up_imy`.`users` mapped to number 91
+# at 139866
+#260928 10:07:06 server id 1  end_log_pos 140424 CRC32 0x0c0e1cbf 	Update_rows: table id 91 flags: STMT_END_F
+
+BINLOG '
+2tm5ahMBAAAAYQAAAFoiAgAAAFsAAAAAAAMACnBsbl91cF9pbXkABXVzZXJzAA8IDw8PEQ8P/A8R
+EQgPDw8W/AP8A/wDAPwDUAACkAEAAPwD/AP8A9B/AQHAAgHgHKarqA==
+2tm5ah8BAAAALgIAAIgkAgAAAFsAAAAAAAEAAgAP/////xBwCgAAAAAAAAANAHN5YWZpcSB3aWxk
+YW4VAHN5YWZpcXdsZG4wQGdtYWlsLmNvbQ0AQWRtaW5pc3RyYXRvcjwAJDJ5JDEyJGF6TURMRVpP
+eGwwLzBYMjRsMC84cWV3QXNwWWhxeFQuVDhoRkpUUEVrSWZPNC5JZUJiL1ZhDDA4Nzc0MDk0Mzg4
+MCoARGVzYSBTbGVtYW4gQmxvayBLZXNhbWJpDQpLZWNhbWF0YW4gU2xpeWVnPAA0cDllZnh5bno4
+RzNMWG5Eb210VlNzaTI3Nm9pVW1RNVkzVVVLbkhsMXpIeHBicjlGQXp5OVo4QlM2SURqqztrarl3
+IAEAAAAAAAAAEHAKAAAAAAAAAA0Ac3lhZmlxIHdpbGRhbhUAc3lhZmlxd2xkbjBAZ21haWwuY29t
+DQBBZG1pbmlzdHJhdG9yPAAkMnkkMTIkYXpNRExFWk94bDAvMFgyNGwwLzhxZXdBc3BZaHF4VC5U
+OGhGSlRQRWtJZk80LkllQmIvVmEMMDg3NzQwOTQzODgwKgBEZXNhIFNsZW1hbiBCbG9rIEtlc2Ft
+YmkNCktlY2FtYXRhbiBTbGl5ZWc8ADhUOTFQVTVHTGtBejN4NVNWdUlEZUlFTVBPSzU4a1NRcWpO
+SXFPRWpyQ0RpNzhuQ29vUExYQzJZN0JBamqrO2tquXcgAQAAAAAAAAC/HA4M
+'/*!*/;
+# at 140424
+#260928 10:07:06 server id 1  end_log_pos 140455 CRC32 0x0abe0721 	Xid = 3760
+COMMIT/*!*/;
+# at 140455
+#260928 10:07:06 server id 1  end_log_pos 140534 CRC32 0xb7636689 	Anonymous_GTID	last_committed=138	sequence_number=139	rbr_only=yes	original_committed_timestamp=1790564826343769	immediate_commit_timestamp=1790564826343769	transaction_length=874
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564826343769 (2026-09-28 10:07:06.343769 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564826343769 (2026-09-28 10:07:06.343769 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564826343769*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 140534
+#260928 10:07:06 server id 1  end_log_pos 140615 CRC32 0xd2afc2cd 	Query	thread_id=93	exec_time=0	error_code=0
+SET TIMESTAMP=1790564826/*!*/;
+BEGIN
+/*!*/;
+# at 140615
+#260928 10:07:06 server id 1  end_log_pos 140689 CRC32 0x819efb55 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 140689
+#260928 10:07:06 server id 1  end_log_pos 141298 CRC32 0xf7e98df1 	Delete_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+2tm5ahMBAAAASgAAAJElAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4FX7noE=
+2tm5aiABAAAAYQIAAPInAgAAAFMAAAAAAAEAAgAG/wAoAHVPdDZvbGtUUHhWNllJbFlzNDNXa3NH
+anc1THlHYVVPdTZBOFJuTkYKAAAAAAAAAAkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dz
+IE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vj
+a28pIENocm9tZS8xNTMuMC4wLjAgU2FmYXJpLzUzNy4zNogBAABZVG8wT250ek9qWTZJbDkwYjJ0
+bGJpSTdjem8wTURvaVdHMVJUa1ZrT0U5T2NHUjFaV2h0ZDBSblMzQXhaMHBoVEVkdE1XdFlTa2h4
+VDJKQ1ltVnBkU0k3Y3pvMk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdm
+WE02TXpvaWJtVjNJanRoT2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9p
+SjFjbXdpTzNNNk16YzZJbWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUM5aFpHMXBiaTlrWVhO
+b1ltOWhjbVFpTzNNNk5Ub2ljbTkxZEdVaU8zTTZNVFU2SW1Ga2JXbHVMbVJoYzJoaWIyRnlaQ0k3
+ZlhNNk5UQTZJbXh2WjJsdVgzZGxZbDgxT1dKaE16WmhaR1JqTW1JeVpqazBNREUxT0RCbU1ERTBZ
+emRtTlRobFlUUmxNekE1T0Rsa0lqdHBPakV3TzMwPdfZuWrxjen3
+'/*!*/;
+# at 141298
+#260928 10:07:06 server id 1  end_log_pos 141329 CRC32 0xceec59d9 	Xid = 3763
+COMMIT/*!*/;
+# at 141329
+#260928 10:07:06 server id 1  end_log_pos 141408 CRC32 0x57baa832 	Anonymous_GTID	last_committed=139	sequence_number=140	rbr_only=yes	original_committed_timestamp=1790564826350114	immediate_commit_timestamp=1790564826350114	transaction_length=634
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564826350114 (2026-09-28 10:07:06.350114 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564826350114 (2026-09-28 10:07:06.350114 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564826350114*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 141408
+#260928 10:07:06 server id 1  end_log_pos 141489 CRC32 0x2240cd40 	Query	thread_id=93	exec_time=0	error_code=0
+SET TIMESTAMP=1790564826/*!*/;
+BEGIN
+/*!*/;
+# at 141489
+#260928 10:07:06 server id 1  end_log_pos 141563 CRC32 0xcd4dc8c9 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 141563
+#260928 10:07:06 server id 1  end_log_pos 141932 CRC32 0x16fa128a 	Write_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+2tm5ahMBAAAASgAAAPsoAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4MnITc0=
+2tm5ah4BAAAAcQEAAGwqAgAAAFMAAAAAAAEAAgAG/wIoADVzVGxXaTY3MmxiRFJod2cxdWJ3WHQ1
+cXhoeUVLS3pVUHo2MUdNUE4JMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4w
+OyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJv
+bWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzagAAAAWVRveU9udHpPalk2SWw5MGIydGxiaUk3Y3pv
+ME1Eb2llRFk0YmxRMVJtZHdSVFZ4U0ZWU1YyMXRiVTE1YkRZM1JHc3hhbWt4YlVGS1ExWkJaa1ky
+Y0NJN2N6bzJPaUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3ZlhNNk16b2li
+bVYzSWp0aE9qQTZlMzE5ZlE9PdrZuWqKEvoW
+'/*!*/;
+# at 141932
+#260928 10:07:06 server id 1  end_log_pos 141963 CRC32 0x0886f94f 	Xid = 3769
+COMMIT/*!*/;
+# at 141963
+#260928 10:07:06 server id 1  end_log_pos 142042 CRC32 0x541eee5a 	Anonymous_GTID	last_committed=140	sequence_number=141	rbr_only=yes	original_committed_timestamp=1790564826531286	immediate_commit_timestamp=1790564826531286	transaction_length=1090
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564826531286 (2026-09-28 10:07:06.531286 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564826531286 (2026-09-28 10:07:06.531286 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564826531286*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 142042
+#260928 10:07:06 server id 1  end_log_pos 142132 CRC32 0xe010f3d3 	Query	thread_id=94	exec_time=0	error_code=0
+SET TIMESTAMP=1790564826/*!*/;
+BEGIN
+/*!*/;
+# at 142132
+#260928 10:07:06 server id 1  end_log_pos 142206 CRC32 0x72816d8f 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 142206
+#260928 10:07:06 server id 1  end_log_pos 143022 CRC32 0xd2c79ae1 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+2tm5ahMBAAAASgAAAH4rAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4I9tgXI=
+2tm5ah8BAAAAMAMAAK4uAgAAAFMAAAAAAAEAAgAG//8CKAA1c1RsV2k2NzJsYkRSaHdnMXVid1h0
+NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2oAAAAFlUb3lPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktRMVpCWmtZ
+MmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWZRPT3a2blqAigANXNUbFdpNjcybGJEUmh3ZzF1YndYdDVxeGh5RUtL
+elVQejYxR01QTgkxMjcuMC4wLjFvAE1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0
+OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xNTMu
+MC4wLjAgU2FmYXJpLzUzNy4zNhABAABZVG96T250ek9qWTZJbDkwYjJ0bGJpSTdjem8wTURvaWVE
+WTRibFExUm1kd1JUVnhTRlZTVjIxdGJVMTViRFkzUkdzeGFta3hiVUZLUTFaQlprWTJjQ0k3Y3pv
+Mk9pSmZabXhoYzJnaU8yRTZNanA3Y3pvek9pSnZiR1FpTzJFNk1EcDdmWE02TXpvaWJtVjNJanRo
+T2pBNmUzMTljem81T2lKZmNISmxkbWx2ZFhNaU8yRTZNanA3Y3pvek9pSjFjbXdpTzNNNk1qRTZJ
+bWgwZEhBNkx5OHhNamN1TUM0d0xqRTZPREF3TUNJN2N6bzFPaUp5YjNWMFpTSTdjem8wT2lKb2Iy
+MWxJanQ5ZlE9PdrZuWrhmsfS
+'/*!*/;
+# at 143022
+#260928 10:07:06 server id 1  end_log_pos 143053 CRC32 0x2462dc58 	Xid = 3817
+COMMIT/*!*/;
+# at 143053
+#260928 10:07:09 server id 1  end_log_pos 143132 CRC32 0x8941fe8e 	Anonymous_GTID	last_committed=141	sequence_number=142	rbr_only=yes	original_committed_timestamp=1790564829150098	immediate_commit_timestamp=1790564829150098	transaction_length=1218
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790564829150098 (2026-09-28 10:07:09.150098 SE Asia Standard Time)
+# immediate_commit_timestamp=1790564829150098 (2026-09-28 10:07:09.150098 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790564829150098*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 143132
+#260928 10:07:09 server id 1  end_log_pos 143222 CRC32 0xd46aaa34 	Query	thread_id=95	exec_time=0	error_code=0
+SET TIMESTAMP=1790564829/*!*/;
+BEGIN
+/*!*/;
+# at 143222
+#260928 10:07:09 server id 1  end_log_pos 143296 CRC32 0xd6289933 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 143296
+#260928 10:07:09 server id 1  end_log_pos 144240 CRC32 0xbdb74bd4 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+3dm5ahMBAAAASgAAAMAvAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4DOZKNY=
+3dm5ah8BAAAAsAMAAHAzAgAAAFMAAAAAAAEAAgAG//8CKAA1c1RsV2k2NzJsYkRSaHdnMXVid1h0
+NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2EAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktRMVpCWmtZ
+MmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TWpFNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQ0k3Y3pvMU9pSnliM1YwWlNJN2N6
+bzBPaUpvYjIxbElqdDlmUT092tm5agIoADVzVGxXaTY3MmxiRFJod2cxdWJ3WHQ1cXhoeUVLS3pV
+UHo2MUdNUE4JMTI3LjAuMC4xbwBNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsg
+eDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMTUzLjAu
+MC4wIFNhZmFyaS81MzcuMzYgAQAAWVRvek9udHpPalk2SWw5MGIydGxiaUk3Y3pvME1Eb2llRFk0
+YmxRMVJtZHdSVFZ4U0ZWU1YyMXRiVTE1YkRZM1JHc3hhbWt4YlVGS1ExWkJaa1kyY0NJN2N6bzJP
+aUpmWm14aGMyZ2lPMkU2TWpwN2N6b3pPaUp2YkdRaU8yRTZNRHA3ZlhNNk16b2libVYzSWp0aE9q
+QTZlMzE5Y3pvNU9pSmZjSEpsZG1sdmRYTWlPMkU2TWpwN2N6b3pPaUoxY213aU8zTTZNek02SW1o
+MGRIQTZMeTh4TWpjdU1DNHdMakU2T0RBd01DOWhaRzFwYmk5c2IyZHBiaUk3Y3pvMU9pSnliM1Yw
+WlNJN2N6bzFPaUpzYjJkcGJpSTdmWDA93dm5atRLt70=
+'/*!*/;
+# at 144240
+#260928 10:07:09 server id 1  end_log_pos 144271 CRC32 0xfc5770d8 	Xid = 3865
+COMMIT/*!*/;
+# at 144271
+#260928 10:13:57 server id 1  end_log_pos 144350 CRC32 0x74fb9bb1 	Anonymous_GTID	last_committed=142	sequence_number=143	rbr_only=yes	original_committed_timestamp=1790565237523398	immediate_commit_timestamp=1790565237523398	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565237523398 (2026-09-28 10:13:57.523398 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565237523398 (2026-09-28 10:13:57.523398 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565237523398*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 144350
+#260928 10:13:57 server id 1  end_log_pos 144440 CRC32 0xb6f656a0 	Query	thread_id=96	exec_time=0	error_code=0
+SET TIMESTAMP=1790565237/*!*/;
+BEGIN
+/*!*/;
+# at 144440
+#260928 10:13:57 server id 1  end_log_pos 144514 CRC32 0xf9088ffd 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 144514
+#260928 10:13:57 server id 1  end_log_pos 145474 CRC32 0x99623c48 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+ddu5ahMBAAAASgAAAII0AgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4P2PCPk=
+ddu5ah8BAAAAwAMAAEI4AgAAAFMAAAAAAAEAAgAG//8CKAA1c1RsV2k2NzJsYkRSaHdnMXVid1h0
+NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktRMVpCWmtZ
+MmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPd3ZuWoCKAA1c1RsV2k2NzJsYkRSaHdn
+MXVid1h0NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktR
+MVpCWmtZMmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPXXbuWpIPGKZ
+'/*!*/;
+# at 145474
+#260928 10:13:57 server id 1  end_log_pos 145505 CRC32 0x7f9a92d2 	Xid = 3913
+COMMIT/*!*/;
+# at 145505
+#260928 10:15:44 server id 1  end_log_pos 145584 CRC32 0x29febe33 	Anonymous_GTID	last_committed=143	sequence_number=144	rbr_only=yes	original_committed_timestamp=1790565344615387	immediate_commit_timestamp=1790565344615387	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565344615387 (2026-09-28 10:15:44.615387 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565344615387 (2026-09-28 10:15:44.615387 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565344615387*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 145584
+#260928 10:15:44 server id 1  end_log_pos 145665 CRC32 0x7ee1ab3e 	Query	thread_id=97	exec_time=0	error_code=0
+SET TIMESTAMP=1790565344/*!*/;
+BEGIN
+/*!*/;
+# at 145665
+#260928 10:15:44 server id 1  end_log_pos 145730 CRC32 0x5c05d1cf 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 145730
+#260928 10:15:44 server id 1  end_log_pos 145833 CRC32 0x4117c66a 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+4Nu5ahMBAAAAQQAAAEI5AgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4M/RBVw=
+4Nu5aiABAAAAZwAAAKk5AgAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MTvM2blqasYXQQ==
+'/*!*/;
+# at 145833
+#260928 10:15:44 server id 1  end_log_pos 145864 CRC32 0xa6d68c73 	Xid = 3925
+COMMIT/*!*/;
+# at 145864
+#260928 10:15:44 server id 1  end_log_pos 145943 CRC32 0xbc5d02f5 	Anonymous_GTID	last_committed=144	sequence_number=145	rbr_only=yes	original_committed_timestamp=1790565344618463	immediate_commit_timestamp=1790565344618463	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565344618463 (2026-09-28 10:15:44.618463 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565344618463 (2026-09-28 10:15:44.618463 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565344618463*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 145943
+#260928 10:15:44 server id 1  end_log_pos 146024 CRC32 0x510c742d 	Query	thread_id=97	exec_time=0	error_code=0
+SET TIMESTAMP=1790565344/*!*/;
+BEGIN
+/*!*/;
+# at 146024
+#260928 10:15:44 server id 1  end_log_pos 146089 CRC32 0xf9dd1efa 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 146089
+#260928 10:15:44 server id 1  end_log_pos 146207 CRC32 0xdd640c49 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+4Nu5ahMBAAAAQQAAAKk6AgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4Poe3fk=
+4Nu5aiABAAAAdgAAAB87AgAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU2NDgxMjvM2blq
+SQxk3Q==
+'/*!*/;
+# at 146207
+#260928 10:15:44 server id 1  end_log_pos 146238 CRC32 0x42de3c1b 	Xid = 3931
+COMMIT/*!*/;
+# at 146238
+#260928 10:15:44 server id 1  end_log_pos 146317 CRC32 0x295d0e75 	Anonymous_GTID	last_committed=145	sequence_number=146	rbr_only=yes	original_committed_timestamp=1790565344619929	immediate_commit_timestamp=1790565344619929	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565344619929 (2026-09-28 10:15:44.619929 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565344619929 (2026-09-28 10:15:44.619929 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565344619929*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 146317
+#260928 10:15:44 server id 1  end_log_pos 146398 CRC32 0xc47b5005 	Query	thread_id=97	exec_time=0	error_code=0
+SET TIMESTAMP=1790565344/*!*/;
+BEGIN
+/*!*/;
+# at 146398
+#260928 10:15:44 server id 1  end_log_pos 146463 CRC32 0xb71f0c79 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 146463
+#260928 10:15:44 server id 1  end_log_pos 146581 CRC32 0x73b06e7a 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+4Nu5ahMBAAAAQQAAAB88AgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4HkMH7c=
+4Nu5ah4BAAAAdgAAAJU8AgAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU2NTQwNDsc3Llq
+em6wcw==
+'/*!*/;
+# at 146581
+#260928 10:15:44 server id 1  end_log_pos 146612 CRC32 0x2609015e 	Xid = 3934
+COMMIT/*!*/;
+# at 146612
+#260928 10:15:44 server id 1  end_log_pos 146691 CRC32 0xb430828e 	Anonymous_GTID	last_committed=146	sequence_number=147	rbr_only=yes	original_committed_timestamp=1790565344621489	immediate_commit_timestamp=1790565344621489	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565344621489 (2026-09-28 10:15:44.621489 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565344621489 (2026-09-28 10:15:44.621489 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565344621489*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 146691
+#260928 10:15:44 server id 1  end_log_pos 146772 CRC32 0xb36cb9a7 	Query	thread_id=97	exec_time=0	error_code=0
+SET TIMESTAMP=1790565344/*!*/;
+BEGIN
+/*!*/;
+# at 146772
+#260928 10:15:44 server id 1  end_log_pos 146837 CRC32 0x4affb897 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 146837
+#260928 10:15:44 server id 1  end_log_pos 146940 CRC32 0xd116dc21 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+4Nu5ahMBAAAAQQAAAJU9AgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4Je4/0o=
+4Nu5ah4BAAAAZwAAAPw9AgAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MDsc3LlqIdwW0Q==
+'/*!*/;
+# at 146940
+#260928 10:15:44 server id 1  end_log_pos 146971 CRC32 0x4adbd86c 	Xid = 3940
+COMMIT/*!*/;
+# at 146971
+#260928 10:15:44 server id 1  end_log_pos 147050 CRC32 0x4160dd89 	Anonymous_GTID	last_committed=147	sequence_number=148	rbr_only=yes	original_committed_timestamp=1790565344624283	immediate_commit_timestamp=1790565344624283	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565344624283 (2026-09-28 10:15:44.624283 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565344624283 (2026-09-28 10:15:44.624283 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565344624283*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 147050
+#260928 10:15:44 server id 1  end_log_pos 147140 CRC32 0xe6eae821 	Query	thread_id=97	exec_time=0	error_code=0
+SET TIMESTAMP=1790565344/*!*/;
+BEGIN
+/*!*/;
+# at 147140
+#260928 10:15:44 server id 1  end_log_pos 147205 CRC32 0x2cf5698d 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 147205
+#260928 10:15:44 server id 1  end_log_pos 147377 CRC32 0x7c777cc0 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+4Nu5ahMBAAAAQQAAAAU/AgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4I1p9Sw=
+4Nu5ah8BAAAArAAAALE/AgAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjA7HNy5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MTsc3LlqwHx3
+fA==
+'/*!*/;
+# at 147377
+#260928 10:15:44 server id 1  end_log_pos 147408 CRC32 0x4d103758 	Xid = 3944
+COMMIT/*!*/;
+# at 147408
+#260928 10:15:44 server id 1  end_log_pos 147487 CRC32 0x35350546 	Anonymous_GTID	last_committed=148	sequence_number=149	rbr_only=yes	original_committed_timestamp=1790565344652751	immediate_commit_timestamp=1790565344652751	transaction_length=381
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565344652751 (2026-09-28 10:15:44.652751 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565344652751 (2026-09-28 10:15:44.652751 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565344652751*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 147487
+#260928 10:15:44 server id 1  end_log_pos 147568 CRC32 0x14a64a90 	Query	thread_id=97	exec_time=0	error_code=0
+SET TIMESTAMP=1790565344/*!*/;
+BEGIN
+/*!*/;
+# at 147568
+#260928 10:15:44 server id 1  end_log_pos 147633 CRC32 0x6affa112 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 147633
+#260928 10:15:44 server id 1  end_log_pos 147758 CRC32 0x42e81933 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+4Nu5ahMBAAAAQQAAALFAAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4BKh/2o=
+4Nu5aiABAAAAfQAAAC5BAgAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOmNvb2xk
+b3duOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2MNAABpOjE3OTA1NjQ3
+ODc7s9m5ajMZ6EI=
+'/*!*/;
+# at 147758
+#260928 10:15:44 server id 1  end_log_pos 147789 CRC32 0xb887c043 	Xid = 3957
+COMMIT/*!*/;
+# at 147789
+#260928 10:15:44 server id 1  end_log_pos 147868 CRC32 0xf8645a4b 	Anonymous_GTID	last_committed=149	sequence_number=150	rbr_only=yes	original_committed_timestamp=1790565344875655	immediate_commit_timestamp=1790565344875655	transaction_length=436
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565344875655 (2026-09-28 10:15:44.875655 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565344875655 (2026-09-28 10:15:44.875655 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565344875655*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 147868
+#260928 10:15:44 server id 1  end_log_pos 147949 CRC32 0x8ede8913 	Query	thread_id=97	exec_time=0	error_code=0
+SET TIMESTAMP=1790565344/*!*/;
+BEGIN
+/*!*/;
+# at 147949
+#260928 10:15:44 server id 1  end_log_pos 148014 CRC32 0x8a1e96bd 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 148014
+#260928 10:15:44 server id 1  end_log_pos 148194 CRC32 0x6b19e2ca 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+4Nu5ahMBAAAAQQAAAC5CAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4L2WHoo=
+4Nu5ah4BAAAAtAAAAOJCAgAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOnBhc3N3
+b3JkOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2NEAABzOjYwOiIkMnkk
+MTIkYm5wOEdKelZieHU2Z0NYYU02dmRuLksxM1pFODhhWUg0T2wxSi5OTGdveTQvbmthL3lud2Ui
+OzjeuWrK4hlr
+'/*!*/;
+# at 148194
+#260928 10:15:44 server id 1  end_log_pos 148225 CRC32 0x28920605 	Xid = 3960
+COMMIT/*!*/;
+# at 148225
+#260928 10:15:44 server id 1  end_log_pos 148304 CRC32 0xf24da92e 	Anonymous_GTID	last_committed=150	sequence_number=151	rbr_only=yes	original_committed_timestamp=1790565344879046	immediate_commit_timestamp=1790565344879046	transaction_length=381
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565344879046 (2026-09-28 10:15:44.879046 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565344879046 (2026-09-28 10:15:44.879046 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565344879046*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 148304
+#260928 10:15:44 server id 1  end_log_pos 148385 CRC32 0xc85c43a5 	Query	thread_id=97	exec_time=0	error_code=0
+SET TIMESTAMP=1790565344/*!*/;
+BEGIN
+/*!*/;
+# at 148385
+#260928 10:15:44 server id 1  end_log_pos 148450 CRC32 0x96d84bd2 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 148450
+#260928 10:15:44 server id 1  end_log_pos 148575 CRC32 0xa53620a5 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+4Nu5ahMBAAAAQQAAAOJDAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4NJL2JY=
+4Nu5ah4BAAAAfQAAAF9EAgAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOmNvb2xk
+b3duOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2MNAABpOjE3OTA1NjU0
+MDQ7HNy5aqUgNqU=
+'/*!*/;
+# at 148575
+#260928 10:15:44 server id 1  end_log_pos 148606 CRC32 0x6795000d 	Xid = 3963
+COMMIT/*!*/;
+# at 148606
+#260928 10:15:49 server id 1  end_log_pos 148685 CRC32 0x73efebcb 	Anonymous_GTID	last_committed=151	sequence_number=152	rbr_only=yes	original_committed_timestamp=1790565349441207	immediate_commit_timestamp=1790565349441207	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565349441207 (2026-09-28 10:15:49.441207 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565349441207 (2026-09-28 10:15:49.441207 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565349441207*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 148685
+#260928 10:15:49 server id 1  end_log_pos 148775 CRC32 0xa875403d 	Query	thread_id=97	exec_time=0	error_code=0
+SET TIMESTAMP=1790565349/*!*/;
+BEGIN
+/*!*/;
+# at 148775
+#260928 10:15:49 server id 1  end_log_pos 148849 CRC32 0xb2238cd5 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 148849
+#260928 10:15:49 server id 1  end_log_pos 149809 CRC32 0x93192193 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+5du5ahMBAAAASgAAAHFFAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4NWMI7I=
+5du5ah8BAAAAwAMAADFJAgAAAFMAAAAAAAEAAgAG//8CKAA1c1RsV2k2NzJsYkRSaHdnMXVid1h0
+NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktRMVpCWmtZ
+MmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPXXbuWoCKAA1c1RsV2k2NzJsYkRSaHdn
+MXVid1h0NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktR
+MVpCWmtZMmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPeXbuWqTIRmT
+'/*!*/;
+# at 149809
+#260928 10:15:49 server id 1  end_log_pos 149840 CRC32 0x472035ad 	Xid = 3969
+COMMIT/*!*/;
+# at 149840
+#260928 10:16:14 server id 1  end_log_pos 149919 CRC32 0xc3315d1a 	Anonymous_GTID	last_committed=152	sequence_number=153	rbr_only=yes	original_committed_timestamp=1790565374140048	immediate_commit_timestamp=1790565374140048	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565374140048 (2026-09-28 10:16:14.140048 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565374140048 (2026-09-28 10:16:14.140048 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565374140048*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 149919
+#260928 10:16:14 server id 1  end_log_pos 150009 CRC32 0xa877c8f0 	Query	thread_id=98	exec_time=0	error_code=0
+SET TIMESTAMP=1790565374/*!*/;
+BEGIN
+/*!*/;
+# at 150009
+#260928 10:16:14 server id 1  end_log_pos 150074 CRC32 0xd249b468 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 150074
+#260928 10:16:14 server id 1  end_log_pos 150246 CRC32 0xc2577caf 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+/tu5ahMBAAAAQQAAADpKAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4Gi0SdI=
+/tu5ah8BAAAArAAAAOZKAgAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjE7HNy5agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6Mjsc3Llqr3xX
+wg==
+'/*!*/;
+# at 150246
+#260928 10:16:14 server id 1  end_log_pos 150277 CRC32 0x9fed4a45 	Xid = 3988
+COMMIT/*!*/;
+# at 150277
+#260928 10:16:14 server id 1  end_log_pos 150356 CRC32 0xa6eb4419 	Anonymous_GTID	last_committed=153	sequence_number=154	rbr_only=yes	original_committed_timestamp=1790565374606988	immediate_commit_timestamp=1790565374606988	transaction_length=865
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565374606988 (2026-09-28 10:16:14.606988 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565374606988 (2026-09-28 10:16:14.606988 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565374606988*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 150356
+#260928 10:16:14 server id 1  end_log_pos 150456 CRC32 0x3dd769f3 	Query	thread_id=98	exec_time=0	error_code=0
+SET TIMESTAMP=1790565374/*!*/;
+BEGIN
+/*!*/;
+# at 150456
+#260928 10:16:14 server id 1  end_log_pos 150553 CRC32 0xbc199e57 	Table_map: `pln_up_imy`.`users` mapped to number 91
+# at 150553
+#260928 10:16:14 server id 1  end_log_pos 151111 CRC32 0x375156fe 	Update_rows: table id 91 flags: STMT_END_F
+
+BINLOG '
+/tu5ahMBAAAAYQAAABlMAgAAAFsAAAAAAAMACnBsbl91cF9pbXkABXVzZXJzAA8IDw8PEQ8P/A8R
+EQgPDw8W/AP8A/wDAPwDUAACkAEAAPwD/AP8A9B/AQHAAgHgV54ZvA==
+/tu5ah8BAAAALgIAAEdOAgAAAFsAAAAAAAEAAgAP/////xBwCgAAAAAAAAANAHN5YWZpcSB3aWxk
+YW4VAHN5YWZpcXdsZG4wQGdtYWlsLmNvbQ0AQWRtaW5pc3RyYXRvcjwAJDJ5JDEyJGF6TURMRVpP
+eGwwLzBYMjRsMC84cWV3QXNwWWhxeFQuVDhoRkpUUEVrSWZPNC5JZUJiL1ZhDDA4Nzc0MDk0Mzg4
+MCoARGVzYSBTbGVtYW4gQmxvayBLZXNhbWJpDQpLZWNhbWF0YW4gU2xpeWVnPAA4VDkxUFU1R0xr
+QXozeDVTVnVJRGVJRU1QT0s1OGtTUXFqTklxT0VqckNEaTc4bkNvb1BMWEMyWTdCQWpqqztrarl3
+IAEAAAAAAAAAEHAKAAAAAAAAAA0Ac3lhZmlxIHdpbGRhbhUAc3lhZmlxd2xkbjBAZ21haWwuY29t
+DQBBZG1pbmlzdHJhdG9yPAAkMnkkMTIkNFpTdnkyUUZIY29IQ0NwVzRwMGlhTzdHWlpKaC53Nmp2
+RmZ4MDk3ZHRScUp6Z1hlMGp0ZWkMMDg3NzQwOTQzODgwKgBEZXNhIFNsZW1hbiBCbG9rIEtlc2Ft
+YmkNCktlY2FtYXRhbiBTbGl5ZWc8AHQ1QVVmWUNGMnB2VklhOFRuenMzSDlIWDRKMmF1Y2gwUmln
+OEpVUTUxOUJVdk9talZ6WFNlRk1YaHBZT2qrO2tquXmOAQAAAAAAAAD+VlE3
+'/*!*/;
+# at 151111
+#260928 10:16:14 server id 1  end_log_pos 151142 CRC32 0xf7b300d9 	Xid = 4004
+COMMIT/*!*/;
+# at 151142
+#260928 10:16:14 server id 1  end_log_pos 151221 CRC32 0x54cc8479 	Anonymous_GTID	last_committed=154	sequence_number=155	rbr_only=yes	original_committed_timestamp=1790565374611652	immediate_commit_timestamp=1790565374611652	transaction_length=436
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565374611652 (2026-09-28 10:16:14.611652 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565374611652 (2026-09-28 10:16:14.611652 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565374611652*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 151221
+#260928 10:16:14 server id 1  end_log_pos 151302 CRC32 0x4aeed31f 	Query	thread_id=98	exec_time=0	error_code=0
+SET TIMESTAMP=1790565374/*!*/;
+BEGIN
+/*!*/;
+# at 151302
+#260928 10:16:14 server id 1  end_log_pos 151367 CRC32 0xe2aaeb5a 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 151367
+#260928 10:16:14 server id 1  end_log_pos 151547 CRC32 0xf530a92c 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+/tu5ahMBAAAAQQAAAEdPAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4FrrquI=
+/tu5aiABAAAAtAAAAPtPAgAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOnBhc3N3
+b3JkOjQ4NzE3NTc0YThjMGUwNzIyNzYwZjI2M2I3NWJkODI2NzRiMjRkY2NEAABzOjYwOiIkMnkk
+MTIkYm5wOEdKelZieHU2Z0NYYU02dmRuLksxM1pFODhhWUg0T2wxSi5OTGdveTQvbmthL3lud2Ui
+OzjeuWosqTD1
+'/*!*/;
+# at 151547
+#260928 10:16:14 server id 1  end_log_pos 151578 CRC32 0xf7478f38 	Xid = 4007
+COMMIT/*!*/;
+# at 151578
+#260928 10:16:14 server id 1  end_log_pos 151657 CRC32 0xb2fb3a6d 	Anonymous_GTID	last_committed=155	sequence_number=156	rbr_only=yes	original_committed_timestamp=1790565374635528	immediate_commit_timestamp=1790565374635528	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565374635528 (2026-09-28 10:16:14.635528 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565374635528 (2026-09-28 10:16:14.635528 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565374635528*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 151657
+#260928 10:16:14 server id 1  end_log_pos 151747 CRC32 0xf560501f 	Query	thread_id=98	exec_time=0	error_code=0
+SET TIMESTAMP=1790565374/*!*/;
+BEGIN
+/*!*/;
+# at 151747
+#260928 10:16:14 server id 1  end_log_pos 151821 CRC32 0xd4f3d01f 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 151821
+#260928 10:16:14 server id 1  end_log_pos 152781 CRC32 0xdee267e3 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+/tu5ahMBAAAASgAAAA1RAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4B/Q89Q=
+/tu5ah8BAAAAwAMAAM1UAgAAAFMAAAAAAAEAAgAG//8CKAA1c1RsV2k2NzJsYkRSaHdnMXVid1h0
+NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktRMVpCWmtZ
+MmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPeXbuWoCKAA1c1RsV2k2NzJsYkRSaHdn
+MXVid1h0NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktR
+MVpCWmtZMmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPf7buWrjZ+Le
+'/*!*/;
+# at 152781
+#260928 10:16:14 server id 1  end_log_pos 152812 CRC32 0x37e0ee77 	Xid = 4013
+COMMIT/*!*/;
+# at 152812
+#260928 10:25:33 server id 1  end_log_pos 152891 CRC32 0xfbfdf858 	Anonymous_GTID	last_committed=156	sequence_number=157	rbr_only=yes	original_committed_timestamp=1790565933753896	immediate_commit_timestamp=1790565933753896	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565933753896 (2026-09-28 10:25:33.753896 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565933753896 (2026-09-28 10:25:33.753896 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565933753896*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 152891
+#260928 10:25:33 server id 1  end_log_pos 152981 CRC32 0xd970e9ed 	Query	thread_id=99	exec_time=0	error_code=0
+SET TIMESTAMP=1790565933/*!*/;
+BEGIN
+/*!*/;
+# at 152981
+#260928 10:25:33 server id 1  end_log_pos 153055 CRC32 0xa8f22ae1 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 153055
+#260928 10:25:33 server id 1  end_log_pos 154015 CRC32 0x075b3e18 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+Ld65ahMBAAAASgAAAN9VAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4OEq8qg=
+Ld65ah8BAAAAwAMAAJ9ZAgAAAFMAAAAAAAEAAgAG//8CKAA1c1RsV2k2NzJsYkRSaHdnMXVid1h0
+NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktRMVpCWmtZ
+MmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPf7buWoCKAA1c1RsV2k2NzJsYkRSaHdn
+MXVid1h0NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktR
+MVpCWmtZMmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPS3euWoYPlsH
+'/*!*/;
+# at 154015
+#260928 10:25:33 server id 1  end_log_pos 154046 CRC32 0x06055d08 	Xid = 4061
+COMMIT/*!*/;
+# at 154046
+#260928 10:26:20 server id 1  end_log_pos 154125 CRC32 0xff2272c8 	Anonymous_GTID	last_committed=157	sequence_number=158	rbr_only=yes	original_committed_timestamp=1790565980468170	immediate_commit_timestamp=1790565980468170	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565980468170 (2026-09-28 10:26:20.468170 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565980468170 (2026-09-28 10:26:20.468170 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565980468170*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 154125
+#260928 10:26:20 server id 1  end_log_pos 154206 CRC32 0x8a56d122 	Query	thread_id=100	exec_time=0	error_code=0
+SET TIMESTAMP=1790565980/*!*/;
+BEGIN
+/*!*/;
+# at 154206
+#260928 10:26:20 server id 1  end_log_pos 154271 CRC32 0xa7833346 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 154271
+#260928 10:26:20 server id 1  end_log_pos 154374 CRC32 0xe5a742c8 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+XN65ahMBAAAAQQAAAJ9aAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4EYzg6c=
+XN65aiABAAAAZwAAAAZbAgAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6Mjsc3LlqyEKn5Q==
+'/*!*/;
+# at 154374
+#260928 10:26:20 server id 1  end_log_pos 154405 CRC32 0xe395100c 	Xid = 4073
+COMMIT/*!*/;
+# at 154405
+#260928 10:26:20 server id 1  end_log_pos 154484 CRC32 0xfd103fdb 	Anonymous_GTID	last_committed=158	sequence_number=159	rbr_only=yes	original_committed_timestamp=1790565980471213	immediate_commit_timestamp=1790565980471213	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565980471213 (2026-09-28 10:26:20.471213 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565980471213 (2026-09-28 10:26:20.471213 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565980471213*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 154484
+#260928 10:26:20 server id 1  end_log_pos 154565 CRC32 0x8472f35d 	Query	thread_id=100	exec_time=0	error_code=0
+SET TIMESTAMP=1790565980/*!*/;
+BEGIN
+/*!*/;
+# at 154565
+#260928 10:26:20 server id 1  end_log_pos 154630 CRC32 0xb45345f4 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 154630
+#260928 10:26:20 server id 1  end_log_pos 154748 CRC32 0x81d87e4a 	Delete_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+XN65ahMBAAAAQQAAAAZcAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4PRFU7Q=
+XN65aiABAAAAdgAAAHxcAgAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU2NTQwNDsc3Llq
+Sn7YgQ==
+'/*!*/;
+# at 154748
+#260928 10:26:20 server id 1  end_log_pos 154779 CRC32 0xbbb7e105 	Xid = 4079
+COMMIT/*!*/;
+# at 154779
+#260928 10:26:20 server id 1  end_log_pos 154858 CRC32 0xc7ab137b 	Anonymous_GTID	last_committed=159	sequence_number=160	rbr_only=yes	original_committed_timestamp=1790565980472540	immediate_commit_timestamp=1790565980472540	transaction_length=374
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565980472540 (2026-09-28 10:26:20.472540 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565980472540 (2026-09-28 10:26:20.472540 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565980472540*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 154858
+#260928 10:26:20 server id 1  end_log_pos 154939 CRC32 0xcfcf66b9 	Query	thread_id=100	exec_time=0	error_code=0
+SET TIMESTAMP=1790565980/*!*/;
+BEGIN
+/*!*/;
+# at 154939
+#260928 10:26:20 server id 1  end_log_pos 155004 CRC32 0x4a30b707 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 155004
+#260928 10:26:20 server id 1  end_log_pos 155122 CRC32 0x3c4074a6 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+XN65ahMBAAAAQQAAAHxdAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4Ae3MEo=
+XN65ah4BAAAAdgAAAPJdAgAAAGQAAAAAAAEAAgAD/wA8AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYTp0aW1lcg0AAGk6MTc5MDU2NjA0MDuY3rlq
+pnRAPA==
+'/*!*/;
+# at 155122
+#260928 10:26:20 server id 1  end_log_pos 155153 CRC32 0x6d1145cd 	Xid = 4082
+COMMIT/*!*/;
+# at 155153
+#260928 10:26:20 server id 1  end_log_pos 155232 CRC32 0x63fffb82 	Anonymous_GTID	last_committed=160	sequence_number=161	rbr_only=yes	original_committed_timestamp=1790565980474088	immediate_commit_timestamp=1790565980474088	transaction_length=359
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565980474088 (2026-09-28 10:26:20.474088 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565980474088 (2026-09-28 10:26:20.474088 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565980474088*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 155232
+#260928 10:26:20 server id 1  end_log_pos 155313 CRC32 0x71d748f6 	Query	thread_id=100	exec_time=0	error_code=0
+SET TIMESTAMP=1790565980/*!*/;
+BEGIN
+/*!*/;
+# at 155313
+#260928 10:26:20 server id 1  end_log_pos 155378 CRC32 0x93e5a653 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 155378
+#260928 10:26:20 server id 1  end_log_pos 155481 CRC32 0x528c401e 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+XN65ahMBAAAAQQAAAPJeAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4FOm5ZM=
+XN65ah4BAAAAZwAAAFlfAgAAAGQAAAAAAAEAAgAD/wA2AGxhcmF2ZWwtY2FjaGUtNWM3ODVjMDM2
+NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MDuY3rlqHkCMUg==
+'/*!*/;
+# at 155481
+#260928 10:26:20 server id 1  end_log_pos 155512 CRC32 0x03ccf0e9 	Xid = 4088
+COMMIT/*!*/;
+# at 155512
+#260928 10:26:20 server id 1  end_log_pos 155591 CRC32 0x5d3f537b 	Anonymous_GTID	last_committed=161	sequence_number=162	rbr_only=yes	original_committed_timestamp=1790565980477035	immediate_commit_timestamp=1790565980477035	transaction_length=437
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565980477035 (2026-09-28 10:26:20.477035 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565980477035 (2026-09-28 10:26:20.477035 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565980477035*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 155591
+#260928 10:26:20 server id 1  end_log_pos 155681 CRC32 0x3eb4b056 	Query	thread_id=100	exec_time=0	error_code=0
+SET TIMESTAMP=1790565980/*!*/;
+BEGIN
+/*!*/;
+# at 155681
+#260928 10:26:20 server id 1  end_log_pos 155746 CRC32 0x153ef009 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 155746
+#260928 10:26:20 server id 1  end_log_pos 155918 CRC32 0xb1e793a8 	Update_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+XN65ahMBAAAAQQAAAGJgAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4AnwPhU=
+XN65ah8BAAAArAAAAA5hAgAAAGQAAAAAAAEAAgAD//8ANgBsYXJhdmVsLWNhY2hlLTVjNzg1YzAz
+NjQ2NmFkZWEzNjAxMTFhYTI4NTYzYmZkNTU2YjVmYmEEAABpOjA7mN65agA2AGxhcmF2ZWwtY2Fj
+aGUtNWM3ODVjMDM2NDY2YWRlYTM2MDExMWFhMjg1NjNiZmQ1NTZiNWZiYQQAAGk6MTuY3rlqqJPn
+sQ==
+'/*!*/;
+# at 155918
+#260928 10:26:20 server id 1  end_log_pos 155949 CRC32 0xd9b1ba7c 	Xid = 4092
+COMMIT/*!*/;
+# at 155949
+#260928 10:26:20 server id 1  end_log_pos 156028 CRC32 0xa9ad2d77 	Anonymous_GTID	last_committed=162	sequence_number=163	rbr_only=yes	original_committed_timestamp=1790565980724886	immediate_commit_timestamp=1790565980724886	transaction_length=436
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565980724886 (2026-09-28 10:26:20.724886 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565980724886 (2026-09-28 10:26:20.724886 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565980724886*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 156028
+#260928 10:26:20 server id 1  end_log_pos 156109 CRC32 0x7231c1e1 	Query	thread_id=100	exec_time=0	error_code=0
+SET TIMESTAMP=1790565980/*!*/;
+BEGIN
+/*!*/;
+# at 156109
+#260928 10:26:20 server id 1  end_log_pos 156174 CRC32 0xb08eb4df 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 156174
+#260928 10:26:20 server id 1  end_log_pos 156354 CRC32 0xc7dc5ea0 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+XN65ahMBAAAAQQAAAA5iAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4N+0jrA=
+XN65ah4BAAAAtAAAAMJiAgAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOnBhc3N3
+b3JkOjMyNTJkODlkOTNiZmIxMzI3ZTJkM2FhZTkxODdiNTY1ZGFjNmQwODVEAABzOjYwOiIkMnkk
+MTIkb1FDdHQ1WlBVd1pSUGhnYWh6aGxqZWVNV3ltTElkNEF4eklzdUl3MThtUzgvdVkuTnhMUXUi
+O7TguWqgXtzH
+'/*!*/;
+# at 156354
+#260928 10:26:20 server id 1  end_log_pos 156385 CRC32 0xaa59a985 	Xid = 4105
+COMMIT/*!*/;
+# at 156385
+#260928 10:26:20 server id 1  end_log_pos 156464 CRC32 0x0049e0ea 	Anonymous_GTID	last_committed=163	sequence_number=164	rbr_only=yes	original_committed_timestamp=1790565980728402	immediate_commit_timestamp=1790565980728402	transaction_length=381
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565980728402 (2026-09-28 10:26:20.728402 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565980728402 (2026-09-28 10:26:20.728402 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565980728402*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 156464
+#260928 10:26:20 server id 1  end_log_pos 156545 CRC32 0x34b30b57 	Query	thread_id=100	exec_time=0	error_code=0
+SET TIMESTAMP=1790565980/*!*/;
+BEGIN
+/*!*/;
+# at 156545
+#260928 10:26:20 server id 1  end_log_pos 156610 CRC32 0xac4869b0 	Table_map: `pln_up_imy`.`cache` mapped to number 100
+# at 156610
+#260928 10:26:20 server id 1  end_log_pos 156735 CRC32 0xebe53812 	Write_rows: table id 100 flags: STMT_END_F
+
+BINLOG '
+XN65ahMBAAAAQQAAAMJjAgAAAGQAAAAAAAEACnBsbl91cF9pbXkABWNhY2hlAAMP/AMD/AMDAAEB
+AAIB4LBpSKw=
+XN65ah4BAAAAfQAAAD9kAgAAAGQAAAAAAAEAAgAD/wBDAGxhcmF2ZWwtY2FjaGUtb3RwOmNvb2xk
+b3duOjMyNTJkODlkOTNiZmIxMzI3ZTJkM2FhZTkxODdiNTY1ZGFjNmQwODUNAABpOjE3OTA1NjYw
+NDA7mN65ahI45es=
+'/*!*/;
+# at 156735
+#260928 10:26:20 server id 1  end_log_pos 156766 CRC32 0x3c6d679c 	Xid = 4108
+COMMIT/*!*/;
+# at 156766
+#260928 10:26:24 server id 1  end_log_pos 156845 CRC32 0x7b8da622 	Anonymous_GTID	last_committed=164	sequence_number=165	rbr_only=yes	original_committed_timestamp=1790565984729958	immediate_commit_timestamp=1790565984729958	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790565984729958 (2026-09-28 10:26:24.729958 SE Asia Standard Time)
+# immediate_commit_timestamp=1790565984729958 (2026-09-28 10:26:24.729958 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790565984729958*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 156845
+#260928 10:26:24 server id 1  end_log_pos 156935 CRC32 0xce97dfad 	Query	thread_id=100	exec_time=0	error_code=0
+SET TIMESTAMP=1790565984/*!*/;
+BEGIN
+/*!*/;
+# at 156935
+#260928 10:26:24 server id 1  end_log_pos 157009 CRC32 0xaf245a03 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 157009
+#260928 10:26:24 server id 1  end_log_pos 157969 CRC32 0xca639960 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+YN65ahMBAAAASgAAAFFlAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4ANaJK8=
+YN65ah8BAAAAwAMAABFpAgAAAFMAAAAAAAEAAgAG//8CKAA1c1RsV2k2NzJsYkRSaHdnMXVid1h0
+NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktRMVpCWmtZ
+MmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPS3euWoCKAA1c1RsV2k2NzJsYkRSaHdn
+MXVid1h0NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktR
+MVpCWmtZMmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPWDeuWpgmWPK
+'/*!*/;
+# at 157969
+#260928 10:26:24 server id 1  end_log_pos 158000 CRC32 0x1468be62 	Xid = 4114
+COMMIT/*!*/;
+# at 158000
+#260928 10:31:53 server id 1  end_log_pos 158079 CRC32 0xbadc8910 	Anonymous_GTID	last_committed=165	sequence_number=166	rbr_only=yes	original_committed_timestamp=1790566313669140	immediate_commit_timestamp=1790566313669140	transaction_length=1234
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790566313669140 (2026-09-28 10:31:53.669140 SE Asia Standard Time)
+# immediate_commit_timestamp=1790566313669140 (2026-09-28 10:31:53.669140 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790566313669140*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 158079
+#260928 10:31:53 server id 1  end_log_pos 158169 CRC32 0x6bb471f9 	Query	thread_id=101	exec_time=0	error_code=0
+SET TIMESTAMP=1790566313/*!*/;
+BEGIN
+/*!*/;
+# at 158169
+#260928 10:31:53 server id 1  end_log_pos 158243 CRC32 0x395591bd 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 158243
+#260928 10:31:53 server id 1  end_log_pos 159203 CRC32 0x824b3c2d 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+qd+5ahMBAAAASgAAACNqAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4L2RVTk=
+qd+5ah8BAAAAwAMAAONtAgAAAFMAAAAAAAEAAgAG//8CKAA1c1RsV2k2NzJsYkRSaHdnMXVid1h0
+NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktRMVpCWmtZ
+MmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPWDeuWoCKAA1c1RsV2k2NzJsYkRSaHdn
+MXVid1h0NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktR
+MVpCWmtZMmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRw
+YmlJN2N6bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPanfuWotPEuC
+'/*!*/;
+# at 159203
+#260928 10:31:53 server id 1  end_log_pos 159234 CRC32 0x01035bc7 	Xid = 4162
+COMMIT/*!*/;
+# at 159234
+#260928 10:32:30 server id 1  end_log_pos 159313 CRC32 0x627ccbfd 	Anonymous_GTID	last_committed=166	sequence_number=167	rbr_only=yes	original_committed_timestamp=1790566350945774	immediate_commit_timestamp=1790566350945774	transaction_length=1282
+/*!50718 SET TRANSACTION ISOLATION LEVEL READ COMMITTED*//*!*/;
+# original_commit_timestamp=1790566350945774 (2026-09-28 10:32:30.945774 SE Asia Standard Time)
+# immediate_commit_timestamp=1790566350945774 (2026-09-28 10:32:30.945774 SE Asia Standard Time)
+/*!80001 SET @@session.original_commit_timestamp=1790566350945774*//*!*/;
+/*!80014 SET @@session.original_server_version=80030*//*!*/;
+/*!80014 SET @@session.immediate_server_version=80030*//*!*/;
+SET @@SESSION.GTID_NEXT= 'ANONYMOUS'/*!*/;
+# at 159313
+#260928 10:32:30 server id 1  end_log_pos 159403 CRC32 0x7d372401 	Query	thread_id=102	exec_time=0	error_code=0
+SET TIMESTAMP=1790566350/*!*/;
+BEGIN
+/*!*/;
+# at 159403
+#260928 10:32:30 server id 1  end_log_pos 159477 CRC32 0xa54a43d6 	Table_map: `pln_up_imy`.`sessions` mapped to number 83
+# at 159477
+#260928 10:32:30 server id 1  end_log_pos 160485 CRC32 0x5da908eb 	Update_rows: table id 83 flags: STMT_END_F
+
+BINLOG '
+zt+5ahMBAAAASgAAAPVuAgAAAFMAAAAAAAEACnBsbl91cF9pbXkACHNlc3Npb25zAAYPCA/8/AMG
+/AO0AAIEDgEBgAIB4NZDSqU=
+zt+5ah8BAAAA8AMAAOVyAgAAAFMAAAAAAAEAAgAG//8CKAA1c1RsV2k2NzJsYkRSaHdnMXVid1h0
+NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAu
+MDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hy
+b21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2IAEAAFlUb3pPbnR6T2pZNklsOTBiMnRsYmlJN2N6
+bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktRMVpCWmtZ
+MmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZYTTZNem9p
+Ym1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lKMWNtd2lP
+M002TXpNNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzloWkcxcGJpOXNiMmRwYmlJN2N6
+bzFPaUp5YjNWMFpTSTdjem8xT2lKc2IyZHBiaUk3ZlgwPanfuWoCKAA1c1RsV2k2NzJsYkRSaHdn
+MXVid1h0NXF4aHlFS0t6VVB6NjFHTVBOCTEyNy4wLjAuMW8ATW96aWxsYS81LjAgKFdpbmRvd3Mg
+TlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNr
+bykgQ2hyb21lLzE1My4wLjAuMCBTYWZhcmkvNTM3LjM2UAEAAFlUb3pPbnR6T2pZNklsOTBiMnRs
+YmlJN2N6bzBNRG9pZURZNGJsUTFSbWR3UlRWeFNGVlNWMjF0YlUxNWJEWTNSR3N4YW1reGJVRktR
+MVpCWmtZMmNDSTdjem8yT2lKZlpteGhjMmdpTzJFNk1qcDdjem96T2lKdmJHUWlPMkU2TURwN2ZY
+TTZNem9pYm1WM0lqdGhPakE2ZTMxOWN6bzVPaUpmY0hKbGRtbHZkWE1pTzJFNk1qcDdjem96T2lK
+MWNtd2lPM002TlRBNkltaDBkSEE2THk4eE1qY3VNQzR3TGpFNk9EQXdNQzlzWVhsaGJtRnVMMlp2
+Y20wdGNtVm5hWE4wY21GemFTMTBZVzExSWp0ek9qVTZJbkp2ZFhSbElqdHpPakl6T2lKc1lYbGhi
+bUZ1TG5KbFoybHpkSEpoYzJrdGRHRnRkU0k3ZlgwPc7fuWrrCKld
+'/*!*/;
+# at 160485
+#260928 10:32:30 server id 1  end_log_pos 160516 CRC32 0x43b83e91 	Xid = 4210
+COMMIT/*!*/;
+# at 160516
+#260928 11:03:13 server id 1  end_log_pos 160539 CRC32 0xbe340fc9 	Stop
+SET @@SESSION.GTID_NEXT= 'AUTOMATIC' /* added by mysqlbinlog */ /*!*/;
+DELIMITER ;
+# End of log file
+/*!50003 SET COMPLETION_TYPE=@OLD_COMPLETION_TYPE*/;
+/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=0*/;

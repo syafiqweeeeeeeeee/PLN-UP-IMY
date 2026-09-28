@@ -19,6 +19,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * checkout() : tandai tamu selesai berkunjung (isi checked_out_at).
  * destroy()  : hapus data tamu beserta file KTP-nya.
  * export()   : unduh CSV sesuai filter yang sedang aktif.
+ * print()    : halaman cetak di bawah tabel (dua gaya: "excel" = look
+ *              spreadsheet; "pdf" = laporan formal) via dialog print
+ *              browser — mengikuti filter aktif, mengabaikan pagination.
  */
 class TamuController extends Controller
 {
@@ -202,6 +205,48 @@ class TamuController extends Controller
     }
 
     /**
+     * Bangun query daftar tamu sesuai filter aktif (dipakai index,
+     * export & print agar perilakunya konsisten).
+     */
+    private function filteredQuery(Request $request): \Illuminate\Database\Eloquent\Builder
+    {
+        return Tamu::query()
+            ->search($request->string('q')->toString())
+            ->tanggalAntara($request->input('dari'), $request->input('sampai'))
+            ->status($request->string('status')->toString())
+            ->latest()
+            ->orderByDesc('id');
+    }
+
+    /**
+     * Halaman cetak daftar tamu (dibuka di tab baru, lalu memicu
+     * dialog print browser — bisa disimpan sebagai PDF). Dua gaya:
+     * "excel" (tampilan spreadsheet) dan "pdf" (laporan formal).
+     */
+    public function print(Request $request, string $style = 'excel')
+    {
+        $style = in_array($style, ['excel', 'pdf'], true) ? $style : 'excel';
+
+        $tamus = $this->filteredQuery($request)->get();
+
+        ActivityLogger::log('print', null, [
+            'module'      => 'tamu',
+            'description' => "mencetak data tamu gaya {$style} (" . $tamus->count() . ' baris)',
+        ]);
+
+        return view('admin.tamu.print', [
+            'tamus'  => $tamus,
+            'style'  => $style,
+            'filter' => [
+                'q'      => $request->string('q')->toString(),
+                'dari'   => $request->input('dari'),
+                'sampai' => $request->input('sampai'),
+                'status' => $request->string('status')->toString(),
+            ],
+        ]);
+    }
+
+    /**
      * Export CSV (dapat dibuka Excel) sesuai filter aktif —
      * streaming agar hemat memori untuk data besar.
      */
@@ -209,12 +254,7 @@ class TamuController extends Controller
     {
         $filename = 'data-tamu-' . now()->format('Ymd-His') . '.csv';
 
-        $query = Tamu::query()
-            ->search($request->string('q')->toString())
-            ->tanggalAntara($request->input('dari'), $request->input('sampai'))
-            ->status($request->string('status')->toString())
-            ->latest()
-            ->orderByDesc('id');
+        $query = $this->filteredQuery($request);
 
         ActivityLogger::log('export', null, [
             'module' => 'tamu',

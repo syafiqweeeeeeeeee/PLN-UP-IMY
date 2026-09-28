@@ -13,7 +13,8 @@ use Illuminate\Http\Request;
  * poll():  JSON ringkas untuk polling berkala (dot + badge + item),
  *          dipanggil JS layout admin tiap 30 detik.
  * seen():  tandai seluruh tamu sudah dilihat (dipanggil saat admin
- *          membuka dropdown notifikasi) → dot hilang.
+ *          menutup dropdown notifikasi) → dot hilang. Penanda tersimpan
+ *          permanen per-akun di users.last_seen_tamu_id (bukan session).
  */
 class NotificationController extends Controller
 {

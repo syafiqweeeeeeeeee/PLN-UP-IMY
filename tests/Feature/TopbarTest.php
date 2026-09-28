@@ -118,21 +118,76 @@ class TopbarTest extends TestCase
     {
         \App\Models\Tamu::create($this->tamuPayload());
 
+        // Penanda terbaca kini PER-AKUN: semua request memakai akun yang sama.
+        $admin = $this->adminUser();
+
         // Buka dropdown → mark seen
-        $this->actingAs($this->adminUser())
+        $this->actingAs($admin)
             ->postJson(route('admin.notifications.seen'))
             ->assertOk()
             ->assertJsonPath('unread_count', 0);
 
         // Poll berikutnya: unread 0, dot hilang
-        $this->actingAs($this->adminUser())
+        $this->actingAs($admin)
             ->getJson(route('admin.notifications.poll'))
             ->assertOk()
             ->assertJsonPath('unread_count', 0);
 
-        $response = $this->actingAs($this->adminUser())->get(route('admin.dashboard'));
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
         $response->assertOk()
             ->assertDontSee('1 tamu baru mendaftar');
+
+        // Penanda tersimpan permanen di kolom DB akun (bukan session)
+        $this->assertDatabaseHas('users', [
+            'id'                 => $admin->id,
+            'last_seen_tamu_id'  => \App\Models\Tamu::max('id'),
+        ]);
+    }
+
+    public function test_seen_marker_persists_after_logout_and_session_flush(): void
+    {
+        \App\Models\Tamu::create($this->tamuPayload());
+
+        $admin = $this->adminUser();
+
+        $this->actingAs($admin)
+            ->postJson(route('admin.notifications.seen'))
+            ->assertOk();
+
+        // Simulasi sesi habis / logout: user login ulang dengan session kosong
+        auth()->logout();
+        session()->flush();
+
+        $this->actingAs($admin)
+            ->getJson(route('admin.notifications.poll'))
+            ->assertOk()
+            ->assertJsonPath('unread_count', 0);
+    }
+
+    public function test_seen_marker_isolated_per_account(): void
+    {
+        \App\Models\Tamu::create($this->tamuPayload());
+
+        // Dua akun admin berbeda (adminUser() selalu membuat user baru)
+        $adminA = $this->adminUser();
+        $adminB = $this->adminUser();
+
+        // Akun A menandai tamu sudah dilihat
+        $this->actingAs($adminA)
+            ->postJson(route('admin.notifications.seen'))
+            ->assertOk();
+
+        // Akun A: tidak ada yang belum dibaca
+        $this->actingAs($adminA)
+            ->getJson(route('admin.notifications.poll'))
+            ->assertOk()
+            ->assertJsonPath('unread_count', 0);
+
+        // Akun B: tamu tetap belum dibaca untuk akunnya sendiri
+        $this->actingAs($adminB)
+            ->getJson(route('admin.notifications.poll'))
+            ->assertOk()
+            ->assertJsonPath('unread_count', 1);
     }
 
     public function test_poll_reports_new_tamu_as_unread(): void

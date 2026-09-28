@@ -538,11 +538,60 @@
     .tamu-delete-actions .confirm { background: #dc2626; color: #fff; }
     .tamu-delete-actions .confirm:hover { background: #b91c1c; }
 
+    /* ---------- Print bar (di bawah tabel) ---------- */
+    .tamu-print-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 1.1rem;
+        padding: 0.9rem 1.1rem;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+    }
+
+    .tamu-print-bar .print-info {
+        font-size: 0.78rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+    }
+
+    .tamu-print-bar .print-info i { color: var(--pln-blue); }
+
+    .tamu-print-bar .print-buttons { display: flex; gap: 0.6rem; }
+
+    .print-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        transition: all 0.15s ease;
+        border: 1px solid transparent;
+    }
+
+    .print-chip span { display: flex; flex-direction: column; line-height: 1.2; }
+    .print-chip small { font-weight: 400; opacity: 0.85; font-size: 0.68rem; }
+
+    .print-chip.excel { background: #e8f5ee; color: #15803d; border-color: #bbe7cc; }
+    .print-chip.excel:hover { background: #d7efdf; }
+
+    .print-chip.pdf { background: #fdeaea; color: #b91c1c; border-color: #f5c6c6; }
+    .print-chip.pdf:hover { background: #fbdcdc; }
+
     @media (max-width: 767.98px) {
         .tamu-page-header .header-row { flex-direction: column; align-items: flex-start; }
         .tamu-filter-bar { flex-direction: column; align-items: stretch; }
         .tamu-filter-bar .search-wrapper { min-width: 100%; }
         .filter-divider { display: none; }
+        .tamu-print-bar { flex-direction: column; align-items: stretch; }
+        .tamu-print-bar .print-buttons { flex-direction: column; }
     }
 </style>
 @endpush
@@ -739,6 +788,36 @@
             @endforelse
         </tbody>
     </table>
+</div>
+
+{{-- ============================================
+     PRINT BAR — CETAK EXCEL / PDF
+     (di bawah tabel; mengikuti filter aktif,
+      mencetak semua baris hasil filter)
+     ============================================ --}}
+<div class="tamu-print-bar">
+    <div class="print-info">
+        <i class="fas fa-circle-info"></i>
+        Mencetak seluruh <b>{{ $tamus->total() }}</b> data tamu sesuai filter aktif (bukan hanya halaman ini).
+    </div>
+    <div class="print-buttons">
+        <a href="{{ route('admin.tamu.print', array_merge(['style' => 'excel'], request()->only(['q', 'dari', 'sampai', 'status']))) }}"
+           target="_blank" class="print-chip excel" title="Cetak dengan tampilan spreadsheet (grid Excel)">
+            <i class="fas fa-file-excel"></i>
+            <span>
+                <b>Print Excel</b>
+                <small>Gaya spreadsheet</small>
+            </span>
+        </a>
+        <a href="{{ route('admin.tamu.print', array_merge(['style' => 'pdf'], request()->only(['q', 'dari', 'sampai', 'status']))) }}"
+           target="_blank" class="print-chip pdf" title="Cetak sebagai laporan formal siap tanda tangan">
+            <i class="fas fa-file-pdf"></i>
+            <span>
+                <b>Print PDF</b>
+                <small>Gaya laporan resmi</small>
+            </span>
+        </a>
+    </div>
 </div>
 
 {{-- ============================================

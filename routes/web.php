@@ -178,6 +178,7 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         Route::middleware('permission:tamu.view')->group(function () {
             Route::get('tamu', [\App\Http\Controllers\Admin\TamuController::class, 'index'])->name('tamu.index');
             Route::get('tamu/export', [\App\Http\Controllers\Admin\TamuController::class, 'export'])->name('tamu.export');
+            Route::get('tamu/print/{style?}', [\App\Http\Controllers\Admin\TamuController::class, 'print'])->name('tamu.print');
 
             // Dokumen privat tamu (KTP & surat) — disajikan dari disk private,
             // tidak bisa diakses via /storage. Wajib auth + tamu.view.

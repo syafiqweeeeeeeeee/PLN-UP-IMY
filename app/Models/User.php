@@ -64,6 +64,7 @@ class User extends Authenticatable
         'email_verified_at',
         'no_hp',
         'alamat',
+        'last_seen_tamu_id',
     ];
 
     /**

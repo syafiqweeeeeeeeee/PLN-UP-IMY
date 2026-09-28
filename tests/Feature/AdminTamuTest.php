@@ -273,6 +273,84 @@ class AdminTamuTest extends TestCase
     }
 
     /* =========================================================
+       PRINT — CETAK EXCEL / PDF (di bawah tabel)
+       ========================================================= */
+
+    public function test_print_page_requires_tamu_view_permission(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->get(route('admin.tamu.print', ['style' => 'excel']))
+            ->assertForbidden();
+    }
+
+    public function test_print_excel_style_renders_spreadsheet_layout(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $this->createTamu(['nama' => 'Budi Cetak']);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.tamu.print', ['style' => 'excel']))
+            ->assertOk()
+            ->assertSee('Data Tamu — Buku Registrasi')
+            ->assertSee('Budi Cetak')
+            ->assertSee('sheet', false); // class pembungkus gaya excel
+
+        // Kolom ber-label abjad ala Excel (A, B, C, ...)
+        $response->assertSee('col-id', false);
+    }
+
+    public function test_print_pdf_style_renders_formal_report(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $this->createTamu(['nama' => 'Siti Laporan']);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.tamu.print', ['style' => 'pdf']))
+            ->assertOk()
+            ->assertSee('Laporan Daftar Tamu')
+            ->assertSee('Siti Laporan')
+            ->assertSee('report', false)   // class pembungkus gaya pdf
+            ->assertSee('Petugas Front Office'); // blok tanda tangan
+    }
+
+    public function test_print_follows_active_filter_and_shows_all_rows(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+
+        // 20+ tamu bernama sama → melebihi 15 baris per halaman di index
+        for ($i = 1; $i <= 20; $i++) {
+            $this->createTamu([
+                'nama' => 'Tamu Filter ' . $i,
+                'nik'  => sprintf('320112345678%04d', $i),
+            ]);
+        }
+        // Tamu lain yang HARUS tersembunyi oleh filter pencarian
+        $this->createTamu(['nama' => 'Ani Tersembunyi', 'nik' => '3201999000000011']);
+
+        $content = $this->actingAs($admin)
+            ->get(route('admin.tamu.print', ['style' => 'excel', 'q' => 'Tamu Filter']))
+            ->assertOk()
+            ->getContent();
+
+        // Seluruh 20 baris tercetak (bukan cuma 15 seperti pagination index)
+        foreach ([1, 15, 20] as $n) {
+            $this->assertStringContainsString('Tamu Filter ' . $n, $content);
+        }
+        $this->assertStringNotContainsString('Ani Tersembunyi', $content);
+    }
+
+    public function test_print_style_defaults_to_excel_for_unknown_style(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $this->createTamu();
+
+        $this->actingAs($admin)
+            ->get(route('admin.tamu.print', ['style' => 'hack']))
+            ->assertOk()
+            ->assertSee('sheet', false);
+    }
+
+    /* =========================================================
        DOKUMEN PRIVAT (KTP & SURAT)
        ========================================================= */
 
