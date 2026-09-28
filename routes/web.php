@@ -134,6 +134,13 @@ Route::get('/admin/login', [\App\Http\Controllers\Auth\LoginController::class, '
 Route::post('/admin/login', [\App\Http\Controllers\Auth\LoginController::class, 'login']);
 Route::post('/admin/logout', [\App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
+// Lupa Password via OTP email (AJAX JSON dari modal di halaman login).
+// Rate limit 10x/menit per IP sebagai pengaman brute force di level HTTP.
+Route::group(['middleware' => 'throttle:10,1'], function () {
+    Route::post('/forgot-password/otp', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendOtp'])->name('password.otp.send');
+    Route::post('/forgot-password/reset', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'reset'])->name('password.reset');
+});
+
 // Admin Dashboard
 Route::middleware(['auth', 'admin.access'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
