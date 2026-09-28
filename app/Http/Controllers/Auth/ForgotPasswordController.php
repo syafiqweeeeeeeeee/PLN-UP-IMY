@@ -48,11 +48,14 @@ class ForgotPasswordController extends Controller
         $email = strtolower(trim($validated['email']));
         $user  = User::where('email', $email)->first();
 
-        // Pesan respons DISEMAJAKAN: jangan bocorkan apakah email terdaftar.
+        // Email tidak terdaftar → respons eksplisit agar UI dapat menampilkan
+        // popup "email tidak terdaftar". Mitigasi enumeration tetap ada:
+        // throttle:10,1 (per IP) di route + cooldown 60 detik per email.
         if (! $user) {
             return response()->json([
-                'message' => 'Jika email terdaftar, kode OTP telah dikirim. Periksa kotak masuk Anda.',
-            ]);
+                'message' => 'Email tidak terdaftar pada sistem. Periksa kembali penulisan email Anda.',
+                'errors'  => ['email' => ['Email tidak terdaftar pada sistem.']],
+            ], 404);
         }
 
         // Cooldown anti-spam: 1 OTP per menit per email.
