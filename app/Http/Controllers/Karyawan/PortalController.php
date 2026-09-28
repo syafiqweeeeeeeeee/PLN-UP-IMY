@@ -33,7 +33,10 @@ class PortalController extends Controller
             'news'             => $this->publishedNews(3),
             'totalInformasi'   => $this->publishedAnnouncements()->count() + $this->publishedNews()->count(),
             'internalServices' => PortalContentService::internalServicesFor($user),
-            'workLinks'        => PortalContentService::workLinksFor($user),
+            // Dashboard menampilkan campuran seimbang Umum + Khusus sub-bidang;
+            // "Lihat Semua" (halaman Link) tetap memakai workLinksFor() lengkap.
+            'workLinks'        => PortalContentService::workLinksBalancedFor($user),
+            'workLinkTotal'    => PortalContentService::workLinkTotalFor($user),
             'linkFilters'      => PortalContentService::linkFilters(),
         ]);
     }

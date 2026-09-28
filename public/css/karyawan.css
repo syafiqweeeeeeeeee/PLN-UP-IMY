@@ -734,6 +734,13 @@ a { text-decoration: none; color: inherit; }
     border-color: #f5e38a;
 }
 
+/* Badge link khusus sub-bidang / level bidang — toska soft. */
+.kry-badge-khusus {
+    background: var(--kry-teal-soft);
+    color: var(--kry-teal-dark);
+    border-color: #bfe3ea;
+}
+
 .kry-btn-open {
     display: inline-flex;
     align-items: center;

@@ -27,6 +27,11 @@
                 <i class="fas fa-layer-group" style="color:#008fa8;"></i>
                 Manager Bidang {{ \App\Models\User::DEPARTMENTS[$authUser->department] ?? '' }} — pilih tab sub-bidang di bawah naungan Anda.
             </p>
+        @elseif ($linkAccess['mode'] === 'tabs' && $linkAccess['scope'] === 'all')
+            <p style="font-size:0.8rem; color:#64748b; margin-top:0.35rem;">
+                <i class="fas fa-globe" style="color:#008fa8;"></i>
+                Akses global — gunakan filter untuk memantau link kerja seluruh bidang.
+            </p>
         @endif
     </div>
 
@@ -70,8 +75,8 @@
                 <div class="kry-link-body">
                     <h3>
                         {{ $link['name'] }}
-                        <span class="kry-badge {{ $link['category'] === 'umum' ? 'kry-badge-umum' : '' }}">
-                            {{ $filters[$link['category']] ?? $link['category'] }}
+                        <span class="kry-badge {{ $link['category'] === 'umum' ? 'kry-badge-umum' : 'kry-badge-khusus' }}">
+                            {{ \App\Services\PortalContentService::workLinkBadgeLabel($link) }}
                         </span>
                     </h3>
                     <p class="kry-link-desc">{{ $link['description'] }}</p>
@@ -107,13 +112,19 @@
         var cards   = Array.prototype.slice.call(document.querySelectorAll('#kryLinkGrid .kry-link-card'));
         var empty   = document.getElementById('kryEmptyState');
         var DEFAULT = @json($defaultFilter);
+        var SCOPE   = @json($linkAccess['scope']);
 
         function cardMatches(card, value) {
             var category = card.getAttribute('data-category');
             var dept     = card.getAttribute('data-department');
             var sub      = card.getAttribute('data-sub-department');
 
-            // "Semua <Bidang>" (Manager Bidang): semua link bidangnya + umum.
+            // "Semua Bidang" (Administrator/Senior Manager): tampilkan semua link.
+            if (value === 'all' && SCOPE === 'all') {
+                return true;
+            }
+
+            // "Semua Sub-Bidang" (Manager Bidang): semua link bidangnya + umum.
             if (value === 'all') {
                 return category === 'umum' || dept === @json($authUser->department);
             }

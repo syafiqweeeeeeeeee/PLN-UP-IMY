@@ -6,7 +6,8 @@ namespace App\Services;
  * Sumber data statis Portal Karyawan (view-only):
  *
  * - internalServices(): layanan internal perusahaan (panduan/prosedur).
- * - workLinks():        10 tautan alat kerja — 5 akses umum + 5 per bidang.
+ * - workLinks():        15 tautan alat kerja — 5 akses umum + 5 level bidang
+ *                       + 5 khusus sub-bidang.
  * - workLinksFor(user): memfilter link sesuai Hirarki Organisasi user
  *   (level jabatan / bidang / sub-bidang dari form Pengguna).
  *
@@ -71,23 +72,123 @@ class PortalContentService
             ));
 }
 
-        // Staf / Asisten Manager / Supervisor: terkunci pada sub-bidangnya +
-        // link umum. Link bidang tanpa pemilik spesifik (mis. SCADA untuk
-        // seluruh Bidang Operasi) tetap tampil; bidang lain disembunyikan.
+        // Staf / Asisten Manager / Supervisor: terkunci pada sub-bidangnya.
+        // HANYA 10 link: 5 Link Umum + 5 Link Khusus sub-bidang sendiri.
+        // Link level bidang (mis. SCADA untuk seluruh Bidang Operasi)
+        // tidak lagi ditampilkan untuk level ini.
         if ($user->level_jabatan === 'staf_spv') {
-            if ($department === null) {
+            if ($department === null || $subDepartment === null) {
                 return array_values(array_filter($links, fn ($l) => $l['category'] === 'umum'));
             }
 
             return array_values(array_filter($links, fn ($l) =>
                 $l['category'] === 'umum'
-                || (($l['department'] ?? null) === $department && ($l['sub_department'] ?? null) === null)
                 || (($l['department'] ?? null) === $department && ($l['sub_department'] ?? null) === $subDepartment)
             ));
         }
 
         // Level belum diisi / akun lama: hanya link umum.
         return array_values(array_filter($links, fn ($l) => $l['category'] === 'umum'));
+    }
+
+    /**
+     * Total link alat kerja terdaftar untuk stat card dashboard —
+     * sesuai hak akses user yang login:
+     *
+     * - Administrator / Senior Manager → total akumulasi seluruh link (15).
+     * - Manager Bidang                 → link bidangnya (umum + SCADA +
+     *                                    khusus semua sub-bidang bidangnya).
+     * - Staf / Asmen / Spv             → 5 Link Umum + 5 Link Khusus
+     *                                    sub-bidangnya = 10.
+     * - Tanpa hierarki                 → 5 Link Umum saja.
+     */
+    public static function workLinkTotalFor(?\App\Models\User $user): int
+    {
+        if ($user === null) {
+            return count(array_filter(self::workLinks(), fn (array $l) => ($l['category'] ?? '') === 'umum'));
+        }
+
+        // Administrator & Senior Manager: akses global — semua link terdaftar.
+        if ($user->role === 'Administrator' || \App\Models\User::isGlobalLevel($user->level_jabatan)) {
+            return count(self::workLinks());
+        }
+
+        return count(self::workLinksFor($user));
+    }
+
+    /**
+     * Link kerja terurut seimbang untuk halaman utama (dashboard):
+     * Link Umum dan Link Khusus Sub-Bidang diselang-seling (a-b-a-b)
+     * sehingga keduanya tampil berdampingan sebelum user menekan
+     * "Lihat Semua". Link khusus sub-bidang didahulukan di atas link
+     * level bidang agar link milik bagian user langsung terlihat.
+     */
+    public static function workLinksBalancedFor(?\App\Models\User $user): array
+    {
+        $links = array_values(self::workLinksFor($user));
+
+        $isUmum = fn (array $l) => ($l['category'] ?? '') === 'umum';
+
+        $umum   = array_values(array_filter($links, $isUmum));
+        $khusus = array_values(array_filter($links, fn (array $l) => ! $isUmum($l)));
+
+        // Link khusus sub-bidang user didahulukan, lalu link level bidang.
+        $subKhusus  = array_values(array_filter($khusus, fn (array $l) => ($l['sub_department'] ?? null) !== null));
+        $deptKhusus = array_values(array_filter($khusus, fn (array $l) => ($l['sub_department'] ?? null) === null));
+        $khusus     = array_merge($subKhusus, $deptKhusus);
+
+        $mixed = [];
+
+        for ($i = 0, $n = max(count($umum), count($khusus)); $i < $n; $i++) {
+            if (isset($umum[$i])) {
+                $mixed[] = $umum[$i];
+            }
+
+            if (isset($khusus[$i])) {
+                $mixed[] = $khusus[$i];
+            }
+        }
+
+        return $mixed;
+    }
+
+    /**
+     * Label pendek sub-bidang untuk badge & tab filter:
+     * "Asisten Manager Prod A" → "Prod A", "Supervisor CHCB B" → "CHCB B",
+     * "Asisten Manager Kimia & Lab" → "Kimia & Lab".
+     */
+    public static function subDepartmentShortLabel(?string $department, ?string $subDepartment): ?string
+    {
+        $label = \App\Models\User::subDepartmentLabel($department, $subDepartment);
+
+        if ($label === null) {
+            return null;
+        }
+
+        return trim((string) preg_replace('/^(Asisten Manager|Supervisor|Manager|Staf)\s+/i', '', $label));
+    }
+
+    /**
+     * Label badge satu link kerja:
+     * - "Umum"    → link akses umum (badge kuning soft).
+     * - "Prod A"  → link khusus sub-bidang (label sub-bidang tanpa
+     *               prefiks jabatan, badge toska).
+     * - "Operasi" → link level bidang (label bidang, badge toska).
+     */
+    public static function workLinkBadgeLabel(array $link): string
+    {
+        if (($link['category'] ?? '') === 'umum') {
+            return 'Umum';
+        }
+
+        $sub = $link['sub_department'] ?? null;
+
+        if ($sub !== null) {
+            // "Asisten Manager Prod A" → "Prod A", "Supervisor CHCB B" → "CHCB B".
+            return self::subDepartmentShortLabel($link['department'] ?? null, $sub) ?? $sub;
+        }
+
+        return \App\Models\User::DEPARTMENTS[$link['department'] ?? ''] ?? ($link['category'] ?? 'Link');
     }
 
     /**
@@ -137,15 +238,28 @@ class PortalContentService
      * Opsi filter link yang BOLEH dilihat user (label per value) —
      * untuk dropdown & tab di halaman Link Kerja.
      *
+     * - Administrator / Senior Manager → "Semua Bidang" + satu filter
+     *   per Bidang Utama (global monitoring).
+     * - Manager Bidang → "Semua Sub-Bidang" + satu filter per sub-
+     *   bidang dalam bidangnya (label pendek, mis. "Prod A").
+     * - Staf / Asmen / Spv → TANPA pilihan: terkunci di sub-bidang
+     *   sendiri (filter sub-bidang lain disembunyikan).
+     *
      * @return array<string, string>
      */
     public static function linkFiltersFor(?\App\Models\User $user): array
     {
         $access = self::linkAccessFor($user);
 
-        // Administrator / Senior Manager → filter lengkap (semua bidang).
+        // Administrator / Senior Manager: filter Bidang Utama (global).
         if ($access['scope'] === 'all') {
-            return self::linkFilters();
+            $filters = ['all' => 'Semua Bidang'];
+
+            foreach (\App\Models\User::DEPARTMENTS as $deptKey => $deptLabel) {
+                $filters[$deptKey] = $deptLabel;
+            }
+
+            return $filters;
         }
 
         // Staf/Asmen/Spv (terkunci) atau scope terbatas → tab miliknya saja + umum.
@@ -154,16 +268,21 @@ class PortalContentService
         if ($access['scope'] === 'department' && $user->department) {
             // Manager Bidang: satu tab per sub-bidang bidangnya + "Semua Sub-Bidang".
             $subs    = \App\Models\User::SUB_DEPARTMENTS[$user->department] ?? [];
-            $filters = ['all' => 'Semua ' . (\App\Models\User::DEPARTMENTS[$user->department] ?? 'Bidang')]
+            $filters = ['all' => 'Semua Sub-Bidang']
                 + ($subs !== []
                     ? array_combine(
                         array_map(fn ($k) => $user->department . ':' . $k, array_keys($subs)),
-                        array_values($subs)
+                        array_map(
+                            fn ($k, $label) => self::subDepartmentShortLabel($user->department, $k) ?? $label,
+                            array_keys($subs),
+                            array_values($subs)
+                        )
                     )
                     : []);
         } elseif ($access['scope'] === 'sub') {
             // Staf/Asmen/Spv: tab tunggal sub-bidang sendiri (terkunci).
-            $label = \App\Models\User::subDepartmentLabel($user->department, $user->sub_department)
+            $label = self::subDepartmentShortLabel($user->department, $user->sub_department)
+                ?? \App\Models\User::subDepartmentLabel($user->department, $user->sub_department)
                 ?? 'Sub-Bidang Saya';
             $filters += [$user->department . ':' . $user->sub_department => $label];
         }
@@ -172,7 +291,8 @@ class PortalContentService
     }
 
     /**
-     * 10 tautan alat kerja: 5 akses umum + 5 per bidang/divisi.
+     * 15 tautan alat kerja: 5 akses umum + 5 level bidang + 5 khusus
+     * sub-bidang (tahap awal: Asisten Manager Prod A — Bidang Operasi).
      *
      * @return array<int, array{id: string, name: string, url: string, category: string, icon: string, color: string, description: string}>
      */
@@ -217,13 +337,13 @@ class PortalContentService
                 'description' => 'Absensi kerja harian dan rekap kehadiran karyawan.',
             ],
             [
-                'id'          => 'portal-k2',
-                'name'        => 'Portal K2',
-                'url'         => 'https://k2.pln.co.id',
+                'id'          => 'e-learning',
+                'name'        => 'E-Learning',
+                'url'         => 'https://elearning.pln.co.id',
                 'category'    => 'umum',
-                'icon'        => 'fa-newspaper',
+                'icon'        => 'fa-graduation-cap',
                 'color'       => '#003d4d',
-                'description' => 'Portal berita dan informasi internal PT PLN (Persero).',
+                'description' => 'Platform pembelajaran daring, sertifikasi, dan pengembangan kompetensi.',
             ],
 
             // ===== 5 LINK PER BIDANG =====
@@ -281,6 +401,63 @@ class PortalContentService
                 'icon'           => 'fa-folder-open',
                 'color'          => '#0097b8',
                 'description'    => 'Kelola aset kantor, inventaris, dan administrasi umum unit kerja.',
+            ],
+
+            // ===== 5 LINK KHUSUS SUB-BIDANG (tahap awal: Asisten Manager Prod A) =====
+            [
+                'id'             => 'dkp-prod-a',
+                'name'           => 'Dashboard Kontrol Pembangkit',
+                'url'            => 'https://dkp.pln-np.co.id',
+                'category'       => 'operasi',
+                'department'     => 'operasi',
+                'sub_department' => 'asmen_prod_a',
+                'icon'           => 'fa-chart-line',
+                'color'          => '#00b0c8',
+                'description'    => 'Pemantauan parameter unit, beban, dan performa pembangkit area Prod A.',
+            ],
+            [
+                'id'             => 'logbook-prod-a',
+                'name'           => 'Logbook Operator Shift',
+                'url'            => 'https://logbook.pln-np.co.id',
+                'category'       => 'operasi',
+                'department'     => 'operasi',
+                'sub_department' => 'asmen_prod_a',
+                'icon'           => 'fa-book-open',
+                'color'          => '#007790',
+                'description'    => 'Catatan operasi harian operator shift dan serah terima antar regu.',
+            ],
+            [
+                'id'             => 'wo-operasi-prod-a',
+                'name'           => 'WO Operasi Unit',
+                'url'            => 'https://wo-operasi.pln-np.co.id',
+                'category'       => 'operasi',
+                'department'     => 'operasi',
+                'sub_department' => 'asmen_prod_a',
+                'icon'           => 'fa-list-check',
+                'color'          => '#0097b8',
+                'description'    => 'Work order operasi harian dan penanganan gangguan unit area Prod A.',
+            ],
+            [
+                'id'             => 'produksi-harian-prod-a',
+                'name'           => 'Laporan Produksi Harian',
+                'url'            => 'https://produksi.pln-np.co.id',
+                'category'       => 'operasi',
+                'department'     => 'operasi',
+                'sub_department' => 'asmen_prod_a',
+                'icon'           => 'fa-file-export',
+                'color'          => '#00566b',
+                'description'    => 'Rekap produksi, availability, dan heat rate harian area Prod A.',
+            ],
+            [
+                'id'             => 'spo-prod-a',
+                'name'           => 'SPO Operasi Prod A',
+                'url'            => 'https://spo.pln-np.co.id',
+                'category'       => 'operasi',
+                'department'     => 'operasi',
+                'sub_department' => 'asmen_prod_a',
+                'icon'           => 'fa-book',
+                'color'          => '#008fa8',
+                'description'    => 'Standar Prosedur Operasi unit pembangkit dan panduan shift area Prod A.',
             ],
         ];
     }

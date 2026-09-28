@@ -14,7 +14,7 @@ use Tests\TestCase;
  * - Login karyawan diarahkan ke /karyawan/dashboard.
  * - Karyawan diblokir dari /admin/*.
  * - Halaman portal view-only berjalan (informasi, layanan, link, profil).
- * - Data link kerja lengkap (5 umum + 5 per bidang).
+ * - Data link kerja lengkap (5 umum + 5 per bidang + 5 khusus sub-bidang).
  */
 class KaryawanPortalTest extends TestCase
 {
@@ -215,7 +215,7 @@ class KaryawanPortalTest extends TestCase
             ->assertSee('Portal SDM')
             ->assertSee('E-Office')
             ->assertSee('Presensi Online')
-            ->assertSee('Portal K2')
+            ->assertSee('E-Learning')
             ->assertDontSee('SCADA Monitoring')
             ->assertDontSee('CMMS Pemeliharaan')
             // Tombol buka website target _blank
@@ -235,16 +235,19 @@ class KaryawanPortalTest extends TestCase
 
         $this->actingAs($user)->get(route('karyawan.link'))
             ->assertOk()
-            // Semua 10 link
+            // Semua 15 link
             ->assertSee('SCADA Monitoring')
             ->assertSee('CMMS Pemeliharaan')
             ->assertSee('SI-FIN Keuangan')
             ->assertSee('E-K3 Safety')
             ->assertSee('SIM Administrasi')
-            // Filter lengkap
-            ->assertSee('Semua Link')
-            ->assertSee('Bidang Operasi')
-            ->assertSee('Bidang Pemeliharaan');
+            ->assertSee('Dashboard Kontrol Pembangkit')
+            ->assertSee('Logbook Operator Shift')
+            // Filter Bidang Utama (global)
+            ->assertSee('Semua Bidang')
+            ->assertSee('>Operasi<', false)
+            ->assertSee('>Pemeliharaan<', false)
+            ->assertSee('>Lingkungan<', false);
     }
 
     public function test_manager_bidang_sees_department_links_and_umum_only(): void
@@ -256,31 +259,82 @@ class KaryawanPortalTest extends TestCase
 
         $this->actingAs($user)->get(route('karyawan.link'))
             ->assertOk()
-            // Link umum + link Bidang Operasi
+            // Link umum + link Bidang Operasi + khusus sub-bidang naungan
             ->assertSee('Web Email PLN')
             ->assertSee('SCADA Monitoring')
+            ->assertSee('Dashboard Kontrol Pembangkit')
+            ->assertSee('Logbook Operator Shift')
             // Link bidang lain disembunyikan
             ->assertDontSee('CMMS Pemeliharaan')
-            ->assertDontSee('E-K3 Safety');
-    }
-
-    public function test_staf_spv_locked_to_own_sub_department(): void
+            ->assertDontSee('E-K3 Safety')
+            // Filter "Semua Sub-Bidang" + tab sub pendek
+            ->assertSee('Semua Sub-Bidang')
+            ->assertSee('>Prod A<', false)
+            ->assertSee('Kimia &amp; Lab', false);
+    }    public function test_staf_spv_locked_to_own_sub_department(): void
     {
         $user = $this->karyawanUser([
-            'level_jabatan' => 'staf_spv',
-            'department'    => 'operasi',
+            'level_jabatan'  => 'staf_spv',
+            'department'     => 'operasi',
             'sub_department' => 'asmen_prod_a',
         ]);
 
         $response = $this->actingAs($user)->get(route('karyawan.link'));
 
         $response->assertOk()
+            // TEPAT 10 link: 5 Umum + 5 Khusus Prod A (tanpa SCADA)
             ->assertSee('Web Email PLN')
-            ->assertSee('SCADA Monitoring')
+            ->assertSee('E-Learning')
+            ->assertSee('Dashboard Kontrol Pembangkit')
+            ->assertSee('Logbook Operator Shift')
+            // Badge sub-bidang "Prod A" (tampil PROD A via CSS uppercase)
+            ->assertSee('Prod A')
+            // Link level bidang & sub-bidang lain disembunyikan
+            ->assertDontSee('SCADA Monitoring')
             ->assertDontSee('CMMS Pemeliharaan')
             ->assertDontSee('E-K3 Safety')
             // Indikator terkunci pada sub-bidang sendiri
             ->assertSee('terkunci');
+    }
+
+    public function test_staf_spv_sees_exactly_ten_links(): void
+    {
+        $user = $this->karyawanUser([
+            'level_jabatan'  => 'staf_spv',
+            'department'     => 'operasi',
+            'sub_department' => 'asmen_prod_a',
+        ]);
+
+        $links = \App\Services\PortalContentService::workLinksFor($user);
+
+        $this->assertCount(10, $links);
+        $this->assertSame(5, collect($links)->where('category', 'umum')->count());
+        $this->assertSame(5, collect($links)->where('sub_department', '!==', null)->count());
+    }
+
+    public function test_work_link_total_matches_access_level(): void
+    {
+        // Staf/Asmen: 5 Umum + 5 Khusus = 10.
+        $staf = $this->karyawanUser([
+            'level_jabatan'  => 'staf_spv',
+            'department'     => 'operasi',
+            'sub_department' => 'asmen_prod_a',
+        ]);
+        $this->assertSame(10, \App\Services\PortalContentService::workLinkTotalFor($staf));
+
+        // Senior Manager: total akumulasi seluruh link terdaftar.
+        $senior = $this->karyawanUser(['level_jabatan' => 'senior_manager']);
+        $this->assertSame(
+            count(\App\Services\PortalContentService::workLinks()),
+            \App\Services\PortalContentService::workLinkTotalFor($senior)
+        );
+
+        // Manager Bidang Operasi: 5 umum + 1 SCADA + 5 khusus = 11.
+        $manager = $this->karyawanUser([
+            'level_jabatan' => 'manager_bidang',
+            'department'    => 'operasi',
+        ]);
+        $this->assertSame(11, \App\Services\PortalContentService::workLinkTotalFor($manager));
     }
 
     public function test_administrator_sees_all_links_on_portal(): void
@@ -290,7 +344,11 @@ class KaryawanPortalTest extends TestCase
         $this->actingAs($user)->get(route('karyawan.link'))
             ->assertOk()
             ->assertSee('SCADA Monitoring')
-            ->assertSee('SIM Administrasi');
+            ->assertSee('SIM Administrasi')
+            ->assertSee('Dashboard Kontrol Pembangkit')
+            // Filter Bidang Utama tersedia
+            ->assertSee('Semua Bidang')
+            ->assertSee('>Engineering<', false);
     }
 
     public function test_header_shows_dynamic_jabatan_with_department(): void
@@ -337,17 +395,64 @@ class KaryawanPortalTest extends TestCase
             ->assertNotFound();
     }
 
-    public function test_portal_link_data_has_five_umum_and_five_bidang(): void
+    public function test_portal_link_data_has_five_umum_five_bidang_and_five_khusus(): void
     {
         $links = \App\Services\PortalContentService::workLinks();
 
-        $this->assertCount(10, $links);
+        $this->assertCount(15, $links);
         $this->assertSame(5, collect($links)->where('category', 'umum')->count());
-        $this->assertSame(5, collect($links)->where('category', '!=', 'umum')->count());
+        $this->assertSame(5, collect($links)->where('category', '!=', 'umum')->where('sub_department', '===', null)->count());
+        $this->assertSame(5, collect($links)->where('sub_department', '!==', null)->count());
 
-        $filters = \App\Services\PortalContentService::linkFilters();
-        $this->assertArrayHasKey('all', $filters);
-        $this->assertArrayHasKey('umum', $filters);
+        // 5 link umum sesuai daftar: Presensi, Webmail, E-Office, Portal SDM, E-Learning.
+        $umumNames = collect($links)->where('category', 'umum')->pluck('name')->all();
+        $this->assertEqualsCanonicalizing([
+            'Web Email PLN', 'Portal SDM', 'E-Office', 'Presensi Online', 'E-Learning',
+        ], $umumNames);
+    }
+
+    public function test_dashboard_stat_counts_umum_and_own_sub_bidang_links(): void
+    {
+        // Asisten Manager Prod A: TEPAT 10 link aksesnya (5 Umum + 5 Khusus).
+        $user = $this->karyawanUser([
+            'level_jabatan'  => 'staf_spv',
+            'department'     => 'operasi',
+            'sub_department' => 'asmen_prod_a',
+        ]);
+
+        $this->assertSame(10, \App\Services\PortalContentService::workLinkTotalFor($user));
+
+        $this->actingAs($user)->get(route('karyawan.dashboard'))
+            ->assertOk()
+            ->assertSee('kry-stat-value">10<', false)
+            // SCADA (level bidang) tidak lagi di dashboard staf
+            ->assertDontSee('SCADA Monitoring');
+    }
+
+    public function test_dashboard_shows_own_sub_bidang_links_with_badge(): void
+    {
+        $user = $this->karyawanUser([
+            'level_jabatan'  => 'staf_spv',
+            'department'     => 'operasi',
+            'sub_department' => 'asmen_prod_a',
+        ]);
+
+        $this->actingAs($user)->get(route('karyawan.dashboard'))
+            ->assertOk()
+            // Link khusus bagian user muncul di dashboard utama
+            ->assertSee('Dashboard Kontrol Pembangkit')
+            ->assertSee('Logbook Operator Shift')
+            // Badge toska berlabel sub-bidang + badge Umum tetap ada
+            ->assertSee('kry-badge-khusus', false)
+            ->assertSee('kry-badge-umum', false)
+            // Urutan seimbang: Umum dan Khusus berselang-seling
+            // (Umum, Prod A, Umum, Prod A) di halaman awal.
+            ->assertSeeInOrder([
+                'Web Email PLN',
+                'Dashboard Kontrol Pembangkit',
+                'Portal SDM',
+                'Logbook Operator Shift',
+            ]);
     }
 
     /* =========================================================

@@ -34,7 +34,7 @@
         <div class="kry-card kry-stat">
             <span class="kry-stat-icon"><i class="fas fa-link"></i></span>
             <div>
-                <div class="kry-stat-value">{{ count($workLinks) }}</div>
+                <div class="kry-stat-value">{{ $workLinkTotal }}</div>
                 <div class="kry-stat-label">Link Alat Kerja Terdaftar</div>
             </div>
         </div>
@@ -146,8 +146,8 @@
                     <div class="kry-link-body">
                         <h3>
                             {{ $link['name'] }}
-                            <span class="kry-badge {{ $link['category'] === 'umum' ? 'kry-badge-umum' : '' }}">
-                                Umum
+                            <span class="kry-badge {{ $link['category'] === 'umum' ? 'kry-badge-umum' : 'kry-badge-khusus' }}">
+                                {{ \App\Services\PortalContentService::workLinkBadgeLabel($link) }}
                             </span>
                         </h3>
                         <p class="kry-link-desc">{{ $link['description'] }}</p>
