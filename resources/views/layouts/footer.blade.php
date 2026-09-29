@@ -4,7 +4,7 @@
         <div class="row gx-5">
 
             {{-- Info PLN --}}
-            <div class="col-lg-4 mb-4 mb-lg-0">
+            <div class="col-lg-6 mb-4 mb-lg-0">
                 <h6 data-i18n="footer.title">
                     <i class="fas fa-bolt me-1" style="color: var(--pln-yellow)"></i>
                     PT PLN Nusantara Power UP PLTU Indramayu
@@ -60,31 +60,8 @@
                 </div>
             </div>
 
-            {{-- Tautan Penting --}}
-            <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
-                <h6 data-i18n="footer.important_links">Tautan Penting</h6>
-                <ul class="list-unstyled footer-links">
-                    <li><a href="/" data-i18n="footer.link_home">Beranda</a></li>
-                    <li><a href="/tentang-kami/sejarah" data-i18n="footer.link_profile">Profil PPID</a></li>
-                    <li><a href="#" data-i18n="footer.link_public_info">Informasi Publik</a></li>
-                    <li><a href="#" data-i18n="footer.link_info_services">Layanan Informasi</a></li>
-                    <li><a href="#" data-i18n="footer.link_faq">FAQ</a></li>
-                </ul>
-            </div>
-
-            {{-- Layanan --}}
-            <div class="col-lg-3 col-md-4 mb-4 mb-md-0">
-                <h6 data-i18n="footer.services">Layanan</h6>
-                <ul class="list-unstyled footer-links">
-                    <li><a href="#" data-i18n="footer.svc_request">Permohonan Informasi</a></li>
-                    <li><a href="#" data-i18n="footer.svc_objection">Keberatan Informasi</a></li>
-                    <li><a href="#" data-i18n="footer.svc_immediate">Informasi Serta Merta</a></li>
-                    <li><a href="#" data-i18n="footer.svc_excluded">Informasi Dikecualikan</a></li>
-                </ul>
-            </div>
-
             {{-- Hubungi Kami --}}
-            <div class="col-lg-3 col-md-4">
+            <div class="col-lg-6 col-md-4">
                 <h6 data-i18n="footer.contact">Hubungi Kami</h6>
                 <ul class="list-unstyled footer-links footer-contact">
                     <li>

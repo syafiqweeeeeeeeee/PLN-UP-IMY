@@ -580,6 +580,16 @@
                     <p data-i18n="services.menu4_desc">Temukan jawaban atas pertanyaan yang sering diajukan seputar layanan.</p>
                 </a>
             </div>
+
+            <div class="col-lg-4 col-md-6">
+                <a href="{{ route('layanan.registrasi-tamu') }}" class="menu-card d-block text-decoration-none h-100">
+                    <div class="icon-circle">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h5 data-i18n="services.menu5_title">Registrasi Tamu</h5>
+                    <p data-i18n="services.menu5_desc">Daftarkan kunjungan Anda ke PLTU Indramayu melalui form registrasi tamu online.</p>
+                </a>
+            </div>
         </div>
     </div>
 </section>

@@ -90,6 +90,32 @@
         text-decoration: underline;
     }
 
+    /* Tombol "Kembali ke Login" — senada templat tombol kembali
+       (.form-back-btn di admin.css): pill putih border tipis + ikon panah.
+       admin.css tidak dimuat di halaman login, jadi gayanya direplikasi di sini. */
+    .btn-back-login {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        color: #6b7280;
+        font-weight: 600;
+        font-size: 0.82rem;
+        line-height: 1.2;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-back-login:hover {
+        border-color: var(--pln-blue);
+        color: var(--pln-blue);
+        background: #f0f7ff;
+    }
+
     .form-control-pln {
         width: 100%;
         border: 1px solid #e5e7eb;
@@ -474,7 +500,9 @@
             <div class="field-wrap">
                 <div class="label-row">
                     <label for="fpEmail" class="form-label">Email Terdaftar</label>
-                    <button type="button" id="fpBackLink" class="forgot-link">&larr; Kembali ke Login</button>
+                    <button type="button" id="fpBackLink" class="btn-back-login">
+                        <i class="fas fa-arrow-left"></i> Kembali ke Login
+                    </button>
                 </div>
                 <input
                     id="fpEmail"
