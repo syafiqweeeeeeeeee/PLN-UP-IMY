@@ -482,6 +482,7 @@ class ActivityLogger
             'pengumuman'  => 'Pengumuman',
             'galeri'      => 'Galeri',
             'tamu'        => 'Data Tamu',
+            'link_kerja'  => 'Link Kerja',
             'pengguna'    => 'Pengguna',
             'permohonan'  => 'Permohonan',
             'halaman'     => 'Halaman',

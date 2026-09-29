@@ -10,10 +10,14 @@ class News extends Model
 {
     use HasFactory;
 
+    /** Target publikasi konten. */
+    public const TARGETS = ['public', 'portal', 'all'];
+
     protected $fillable = [
         'title',
         'slug',
         'category',
+        'target_publication',
         'excerpt',
         'content',
         'image',
@@ -25,6 +29,7 @@ class News extends Model
 
     protected $casts = [
         'is_published'  => 'boolean',
+        'target_publication' => 'string',
         'published_at'  => 'datetime',
         'created_at'    => 'datetime',
         'updated_at'    => 'datetime',
@@ -33,6 +38,24 @@ class News extends Model
     public function authorUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_user_id');
+    }
+
+    /**
+     * Scope konten yang tampil di landing page website publik
+     * (target 'public' atau 'all').
+     */
+    public function scopeForPublic($query)
+    {
+        return $query->whereIn('target_publication', ['public', 'all']);
+    }
+
+    /**
+     * Scope konten yang tampil di Portal Karyawan
+     * (target 'portal' atau 'all').
+     */
+    public function scopeForPortal($query)
+    {
+        return $query->whereIn('target_publication', ['portal', 'all']);
     }
 
     public static function generateSlug(string $title): string

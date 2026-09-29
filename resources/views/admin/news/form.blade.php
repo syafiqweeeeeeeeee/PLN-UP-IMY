@@ -64,6 +64,11 @@
     .category-pill input:checked + .category-pill-label.cat-kegiatan { background: #eab308; color: #1a1a2e; }
     .category-pill input:checked + .category-pill-label.cat-kepegawaian { background: #8b5cf6; }
 
+    /* Target publikasi pills (bagian Informasi Utama) */
+    .category-pill input:checked + .category-pill-label.target-public { background: var(--pln-blue); }
+    .category-pill input:checked + .category-pill-label.target-portal { background: #8b5cf6; }
+    .category-pill input:checked + .category-pill-label.target-all { background: #eab308; color: #1a1a2e; }
+
     /* Responsive khusus pills (sisanya global di admin.css) */
     @media (max-width: 767.98px) {
         .category-pills { gap: 0.4rem; }
@@ -192,6 +197,39 @@
             <div class="form-error d-none" id="categoryError" style="margin-top: 0.4rem;">
                 <i class="fas fa-exclamation-circle"></i> Pilih salah satu kategori.
             </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-group-label">
+                Target Publikasi <span class="required">*</span>
+            </label>
+            <div class="category-pills">
+                <div class="category-pill">
+                    <input type="radio" name="target_publication" value="public" id="target-public" {{ old('target_publication', $news?->target_publication ?? 'all') === 'public' ? 'checked' : '' }}>
+                    <label for="target-public" class="category-pill-label target-public">
+                        <span class="pill-dot dot-blue"></span> <i class="fas fa-globe"></i> Publik Utama
+                    </label>
+                </div>
+                <div class="category-pill">
+                    <input type="radio" name="target_publication" value="portal" id="target-portal" {{ old('target_publication', $news?->target_publication ?? 'all') === 'portal' ? 'checked' : '' }}>
+                    <label for="target-portal" class="category-pill-label target-portal">
+                        <span class="pill-dot dot-purple"></span> <i class="fas fa-user-lock"></i> Portal Karyawan
+                    </label>
+                </div>
+                <div class="category-pill">
+                    <input type="radio" name="target_publication" value="all" id="target-all" {{ old('target_publication', $news?->target_publication ?? 'all') === 'all' ? 'checked' : '' }}>
+                    <label for="target-all" class="category-pill-label target-all">
+                        <span class="pill-dot dot-yellow"></span> <i class="fas fa-circle-nodes"></i> Semua (Publik & Portal)
+                    </label>
+                </div>
+            </div>
+            <div class="form-hint flex">
+                <i class="far fa-lightbulb"></i>
+                "Publik Utama" hanya tampil di landing page website publik · "Portal Karyawan" hanya tampil di Portal Karyawan setelah login · "Semua" tampil di keduanya.
+            </div>
+            @error('target_publication')
+                <div class="form-error" style="margin-top: 0.4rem;"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+            @enderror
         </div>
     </div>
 

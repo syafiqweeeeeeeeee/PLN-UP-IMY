@@ -60,13 +60,14 @@ class PortalController extends Controller
         abort_unless(in_array($type, ['berita', 'pengumuman'], true), 404);
 
         $item = $type === 'berita'
-            ? News::where('slug', $slug)->where('is_published', true)->firstOrFail()
-            : Announcement::where('slug', $slug)->where('is_published', true)->firstOrFail();
+            ? News::where('slug', $slug)->where('is_published', true)->forPortal()->firstOrFail()
+            : Announcement::where('slug', $slug)->where('is_published', true)->forPortal()->firstOrFail();
 
         $terkait = collect();
 
         if ($type === 'berita') {
             $terkait = News::where('is_published', true)
+                ->forPortal()
                 ->where('id', '!=', $item->id)
                 ->latest('published_at')
                 ->take(3)
@@ -74,6 +75,7 @@ class PortalController extends Controller
                 ->map(fn ($n) => ['type' => 'berita', 'model' => $n]);
         } else {
             $terkait = Announcement::where('is_published', true)
+                ->forPortal()
                 ->where('id', '!=', $item->id)
                 ->latest('published_at')
                 ->take(3)
@@ -185,21 +187,27 @@ class PortalController extends Controller
     }
 
     /**
-     * Pengumuman terbit, terbaru lebih dulu.
+     * Pengumuman terbit yang ditujukan ke Portal Karyawan
+     * (target 'portal' atau 'all'), terbaru lebih dulu.
      */
     private function publishedAnnouncements(int $limit = -1)
     {
-        $query = Announcement::where('is_published', true)->latest('published_at');
+        $query = Announcement::where('is_published', true)
+            ->forPortal()
+            ->latest('published_at');
 
         return $limit > 0 ? $query->take($limit)->get() : $query->get();
     }
 
     /**
-     * Berita terbit, terbaru lebih dulu.
+     * Berita terbit yang ditujukan ke Portal Karyawan
+     * (target 'portal' atau 'all'), terbaru lebih dulu.
      */
     private function publishedNews(int $limit = -1)
     {
-        $query = News::where('is_published', true)->latest('published_at');
+        $query = News::where('is_published', true)
+            ->forPortal()
+            ->latest('published_at');
 
         return $limit > 0 ? $query->take($limit)->get() : $query->get();
     }

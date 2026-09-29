@@ -29,11 +29,15 @@ class NewsController extends Controller
         $validated = $request->validate([
             'title'     => ['required', 'string', 'max:255'],
             'category'  => ['required', 'in:umum,teknis,kegiatan,kepegawaian'],
+            'target_publication' => ['nullable', 'in:' . implode(',', News::TARGETS)],
             'excerpt'   => ['required', 'string', 'max:1000'],
             'content'   => ['nullable', 'string'],
             'image'     => ['required', 'image', 'max:5120'],
             'author'    => ['nullable', 'string', 'max:255'],
             'is_published' => ['nullable', 'boolean'],
+        ], [
+            'target_publication.required' => 'Target publikasi wajib dipilih.',
+            'target_publication.in'       => 'Target publikasi tidak valid.',
         ]);
 
         $imagePath = $request->file('image')?->store('news', 'public');
@@ -42,6 +46,8 @@ class NewsController extends Controller
         $validated['image'] = $imagePath;
         $validated['is_published'] = !empty($validated['is_published']);
         $validated['author_user_id'] = auth()->id();
+        // Default "Semua (Publik & Portal)" bila tidak dipilih.
+        $validated['target_publication'] = $validated['target_publication'] ?? 'all';
 
         if ($validated['is_published']) {
             $validated['published_at'] = now();
@@ -74,11 +80,15 @@ class NewsController extends Controller
         $validated = $request->validate([
             'title'     => ['required', 'string', 'max:255'],
             'category'  => ['required', 'in:umum,teknis,kegiatan,kepegawaian'],
+            'target_publication' => ['nullable', 'in:' . implode(',', News::TARGETS)],
             'excerpt'   => ['required', 'string', 'max:1000'],
             'content'   => ['nullable', 'string'],
             'image'     => ['nullable', 'image', 'max:5120'],
             'author'    => ['nullable', 'string', 'max:255'],
             'is_published' => ['nullable', 'boolean'],
+        ], [
+            'target_publication.required' => 'Target publikasi wajib dipilih.',
+            'target_publication.in'       => 'Target publikasi tidak valid.',
         ]);
 
         if ($request->hasFile('image')) {

@@ -172,6 +172,19 @@
             </div>
 
             <nav class="sidebar-nav" id="sidebarNav">
+                @php
+                    /* ===== RBAC: tipe admin yang login =====
+                       Menu sensitif (Manajemen User & Role, Data Tamu,
+                       Halaman/Menu landing page, Log Aktivitas) hanya
+                       ditampilkan untuk admin yang BUKAN Admin Bidang —
+                       sesuai spesifikasi delegasi per bidang, Admin
+                       Bidang hanya melihat menu relevan: Pengumuman
+                       Internal & Link Kerja. */
+                    $authUserSidebar = auth()->user();
+                    $isDeptAdminSidebar = $authUserSidebar?->isDepartmentAdmin() ?? false;
+                    $isSuperAdminSidebar = $authUserSidebar?->isSuperAdmin() ?? false;
+                @endphp
+
                 {{-- ===== MENU UTAMA ===== --}}
                 <div class="sidebar-section-label">Menu Utama</div>
 
@@ -180,63 +193,77 @@
                    data-no-router>
                     <span class="link-icon"><i class="fas fa-th-large"></i></span>
                     <span class="link-text">Dashboard</span>
-                </a>                @can('news.view')
-                <a href="{{ route('admin.news.index') }}"
-                   class="sidebar-link @if(request()->routeIs('admin.news.*')) active @endif"
-                   data-no-router>
-                    <span class="link-icon"><i class="fas fa-newspaper"></i></span>
-                    <span class="link-text">Berita</span>
                 </a>
-                @endcan
 
-                @can('tamu.view')
-                <a href="{{ route('admin.tamu.index') }}"
-                   class="sidebar-link @if(request()->routeIs('admin.tamu.*')) active @endif"
-                   data-no-router>
-                    <span class="link-icon"><i class="fas fa-id-card"></i></span>
-                    <span class="link-text">Data Tamu</span>
-                </a>
-                @endcan
+                @if (! $isDeptAdminSidebar)
+                    {{-- Menu berita publik & Data Tamu: disembunyikan dari
+                         Admin Bidang (hanya mengelola pengumuman internal
+                         bidangnya). --}}
+                    @can('news.view')
+                    <a href="{{ route('admin.news.index') }}"
+                       class="sidebar-link @if(request()->routeIs('admin.news.*')) active @endif"
+                       data-no-router>
+                        <span class="link-icon"><i class="fas fa-newspaper"></i></span>
+                        <span class="link-text">Berita</span>
+                    </a>
+                    @endcan
+
+                    @can('tamu.view')
+                    <a href="{{ route('admin.tamu.index') }}"
+                       class="sidebar-link @if(request()->routeIs('admin.tamu.*')) active @endif"
+                       data-no-router>
+                        <span class="link-icon"><i class="fas fa-id-card"></i></span>
+                        <span class="link-text">Data Tamu</span>
+                    </a>
+                    @endcan
+                @endif
 
                 @can('announcements.view')
                 <a href="{{ route('admin.announcements.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.announcements.*')) active @endif"
                    data-no-router>
                     <span class="link-icon"><i class="fas fa-bullhorn"></i></span>
-                    <span class="link-text">Pengumuman</span>
-                </a>
-                @endcan
-                @can('pages.view')
-                <a href="{{ route('admin.pages.index') }}" class="sidebar-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
-                    <span class="link-icon"><i class="fas fa-file-lines"></i></span>
-                    <span class="link-text">Halaman</span>
+                    <span class="link-text">{{ $isDeptAdminSidebar ? 'Pengumuman Internal' : 'Pengumuman' }}</span>
                 </a>
                 @endcan
 
-                @can('menus.view')
-                <a href="{{ route('admin.menus.index') }}" class="sidebar-link {{ request()->routeIs('admin.menus.*') ? 'active' : '' }}">
-                    <span class="link-icon"><i class="fas fa-bars"></i></span>
-                    Menu
-                </a>
-                @endcan
+                @if (! $isDeptAdminSidebar)
+                    {{-- Pengaturan halaman utama website: menu sensitif,
+                         disembunyikan dari Admin Bidang. --}}
+                    @can('pages.view')
+                    <a href="{{ route('admin.pages.index') }}" class="sidebar-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
+                        <span class="link-icon"><i class="fas fa-file-lines"></i></span>
+                        <span class="link-text">Halaman</span>
+                    </a>
+                    @endcan
+
+                    @can('menus.view')
+                    <a href="{{ route('admin.menus.index') }}" class="sidebar-link {{ request()->routeIs('admin.menus.*') ? 'active' : '' }}">
+                        <span class="link-icon"><i class="fas fa-bars"></i></span>
+                        Menu
+                    </a>
+                    @endcan
+                @endif
 
                 {{-- ===== MANAJEMEN ===== --}}
                 <div class="sidebar-section-label">Manajemen</div>
 
-                @php
-                    $viewedUser = request()->route('user');
-                    $isOwnProfilePage = $viewedUser instanceof \App\Models\User
-                        && auth()->check()
-                        && $viewedUser->is(auth()->user());
-                @endphp
-                @can('users.view')
-                <a href="{{ route('admin.users.index') }}"
-                   class="sidebar-link @if(request()->routeIs('admin.users.*') && !($isOwnProfilePage ?? false)) active @endif"
-                   data-no-router>
-                    <span class="link-icon"><i class="fas fa-users"></i></span>
-                    <span class="link-text">Pengguna</span>
-                </a>
-                @endcan
+                @if (! $isDeptAdminSidebar)
+                    @php
+                        $viewedUser = request()->route('user');
+                        $isOwnProfilePage = $viewedUser instanceof \App\Models\User
+                            && auth()->check()
+                            && $viewedUser->is(auth()->user());
+                    @endphp
+                    @can('users.view')
+                    <a href="{{ route('admin.users.index') }}"
+                       class="sidebar-link @if(request()->routeIs('admin.users.*') && !($isOwnProfilePage ?? false)) active @endif"
+                       data-no-router>
+                        <span class="link-icon"><i class="fas fa-users"></i></span>
+                        <span class="link-text">Pengguna</span>
+                    </a>
+                    @endcan
+                @endif
 
                 @can('galleries.view')
                 <a href="{{ route('admin.galeri.index') }}"
@@ -247,29 +274,40 @@
                 </a>
                 @endcan
 
-                {{-- ===== LAINNYA ===== --}}
-                <div class="sidebar-section-label">Lainnya</div>
-
-                @can('activity_logs.view')
-                <a href="{{ route('admin.activity-logs.index') }}"
-                   class="sidebar-link @if(request()->routeIs('admin.activity-logs.*')) active @endif"
+                @can('work_links.view')
+                <a href="{{ route('admin.work-links.index') }}"
+                   class="sidebar-link @if(request()->routeIs('admin.work-links.*')) active @endif"
                    data-no-router>
-                    <span class="link-icon"><i class="fas fa-clipboard-list"></i></span>
-                    <span class="link-text">Log Aktivitas</span>
+                    <span class="link-icon"><i class="fas fa-link"></i></span>
+                    <span class="link-text">Link Kerja</span>
                 </a>
                 @endcan
 
-                {{-- ===== ROLE & HAK AKSES ===== --}}
-                @can('roles.view')
-                <div class="sidebar-section-label">Role & Hak Akses</div>
+                @if (! $isDeptAdminSidebar)
+                    {{-- ===== LAINNYA ===== --}}
+                    <div class="sidebar-section-label">Lainnya</div>
 
-                <a href="{{ route('admin.roles.index') }}"
-                   class="sidebar-link @if(request()->routeIs('admin.roles.*')) active @endif"
-                   data-no-router>
-                    <span class="link-icon"><i class="fas fa-user-tag"></i></span>
-                    <span class="link-text">Role</span>
-                </a>
-                @endcan
+                    @can('activity_logs.view')
+                    <a href="{{ route('admin.activity-logs.index') }}"
+                       class="sidebar-link @if(request()->routeIs('admin.activity-logs.*')) active @endif"
+                       data-no-router>
+                        <span class="link-icon"><i class="fas fa-clipboard-list"></i></span>
+                        <span class="link-text">Log Aktivitas</span>
+                    </a>
+                    @endcan
+
+                    {{-- ===== ROLE & HAK AKSES ===== --}}
+                    @can('roles.view')
+                    <div class="sidebar-section-label">Role & Hak Akses</div>
+
+                    <a href="{{ route('admin.roles.index') }}"
+                       class="sidebar-link @if(request()->routeIs('admin.roles.*')) active @endif"
+                       data-no-router>
+                        <span class="link-icon"><i class="fas fa-user-tag"></i></span>
+                        <span class="link-text">Role</span>
+                    </a>
+                    @endcan
+                @endif
 
                 <form id="permissionRoleForm" action="" method="GET" style="display:none;">
                     @csrf

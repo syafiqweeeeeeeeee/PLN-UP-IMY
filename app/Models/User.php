@@ -60,6 +60,7 @@ class User extends Authenticatable
         'role_id',
         'level_jabatan',
         'department',
+        'department_id',
         'sub_department',
         'email_verified_at',
         'no_hp',
@@ -109,9 +110,75 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
+        'department_id'     => 'integer',
         'created_at'        => 'datetime',
         'updated_at'        => 'datetime',
     ];
+
+    /* =========================================================
+       RBAC — SUPER ADMIN vs ADMIN BIDANG
+       ========================================================= */
+
+    /** Nama role yang berhak akses penuh (Sekretariat / Humas). */
+    public const SUPER_ADMIN_ROLE = 'Super Admin';
+
+    /** Nama role untuk admin yang didelegasikan ke satu bidang. */
+    public const DEPARTMENT_ADMIN_ROLE = 'Admin Bidang';
+
+    /**
+     * Apakah akun ini Super Admin (Sekretariat / Humas)?
+     * Super Admin = nama role persis 'Super Admin' ATAU role legacy
+     * 'Administrator' (kompatibilitas akun existing).
+     */
+    public function isSuperAdmin(): bool
+    {
+        if (! $this->exists) {
+            return false;
+        }
+
+        return $this->roleNames()->contains(fn ($n) => in_array($n, [self::SUPER_ADMIN_ROLE, 'Administrator'], true));
+    }
+
+    /**
+     * Apakah akun ini Admin Bidang (akses dibatasi satu bidang)?
+     */
+    public function isDepartmentAdmin(): bool
+    {
+        if (! $this->exists) {
+            return false;
+        }
+
+        return $this->roleNames()->contains(self::DEPARTMENT_ADMIN_ROLE);
+    }
+
+    /**
+     * Kode bidang tempat admin bidang ini terikat. Prioritas:
+     * department_id (FK tabel departments) → fallback kolom string
+     * `department` (data legacy).
+     */
+    public function boundDepartment(): ?string
+    {
+        if ($this->department_id) {
+            return Department::byCodeCacheById($this->department_id)?->code
+                ?? $this->department;
+        }
+
+        return $this->department;
+    }
+
+    /**
+     * Apakah akun terikat pada bidang tertentu (admin bidang atau
+     * karyawan yang mengisi hirarki)?
+     */
+    public function isBoundToDepartment(): bool
+    {
+        return $this->boundDepartment() !== null;
+    }
+
+    public function departmentRef(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
 
     /**
      * Kode department yang sudah punya daftar sub-bidang (tahap awal: operasi).

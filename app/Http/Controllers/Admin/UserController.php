@@ -109,6 +109,12 @@ class UserController extends Controller
         $validated['password'] = bcrypt($validated['password']);
         unset($validated['role_id']);
 
+        // RBAC — sinkronkan FK department_id dengan kode bidang terpilih
+        // (pengikatan akun Admin Bidang / Karyawan ke satu bidang).
+        $validated['department_id'] = $validated['department'] !== null
+            ? \App\Models\Department::byCode($validated['department'])?->id
+            : null;
+
         $user = User::create(array_merge($validated, [
             'role_id' => $role->id,
             'role' => $role->name,

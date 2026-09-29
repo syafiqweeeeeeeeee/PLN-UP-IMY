@@ -48,5 +48,44 @@ class AdminUserSeeder extends Seeder
         // Sistem permission (@can, middleware permission:) membaca dari
         // pivot role_user — pastikan relasinya selalu ada.
         $admin->roles()->syncWithoutDetaching([$administrator->id]);
+
+        $this->seedDepartmentAdmins();
+    }
+
+    /**
+     * RBAC — contoh akun Admin Bidang (delegasi per bidang).
+     * Akun terikat satu bidang via users.department_id; hanya bisa
+     * mengelola Pengumuman Internal & Link Kerja bidangnya.
+     */
+    private function seedDepartmentAdmins(): void
+    {
+        $role = Role::where('name', User::DEPARTMENT_ADMIN_ROLE)->first();
+
+        if (! $role) {
+            return; // PermissionSeeder belum jalan → lewati.
+        }
+
+        $samples = [
+            ['name' => 'Admin Operasi',      'email' => 'admin.operasi@example.com',      'department' => 'operasi'],
+            ['name' => 'Admin Pemeliharaan', 'email' => 'admin.pemeliharaan@example.com', 'department' => 'pemeliharaan'],
+        ];
+
+        foreach ($samples as $sample) {
+            $departmentId = \App\Models\Department::byCode($sample['department'])?->id;
+
+            $deptAdmin = User::updateOrCreate(
+                ['email' => $sample['email']],
+                [
+                    'name'          => $sample['name'],
+                    'password'      => Hash::make(config('services.admin.password', 'password123')),
+                    'role'          => $role->name,
+                    'role_id'       => $role->id,
+                    'department'    => $sample['department'],
+                    'department_id' => $departmentId,
+                ]
+            );
+
+            $deptAdmin->roles()->syncWithoutDetaching([$role->id]);
+        }
     }
 }

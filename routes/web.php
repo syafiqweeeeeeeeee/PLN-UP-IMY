@@ -47,14 +47,16 @@ Route::get('/informasi/galeri', function () {
 
 Route::get('/informasi/berita', function () {
     $news = News::where('is_published', true)
+        ->forPublic()
         ->latest('published_at')
         ->paginate(9);
     return view('informasi.berita', compact('news'));
 })->name('berita');
 
 Route::get('/informasi/berita/{slug}', function ($slug) {
-    $news = News::where('slug', $slug)->where('is_published', true)->firstOrFail();
+    $news = News::where('slug', $slug)->where('is_published', true)->forPublic()->firstOrFail();
     $related = News::where('is_published', true)
+        ->forPublic()
         ->where('id', '!=', $news->id)
         ->where('category', $news->category)
         ->latest()
@@ -65,6 +67,7 @@ Route::get('/informasi/berita/{slug}', function ($slug) {
 
 Route::get('/informasi/pengumuman', function () {
     $pengumuman = App\Models\Announcement::where('is_published', true)
+        ->forPublic()
         ->latest('published_at')
         ->paginate(8);
 
@@ -74,9 +77,11 @@ Route::get('/informasi/pengumuman', function () {
 Route::get('/informasi/pengumuman/{slug}', function ($slug) {
     $pengumuman = App\Models\Announcement::where('slug', $slug)
         ->where('is_published', true)
+        ->forPublic()
         ->firstOrFail();
 
     $related = App\Models\Announcement::where('is_published', true)
+        ->forPublic()
         ->where('id', '!=', $pengumuman->id)
         ->where('category', $pengumuman->category)
         ->latest('published_at')
@@ -163,6 +168,43 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
         });
 
+        // ============================================================
+        // MANAJEMEN USER & ROLE — HANYA SUPER ADMIN (Sekretariat/Humas).
+        // Admin Bidang dilarang mengelola akun/role lain.
+        // ============================================================
+        Route::middleware('role.scope:super_admin')->group(function () {
+            Route::middleware('permission:users.create')->group(function () {
+                Route::get('users/create', [\App\Http\Controllers\Admin\UserController::class, 'create'])->name('users.create');
+                Route::post('users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
+            });
+            Route::middleware('permission:users.edit')->group(function () {
+                Route::patch('users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
+            });
+            Route::middleware('permission:users.delete')->group(function () {
+                Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+            });
+
+            Route::middleware('permission:roles.view')->group(function () {
+                Route::get('roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('roles.index');
+                Route::get('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');
+            });
+            Route::middleware('permission:roles.create')->group(function () {
+                Route::get('roles/create', [\App\Http\Controllers\Admin\RoleController::class, 'create'])->name('roles.create');
+                Route::post('roles', [\App\Http\Controllers\Admin\RoleController::class, 'store'])->name('roles.store');
+            });
+            Route::middleware('permission:roles.edit')->group(function () {
+                Route::get('roles/{role}/edit', [\App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('roles.edit');
+                Route::put('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])->name('roles.update');
+                Route::put('/roles/{role}/toggle-status', [\App\Http\Controllers\Admin\RoleController::class, 'toggleStatus'])->name('roles.toggle-status');
+            });
+            Route::middleware('permission:roles.assign_permission')->group(function () {
+                Route::put('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])->name('roles.permissions.update');
+            });
+            Route::middleware('permission:roles.delete')->group(function () {
+                Route::delete('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('roles.destroy');
+            });
+        });
+
         // Berita / News — gate per aksi
         // Catatan urutan: route statis (create) WAJIB didaftarkan sebelum
         // wildcard show (news/{news}), kalau tidak "create" tertangkap binding {news} → 404.
@@ -174,26 +216,30 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             Route::post('news', [NewsController::class, 'store'])->name('news.store');
         });
 
-        // Data Tamu (Guest Book) — gate per aksi
-        Route::middleware('permission:tamu.view')->group(function () {
-            Route::get('tamu', [\App\Http\Controllers\Admin\TamuController::class, 'index'])->name('tamu.index');
-            Route::get('tamu/export', [\App\Http\Controllers\Admin\TamuController::class, 'export'])->name('tamu.export');
-            Route::get('tamu/print/{style?}', [\App\Http\Controllers\Admin\TamuController::class, 'print'])->name('tamu.print');
+        // Data Tamu (Guest Book) — gate per aksi.
+        // role.scope:super_admin → modul sensitif, HANYA Super Admin
+        // (Sekretariat/Humas); Admin Bidang tidak mengelola buku tamu.
+        Route::middleware('role.scope:super_admin')->group(function () {
+            Route::middleware('permission:tamu.view')->group(function () {
+                Route::get('tamu', [\App\Http\Controllers\Admin\TamuController::class, 'index'])->name('tamu.index');
+                Route::get('tamu/export', [\App\Http\Controllers\Admin\TamuController::class, 'export'])->name('tamu.export');
+                Route::get('tamu/print/{style?}', [\App\Http\Controllers\Admin\TamuController::class, 'print'])->name('tamu.print');
 
-            // Dokumen privat tamu (KTP & surat) — disajikan dari disk private,
-            // tidak bisa diakses via /storage. Wajib auth + tamu.view.
-            Route::get('tamu/{tamu}/ktp', [\App\Http\Controllers\TamuDocumentController::class, 'ktp'])->name('tamu.ktp');
-            Route::get('tamu/{tamu}/surat', [\App\Http\Controllers\TamuDocumentController::class, 'surat'])->name('tamu.surat');
-        });
-        Route::middleware('permission:tamu.create')->group(function () {
-            Route::post('tamu', [\App\Http\Controllers\Admin\TamuController::class, 'store'])->name('tamu.store');
-            Route::put('tamu/{tamu}', [\App\Http\Controllers\Admin\TamuController::class, 'update'])->name('tamu.update');
-        });
-        Route::middleware('permission:tamu.checkout')->group(function () {
-            Route::patch('tamu/{tamu}/checkout', [\App\Http\Controllers\Admin\TamuController::class, 'checkout'])->name('tamu.checkout');
-        });
-        Route::middleware('permission:tamu.delete')->group(function () {
-            Route::delete('tamu/{tamu}', [\App\Http\Controllers\Admin\TamuController::class, 'destroy'])->name('tamu.destroy');
+                // Dokumen privat tamu (KTP & surat) — disajikan dari disk private,
+                // tidak bisa diakses via /storage. Wajib auth + tamu.view.
+                Route::get('tamu/{tamu}/ktp', [\App\Http\Controllers\TamuDocumentController::class, 'ktp'])->name('tamu.ktp');
+                Route::get('tamu/{tamu}/surat', [\App\Http\Controllers\TamuDocumentController::class, 'surat'])->name('tamu.surat');
+            });
+            Route::middleware('permission:tamu.create')->group(function () {
+                Route::post('tamu', [\App\Http\Controllers\Admin\TamuController::class, 'store'])->name('tamu.store');
+                Route::put('tamu/{tamu}', [\App\Http\Controllers\Admin\TamuController::class, 'update'])->name('tamu.update');
+            });
+            Route::middleware('permission:tamu.checkout')->group(function () {
+                Route::patch('tamu/{tamu}/checkout', [\App\Http\Controllers\Admin\TamuController::class, 'checkout'])->name('tamu.checkout');
+            });
+            Route::middleware('permission:tamu.delete')->group(function () {
+                Route::delete('tamu/{tamu}', [\App\Http\Controllers\Admin\TamuController::class, 'destroy'])->name('tamu.destroy');
+            });
         });
         Route::middleware('permission:news.view')->group(function () {
             Route::get('news/{news}', [NewsController::class, 'show'])->name('news.show');
@@ -226,26 +272,51 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             Route::delete('galeri/{galeri}', [GalleryController::class, 'destroy'])->name('galeri.destroy');
         });
 
-        // Pengumuman / Announcements — gate per aksi (urutan statis sebelum wildcard, lihat catatan Berita)
-        Route::middleware('permission:announcements.view')->group(function () {
-            Route::get('announcements', [\App\Http\Controllers\Admin\AnnouncementController::class, 'index'])->name('announcements.index');
+        // Pengumuman / Announcements — gate per aksi (urutan statis sebelum
+        // wildcard, lihat catatan Berita). role.scope:admin → Super Admin
+        // (penuh) & Admin Bidang (scoped bidangnya) — guard data di controller.
+        Route::middleware('role.scope:admin')->group(function () {
+            Route::middleware('permission:announcements.view')->group(function () {
+                Route::get('announcements', [\App\Http\Controllers\Admin\AnnouncementController::class, 'index'])->name('announcements.index');
+            });
+            Route::middleware('permission:announcements.create')->group(function () {
+                Route::get('announcements/create', [\App\Http\Controllers\Admin\AnnouncementController::class, 'create'])->name('announcements.create');
+                Route::post('announcements', [\App\Http\Controllers\Admin\AnnouncementController::class, 'store'])->name('announcements.store');
+            });
+            Route::middleware('permission:announcements.view')->group(function () {
+                Route::get('announcements/{announcement}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'show'])->name('announcements.show');
+            });
+            Route::middleware('permission:announcements.edit')->group(function () {
+                Route::get('announcements/{announcement}/edit', [\App\Http\Controllers\Admin\AnnouncementController::class, 'edit'])->name('announcements.edit');
+                Route::put('announcements/{announcement}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('announcements.update');
+            });
+            Route::middleware('permission:announcements.publish')->group(function () {
+                Route::post('/announcements/{announcement}/publish', [\App\Http\Controllers\Admin\AnnouncementController::class, 'togglePublish'])->name('announcements.publish');
+            });
+            Route::middleware('permission:announcements.delete')->group(function () {
+                Route::delete('announcements/{announcement}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+            });
         });
-        Route::middleware('permission:announcements.create')->group(function () {
-            Route::get('announcements/create', [\App\Http\Controllers\Admin\AnnouncementController::class, 'create'])->name('announcements.create');
-            Route::post('announcements', [\App\Http\Controllers\Admin\AnnouncementController::class, 'store'])->name('announcements.store');
-        });
-        Route::middleware('permission:announcements.view')->group(function () {
-            Route::get('announcements/{announcement}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'show'])->name('announcements.show');
-        });
-        Route::middleware('permission:announcements.edit')->group(function () {
-            Route::get('announcements/{announcement}/edit', [\App\Http\Controllers\Admin\AnnouncementController::class, 'edit'])->name('announcements.edit');
-            Route::put('announcements/{announcement}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('announcements.update');
-        });
-        Route::middleware('permission:announcements.publish')->group(function () {
-            Route::post('/announcements/{announcement}/publish', [\App\Http\Controllers\Admin\AnnouncementController::class, 'togglePublish'])->name('announcements.publish');
-        });
-        Route::middleware('permission:announcements.delete')->group(function () {
-            Route::delete('announcements/{announcement}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+
+        // Manajemen Link Kerja (Portal Karyawan) — gate per aksi.
+        // role.scope:admin → Super Admin (penuh) & Admin Bidang (scoped
+        // bidangnya); guard data per-bidang ada di controller.
+        Route::middleware('role.scope:admin')->group(function () {
+            Route::middleware('permission:work_links.view')->group(function () {
+                Route::get('work-links', [\App\Http\Controllers\Admin\WorkLinkController::class, 'index'])->name('work-links.index');
+            });
+            Route::middleware('permission:work_links.create')->group(function () {
+                Route::get('work-links/create', [\App\Http\Controllers\Admin\WorkLinkController::class, 'create'])->name('work-links.create');
+                Route::post('work-links', [\App\Http\Controllers\Admin\WorkLinkController::class, 'store'])->name('work-links.store');
+            });
+            Route::middleware('permission:work_links.edit')->group(function () {
+                Route::get('work-links/{work_link}/edit', [\App\Http\Controllers\Admin\WorkLinkController::class, 'edit'])->name('work-links.edit');
+                Route::put('work-links/{work_link}', [\App\Http\Controllers\Admin\WorkLinkController::class, 'update'])->name('work-links.update');
+                Route::patch('work-links/{work_link}/toggle-status', [\App\Http\Controllers\Admin\WorkLinkController::class, 'toggleStatus'])->name('work-links.toggle-status');
+            });
+            Route::middleware('permission:work_links.delete')->group(function () {
+                Route::delete('work-links/{work_link}', [\App\Http\Controllers\Admin\WorkLinkController::class, 'destroy'])->name('work-links.destroy');
+            });
         });
 
         // Log Aktivitas — hanya untuk yang punya permission activity_logs.view (role Administrator)
@@ -269,72 +340,57 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         Route::get('/notifications/poll', [\App\Http\Controllers\Admin\NotificationController::class, 'poll'])->name('notifications.poll');
         Route::post('/notifications/seen', [\App\Http\Controllers\Admin\NotificationController::class, 'seen'])->name('notifications.seen');
 
-        // Halaman CMS (Page Management) — permission per aksi
-        Route::middleware('permission:pages.view')->group(function () {
-            Route::get('pages', [\App\Http\Controllers\Admin\PageController::class, 'index'])->name('pages.index');
+        // ============================================================
+        // HALAMAN CMS & MENU BUILDER — Pengaturan Halaman Utama Website.
+        // Menu sensitif: HANYA Super Admin (role.scope:super_admin).
+        // ============================================================
+        Route::middleware('role.scope:super_admin')->group(function () {
+            Route::middleware('permission:pages.view')->group(function () {
+                Route::get('pages', [\App\Http\Controllers\Admin\PageController::class, 'index'])->name('pages.index');
+            });
+
+            Route::middleware('permission:pages.create')->group(function () {
+                Route::get('pages/create', [\App\Http\Controllers\Admin\PageController::class, 'create'])->name('pages.create');
+                Route::post('pages', [\App\Http\Controllers\Admin\PageController::class, 'store'])->name('pages.store');
+            });
+
+            Route::middleware('permission:pages.edit')->group(function () {
+                Route::get('pages/{page}/edit', [\App\Http\Controllers\Admin\PageController::class, 'edit'])->name('pages.edit');
+                Route::put('pages/{page}', [\App\Http\Controllers\Admin\PageController::class, 'update'])->name('pages.update');
+                Route::post('pages/{page}/publish', [\App\Http\Controllers\Admin\PageController::class, 'togglePublish'])->name('pages.publish');
+
+                Route::post('pages/{page}/sections', [\App\Http\Controllers\Admin\PageSectionController::class, 'store'])->name('pages.sections.store');
+                Route::put('pages/{page}/sections/{section}', [\App\Http\Controllers\Admin\PageSectionController::class, 'update'])->name('pages.sections.update');
+                Route::post('pages/{page}/sections/{section}/move', [\App\Http\Controllers\Admin\PageSectionController::class, 'move'])->name('pages.sections.move');
+            });
+
+            Route::middleware('permission:pages.delete')->group(function () {
+                Route::delete('pages/{page}', [\App\Http\Controllers\Admin\PageController::class, 'destroy'])->name('pages.destroy');
+                Route::delete('pages/{page}/sections/{section}', [\App\Http\Controllers\Admin\PageSectionController::class, 'destroy'])->name('pages.sections.destroy');
+            });
+
+            // Menu Builder (Menu Management) — permission per aksi
+            Route::middleware('permission:menus.view')->group(function () {
+                Route::get('menus', [\App\Http\Controllers\Admin\MenuController::class, 'index'])->name('menus.index');
+            });
+
+            Route::middleware('permission:menus.create')->group(function () {
+                Route::get('menus/create', [\App\Http\Controllers\Admin\MenuController::class, 'create'])->name('menus.create');
+                Route::post('menus', [\App\Http\Controllers\Admin\MenuController::class, 'store'])->name('menus.store');
+            });
+
+            Route::middleware('permission:menus.edit')->group(function () {
+                Route::get('menus/{menu}/edit', [\App\Http\Controllers\Admin\MenuController::class, 'edit'])->name('menus.edit');
+                Route::put('menus/{menu}', [\App\Http\Controllers\Admin\MenuController::class, 'update'])->name('menus.update');
+                Route::patch('menus/{menu}/toggle-status', [\App\Http\Controllers\Admin\MenuController::class, 'toggleStatus'])->name('menus.toggle-status');
+                Route::patch('menus/{menu}/move', [\App\Http\Controllers\Admin\MenuController::class, 'move'])->name('menus.move');
+            });
+
+            Route::middleware('permission:menus.delete')->group(function () {
+                Route::delete('menus/{menu}', [\App\Http\Controllers\Admin\MenuController::class, 'destroy'])->name('menus.destroy');
+            });
         });
 
-        Route::middleware('permission:pages.create')->group(function () {
-            Route::get('pages/create', [\App\Http\Controllers\Admin\PageController::class, 'create'])->name('pages.create');
-            Route::post('pages', [\App\Http\Controllers\Admin\PageController::class, 'store'])->name('pages.store');
-        });
-
-        Route::middleware('permission:pages.edit')->group(function () {
-            Route::get('pages/{page}/edit', [\App\Http\Controllers\Admin\PageController::class, 'edit'])->name('pages.edit');
-            Route::put('pages/{page}', [\App\Http\Controllers\Admin\PageController::class, 'update'])->name('pages.update');
-            Route::post('pages/{page}/publish', [\App\Http\Controllers\Admin\PageController::class, 'togglePublish'])->name('pages.publish');
-
-            Route::post('pages/{page}/sections', [\App\Http\Controllers\Admin\PageSectionController::class, 'store'])->name('pages.sections.store');
-            Route::put('pages/{page}/sections/{section}', [\App\Http\Controllers\Admin\PageSectionController::class, 'update'])->name('pages.sections.update');
-            Route::post('pages/{page}/sections/{section}/move', [\App\Http\Controllers\Admin\PageSectionController::class, 'move'])->name('pages.sections.move');
-        });
-
-        Route::middleware('permission:pages.delete')->group(function () {
-            Route::delete('pages/{page}', [\App\Http\Controllers\Admin\PageController::class, 'destroy'])->name('pages.destroy');
-            Route::delete('pages/{page}/sections/{section}', [\App\Http\Controllers\Admin\PageSectionController::class, 'destroy'])->name('pages.sections.destroy');
-        });
-
-        // Menu Builder (Menu Management) — permission per aksi
-        Route::middleware('permission:menus.view')->group(function () {
-            Route::get('menus', [\App\Http\Controllers\Admin\MenuController::class, 'index'])->name('menus.index');
-        });
-
-        Route::middleware('permission:menus.create')->group(function () {
-            Route::get('menus/create', [\App\Http\Controllers\Admin\MenuController::class, 'create'])->name('menus.create');
-            Route::post('menus', [\App\Http\Controllers\Admin\MenuController::class, 'store'])->name('menus.store');
-        });
-
-        Route::middleware('permission:menus.edit')->group(function () {
-            Route::get('menus/{menu}/edit', [\App\Http\Controllers\Admin\MenuController::class, 'edit'])->name('menus.edit');
-            Route::put('menus/{menu}', [\App\Http\Controllers\Admin\MenuController::class, 'update'])->name('menus.update');
-            Route::patch('menus/{menu}/toggle-status', [\App\Http\Controllers\Admin\MenuController::class, 'toggleStatus'])->name('menus.toggle-status');
-            Route::patch('menus/{menu}/move', [\App\Http\Controllers\Admin\MenuController::class, 'move'])->name('menus.move');
-        });
-
-        Route::middleware('permission:menus.delete')->group(function () {
-            Route::delete('menus/{menu}', [\App\Http\Controllers\Admin\MenuController::class, 'destroy'])->name('menus.destroy');
-        });
-
-        // Role & Permission — gate per aksi
-        Route::middleware('permission:roles.view')->group(function () {
-            Route::get('roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('roles.index');
-            Route::get('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');
-        });
-        Route::middleware('permission:roles.create')->group(function () {
-            Route::get('roles/create', [\App\Http\Controllers\Admin\RoleController::class, 'create'])->name('roles.create');
-            Route::post('roles', [\App\Http\Controllers\Admin\RoleController::class, 'store'])->name('roles.store');
-        });
-        Route::middleware('permission:roles.edit')->group(function () {
-            Route::get('roles/{role}/edit', [\App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('roles.edit');
-            Route::put('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])->name('roles.update');
-            Route::put('/roles/{role}/toggle-status', [\App\Http\Controllers\Admin\RoleController::class, 'toggleStatus'])->name('roles.toggle-status');
-        });
-        Route::middleware('permission:roles.assign_permission')->group(function () {
-            Route::put('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])->name('roles.permissions.update');
-        });
-        Route::middleware('permission:roles.delete')->group(function () {
-            Route::delete('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('roles.destroy');
-        });
     });
 });
 

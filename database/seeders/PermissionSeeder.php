@@ -43,6 +43,10 @@ class PermissionSeeder extends Seeder
             ['name' => 'galleries.create',      'display_name' => 'Tambah Galeri',                   'module' => 'Gallery'],
             ['name' => 'galleries.edit',        'display_name' => 'Edit Galeri',                     'module' => 'Gallery'],
             ['name' => 'galleries.delete',      'display_name' => 'Hapus Galeri',                    'module' => 'Gallery'],
+            ['name' => 'work_links.view',       'display_name' => 'Lihat Link Kerja',                'module' => 'Work Link Management'],
+            ['name' => 'work_links.create',     'display_name' => 'Tambah Link Kerja',               'module' => 'Work Link Management'],
+            ['name' => 'work_links.edit',       'display_name' => 'Edit Link Kerja',                 'module' => 'Work Link Management'],
+            ['name' => 'work_links.delete',     'display_name' => 'Hapus Link Kerja',                'module' => 'Work Link Management'],
             ['name' => 'tamu.view',             'display_name' => 'Lihat Data Tamu',                 'module' => 'Guest Book'],
             ['name' => 'tamu.create',           'display_name' => 'Tambah Tamu Manual',              'module' => 'Guest Book'],
             ['name' => 'tamu.checkout',         'display_name' => 'Check-Out Tamu',                  'module' => 'Guest Book'],
@@ -75,6 +79,20 @@ class PermissionSeeder extends Seeder
             ['description' => 'Akses penuh sistem', 'status' => true]
         );
 
+        // RBAC — Super Admin (Sekretariat/Humas): akses penuh seluruh
+        // fitur & menu Admin Panel (setara Administrator).
+        $superAdmin = Role::firstOrCreate(
+            ['name' => \App\Models\User::SUPER_ADMIN_ROLE],
+            ['description' => 'Super Admin — Sekretariat/Humas, akses penuh seluruh fitur', 'status' => true]
+        );
+
+        // RBAC — Admin Bidang: akses dibatasi satu bidang (Pengumuman
+        // Internal & Link Kerja bidangnya saja).
+        $adminBidang = Role::firstOrCreate(
+            ['name' => \App\Models\User::DEPARTMENT_ADMIN_ROLE],
+            ['description' => 'Admin Bidang — pengelola konten terbatas satu bidang', 'status' => true]
+        );
+
         $karyawan = Role::firstOrCreate(
             ['name' => 'Karyawan'],
             ['description' => 'Pengguna internal / karyawan', 'status' => true]
@@ -91,6 +109,7 @@ class PermissionSeeder extends Seeder
             'announcements.view', 'announcements.create', 'announcements.edit', 'announcements.delete', 'announcements.publish',
             'galleries.view', 'galleries.create', 'galleries.edit', 'galleries.delete',
             'tamu.view', 'tamu.create', 'tamu.checkout', 'tamu.delete',
+            'work_links.view', 'work_links.create', 'work_links.edit', 'work_links.delete',
             'applications.view', 'applications.create', 'applications.edit', 'applications.delete',
             'groups.view', 'groups.create', 'groups.edit', 'groups.delete',
             'internal.view',
@@ -110,5 +129,22 @@ class PermissionSeeder extends Seeder
 
         $administrator->permissions()->syncWithoutDetaching(array_intersect_key($permissionIds, array_flip($adminPermissions)));
         $karyawan->permissions()->syncWithoutDetaching(array_intersect_key($permissionIds, array_flip($karyawanPermissions)));
+
+        // Super Admin: setara Administrator — seluruh permission admin.
+        $superAdmin->permissions()->syncWithoutDetaching(
+            array_intersect_key($permissionIds, array_flip($adminPermissions))
+        );
+
+        // Admin Bidang: HANYA menu relevan — Pengumuman Internal &
+        // Link Kerja. Menu sensitif (User, Role, Data Tamu, Halaman/Menu
+        // landing page) TIDAK diberikan.
+        $adminBidang->permissions()->syncWithoutDetaching(
+            array_intersect_key($permissionIds, array_flip([
+                'dashboard.view',
+                'announcements.view', 'announcements.create', 'announcements.edit', 'announcements.delete', 'announcements.publish',
+                'work_links.view', 'work_links.create', 'work_links.edit', 'work_links.delete',
+                'logout',
+            ]))
+        );
     }
 }

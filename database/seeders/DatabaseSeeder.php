@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             MenuSeeder::class,
             KaryawanUserSeeder::class,
+            WorkLinkSeeder::class,
         ]);
 
         // firstOrCreate agar seeder aman dijalankan berulang (tidak error duplicate)

@@ -3,19 +3,26 @@
 namespace App\Services;
 
 /**
- * Sumber data statis Portal Karyawan (view-only):
+ * Sumber data Portal Karyawan (view-only):
  *
  * - internalServices(): layanan internal perusahaan (panduan/prosedur).
- * - workLinks():        15 tautan alat kerja — 5 akses umum + 5 level bidang
- *                       + 5 khusus sub-bidang.
+ * - workLinks():        tautan alat kerja — kini DARI TABEL work_links
+ *                       (dikelola via Panel Admin → Manajemen Link Kerja);
+ *                       fallback ke array statis bila tabel kosong/belum
+ *                       dimigrasi agar portal tetap berfungsi.
  * - workLinksFor(user): memfilter link sesuai Hirarki Organisasi user
  *   (level jabatan / bidang / sub-bidang dari form Pengguna).
- *
- * Sengaja tidak memakai tabel database agar modul ini ringan dan
- * murni read-only; menambah/mengubah item cukup edit array di sini.
  */
 class PortalContentService
 {
+    /**
+     * Cache in-request daftar link dari DB — hindari query berulang
+     * dalam satu render halaman (dashboard memanggil beberapa method).
+     * Disimpan di container sehingga otomatis segar di request/proses
+     * berikutnya (FPM, Octane, maupun test).
+     */
+    protected const WORK_LINKS_CACHE_KEY = 'portal.work_links';
+
     /**
      * Daftar filter link kerja (value → label) untuk dropdown/tab filter.
      *
@@ -291,12 +298,66 @@ class PortalContentService
     }
 
     /**
-     * 15 tautan alat kerja: 5 akses umum + 5 level bidang + 5 khusus
-     * sub-bidang (tahap awal: Asisten Manager Prod A — Bidang Operasi).
+     * Tautan alat kerja dari tabel work_links (Panel Admin → Manajemen
+     * Link Kerja). Hanya link AKTIF; hasil dikonversi ke bentuk array
+     * kartu portal lewat WorkLink::toPortalArray().
      *
-     * @return array<int, array{id: string, name: string, url: string, category: string, icon: string, color: string, description: string}>
+     * Fallback: bila tabel belum dimigrasi / kosong → array statis.
+     *
+     * @return array<int, array{id: string, name: string, url: string, category: string, department: ?string, sub_department: ?string, icon: string, color: string, description: string}>
      */
     public static function workLinks(): array
+    {
+        if (app()->bound(self::WORK_LINKS_CACHE_KEY)) {
+            return app(self::WORK_LINKS_CACHE_KEY);
+        }
+
+        $links = self::workLinksFromDatabase();
+
+        // Hanya cache bila DB memuat link; bila kosong/belum dimigrasi,
+        // tetap fallback statis TANPA cache agar data baru langsung terlihat.
+        if ($links !== []) {
+            app()->instance(self::WORK_LINKS_CACHE_KEY, $links);
+
+            return $links;
+        }
+
+        return self::defaultWorkLinks();
+    }
+
+    /**
+     * Ambil link aktif dari tabel work_links (null bila tabel belum ada).
+     *
+     * @return array<int, array<string, mixed>>|null
+     */
+    protected static function workLinksFromDatabase(): ?array
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('work_links')) {
+                return null;
+            }
+
+            return \App\Models\WorkLink::query()
+                ->active()
+                ->orderBy('category')
+                ->orderBy('title')
+                ->get()
+                ->map(fn (\App\Models\WorkLink $l) => $l->toPortalArray())
+                ->all();
+        } catch (\Throwable $e) {
+            // DB belum siap (mis. saat migrasi) → fallback statis.
+            return null;
+        }
+    }
+
+    /**
+     * Daftar statis awal (fallback): 5 akses umum + 5 level bidang +
+     * 5 khusus sub-bidang (Asisten Manager Prod A — Bidang Operasi).
+     * Dipakai hanya saat tabel work_links kosong / belum tersedia.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function defaultWorkLinks(): array
     {
         return [
             // ===== 5 LINK AKSES UMUM (semua bidang) =====
