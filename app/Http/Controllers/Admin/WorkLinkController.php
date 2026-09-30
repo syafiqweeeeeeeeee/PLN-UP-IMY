@@ -109,8 +109,37 @@ class WorkLinkController extends Controller
             'subject'     => $work_link,
         ]);
 
+        // AJAX (modal edit inline) → JSON berisi data terbaru agar
+        // baris tabel di halaman index bisa diperbarui tanpa reload.
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Link Kerja berhasil diperbarui.',
+                'link'    => $this->linkPayload($work_link->fresh()),
+            ]);
+        }
+
         return redirect()->route('admin.work-links.index')
             ->with('success', 'Link Kerja berhasil diperbarui.');
+    }
+
+    /**
+     * Representasi JSON satu link kerja untuk pembaruan baris tabel
+     * index tanpa reload (modal edit AJAX).
+     */
+    private function linkPayload(WorkLink $link): array
+    {
+        return [
+            'id'           => $link->id,
+            'title'        => $link->title,
+            'url'          => $link->url,
+            'description'  => $link->description ?? '',
+            'icon'         => $link->icon ?: WorkLink::DEFAULT_ICON,
+            'category'     => $link->category,
+            'department'   => $link->department,
+            'sub_department' => $link->sub_department,
+            'is_active'    => $link->is_active,
+        ];
     }
 
     /**

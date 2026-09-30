@@ -287,6 +287,7 @@
                             <a href="{{ route('admin.menus.edit', $menu) }}" class="btn-action"><i class="fas fa-pen"></i> Edit</a>
                             <form method="POST" action="{{ route('admin.menus.toggle-status', $menu) }}">
                                 @csrf
+                                @method('PATCH')
                                 <button type="submit" class="btn-action {{ $menu->is_active ? 'warn' : '' }}" title="{{ $menu->is_active ? 'Sembunyikan dari navbar' : 'Tampilkan lagi di navbar' }}">
                                     <i class="fas {{ $menu->is_active ? 'fa-eye' : 'fa-eye-slash' }}"></i>
                                     {{ $menu->is_active ? 'Tampil' : 'Tersembunyi' }}
