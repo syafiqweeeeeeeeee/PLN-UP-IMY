@@ -1,0 +1,42 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      # vendor diambil dari image, bukan dari host, agar fresh clone langsung jalan
+      - vendor_vol:/app/vendor
+    environment:
+      - SERVER_NAME=:8000
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=nama_database_anda
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    ports:
+      # 3307 di host karena 3306 dipakai MySQL Laragon; koneksi antar-container tetap 3306
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: nama_database_anda
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+volumes:
+  dbdata:
+  vendor_vol:

@@ -39,28 +39,54 @@ Area internal terpisah dari panel admin, hanya untuk akun ber-role **Karyawan**:
 ## Instalasi
 
 ### Prasyarat
-- PHP >= 8.2, Composer, MySQL (disarankan: [Laragon](https://laragon.org) di Windows)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) aktif/berjalan
+- Git
+- Tidak perlu PHP, Composer, MySQL, maupun Laragon — semuanya ada di dalam container
 
-### Langkah
+### Langkah (Docker)
 
 ```bash
-# 1. Clone & dependensi
-composer install
-npm install && npm run build   # opsional (asset umumnya sudah di public/)
+# 0. Tarik kode terbaru dari repositori kelompok
+git pull
 
-# 2. Konfigurasi
+# 1. Salin konfigurasi lokal (sudah disetel untuk Docker, tidak perlu diubah)
+cp .env.example .env           # PowerShell: copy .env.example .env
+
+# 2. Bangun image & jalankan container app (FrankenPHP) + db (MySQL 8)
+docker compose up -d --build
+
+# 3. Kunci aplikasi + struktur database + akun awal
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan storage:link
+
+# 4. Buka di browser
+#    http://localhost:8000
+```
+
+Koneksi database dari aplikasi pengelola (HeidiSQL/DBeaver): host `127.0.0.1`,
+port **3307**, user `root`, password `root` (port host sengaja 3307 agar tidak
+tabrakan dengan MySQL Laragon jika masih terpasang).
+
+> Catatan: `php artisan test` di dalam container butuh override koneksi
+> (test suite mengarah ke `127.0.0.1:3306`), misal:
+> `docker compose exec -e DB_HOST=db -e DB_PASSWORD=root app php artisan test`
+
+### Alternatif tanpa Docker (Laragon)
+
+```bash
+composer install
 cp .env.example .env           # sesuaikan DB_DATABASE, DB_USERNAME, DB_PASSWORD
 php artisan key:generate
-
-# 3. Database + seed
 php artisan migrate --seed
-
-# 4. Storage untuk upload galeri
 php artisan storage:link
-
-# 5. Jalankan
 php artisan serve              # http://127.0.0.1:8000
 ```
+
+> Catatan Laragon: karena `.env.example` kini berisi konfigurasi Docker
+> (`DB_HOST=db`), ubah `DB_HOST` menjadi `127.0.0.1` dan sesuaikan nama
+> database/username/password lokal Anda. Data Docker tersimpan di volume
+> `dbdata` dan bertahan walau container dimatikan (`docker compose down`).
 
 ### Akun Default
 
