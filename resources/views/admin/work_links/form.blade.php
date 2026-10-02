@@ -179,40 +179,48 @@
                     <label class="form-group-label" for="icon">
                         Select Icon
                     </label>
+                    @php
+                        /* 8 ikon utama — nilai 'value' = class lengkap yang
+                           disimpan ke DB (mis. 'fa-solid fa-link'). */
+                        $iconOptions = [
+                            'fa-solid fa-link'       => 'Umum / Link',
+                            'fa-solid fa-gauge-high' => 'Dashboard / Monitoring',
+                            'fa-solid fa-file-lines' => 'Dokumen & SPO',
+                            'fa-solid fa-envelope'   => 'Email & Webmail',
+                            'fa-solid fa-id-card'    => 'Kepegawaian & SDM',
+                            'fa-solid fa-wrench'     => 'Pemeliharaan & Teknik',
+                            'fa-solid fa-hard-hat'   => 'K3 & Safety',
+                            'fa-solid fa-database'   => 'Sistem & Database',
+                        ];
+                        $currentIcon = old('icon', $link?->icon) ?: 'fa-solid fa-link';
+                        // Ikon legacy (mis. 'fa-users') → petakan ke opsi utama terdekat.
+                        if (! isset($iconOptions[$currentIcon])) {
+                            $legacyMap = [
+                                'fa-gauge-high'         => 'fa-solid fa-gauge-high',
+                                'fa-file-lines'         => 'fa-solid fa-file-lines',
+                                'fa-envelope'           => 'fa-solid fa-envelope',
+                                'fa-id-card'            => 'fa-solid fa-id-card',
+                                'fa-wrench'             => 'fa-solid fa-wrench',
+                                'fa-hard-hat'           => 'fa-solid fa-hard-hat',
+                                'fa-helmet-safety'      => 'fa-solid fa-hard-hat',
+                                'fa-database'           => 'fa-solid fa-database',
+                                'fa-users'              => 'fa-solid fa-id-card',
+                                'fa-fingerprint'        => 'fa-solid fa-id-card',
+                                'fa-screwdriver-wrench' => 'fa-solid fa-wrench',
+                            ];
+                            $currentIcon = $legacyMap[$currentIcon] ?? 'fa-solid fa-link';
+                        }
+                    @endphp
                     <div class="d-flex align-items-center gap-2">
                         <span class="icon-preview" id="iconPreview">
-                            <i class="fas {{ old('icon', $link?->icon ?? 'fa-link') ?: 'fa-link' }}" id="iconPreviewEl"></i>
+                            <i class="{{ $currentIcon }}" id="iconPreviewEl"></i>
                         </span>
                         <select id="icon"
                                 name="icon"
                                 class="form-input"
                                 style="flex:1;">
-                            @php
-                                $iconOptions = [
-                                    'fa-link'                => 'Link (umum)',
-                                    'fa-gauge-high'          => 'Dashboard / Monitoring',
-                                    'fa-chart-line'          => 'Grafik / Statistik',
-                                    'fa-envelope'            => 'Email',
-                                    'fa-users'               => 'Kepegawaian / SDM',
-                                    'fa-file-lines'          => 'Dokumen',
-                                    'fa-fingerprint'         => 'Presensi',
-                                    'fa-graduation-cap'      => 'E-Learning',
-                                    'fa-screwdriver-wrench'  => 'Pemeliharaan',
-                                    'fa-coins'               => 'Keuangan',
-                                    'fa-helmet-safety'       => 'K3 / Safety',
-                                    'fa-folder-open'         => 'Arsip',
-                                    'fa-book-open'           => 'Logbook',
-                                    'fa-list-check'          => 'Work Order',
-                                    'fa-file-export'         => 'Laporan',
-                                    'fa-book'                => 'Panduan / SPO',
-                                    'fa-calendar-check'      => 'Jadwal',
-                                    'fa-headset'             => 'Helpdesk',
-                                    'fa-cloud-arrow-up'      => 'Upload / Storage',
-                                    'fa-building'            => 'Fasilitas',
-                                ];
-                            @endphp
                             @foreach ($iconOptions as $value => $label)
-                                <option value="{{ $value }}" {{ old('icon', $link?->icon ?? 'fa-link') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                <option value="{{ $value }}" {{ $currentIcon === $value ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -451,9 +459,9 @@
     fillSubOptions(deptSel ? deptSel.value : '');
     togglePanel();
 
-    // Preview icon realtime
+    // Preview icon realtime (nilai opsi = class lengkap, mis. 'fa-solid fa-link')
     iconSel?.addEventListener('change', function () {
-        if (iconEl) iconEl.className = 'fas ' + (this.value || 'fa-link');
+        if (iconEl) iconEl.className = this.value || 'fa-solid fa-link';
     });
 
     // Validasi submit

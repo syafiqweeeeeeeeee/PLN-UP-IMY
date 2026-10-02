@@ -362,13 +362,19 @@ class PortalContentManagementTest extends TestCase
             ->assertDontSee('Lab Chemistry Portal');
     }
 
-    public function test_seeder_creates_five_umum_and_five_khusus_links(): void
+    public function test_seeder_creates_nine_umum_and_five_khusus_links(): void
     {
         $this->seed(\Database\Seeders\WorkLinkSeeder::class);
 
-        $this->assertSame(5, WorkLink::where('category', 'umum')->count());
+        // 5 link umum dasar + 4 layanan SDM.
+        $this->assertSame(9, WorkLink::where('category', 'umum')->count());
         $this->assertSame(5, WorkLink::where('category', 'khusus')->count());
-        $this->assertSame(5, WorkLink::where('category', 'umum')->where('is_active', true)->count());
+        $this->assertSame(9, WorkLink::where('category', 'umum')->where('is_active', true)->count());
+
+        // Link layanan SDM wajib ada (kebutuhan Admin Bidang Business Support).
+        foreach (['E-Cuti & SPPD Online', 'Portal Slip Gaji & Insentif', 'E-Learning & LMS PLN', 'Klaim Restitusi Kesehatan'] as $sdmTitle) {
+            $this->assertDatabaseHas('work_links', ['title' => $sdmTitle, 'category' => 'umum']);
+        }
 
         // Khusus: 2 Prod A + 2 CHCB A + 1 Kimia & Lab.
         $this->assertSame(2, WorkLink::where('sub_department', 'asmen_prod_a')->count());
@@ -377,7 +383,7 @@ class PortalContentManagementTest extends TestCase
 
         // Seeder idempoten: jalankan ulang tidak menduplikasi.
         $this->seed(\Database\Seeders\WorkLinkSeeder::class);
-        $this->assertSame(10, WorkLink::count());
+        $this->assertSame(14, WorkLink::count());
     }
 
     public function test_sidebar_shows_work_link_menu_with_permission(): void

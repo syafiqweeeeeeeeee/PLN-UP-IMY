@@ -68,6 +68,7 @@ class AdminUserSeeder extends Seeder
         $samples = [
             ['name' => 'Admin Operasi',      'email' => 'admin.operasi@example.com',      'department' => 'operasi'],
             ['name' => 'Admin Pemeliharaan', 'email' => 'admin.pemeliharaan@example.com', 'department' => 'pemeliharaan'],
+            ['name' => 'Admin SDM',          'email' => 'admin.sdm@example.com',          'department' => 'business_support'],
         ];
 
         foreach ($samples as $sample) {

@@ -465,8 +465,15 @@
                     $wlOwnerLabel = $item->category === \App\Models\WorkLink::CATEGORY_UMUM
                         ? 'UMUM'
                         : (\App\Models\User::DEPARTMENTS[$item->department] ?? $item->department);
+
+                    /* HAK AKSES KELOLA (tulis):
+                       - Super Admin        → semua link.
+                       - Admin Bidang       → link 'umum' + 'khusus' milik
+                         bidangnya; link khusus bidang lain diblokir.
+                       Read selalu bebas (seluruh katalog terlihat). */
                     $wlCanEdit = auth()->check() && (
                         auth()->user()->isSuperAdmin()
+                        || $item->category === \App\Models\WorkLink::CATEGORY_UMUM
                         || ($item->category === \App\Models\WorkLink::CATEGORY_KHUSUS
                             && $item->department === auth()->user()->boundDepartment())
                     );
@@ -482,7 +489,7 @@
                     data-link="{{ e(json_encode($item->only(['id', 'title', 'url', 'description', 'icon', 'category', 'department', 'sub_department', 'is_active']))) }}">
                     <td>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="worklink-icon"><i class="fas {{ $item->icon ?: 'fa-link' }}"></i></span>
+                            <span class="worklink-icon"><i class="{{ $item->icon_class }}"></i></span>
                             <div style="min-width: 0;">
                                 <div class="worklink-name" style="font-weight: 600; color: var(--ink-heading); font-size: 0.88rem;">
                                     {{ $item->title }}
@@ -542,8 +549,10 @@
                             </form>
                             @endcan
                             @can('work_links.delete')
+                            {{-- Blokir via JS bila link bukan milik bidang admin
+                                 yang login (SweetAlert toast) — pola tombol edit. --}}
                             <button type="button" class="news-action-btn delete" title="Hapus"
-                                    onclick="openWorkLinkDeleteModal('{{ route('admin.work-links.destroy', $item) }}', '{{ addslashes($item->title) }}')">
+                                    onclick="openWorkLinkDeleteModal(this, '{{ route('admin.work-links.destroy', $item) }}', '{{ addslashes($item->title) }}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                             @endcan
@@ -637,32 +646,18 @@
         ? array_intersect_key(\App\Models\User::SUB_DEPARTMENTS, [$wlBoundDept => true])
         : \App\Models\User::SUB_DEPARTMENTS;
 
-    /* Daftar ikon FontAwesome (library ikon yang dipakai layout admin).
-       Nilai 'value' = nama class yang disimpan ke DB; label = nama ikon
-       pada library (bukan istilah fungsional seperti "Link (umum)"). */
+    /* Daftar 8 ikon utama FontAwesome (library ikon yang dipakai layout
+       admin). Nilai 'value' = nama class yang disimpan ke DB;
+       label = kategori fungsional link kerja. */
     $wlIconOptions = [
-        'fa-link'             => 'Link',
-        'fa-globe'            => 'Globe / Website',
-        'fa-file-lines'       => 'File / Dokumen',
-        'fa-database'         => 'Database',
-        'fa-shield-halved'    => 'Shield / Keamanan',
-        'fa-server'           => 'Server',
-        'fa-gauge-high'       => 'Gauge / Dashboard',
-        'fa-chart-line'       => 'Chart / Grafik',
-        'fa-envelope'         => 'Envelope / Email',
-        'fa-users'            => 'Users / Grup',
-        'fa-fingerprint'      => 'Fingerprint / Presensi',
-        'fa-graduation-cap'   => 'Graduation Cap / E-Learning',
-        'fa-screwdriver-wrench' => 'Screwdriver / Pemeliharaan',
-        'fa-coins'            => 'Coins / Keuangan',
-        'fa-helmet-safety'    => 'Helmet / K3',
-        'fa-folder-open'      => 'Folder / Arsip',
-        'fa-book-open'        => 'Book / Logbook',
-        'fa-list-check'       => 'List Check / Work Order',
-        'fa-calendar-check'   => 'Calendar / Jadwal',
-        'fa-headset'          => 'Headset / Helpdesk',
-        'fa-cloud-arrow-up'   => 'Cloud Upload / Storage',
-        'fa-building'         => 'Building / Fasilitas',
+        'fa-solid fa-link'       => 'Umum / Link',
+        'fa-solid fa-gauge-high' => 'Dashboard / Monitoring',
+        'fa-solid fa-file-lines' => 'Dokumen & SPO',
+        'fa-solid fa-envelope'   => 'Email & Webmail',
+        'fa-solid fa-id-card'    => 'Kepegawaian & SDM',
+        'fa-solid fa-wrench'     => 'Pemeliharaan & Teknik',
+        'fa-solid fa-hard-hat'   => 'K3 & Safety',
+        'fa-solid fa-database'   => 'Sistem & Database',
     ];
 @endphp
 
@@ -705,7 +700,7 @@
                             <label class="form-group-label" for="wlEditIcon">Select Icon</label>
                             <div class="wl-icon-wrap">
                                 <span class="wl-icon-preview" id="wlEditIconPreview">
-                                    <i class="fas fa-link" id="wlEditIconPreviewEl"></i>
+                                    <i class="fa-solid fa-link" id="wlEditIconPreviewEl"></i>
                                 </span>
                                 <select id="wlEditIcon" name="icon" class="form-input" style="flex:1;">
                                     @foreach ($wlIconOptions as $wlIconValue => $wlIconLabel)
@@ -859,10 +854,32 @@
     if (!window.__workLinkDeleteModalBound) {
         window.__workLinkDeleteModalBound = true;
 
-        window.openWorkLinkDeleteModal = function(url, title) {
+        window.openWorkLinkDeleteModal = function(btn, url, title) {
+            const row = btn ? btn.closest('tr') : null;
+
+            // HAK AKSES: link milik bidang sendiri, 'umum', atau Super Admin?
+            // Admin Bidang + link khusus bidang lain → blokir via SweetAlert
+            // toast, TANPA membuka modal konfirmasi hapus.
+            if (row && row.dataset.canEdit !== 'true') {
+                // SweetAlert mandiri (showToast milik closure modal edit,
+                // tidak terjangkau dari sini).
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'warning',
+                        title: 'Akses Dibatasi: Anda hanya dapat mengelola data milik bidang Anda.',
+                        showConfirmButton: false,
+                        timer: 2600,
+                        timerProgressBar: true
+                    });
+                }
+                return;   // ← modal hapus tidak dibuka
+            }
+
             const modal = document.getElementById('deleteWorkLinkModal');
-            document.getElementById('deleteWorkLinkTitle').textContent = title;
-            document.getElementById('deleteWorkLinkForm').action = url;
+            document.getElementById('deleteWorkLinkTitle').textContent = title || '';
+            document.getElementById('deleteWorkLinkForm').action = url || '';
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
         };
@@ -934,6 +951,15 @@
                 return (subs[link.department] || {})[link.sub_department] || link.sub_department;
             }
 
+            /* ---- Class <i> ikon: dukung nilai DB lama ('fa-link') dan
+               baru ('fa-solid fa-link') sekaligus. ---- */
+            function iconClass(icon) {
+                const val = (icon || '').trim() || 'fa-solid fa-link';
+                return /^fa-(solid|regular|light|thin|duotone|brands)(\s|$)/.test(val)
+                    ? val
+                    : 'fa-solid ' + val;
+            }
+
             function updateRow(link) {
                 const row = currentRow;
                 if (!row) return;
@@ -959,7 +985,7 @@
 
                 // Icon
                 const iconEl = row.querySelector('.worklink-icon i');
-                if (iconEl) iconEl.className = 'fas ' + (link.icon || 'fa-link');
+                if (iconEl) iconEl.className = iconClass(link.icon);
 
                 // URL
                 const urlEl = row.querySelector('a.worklink-url');
@@ -1029,12 +1055,13 @@
                     !(form.querySelector('input[name="category"]:checked')?.value === 'khusus'));
             }
 
-            /* ---- Preview ikon live (select ↔ kotak preview) ---- */
+            /* ---- Preview ikon live (select ↔ kotak preview).
+               Nilai opsi sudah class lengkap, mis. 'fa-solid fa-link'. ---- */
             function syncIconPreview() {
                 const form = formEl();
                 const sel = form?.querySelector('[name="icon"]');
                 const el = document.getElementById('wlEditIconPreviewEl');
-                if (sel && el) el.className = 'fas ' + (sel.value || 'fa-link');
+                if (sel && el) el.className = iconClass(sel.value);
             }
 
             /* ---- Live validation: bersihkan border merah begitu
@@ -1066,7 +1093,12 @@
                 form.querySelector('[name="title"]').value       = link.title || '';
                 form.querySelector('[name="url"]').value         = link.url || '';
                 form.querySelector('[name="description"]').value = link.description || '';
-                form.querySelector('[name="icon"]').value        = link.icon || 'fa-link';
+                const iconSel = form.querySelector('[name="icon"]');
+                if (iconSel) {
+                    iconSel.value = iconClass(link.icon);
+                    // Nilai legacy di luar 8 opsi utama → kembali ke opsi pertama.
+                    if (iconSel.selectedIndex < 0) iconSel.selectedIndex = 0;
+                }
 
                 const cat = link.category === 'khusus' ? 'khusus' : 'umum';
                 const catRadio = form.querySelector('input[name="category"][value="' + cat + '"]');
@@ -1295,19 +1327,19 @@
             const row = btn.closest('tr');
             if (!row) return;
 
-            // HAK AKSES: link milik bidang sendiri (atau Super Admin)?
-            // Admin Bidang + link 'umum'/bidang lain → blokir via SweetAlert,
-            // TANPA redirect ke /admin/work-links/{id}/edit.
+            // HAK AKSES: link milik bidang sendiri, 'umum', (atau Super Admin)?
+            // Admin Bidang + link khusus bidang lain → blokir via SweetAlert
+            // toast, TANPA redirect ke /admin/work-links/{id}/edit.
             if (row.dataset.canEdit !== 'true') {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
+                        toast: true,
+                        position: 'top-end',
                         icon: 'warning',
-                        title: 'Akses Dibatasi',
-                        html: 'Data ini milik <strong>' + (row.dataset.ownerLabel || 'bidang lain') + '</strong>. ' +
-                            'Anda hanya dapat mengedit konten khusus Bidang <strong>' +
-                            (row.dataset.userDepartmentLabel || 'Anda') + '</strong>.',
-                        confirmButtonText: 'Mengerti',
-                        confirmButtonColor: '#d97706'
+                        title: 'Akses Dibatasi: Anda hanya dapat mengelola data milik bidang Anda.',
+                        showConfirmButton: false,
+                        timer: 2600,
+                        timerProgressBar: true
                     });
                 }
                 return;   // ← tidak ada navigasi apa pun

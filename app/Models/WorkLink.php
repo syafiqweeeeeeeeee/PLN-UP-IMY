@@ -26,6 +26,32 @@ class WorkLink extends Model
     /** Icon FontAwesome yang dipilih admin — fallback bila kosong. */
     public const DEFAULT_ICON = 'fa-link';
 
+    /**
+     * Class <i> siap pakai untuk ikon link — mendukung nilai DB lama
+     * ('fa-link') dan baru ('fa-solid fa-link') sekaligus.
+     */
+    public function getIconClassAttribute(): string
+    {
+        $icon = trim((string) $this->icon) ?: self::DEFAULT_ICON;
+
+        return preg_match('/^fa-(solid|regular|brands|light|thin|duotone)(\s|$)/', $icon)
+            ? $icon
+            : 'fa-solid ' . $icon;
+    }
+
+    /**
+     * Nama ikon pendek ('fa-link') untuk view portal yang menyuntikkan
+     * prefix style sendiri (<i class="fas {{ $icon }}">).
+     */
+    public function getShortIconAttribute(): string
+    {
+        return preg_replace(
+            '/^fa-(solid|regular|brands|light|thin|duotone)\s+/',
+            '',
+            trim((string) $this->icon) ?: self::DEFAULT_ICON
+        );
+    }
+
     protected $fillable = [
         'title',
         'url',
@@ -84,7 +110,7 @@ class WorkLink extends Model
             'category'       => $isKhusus ? ($this->department ?? self::CATEGORY_KHUSUS) : self::CATEGORY_UMUM,
             'department'     => $isKhusus ? $this->department : null,
             'sub_department' => $isKhusus ? $this->sub_department : null,
-            'icon'           => $this->icon ?: self::DEFAULT_ICON,
+            'icon'           => $this->short_icon,
             'color'          => '#008fa8',
             'description'    => $this->description ?? '',
         ];

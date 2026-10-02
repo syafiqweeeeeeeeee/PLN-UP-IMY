@@ -80,6 +80,10 @@
     .category-pill input:checked + .category-pill-label.target-portal { background: #8b5cf6; }
     .category-pill input:checked + .category-pill-label.target-all    { background: #eab308; color: #1a1a2e; }
 
+    /* Target Pembaca (Admin Bidang) */
+    .category-pill input:checked + .category-pill-label.target-audience-umum   { background: #16a34a; }
+    .category-pill input:checked + .category-pill-label.target-audience-bidang { background: var(--pln-blue); }
+
     /* Responsive khusus pills (sisanya global di admin.css) */
     @media (max-width: 767.98px) {
         .category-pills { gap: 0.4rem; }
@@ -247,10 +251,29 @@
                 @endif
             </label>
             @if ($lockedDepartment)
-                <input type="hidden" name="department_id" value="{{ \App\Models\Department::byCode($lockedDepartment)?->id }}">
+                {{-- Admin Bidang (mis. Admin SDM): pilih target pembaca —
+                     "Semua Karyawan (Umum)" = global (semua pegawai portal
+                     bisa membaca, pengelolaan tetap milik bidangnya) atau
+                     "Khusus Bidang" = instruksi internal bidang sendiri. --}}
+                <div class="category-pills">
+                    <div class="category-pill">
+                        <input type="radio" name="target_audience" value="umum" id="target-audience-umum"
+                               {{ old('target_audience', $announcement?->department_id === null ? 'umum' : 'bidang') === 'umum' ? 'checked' : '' }}>
+                        <label for="target-audience-umum" class="category-pill-label target-audience-umum">
+                            <i class="fas fa-users"></i> Semua Karyawan (Umum)
+                        </label>
+                    </div>
+                    <div class="category-pill">
+                        <input type="radio" name="target_audience" value="bidang" id="target-audience-bidang"
+                               {{ old('target_audience', $announcement?->department_id === null ? 'umum' : 'bidang') === 'bidang' ? 'checked' : '' }}>
+                        <label for="target-audience-bidang" class="category-pill-label target-audience-bidang">
+                            <i class="fas fa-user-lock"></i> Khusus Bidang {{ \App\Models\User::DEPARTMENTS[$lockedDepartment] ?? $lockedDepartment }}
+                        </label>
+                    </div>
+                </div>
                 <div class="form-hint flex">
-                    <i class="fas fa-circle-info"></i>
-                    Pengumuman ini otomatis tercatat milik Bidang {{ \App\Models\User::DEPARTMENTS[$lockedDepartment] ?? $lockedDepartment }}.
+                    <i class="far fa-lightbulb"></i>
+                    "Semua Karyawan (Umum)" tampil untuk seluruh pegawai di Portal Karyawan (mis. edaran cuti, jam kerja, BPJS) · "Khusus Bidang" hanya untuk internal bidang Anda.
                 </div>
             @else
                 <select name="department_id" class="form-input" style="max-width:360px;">

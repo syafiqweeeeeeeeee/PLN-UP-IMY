@@ -33,8 +33,11 @@ class User extends Authenticatable
     ];
 
     /**
-     * Sub-Bidang / Bagian sampel per Bidang Utama (tahap awal: Bidang Operasi).
-     * Struktur: ['kode_department' => ['kode_sub' => 'Label', ...]].
+     * Sub-Bidang / Bagian per Bidang Utama — master data struktur unit
+     * kerja UP Indramayu. Struktur: ['kode_department' => ['kode_sub' =>
+     * 'Label', ...]]. Dropdown Sub-Bidang di seluruh Admin Panel (form
+     * Pengguna, form & modal Link Kerja) dibangun dinamis dari konstanta
+     * ini — mengikuti nilai Bidang Utama yang dipilih (dependent dropdown).
      */
     public const SUB_DEPARTMENTS = [
         'operasi' => [
@@ -49,6 +52,31 @@ class User extends Authenticatable
             'asmen_renops'    => 'Asisten Manager RenOps',
             'asmen_niaga_bb'  => 'Asisten Manager Niaga BB',
             'asmen_kimia_lab' => 'Asisten Manager Kimia & Lab',
+        ],
+        'pemeliharaan' => [
+            'asmen_rendal_har' => 'Asisten Manager Rendal Har',
+            'asmen_mo'         => 'Asisten Manager MO',
+            'asmen_mesin_1'    => 'Asisten Manager Mesin 1',
+            'asmen_mesin_2'    => 'Asisten Manager Mesin 2',
+            'asmen_listrik'    => 'Asisten Manager Listrik',
+            'asmen_konin'      => 'Asisten Manager Konin',
+            'asmen_inventori'  => 'Asisten Manager Inventori Kontrol & Gudang',
+        ],
+        'engineering' => [
+            'asmen_so'   => 'Asisten Manager SO',
+            'asmen_cbm'  => 'Asisten Manager CBM',
+            'asmen_mmrk' => 'Asisten Manager MMRK',
+        ],
+        'business_support' => [
+            'asmen_pengadaan' => 'Asisten Manager Pengadaan',
+            'asmen_sdm_umum_csr' => 'Asisten Manager SDM Umum CSR',
+            'asmen_keuangan'  => 'Asisten Manager Keuangan',
+        ],
+        'k3_kam' => [
+            'k3_kam' => 'K3 & KAM',
+        ],
+        'lingkungan' => [
+            'lingkungan' => 'Lingkungan',
         ],
     ];
 
@@ -66,6 +94,17 @@ class User extends Authenticatable
         'no_hp',
         'alamat',
         'last_seen_tamu_id',
+        'notification_settings',
+    ];
+
+    /** Kunci preferensi notifikasi yang dikenal halaman Pengaturan. */
+    public const NOTIFICATION_KEYS = ['desktop', 'weekly', 'pending'];
+
+    /** Default preferensi notifikasi bila user belum pernah menyimpan. */
+    public const DEFAULT_NOTIFICATION_SETTINGS = [
+        'desktop' => true,
+        'weekly'  => true,
+        'pending' => false,
     ];
 
     /**
@@ -111,9 +150,49 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
         'department_id'     => 'integer',
+        'notification_settings' => 'array',
         'created_at'        => 'datetime',
         'updated_at'        => 'datetime',
     ];
+
+    /* =========================================================
+       PREFERENSI NOTIFIKASI (halaman Pengaturan)
+       ========================================================= */
+
+    /**
+     * Preferensi notifikasi user (merge default + tersimpan di DB).
+     *
+     * @return array<string, bool>
+     */
+    public function notificationSettings(): array
+    {
+        $stored = $this->notification_settings ?? [];
+
+        $settings = self::DEFAULT_NOTIFICATION_SETTINGS;
+        foreach (self::NOTIFICATION_KEYS as $key) {
+            if (array_key_exists($key, $stored)) {
+                $settings[$key] = (bool) $stored[$key];
+            }
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Simpan sebagian/all preferensi notifikasi (merge, bukan timpa).
+     */
+    public function updateNotificationSettings(array $settings): void
+    {
+        $merged = $this->notificationSettings();
+
+        foreach (self::NOTIFICATION_KEYS as $key) {
+            if (array_key_exists($key, $settings)) {
+                $merged[$key] = (bool) $settings[$key];
+            }
+        }
+
+        $this->update(['notification_settings' => $merged]);
+    }
 
     /* =========================================================
        RBAC — SUPER ADMIN vs ADMIN BIDANG
@@ -181,7 +260,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Kode department yang sudah punya daftar sub-bidang (tahap awal: operasi).
+     * Kode department yang memiliki daftar sub-bidang (saat ini: keenam bidang).
      */
     public static function departmentsWithSubs(): array
     {

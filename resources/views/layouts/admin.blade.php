@@ -245,8 +245,14 @@
                     @endcan
                 @endif
 
-                {{-- ===== MANAJEMEN ===== --}}
-                <div class="sidebar-section-label">Manajemen</div>
+                {{-- ===== MANAJEMEN =====
+                     Grup label "MANAJEMEN" disembunyikan dari Admin Bidang:
+                     seluruh isinya (Pengguna, Galeri) bukan modulnya, dan
+                     satu-satunya menu grup ini yang relevan (Link Kerja)
+                     tetap tampil sebagai menu utama tersendiri. --}}
+                @if (! $isDeptAdminSidebar)
+                    <div class="sidebar-section-label">Manajemen</div>
+                @endif
 
                 @if (! $isDeptAdminSidebar)
                     @php
@@ -265,14 +271,16 @@
                     @endcan
                 @endif
 
-                @can('galleries.view')
-                <a href="{{ route('admin.galeri.index') }}"
-                   class="sidebar-link @if(request()->routeIs('admin.galeri.*')) active @endif"
-                   data-no-router>
-                    <span class="link-icon"><i class="fas fa-images"></i></span>
-                    <span class="link-text">Galeri</span>
-                </a>
-                @endcan
+                @if (! $isDeptAdminSidebar)
+                    @can('galleries.view')
+                    <a href="{{ route('admin.galeri.index') }}"
+                       class="sidebar-link @if(request()->routeIs('admin.galeri.*')) active @endif"
+                       data-no-router>
+                        <span class="link-icon"><i class="fas fa-images"></i></span>
+                        <span class="link-text">Galeri</span>
+                    </a>
+                    @endcan
+                @endif
 
                 @can('work_links.view')
                 <a href="{{ route('admin.work-links.index') }}"

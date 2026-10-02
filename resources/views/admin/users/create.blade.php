@@ -250,7 +250,7 @@
                         <option value="">-- Pilih Sub-Bidang --</option>
                     </select>
                     <div class="form-hint flex" id="subHint" style="display:none;">
-                        <i class="far fa-lightbulb"></i> Daftar sub-bidang saat ini tersedia untuk Bidang Operasi.
+                        <i class="far fa-lightbulb"></i> Daftar sub-bidang mengikuti Bidang Utama yang dipilih.
                     </div>
                     @error('sub_department')
                         <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>

@@ -16,6 +16,30 @@
         border-radius: 14px;
         margin-bottom: 1.25rem;
         overflow: hidden;
+        /* Bayangan seragam untuk semua kartu settings. */
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 6px 18px rgba(15, 23, 42, 0.05);
+    }
+    /* KESETARAAN TINGGI: col.d-flex + align-items stretch (default) —
+       kedua kartu memenuhi tinggi kolom yang sama persis; margin-bottom
+       sudah diperhitungkan flexbox, tanpa hack height calc. */
+    .settings-card.h-full-card {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        width: 100%;
+    }
+    /* Body mengisi sisa tinggi kartu; baris di dalamnya tumbuh merata
+       sehingga konten terbagi rata dari atas ke bawah (tidak kempis). */
+    .settings-card.h-full-card .settings-card-body {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+    }
+    .settings-card.h-full-card .setting-row {
+        flex: 1 1 auto;
+    }
+    .settings-card.h-full-card .account-box {
+        flex: 0 0 auto;
     }
     .settings-card .settings-card-head {
         display: flex;
@@ -174,6 +198,18 @@
         border-bottom: 1px dashed var(--line-soft);
     }
     .setting-row:last-child { border-bottom: none; }
+    /* Di kartu h-full: baris tumbuh merata (dari head sampai dasar body)
+       agar konten Notifikasi terbagi rata atas-bawah, tidak kempis. */
+    .settings-card.h-full-card .setting-row {
+        flex: 1 1 auto;
+        min-height: 4.2rem;
+        padding: 0.55rem 0;
+    }
+    .settings-card.h-full-card .setting-row .row-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
     .setting-row .row-info h6 {
         font-size: 0.85rem;
         font-weight: 600;
@@ -187,62 +223,78 @@
         line-height: 1.5;
     }
 
-    /* --- Toggle Switch --- */
-    .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+    /* --- Toggle Switch (transisi halus) --- */
+    .switch { position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .switch .slider {
         position: absolute;
         inset: 0;
         background: var(--line);
-        border-radius: 24px;
-        transition: background 0.25s ease;
+        border-radius: 26px;
         cursor: pointer;
+        transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
     }
     .switch .slider::before {
         content: '';
         position: absolute;
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         left: 3px;
         top: 3px;
         background: #fff;
         border-radius: 50%;
-        transition: transform 0.25s ease;
         box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .switch input:checked + .slider { background: var(--pln-blue); }
+    .switch:hover .slider { box-shadow: inset 0 0 0 1px var(--ink-faint); }
+    .switch:active .slider::before { width: 23px; }
+    .switch input:checked + .slider {
+        background: var(--pln-blue);
+        box-shadow: 0 0 0 3px var(--focus-ring);
+    }
     .switch input:checked + .slider::before { transform: translateX(20px); }
     .switch input:focus-visible + .slider {
         outline: 2px solid var(--pln-cyan);
         outline-offset: 2px;
+    }
+    .setting-row.switched-on .row-info h6 { color: var(--pln-blue); }
+    html.theme-dark .setting-row.switched-on .row-info h6 { color: var(--pln-cyan); }
+
+    /* --- Email read-only (identitas login) --- */
+    .settings-input:disabled,
+    .settings-input[readonly] {
+        background: var(--panel);
+        color: var(--ink-muted);
+        cursor: not-allowed;
+        opacity: 0.85;
     }
 
     /* --- Profile / Account --- */
     .account-box {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 1rem;
+        gap: 0.9rem;
+        padding: 1.1rem 1.25rem;
         background: var(--panel);
         border: 1px solid var(--line);
         border-radius: 12px;
         flex-wrap: wrap;
     }
     .account-avatar {
-        width: 54px;
-        height: 54px;
-        border-radius: 14px;
+        width: 58px;
+        height: 58px;
+        border-radius: 16px;
         background: linear-gradient(135deg, var(--pln-blue), var(--pln-cyan));
         color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 800;
-        font-size: 1.05rem;
+        font-size: 1.15rem;
         flex-shrink: 0;
     }
-    .account-name { font-size: 0.95rem; font-weight: 700; color: var(--ink-heading); }
-    .account-mail { font-size: 0.78rem; color: var(--ink-muted); }
+    .account-name { font-size: 1rem; font-weight: 700; color: var(--ink-heading); line-height: 1.3; }
+    .account-mail { font-size: 0.8rem; color: var(--ink-muted); margin-top: 0.1rem; word-break: break-all; }
     .account-role {
         display: inline-flex;
         align-items: center;
@@ -296,10 +348,10 @@
     }
     .sys-version strong { color: var(--ink-heading); }
 
-    /* --- Saved Toast --- */
+    /* --- Saved Toast (kanan atas) --- */
     .settings-toast {
         position: fixed;
-        bottom: 1.5rem;
+        top: 1.25rem;
         right: 1.5rem;
         z-index: 2100;
         display: flex;
@@ -313,16 +365,32 @@
         font-weight: 600;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(-12px);
         pointer-events: none;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .settings-toast.show { opacity: 1; transform: translateY(0); }
     .settings-toast i { color: #4ade80; }
+    .settings-toast.toast-error i { color: #f87171; }
 
+    /* --- Kartu profil ringkas (avatar + nama + email + badge) --- */
+    .account-box {
+        align-items: center;
+        gap: 0.9rem;
+        padding: 1.1rem 1.25rem;
+    }
+    .account-avatar {
+        width: 58px;
+        height: 58px;
+        font-size: 1.15rem;
+        border-radius: 16px;
+    }
+    .account-name  { font-size: 1rem; line-height: 1.3; }
+    .account-mail  { font-size: 0.8rem; margin-top: 0.1rem; word-break: break-all; }
     @media (max-width: 575.98px) {
         .settings-card .settings-card-body { padding: 1rem; }
         .settings-card .settings-card-head { padding: 1rem; }
+        .account-box { padding: 1rem; }
     }
 </style>
 @endpush
@@ -412,10 +480,10 @@
     </div>
 
     {{-- ============================================
-         NOTIFIKASI
+         NOTIFIKASI — sejajar tinggi dengan kartu Akun
          ============================================ --}}
-    <div class="col-12 col-lg-6">
-        <div class="settings-card">
+    <div class="col-12 col-lg-6 d-flex">
+        <div class="settings-card h-full-card">
             <div class="settings-card-head">
                 <div class="head-icon green"><i class="fas fa-bell"></i></div>
                 <div>
@@ -424,33 +492,33 @@
                 </div>
             </div>
             <div class="settings-card-body">
-                <div class="setting-row">
+                <div class="setting-row" data-notif-row="desktop">
                     <div class="row-info">
                         <h6>Notifikasi Desktop</h6>
                         <p>Tampilkan pemberitahuan dari browser saat ada aktivitas baru.</p>
                     </div>
                     <label class="switch">
-                        <input type="checkbox" id="setNotifDesktop" checked>
+                        <input type="checkbox" id="setNotifDesktop" name="notif_desktop" @checked($notifSettings['desktop'])>
                         <span class="slider"></span>
                     </label>
                 </div>
-                <div class="setting-row">
+                <div class="setting-row" data-notif-row="weekly">
                     <div class="row-info">
                         <h6>Ringkasan Mingguan</h6>
                         <p>Kirim ringkasan aktivitas konten setiap Senin pagi.</p>
                     </div>
                     <label class="switch">
-                        <input type="checkbox" id="setNotifWeekly" checked>
+                        <input type="checkbox" id="setNotifWeekly" name="notif_weekly" @checked($notifSettings['weekly'])>
                         <span class="slider"></span>
                     </label>
                 </div>
-                <div class="setting-row">
+                <div class="setting-row" data-notif-row="pending">
                     <div class="row-info">
                         <h6>Alert Konten Menunggu</h6>
                         <p>Tandai berita/pengumuman draft yang belum dipublikasi.</p>
                     </div>
                     <label class="switch">
-                        <input type="checkbox" id="setNotifPending">
+                        <input type="checkbox" id="setNotifPending" name="notif_pending" @checked($notifSettings['pending'])>
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -459,10 +527,18 @@
     </div>
 
     {{-- ============================================
-         AKUN
+         AKUN — sejajar tinggi dengan kartu Notifikasi
          ============================================ --}}
-    <div class="col-12 col-lg-6">
-        <div class="settings-card">
+    @php
+        $initials = collect(explode(' ', $user->name))
+            ->filter()
+            ->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))
+            ->take(2)
+            ->implode('');
+        $roleLabel = $user->roleNames()->first() ?? 'Admin';
+    @endphp
+    <div class="col-12 col-lg-6 d-flex">
+        <div class="settings-card h-full-card">
             <div class="settings-card-head">
                 <div class="head-icon amber"><i class="fas fa-user-gear"></i></div>
                 <div>
@@ -471,36 +547,34 @@
                 </div>
             </div>
             <div class="settings-card-body">
+                {{-- Profil ringkas: avatar, nama, email, badge role --}}
                 <div class="account-box mb-3">
-                    <div class="account-avatar">AD</div>
-                    <div class="flex-grow-1">
-                        <div class="account-name">Admin PLN</div>
-                        <div class="account-mail">admin@pltuindramayu.co.id</div>
+                    <div class="account-avatar">{{ $initials ?: 'AD' }}</div>
+                    <div class="flex-grow-1" style="min-width: 0;">
+                        <div class="account-name">{{ $user->name }}</div>
+                        <div class="account-mail">{{ $user->email }}</div>
                     </div>
-                    <span class="account-role"><i class="fas fa-shield-halved"></i> Super Admin</span>
+                    <span class="account-role"><i class="fas fa-shield-halved"></i> {{ $roleLabel }}</span>
                 </div>
 
                 <div class="setting-row">
                     <div class="row-info" style="flex: 1;">
                         <h6>Nama Tampilan</h6>
-                        <input type="text" class="settings-input mt-1" value="Admin PLN" id="setDisplayName">
+                        <input type="text" class="settings-input mt-1" value="{{ old('name', $user->name) }}"
+                               id="setDisplayName" name="display_name" maxlength="255">
                     </div>
                 </div>
-                <div class="setting-row">
-                    <div class="row-info">
-                        <h6>Autentikasi Dua Faktor</h6>
-                        <p>Lapisan keamanan tambahan saat login.</p>
+
+                {{-- Email = identitas login — read-only, tidak bisa diubah --}}                <div class="setting-row">
+                    <div class="row-info" style="flex: 1;">
+                        <h6>Email <span class="optional" style="font-size:0.68rem; font-weight:600; color: var(--ink-faint);">(identitas login)</span></h6>
+                        <input type="email" class="settings-input mt-1" value="{{ $user->email }}"
+                               id="setEmail" readonly aria-readonly="true">
                     </div>
-                    <label class="switch">
-                        <input type="checkbox" id="setTwoFactor">
-                        <span class="slider"></span>
-                    </label>
                 </div>
             </div>
         </div>
-    </div>
-
-    {{-- ============================================
+    </div>    {{-- ============================================
          TENTANG SISTEM
          ============================================ --}}
     <div class="col-12">
@@ -531,6 +605,13 @@
 <div class="settings-toast" id="settingsToast">
     <i class="fas fa-circle-check"></i> <span id="settingsToastText">Pengaturan disimpan</span>
 </div>
+@if (session('success'))
+    {{-- Fallback submit form biasa (non-AJAX): flash → toast --}}
+    <span data-flash-success="{{ session('success') }}" style="display:none;"></span>
+@endif
+@if (session('error'))
+    <span data-flash-error="{{ session('error') }}" style="display:none;"></span>
+@endif
 {{-- Script WAJIB di dalam @section('content') (bukan @push('scripts'))
      karena client-side router (router.js) hanya mengeksekusi ulang
      <script> di dalam <main> setelah navigasi SPA. --}}
@@ -544,14 +625,25 @@
         var radios = document.querySelectorAll('#themeOptions input[name="theme"]');
         var hasAdminTheme = typeof window.AdminTheme !== 'undefined';
 
-        function showToast(text) {
+        function showToast(text, isError) {
             var toast = document.getElementById('settingsToast');
             if (!toast) return;
             document.getElementById('settingsToastText').textContent = text;
+            toast.classList.toggle('toast-error', !!isError);
+            toast.querySelector('i')?.classList.toggle('fa-circle-check', !isError);
+            toast.querySelector('i')?.classList.toggle('fa-circle-exclamation', !!isError);
             toast.classList.add('show');
             clearTimeout(showToast._t);
-            showToast._t = setTimeout(function () { toast.classList.remove('show'); }, 2200);
+            showToast._t = setTimeout(function () { toast.classList.remove('show'); }, 2600);
         }
+
+        // Flash dari redirect (fallback non-AJAX) → tampilkan sebagai toast.
+        (function () {
+            var ok  = document.querySelector('[data-flash-success]');
+            var err = document.querySelector('[data-flash-error]');
+            if (ok) showToast(ok.getAttribute('data-flash-success'));
+            if (err) showToast(err.getAttribute('data-flash-error'), true);
+        })();
 
         if (hasAdminTheme) {
             // Tandai pilihan tersimpan
@@ -573,33 +665,106 @@
         }
 
         /* ============================================================
-           TOGGLE & INPUT LAIN — persist ke localStorage (demo lokal)
+           AJAX HELPER — kirim JSON ke endpoint settings, tampilkan
+           toast "Pengaturan berhasil diperbarui" (kanan atas) tanpa
+           me-reload halaman.
            ============================================================ */
-        var toggles = ['setNotifDesktop', 'setNotifWeekly', 'setNotifPending', 'setTwoFactor'];
+        var CSRF = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
-        toggles.forEach(function (id) {
-            var el = document.getElementById(id);
-            if (!el) return;
+        function saveViaAjax(url, payload, btn, onDone) {
+            if (btn) { btn.disabled = true; }
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(function (res) {
+                    return res.json().catch(function () { return {}; }).then(function (body) {
+                        return { ok: res.ok, status: res.status, body: body };
+                    });
+                })
+                .then(function (out) {
+                    if (!out.ok) {
+                        var msg = (out.body && out.body.message) || 'Gagal menyimpan pengaturan.';
+                        showToast(msg, true);
+                        throw new Error(msg);
+                    }
+                    showToast(out.body.message || 'Pengaturan berhasil diperbarui');
+                    if (onDone) onDone(out.body);
+                })
+                .catch(function () { /* toast error sudah tampil */ })
+                .finally(function () { if (btn) btn.disabled = false; });
+        }
 
-            var stored = null;
-            try { stored = localStorage.getItem('settings-' + id); } catch (e) {}
-            if (stored !== null) el.checked = stored === '1';
+        /* ------------------------------------------------------------
+           KARTU NOTIFIKASI — AUTO-SAVE: setiap toggle diklik, state
+           langsung dikirim ke server (AJAX) tanpa tombol simpan.
+           ------------------------------------------------------------ */
+        var notifKeys = ['desktop', 'weekly', 'pending'];
 
-            el.addEventListener('change', function () {
-                try { localStorage.setItem('settings-' + id, el.checked ? '1' : '0'); } catch (e) {}
-                showToast('Pengaturan disimpan');
+        function notifPayload() {
+            var payload = {};
+            notifKeys.forEach(function (key) {
+                var input = document.getElementById('setNotif' + key.charAt(0).toUpperCase() + key.slice(1));
+                if (input) payload[key] = input.checked;
+            });
+            return payload;
+        }
+
+        notifKeys.forEach(function (key) {
+            var input = document.getElementById('setNotif' + key.charAt(0).toUpperCase() + key.slice(1));
+            var row = document.querySelector('[data-notif-row="' + key + '"]');
+            if (!input) return;
+
+            var syncRow = function () { if (row) row.classList.toggle('switched-on', input.checked); };
+            syncRow();
+
+            input.addEventListener('change', function () {
+                syncRow();
+                saveViaAjax('{{ route('admin.settings.notifications') }}', notifPayload());
             });
         });
 
+        /* ------------------------------------------------------------
+           KARTU AKUN — Nama Tampilan auto-save (debounce 700 ms)
+           + sinkron topbar & kartu profil tanpa reload.
+           ------------------------------------------------------------ */
         var displayName = document.getElementById('setDisplayName');
-        if (displayName) {
-            var stored = null;
-            try { stored = localStorage.getItem('settings-setDisplayName'); } catch (e) {}
-            if (stored) displayName.value = stored;
 
+        if (displayName) {
+            var saveName = function () {
+                var name = displayName.value.trim();
+                if (!name || name === displayName.dataset.saved || '') {
+                    displayName.classList.toggle('is-invalid', !name);
+                    return;
+                }
+
+                saveViaAjax('{{ route('admin.settings.profile') }}', { name: name }, null, function (body) {
+                    displayName.dataset.saved = body.name || name;
+                    // Sinkronkan nama di topbar & kartu profil tanpa reload.
+                    var topName = document.querySelector('.topbar-user-name');
+                    if (topName && body.name) topName.textContent = body.name;
+                    var cardName = document.querySelector('.account-name');
+                    if (cardName && body.name) cardName.textContent = body.name;
+                });
+            };
+
+            displayName.dataset.saved = displayName.value.trim();
+
+            var debouncedSaveName = null;
+            displayName.addEventListener('input', function () {
+                displayName.classList.remove('is-invalid');
+                clearTimeout(debouncedSaveName);
+                debouncedSaveName = setTimeout(saveName, 700);
+            });
             displayName.addEventListener('change', function () {
-                try { localStorage.setItem('settings-setDisplayName', displayName.value); } catch (e) {}
-                showToast('Pengaturan disimpan');
+                clearTimeout(debouncedSaveName);
+                saveName();
             });
         }
     })();

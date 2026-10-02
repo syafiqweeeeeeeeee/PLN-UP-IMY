@@ -8,8 +8,10 @@ use Illuminate\Database\Seeder;
 /**
  * Seeder Manajemen Link Kerja — data awal Portal Karyawan:
  *
- * - 5 Link Kerja Kategori 'Umum'  : tampil untuk semua akun Karyawan
- *   (Presensi Online, Webmail PLN, E-Office, Portal SDM, E-Learning).
+ * - 9 Link Kerja Kategori 'Umum'  : tampil untuk semua akun Karyawan
+ *   (Presensi Online, Webmail PLN, E-Office, Portal SDM, E-Learning +
+ *   4 layanan SDM: E-Cuti & SPPD, Slip Gaji & Insentif, E-Learning &
+ *   LMS PLN, Klaim Restitusi Kesehatan).
  * - 5 Link Kerja Kategori 'Khusus': Sub-Bidang Operasi
  *   (Asisten Manager Prod A, Supervisor CHCB A, Asisten Manager
  *   Kimia & Lab).
@@ -53,6 +55,32 @@ class WorkLinkSeeder extends Seeder
                 'url'         => 'https://elearning.pln.co.id',
                 'description' => 'Platform pembelajaran daring, sertifikasi, dan pengembangan kompetensi.',
                 'icon'        => 'fa-graduation-cap',
+            ],
+
+            // ---- 4 LINK LAYANAN SDM (Admin Bidang Business Support / SDM) ----
+            [
+                'title'       => 'E-Cuti & SPPD Online',
+                'url'         => 'https://ecuti.pln.co.id',
+                'description' => 'Pengajuan cuti, izin, dan perjalanan dinas online.',
+                'icon'        => 'fa-solid fa-id-card',
+            ],
+            [
+                'title'       => 'Portal Slip Gaji & Insentif',
+                'url'         => 'https://slipgaji.pln.co.id',
+                'description' => 'Layanan mandiri unduh rincian penghasilan bulanan.',
+                'icon'        => 'fa-solid fa-wallet',
+            ],
+            [
+                'title'       => 'E-Learning & LMS PLN',
+                'url'         => 'https://lms.pln.co.id',
+                'description' => 'Portal pembelajaran, diklat, dan sertifikasi pegawai.',
+                'icon'        => 'fa-solid fa-graduation-cap',
+            ],
+            [
+                'title'       => 'Klaim Restitusi Kesehatan',
+                'url'         => 'https://klaim.pln.co.id',
+                'description' => 'Pengajuan reimbursement biaya pengobatan dan kesehatan.',
+                'icon'        => 'fa-solid fa-notes-medical',
             ],
         ];
 

@@ -78,6 +78,34 @@ trait ScopesToDepartment
     }
 
     /**
+     * Guard akses tulis khusus Link Kerja (kategori umum/khusus).
+     *
+     * Aturan kelola Link Kerja untuk Admin Bidang:
+     * - Kategori 'umum'  → BOLEH dikelola (semua Admin Bidang berhak
+     *   memelihara link yang tampil untuk seluruh karyawan).
+     * - Kategori 'khusus' → hanya milik bidangnya sendiri.
+     *
+     * Super Admin bebas penuh. Melanggar → 403 (dihandle UI sebagai
+     * toast "Akses Dibatasi").
+     *
+     * @param  \App\Models\WorkLink  $link
+     */
+    protected function authorizeWorkLinkAccess($link): void
+    {
+        $department = $this->scopedDepartment();
+
+        if ($department === null) {
+            return; // Super Admin / tanpa scope.
+        }
+
+        if (($link->category ?? '') === \App\Models\WorkLink::CATEGORY_UMUM) {
+            return; // Link umum boleh dikelola semua admin bidang.
+        }
+
+        $this->authorizeDepartmentAccess($link, 'department');
+    }
+
+    /**
      * Nilai department yang dipaksa pada create: Admin Bidang selalu
      * di-set ke bidangnya (input form diabaikan — anti manipulasi).
      */

@@ -23,17 +23,11 @@ class WorkLinkController extends Controller
 
     public function index(Request $request)
     {
-        // Read: Admin Bidang hanya melihat link bidangnya
-        // (link 'umum' milik semua bidang → department NULL, tetap terlihat
-        //  untuk Super Admin saja di panel karena tidak memiliki pemilik).
+        // Read: Admin Bidang dapat MELIHAT seluruh link (transparansi
+        // katalog), tetapi tulis (tambah/edit/hapus) dibatasi ke link
+        // 'umum' + 'khusus' milik bidangnya — dijaga di view (flag
+        // data-can-edit) dan di guard controller.
         $query = WorkLink::query();
-
-        if ($this->scopedDepartment() !== null) {
-            $query->where(function ($q) {
-                $q->where('department', $this->scopedDepartment())
-                  ->orWhereNull('department');
-            });
-        }
 
         if (in_array($request->query('kategori'), [WorkLink::CATEGORY_UMUM, WorkLink::CATEGORY_KHUSUS], true)) {
             $query->where('category', $request->query('kategori'));
@@ -85,14 +79,16 @@ class WorkLinkController extends Controller
     public function edit(WorkLink $work_link)
     {
         // Delete/Edit Guard: tolak data milik bidang lain (URL direct access).
-        $this->authorizeDepartmentAccess($work_link, 'department');
+        // Link 'umum' boleh dikelola semua Admin Bidang; 'khusus' hanya milik
+        // bidangnya sendiri.
+        $this->authorizeWorkLinkAccess($work_link);
 
         return view('admin.work_links.form', $this->formContext($work_link));
     }
 
     public function update(Request $request, WorkLink $work_link)
     {
-        $this->authorizeDepartmentAccess($work_link, 'department');
+        $this->authorizeWorkLinkAccess($work_link);
 
         $validated = $this->validatePayload($request);
 
@@ -148,7 +144,7 @@ class WorkLinkController extends Controller
      */
     public function toggleStatus(Request $request, WorkLink $work_link)
     {
-        $this->authorizeDepartmentAccess($work_link, 'department');
+        $this->authorizeWorkLinkAccess($work_link);
 
         $work_link->update(['is_active' => ! $work_link->is_active]);
 
@@ -171,7 +167,7 @@ class WorkLinkController extends Controller
 
     public function destroy(WorkLink $work_link)
     {
-        $this->authorizeDepartmentAccess($work_link, 'department');
+        $this->authorizeWorkLinkAccess($work_link);
 
         ActivityLogger::log('delete', null, [
             'module'      => 'link_kerja',

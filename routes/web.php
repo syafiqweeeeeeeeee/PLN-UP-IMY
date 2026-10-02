@@ -326,10 +326,12 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             Route::delete('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'clear'])->name('activity-logs.clear');
         });
 
-        // Pengaturan Panel (tema, preferensi tampilan)
-        Route::get('/settings', function () {
-            return view('admin.settings');
-        })->name('settings');
+        // Pengaturan Panel (tema, preferensi tampilan) — notifikasi &
+        // akun tersimpan per user; email read-only, kata sandi via modal.
+        Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');
+        Route::put('/settings/profile', [\App\Http\Controllers\Admin\SettingsController::class, 'updateProfile'])->name('settings.profile');
+        Route::put('/settings/notifications', [\App\Http\Controllers\Admin\SettingsController::class, 'updateNotifications'])->name('settings.notifications');
+        Route::put('/settings/password', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePassword'])->name('settings.password');
 
         // Pencarian topbar (Ctrl+K / ikon kaca pembesar)
         Route::get('/search', \App\Http\Controllers\Admin\AdminSearchController::class)

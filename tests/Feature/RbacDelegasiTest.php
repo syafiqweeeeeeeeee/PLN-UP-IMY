@@ -158,7 +158,7 @@ class RbacDelegasiTest extends TestCase
        2. DYNAMIC DATA SCOPING — LINK KERJA
        ========================================================= */
 
-    public function test_admin_bidang_sees_only_own_department_work_links(): void
+    public function test_admin_bidang_sees_all_work_links_but_scoped_edit(): void
     {
         WorkLink::create(['title' => 'Link Operasi', 'url' => 'https://ops.co.id', 'category' => 'khusus', 'department' => 'operasi', 'is_active' => true]);
         WorkLink::create(['title' => 'Link Pemeliharaan', 'url' => 'https://pml.co.id', 'category' => 'khusus', 'department' => 'pemeliharaan', 'is_active' => true]);
@@ -168,8 +168,19 @@ class RbacDelegasiTest extends TestCase
             ->assertOk()
             ->getContent();
 
+        // Read transparan: seluruh katalog terlihat.
         $this->assertStringContainsString('Link Operasi', $html);
-        $this->assertStringNotContainsString('Link Pemeliharaan', $html);
+        $this->assertStringContainsString('Link Pemeliharaan', $html);
+
+        // Tulis dibatasi: baris milik bidang lain ditandai can-edit=false.
+        $this->assertMatchesRegularExpression(
+            '/data-title="link pemeliharaan"[\s\S]*?data-can-edit="false"/',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/data-title="link operasi"[\s\S]*?data-can-edit="true"/',
+            $html
+        );
     }
 
     public function test_admin_bidang_create_forces_own_department(): void
@@ -225,6 +236,48 @@ class RbacDelegasiTest extends TestCase
             ])->assertRedirect(route('admin.work-links.index'));
 
         $this->assertSame('Link Milik Ops (Baru)', $own->fresh()->title);
+    }
+
+    public function test_admin_bidang_can_manage_umum_links(): void
+    {
+        // Link 'umum' dikelola semua Admin Bidang (tambah/edit/hapus).
+        $umum = WorkLink::create(['title' => 'Link Umum Bersama', 'url' => 'https://umum.co.id', 'category' => 'umum', 'is_active' => true]);
+
+        $admin = $this->adminBidang('operasi');
+
+        $this->actingAs($admin)
+            ->put(route('admin.work-links.update', $umum), [
+                'title'    => 'Link Umum Bersama (Baru)',
+                'url'      => 'https://umum2.co.id',
+                'category' => 'umum',
+                'is_active' => '1',
+            ])->assertRedirect(route('admin.work-links.index'));
+
+        $this->assertSame('Link Umum Bersama (Baru)', $umum->fresh()->title);
+
+        $this->actingAs($admin)
+            ->delete(route('admin.work-links.destroy', $umum))
+            ->assertRedirect(route('admin.work-links.index'));
+
+        $this->assertDatabaseMissing('work_links', ['id' => $umum->id]);
+    }
+
+    public function test_admin_bidang_cannot_take_over_foreign_link_via_update(): void
+    {
+        // Manipulasi: update link miliknya sambil mengirim department bidang
+        // lain → tetap dipaksa kembali ke bidangnya (anti migrasi data).
+        $own = WorkLink::create(['title' => 'Link Milik Ops', 'url' => 'https://ops.co.id', 'category' => 'khusus', 'department' => 'operasi', 'is_active' => true]);
+
+        $this->actingAs($this->adminBidang('operasi'))
+            ->put(route('admin.work-links.update', $own), [
+                'title'      => 'Coba Pindah Bidang',
+                'url'        => 'https://ops.co.id',
+                'category'   => 'khusus',
+                'department' => 'pemeliharaan',
+                'is_active'  => '1',
+            ])->assertRedirect(route('admin.work-links.index'));
+
+        $this->assertSame('operasi', $own->fresh()->department);
     }
 
     public function test_work_link_form_locks_department_for_admin_bidang(): void
@@ -360,5 +413,136 @@ class RbacDelegasiTest extends TestCase
         $this->assertFalse($bidang->hasPermission('roles.view'));
         $this->assertFalse($bidang->hasPermission('tamu.view'));
         $this->assertFalse($bidang->hasPermission('pages.view'));
+    }
+
+    /* =========================================================
+       5. ADMIN SDM (BIDANG BUSINESS SUPPORT)
+       ========================================================= */
+
+    public function test_sdm_admin_sidebar_shows_only_relevant_menus(): void
+    {
+        $html = $this->actingAs($this->adminBidang('business_support'))
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->getContent();
+
+        // Menu utama relevan tampil.
+        $this->assertStringContainsString('Dashboard', $html);
+        $this->assertStringContainsString('Link Kerja', $html);
+        $this->assertStringContainsString('Pengumuman Internal', $html);
+
+        // Grup MANAJEMEN disembunyikan: label grup + menu-menusnya.
+        $this->assertStringNotContainsString('Manajemen<', $html);
+        $this->assertStringNotContainsString('>Pengguna<', $html);
+        $this->assertStringNotContainsString('>Galeri<', $html);
+        $this->assertStringNotContainsString('>Halaman<', $html);
+    }
+
+    public function test_sdm_admin_can_create_umum_and_department_announcements(): void
+    {
+        $admin = $this->adminBidang('business_support');
+        $bsId = Department::byCode('business_support')->id;
+
+        // Target Pembaca "Semua Karyawan (Umum)" → department_id NULL (global).
+        $this->actingAs($admin)
+            ->post(route('admin.announcements.store'), [
+                'title'            => 'Edaran Cuti Bersama',
+                'category'         => 'kepegawaian',
+                'excerpt'          => 'Ketentuan cuti tahunan.',
+                'target_audience'  => 'umum',
+                'is_published'     => '1',
+            ])->assertRedirect(route('admin.announcements.index'));
+
+        $this->assertDatabaseHas('announcements', [
+            'title'         => 'Edaran Cuti Bersama',
+            'department_id' => null,
+        ]);
+
+        // Target Pembaca "Khusus Bidang" → tercatat milik Business Support.
+        $this->actingAs($admin)
+            ->post(route('admin.announcements.store'), [
+                'title'            => 'Instruksi Internal SDM',
+                'category'         => 'kepegawaian',
+                'excerpt'          => 'Instruksi internal bidang.',
+                'target_audience'  => 'bidang',
+                'is_published'     => '1',
+            ])->assertRedirect(route('admin.announcements.index'));
+
+        $this->assertDatabaseHas('announcements', [
+            'title'         => 'Instruksi Internal SDM',
+            'department_id' => $bsId,
+        ]);
+    }
+
+    public function test_announcement_form_shows_target_audience_for_admin_bidang(): void
+    {
+        $html = $this->actingAs($this->adminBidang('business_support'))
+            ->get(route('admin.announcements.create'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('name="target_audience"', $html);
+        $this->assertStringContainsString('Semua Karyawan (Umum)', $html);
+        $this->assertStringContainsString('Khusus Bidang Business Support', $html);
+    }
+
+    public function test_announcement_form_has_no_target_audience_for_super_admin(): void
+    {
+        // Super Admin tetap memakai select "Bidang Pemilik" (bebas global/per bidang).
+        $html = $this->actingAs($this->superAdmin())
+            ->get(route('admin.announcements.create'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringNotContainsString('name="target_audience"', $html);
+    }
+
+    public function test_sdm_admin_cannot_touch_other_department_announcements(): void
+    {
+        $ops = Department::byCode('operasi')->id;
+
+        $foreign = Announcement::create([
+            'title' => 'Pengumuman Ops', 'slug' => 'pg-ops-uji-sdm', 'category' => 'umum',
+            'excerpt' => 'e', 'department_id' => $ops, 'is_published' => true,
+        ]);
+
+        $admin = $this->adminBidang('business_support');
+
+        // Edit/delete pengumuman milik Admin Bidang lain → 403.
+        $this->actingAs($admin)->get(route('admin.announcements.edit', $foreign))->assertForbidden();
+        $this->actingAs($admin)->delete(route('admin.announcements.destroy', $foreign))->assertForbidden();
+
+        $this->assertSame('Pengumuman Ops', $foreign->fresh()->title);
+    }
+
+    public function test_sdm_admin_can_edit_own_and_global_announcements(): void
+    {
+        $bsId = Department::byCode('business_support')->id;
+
+        $own = Announcement::create([
+            'title' => 'Pengumuman BS', 'slug' => 'pg-bs-uji', 'category' => 'umum',
+            'excerpt' => 'e', 'department_id' => $bsId, 'is_published' => true,
+        ]);
+        $global = Announcement::create([
+            'title' => 'Pengumuman Global', 'slug' => 'pg-global-uji', 'category' => 'umum',
+            'excerpt' => 'e', 'department_id' => null, 'is_published' => true,
+        ]);
+
+        $admin = $this->adminBidang('business_support');
+
+        $this->actingAs($admin)
+            ->put(route('admin.announcements.update', $own), [
+                'title' => 'Pengumuman BS (Baru)', 'category' => 'umum', 'excerpt' => 'e',
+            ])->assertRedirect(route('admin.announcements.index'));
+
+        $this->assertSame('Pengumuman BS (Baru)', $own->fresh()->title);
+
+        // Pengumuman global (NULL) juga boleh dikelola — pola existing.
+        $this->actingAs($admin)
+            ->put(route('admin.announcements.update', $global), [
+                'title' => 'Pengumuman Global (Baru)', 'category' => 'umum', 'excerpt' => 'e',
+            ])->assertRedirect(route('admin.announcements.index'));
+
+        $this->assertSame('Pengumuman Global (Baru)', $global->fresh()->title);
     }
 }

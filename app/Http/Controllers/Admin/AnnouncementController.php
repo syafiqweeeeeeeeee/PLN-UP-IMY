@@ -205,7 +205,9 @@ class AnnouncementController extends Controller
 
     /**
      department_id saat create:
-     * - Admin Bidang → selalu ID bidangnya (input diabaikan).
+     * - Admin Bidang → dari radio "Target Pembaca": 'umum' = global
+     *   (NULL — tampil untuk semua karyawan, mis. edaran cuti/BPJS oleh
+     *   Admin SDM), 'bidang' = ID bidangnya (instruksi internal).
      * - Super Admin  → dari input department_id (nullable = global).
      */
     private function resolveDepartmentIdForCreate(Request $request): ?int
@@ -213,6 +215,12 @@ class AnnouncementController extends Controller
         $department = $this->scopedDepartment();
 
         if ($department !== null) {
+            // Radio target pembaca Admin Bidang: 'umum' (global) | 'bidang'.
+            // Nilai lain / kosong → default bidangnya (perilaku lama).
+            if ($request->input('target_audience') === 'umum') {
+                return null;
+            }
+
             return Department::byCode($department)?->id;
         }
 
