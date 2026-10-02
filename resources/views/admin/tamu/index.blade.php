@@ -277,22 +277,25 @@
         text-overflow: ellipsis;
     }
 
-    /* Thumbnail KTP */
-    .ktp-thumb {
-        width: 56px;
-        height: 36px;
-        object-fit: cover;
-        border-radius: 6px;
-        border: 1px solid #e5e7eb;
-        cursor: zoom-in;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-        display: block;
+    /* Chip dokumen pendukung (satu berkas per tamu) */
+    .doc-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        max-width: 190px;
+        padding: 0.35rem 0.7rem;
+        border-radius: 8px;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        color: #2563eb;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.15s ease, border-color 0.15s ease;
     }
-    .ktp-thumb:hover {
-        transform: scale(1.06);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    .ktp-empty {
+    .doc-chip i { color: #dc2626; }
+    .doc-chip:hover { background: #dbeafe; border-color: #bfdbfe; color: #1d4ed8; }
+    .doc-empty {
         width: 56px;
         height: 36px;
         border-radius: 6px;
@@ -697,7 +700,7 @@
                 <th>Instansi</th>
                 <th>Email</th>
                 <th>Tujuan</th>
-                <th>Lampiran KTP</th>
+                <th>Dokumen</th>
                 <th>Status</th>
                 <th class="text-right">Aksi</th>
             </tr>
@@ -740,11 +743,15 @@
                     <span class="tujuan-keperluan" title="{{ $tamu->keperluan }}">{{ $tamu->keperluan }}</span>
                 </td>
                 <td>
-                    @if ($tamu->foto_ktp)
-                        <img src="{{ $tamu->foto_ktp_url }}" alt="KTP {{ $tamu->nama }}" class="ktp-thumb" loading="lazy"
-                             onclick="openKtpModal('{{ $tamu->foto_ktp_url }}', '{{ addslashes($tamu->nama) }}')">
+                    @if ($tamu->hasDokumen())
+                        {{-- Satu berkas pendukung per tamu — disajikan privat via route ber-auth --}}
+                        <a href="{{ $tamu->dokumen_zip_url }}" target="_blank" rel="noopener"
+                           class="doc-chip" title="Buka / unduh dokumen pendukung {{ $tamu->nama }}">
+                            <i class="fas fa-paperclip"></i>
+                            Dokumen
+                        </a>
                     @else
-                        <div class="ktp-empty" title="Tidak ada lampiran"><i class="fas fa-image"></i></div>
+                        <div class="doc-empty" title="Tidak ada lampiran"><i class="fas fa-paperclip"></i></div>
                     @endif
                 </td>
                 <td>
@@ -846,16 +853,22 @@
 @endif
 
 {{-- ============================================
-     MODAL: PREVIEW KTP
+     MODAL: DOKUMEN TAMU (link unduh privat)
      ============================================ --}}
-<div class="tamu-modal-overlay" id="ktpModal" onclick="if(event.target===this) closeTamuModal('ktpModal')">
+<div class="tamu-modal-overlay" id="dokumenModal" onclick="if(event.target===this) closeTamuModal('dokumenModal')">
     <div class="tamu-modal">
         <div class="tamu-modal-header">
-            <h6><i class="fas fa-id-card" style="color: var(--pln-blue);"></i> Lampiran KTP — <span id="ktpModalName"></span></h6>
-            <button type="button" class="tamu-modal-close" onclick="closeTamuModal('ktpModal')"><i class="fas fa-xmark"></i></button>
+            <h6><i class="fas fa-file-shield" style="color: var(--pln-blue);"></i> Dokumen Tamu — <span id="dokumenModalName"></span></h6>
+            <button type="button" class="tamu-modal-close" onclick="closeTamuModal('dokumenModal')"><i class="fas fa-xmark"></i></button>
         </div>
-        <div class="tamu-modal-body">
-            <img id="ktpModalImg" src="" alt="Foto KTP" class="ktp-full">
+        <div class="tamu-modal-body" style="text-align:center;">
+            <p style="font-size:0.82rem; color:#6b7280; margin:0 0 1rem;">
+                Dokumen pendukung tamu (arsip KTP, surat permohonan, dll.) tersimpan privat.
+                Berkas ZIP/RAR akan terunduh; PDF/gambar tampil di tab baru.
+            </p>
+            <a id="dokumenModalUrl" href="#" target="_blank" rel="noopener" class="btn-corp btn-corp-primary" style="text-decoration:none;">
+                <i class="fas fa-download me-1"></i> Buka / Unduh Dokumen
+            </a>
         </div>
     </div>
 </div>
@@ -881,7 +894,7 @@
         <div class="tamu-delete-dialog">
             <div class="del-icon"><i class="fas fa-trash-can"></i></div>
             <h6>Hapus Data Tamu?</h6>
-            <p>Data yang dihapus tidak dapat dikembalikan, termasuk file lampiran KTP-nya.</p>
+            <p>Data yang dihapus tidak dapat dikembalikan, termasuk file dokumen pendukungnya.</p>
             <div class="tamu-delete-name" id="deleteTamuName"></div>
             <div class="tamu-delete-actions">
                 <button type="button" class="cancel" onclick="closeTamuModal('deleteModal')">Batal</button>
@@ -939,10 +952,11 @@
                                placeholder="Opsional" style="font-size:0.85rem;">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Foto KTP <small class="text-muted">(opsional, JPG/PNG maks 2MB)</small></label>
-                        <input type="file" name="foto_ktp" accept="image/jpeg,image/png"
-                               class="form-control @error('foto_ktp') is-invalid @enderror" style="font-size:0.8rem;">
-                        @error('foto_ktp')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Dokumen Pendukung <small class="text-muted">(opsional, maks 10MB)</small></label>
+                        <input type="file" name="dokumen" accept=".zip,.rar,.pdf,.jpg,.jpeg,.png"
+                               class="form-control @error('dokumen') is-invalid @enderror" style="font-size:0.8rem;">
+                        <small class="text-muted" style="font-size:0.7rem;">ZIP / RAR / PDF / JPG / JPEG / PNG</small>
+                        @error('dokumen')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Orang / Divisi yang Ditemui <span class="text-danger">*</span></label>
@@ -1034,36 +1048,23 @@
 
                 {{-- ========== SEKSI 2: DOKUMEN (selaras form registrasi publik) ========== --}}
                 <div class="tamu-form-section-head">
-                    <span class="tamu-form-section-icon"><i class="fas fa-id-card"></i></span>
+                    <span class="tamu-form-section-icon"><i class="fas fa-folder-open"></i></span>
                     <span class="tamu-form-section-title">Dokumen</span>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Ganti Foto KTP <small class="text-muted">(opsional)</small></label>
-                        <input type="file" name="foto_ktp" id="edit-foto_ktp" accept="image/jpeg,image/png" class="form-control" style="font-size:0.8rem;"
-                               onchange="showEditFileName(this, 'edit-ktp-filename')">
-                        <small class="text-muted" style="font-size:0.7rem;">JPG / PNG, maks 2MB — kosongkan jika tidak ingin mengganti.</small>
-                        <div id="edit-ktp-filename" class="edit-file-selected" style="display:none;"></div>
-                        <div id="edit-ktp-preview" class="hidden mt-1">
-                            <img src="" alt="KTP saat ini" class="ktp-thumb" style="width:72px;height:46px;">
-                        </div>
-                        <div id="edit-ktp-empty" class="hidden">
-                            <small class="text-muted" style="font-size:0.7rem;"><i class="fas fa-image me-1"></i>Belum ada foto KTP.</small>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Ganti Surat Permohonan <small class="text-muted">(opsional)</small></label>
-                        <input type="file" name="surat_jalan" id="edit-surat_jalan" accept="application/pdf" class="form-control" style="font-size:0.8rem;"
-                               onchange="showEditFileName(this, 'edit-surat-filename')">
-                        <small class="text-muted" style="font-size:0.7rem;">PDF, maks 5MB — kosongkan jika tidak ingin mengganti.</small>
-                        <div id="edit-surat-filename" class="edit-file-selected" style="display:none;"></div>
-                        <div id="edit-surat-link" class="hidden mt-1">
-                            <a id="edit-surat-url" href="#" target="_blank" rel="noopener" style="font-size:0.75rem; color:#2563eb; text-decoration:none;">
-                                <i class="fas fa-file-pdf me-1" style="color:#dc2626;"></i>Lihat surat saat ini (PDF)
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Ganti Dokumen Pendukung <small class="text-muted">(opsional)</small></label>
+                        <input type="file" name="dokumen" id="edit-dokumen" accept=".zip,.rar,.pdf,.jpg,.jpeg,.png" class="form-control" style="font-size:0.8rem;"
+                               onchange="showEditFileName(this, 'edit-dokumen-filename')">
+                        <small class="text-muted" style="font-size:0.7rem;">ZIP/RAR/PDF/JPG/JPEG/PNG, maks 10MB — kosongkan jika tidak ingin mengganti.</small>
+                        <div id="edit-dokumen-filename" class="edit-file-selected" style="display:none;"></div>
+                        <div id="edit-dokumen-link" class="hidden mt-1">
+                            <a id="edit-dokumen-url" href="#" target="_blank" rel="noopener" style="font-size:0.75rem; color:#2563eb; text-decoration:none;">
+                                <i class="fas fa-paperclip me-1"></i>Lihat dokumen saat ini
                             </a>
                         </div>
-                        <div id="edit-surat-empty" class="hidden">
-                            <small class="text-muted" style="font-size:0.7rem;"><i class="fas fa-file-circle-xmark me-1"></i>Belum ada surat permohonan.</small>
+                        <div id="edit-dokumen-empty" class="hidden">
+                            <small class="text-muted" style="font-size:0.7rem;"><i class="fas fa-file-circle-xmark me-1"></i>Belum ada dokumen.</small>
                         </div>
                     </div>
                 </div>
@@ -1127,18 +1128,18 @@
     }
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
-            ['ktpModal', 'detailModal', 'deleteModal', 'addModal', 'editModal'].forEach(function (id) {
+            ['dokumenModal', 'detailModal', 'deleteModal', 'addModal', 'editModal'].forEach(function (id) {
                 const el = document.getElementById(id);
                 if (el && el.classList.contains('show')) closeTamuModal(id);
             });
         }
     });
 
-    /* ===== Modal KTP ===== */
-    function openKtpModal(url, nama) {
-        document.getElementById('ktpModalImg').src = url;
-        document.getElementById('ktpModalName').textContent = nama;
-        openTamuModal('ktpModal');
+    /* ===== Modal Dokumen ===== */
+    function openDokumenModal(url, nama) {
+        document.getElementById('dokumenModalUrl').href = url;
+        document.getElementById('dokumenModalName').textContent = nama;
+        openTamuModal('dokumenModal');
     }
 
     /* ===== Modal Detail ===== */
@@ -1177,15 +1178,10 @@
                  + '</div></div>';
         }
 
-        if (t.surat) {
-            html += '<div style="margin-top:1rem;"><div style="font-size:0.72rem; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">Surat Permohonan (PDF)</div>'
-                 + '<a href="' + t.surat + '" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.8rem; font-weight:600; color:#2563eb; background:#eff6ff; border:1px solid #dbeafe; border-radius:9px; padding:0.5rem 0.9rem; text-decoration:none;">'
-                 + '<i class="fas fa-file-pdf" style="color:#dc2626;"></i> Buka File Surat</a></div>';
-        }
-
-        if (t.ktp) {
-            html += '<div style="margin-top:1rem;"><div style="font-size:0.72rem; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">Lampiran KTP</div>'
-                 + '<img src="' + t.ktp + '" alt="KTP" class="ktp-full" style="cursor:zoom-in;" onclick="openKtpModal(\'' + t.ktp + '\', \'' + t.nama.replace(/'/g, "\\'") + '\')"></div>';
+        if (t.dokumen) {
+            html += '<div style="margin-top:1rem;"><div style="font-size:0.72rem; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">Dokumen Pendukung</div>'
+                 + '<a href="javascript:void(0)" onclick="openDokumenModal(\'' + t.dokumen + '\', \'' + String(t.nama).replace(/'/g, "\\'") + '\')" style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.8rem; font-weight:600; color:#2563eb; background:#eff6ff; border:1px solid #dbeafe; border-radius:9px; padding:0.5rem 0.9rem; text-decoration:none; cursor:pointer;">'
+                 + '<i class="fas fa-paperclip" style="color:#dc2626;"></i> Buka / Unduh Dokumen</a></div>';
         }
 
         document.getElementById('detailModalBody').innerHTML = html;
@@ -1202,7 +1198,7 @@
     /* ===== Modal Edit (pop-up) ===== */
     const editUrlTemplate = '{{ route('admin.tamu.update', ['tamu' => ':id']) }}';
 
-    /* Tampilkan nama file yang baru dipilih pada modal edit (KTP/surat) */
+    /* Tampilkan nama file yang baru dipilih pada modal edit (dokumen) */
     function showEditFileName(input, targetId) {
         const target = document.getElementById(targetId);
         if (!target) return;
@@ -1244,35 +1240,20 @@
         if (editKeperluanCount) editKeperluanCount.textContent = (t.keperluan || '').length;
 
         /* Reset pilihan file agar tidak terbawa dari edit sebelumnya */
-        const ktpInput = document.getElementById('edit-foto_ktp');
-        if (ktpInput) ktpInput.value = '';
-        const suratInput = document.getElementById('edit-surat_jalan');
-        if (suratInput) suratInput.value = '';
-        showEditFileName(ktpInput, 'edit-ktp-filename');
-        showEditFileName(suratInput, 'edit-surat-filename');
+        const dokInput = document.getElementById('edit-dokumen');
+        if (dokInput) dokInput.value = '';
+        showEditFileName(dokInput, 'edit-dokumen-filename');
 
-        /* Preview KTP saat ini */
-        const prevWrap = document.getElementById('edit-ktp-preview');
-        const emptyWrap = document.getElementById('edit-ktp-empty');
-        if (t.ktp) {
-            prevWrap.querySelector('img').src = t.ktp;
-            prevWrap.classList.remove('hidden');
-            emptyWrap.classList.add('hidden');
+        /* Link dokumen saat ini (disajikan privat via route ber-auth) */
+        const dokWrap = document.getElementById('edit-dokumen-link');
+        const dokEmpty = document.getElementById('edit-dokumen-empty');
+        if (t.dokumen) {
+            document.getElementById('edit-dokumen-url').href = t.dokumen;
+            dokWrap.classList.remove('hidden');
+            dokEmpty.classList.add('hidden');
         } else {
-            prevWrap.classList.add('hidden');
-            emptyWrap.classList.remove('hidden');
-        }
-
-        /* Link surat saat ini (PDF) */
-        const suratWrap = document.getElementById('edit-surat-link');
-        const suratEmpty = document.getElementById('edit-surat-empty');
-        if (t.surat) {
-            document.getElementById('edit-surat-url').href = t.surat;
-            suratWrap.classList.remove('hidden');
-            suratEmpty.classList.add('hidden');
-        } else {
-            suratWrap.classList.add('hidden');
-            suratEmpty.classList.remove('hidden');
+            dokWrap.classList.add('hidden');
+            dokEmpty.classList.remove('hidden');
         }
 
         openTamuModal('editModal');

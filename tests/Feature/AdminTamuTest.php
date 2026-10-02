@@ -63,7 +63,8 @@ class AdminTamuTest extends TestCase
             'nik'            => '3201123456780001',
             'nama'           => 'Budi Santoso',
             'no_hp'          => '081234567890',
-            'foto_ktp'       => 'ktp/budi.png',
+            // dokumen_zip: path satu berkas pendukung di disk private
+            'dokumen_zip'    => 'dokumen/budi.zip',
             'tujuan_ditemui' => 'Divisi Humas',
             'jumlah_tamu'    => 1,
             'tanggal_kunjungan' => now()->addDay(),
@@ -100,7 +101,7 @@ class AdminTamuTest extends TestCase
        STORE — TAMU MANUAL
        ========================================================= */
 
-    public function test_store_creates_tamu_manual_without_ktp(): void
+    public function test_store_creates_tamu_manual_without_dokumen(): void
     {
         $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
 
@@ -112,22 +113,36 @@ class AdminTamuTest extends TestCase
         $tamu = Tamu::where('nik', '3201999000000001')->first();
         $this->assertNotNull($tamu);
         $this->assertSame('Siti Aminah', $tamu->nama);
-        $this->assertNull($tamu->foto_ktp); // tanpa lampiran KTP pun valid
+        $this->assertNull($tamu->dokumen_zip); // tanpa lampiran pun valid
     }
 
-    public function test_store_accepts_optional_ktp_upload(): void
+    public function test_store_accepts_optional_dokumen_upload(): void
     {
         Storage::fake('private');
         $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
 
         $this->actingAs($admin)
             ->post(route('admin.tamu.store'), $this->validPayload([
-                'foto_ktp' => UploadedFile::fake()->image('ktp.png'),
+                'dokumen' => UploadedFile::fake()->create('dokumen.zip', 200, 'application/zip'),
             ]))
             ->assertRedirect(route('admin.tamu.index'));
 
         $tamu = Tamu::where('nik', '3201999000000001')->first();
-        Storage::disk('private')->assertExists($tamu->foto_ktp);
+        Storage::disk('private')->assertExists($tamu->dokumen_zip);
+        $this->assertStringStartsWith('dokumen/', $tamu->dokumen_zip);
+    }
+
+    public function test_store_rejects_dokumen_with_disallowed_extension(): void
+    {
+        Storage::fake('private');
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
+
+        $this->actingAs($admin)
+            ->post(route('admin.tamu.store'), $this->validPayload([
+                'dokumen' => UploadedFile::fake()->create('dokumen.docx', 300,
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
+            ]))
+            ->assertSessionHasErrors(['dokumen']);
     }
 
     public function test_store_requires_tamu_create_permission(): void
@@ -149,6 +164,29 @@ class AdminTamuTest extends TestCase
         $this->actingAs($admin)
             ->post(route('admin.tamu.store'), $this->validPayload(['nik' => '3201123456780001']))
             ->assertSessionHasErrors(['nik']);
+    }
+
+    /* =========================================================
+       UPDATE — MODAL EDIT
+       ========================================================= */
+
+    public function test_update_replaces_dokumen_and_deletes_old_file(): void
+    {
+        Storage::fake('private');
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
+        $tamu = $this->createTamu();
+        Storage::disk('private')->put($tamu->dokumen_zip, 'lama');
+
+        $this->actingAs($admin)
+            ->put(route('admin.tamu.update', $tamu), $this->validPayload([
+                'dokumen' => UploadedFile::fake()->create('baru.pdf', 150, 'application/pdf'),
+            ]))
+            ->assertRedirect(route('admin.tamu.index'))
+            ->assertSessionHas('success');
+
+        $tamu->refresh();
+        Storage::disk('private')->assertMissing('dokumen/budi.zip');
+        Storage::disk('private')->assertExists($tamu->dokumen_zip);
     }
 
     /* =========================================================
@@ -183,12 +221,12 @@ class AdminTamuTest extends TestCase
        DELETE
        ========================================================= */
 
-    public function test_destroy_deletes_tamu_and_ktp_file(): void
+    public function test_destroy_deletes_tamu_and_dokumen_file(): void
     {
         Storage::fake('private');
         $admin = $this->adminWithPermissions(['tamu.view', 'tamu.delete']);
         $tamu = $this->createTamu();
-        Storage::disk('private')->put($tamu->foto_ktp, 'dummy');
+        Storage::disk('private')->put($tamu->dokumen_zip, 'dummy');
 
         $this->actingAs($admin)
             ->delete(route('admin.tamu.destroy', $tamu))
@@ -196,7 +234,7 @@ class AdminTamuTest extends TestCase
             ->assertSessionHas('success');
 
         $this->assertDatabaseMissing('tamus', ['id' => $tamu->id]);
-        Storage::disk('private')->assertMissing($tamu->foto_ktp);
+        Storage::disk('private')->assertMissing($tamu->dokumen_zip);
     }
 
     public function test_destroy_requires_tamu_delete_permission(): void
@@ -351,70 +389,70 @@ class AdminTamuTest extends TestCase
     }
 
     /* =========================================================
-       DOKUMEN PRIVAT (KTP & SURAT)
+       DOKUMEN PRIVAT (satu berkas pendukung per tamu)
        ========================================================= */
 
-    public function test_ktp_document_requires_login(): void
+    public function test_dokumen_requires_login(): void
     {
         $tamu = $this->createTamu();
 
-        // Tamu tamu (belum login) tidak bisa mengakses foto KTP
-        $this->get(route('admin.tamu.ktp', $tamu))->assertRedirect(route('login'));
+        // Pengunjung (belum login) tidak bisa mengakses dokumen tamu
+        $this->get(route('admin.tamu.dokumen', $tamu))->assertRedirect(route('login'));
     }
 
-    public function test_ktp_document_requires_tamu_view_permission(): void
+    public function test_dokumen_requires_tamu_view_permission(): void
     {
         // User login TANPA permission tamu.view → ditolak (403)
         $user = User::factory()->create();
         $tamu = $this->createTamu();
 
         $this->actingAs($user)
-            ->get(route('admin.tamu.ktp', $tamu))
+            ->get(route('admin.tamu.dokumen', $tamu))
             ->assertForbidden();
     }
 
-    public function test_ktp_document_streams_file_for_authorized_admin(): void
+    public function test_dokumen_streams_file_for_authorized_admin(): void
     {
         Storage::fake('private');
         $admin = $this->adminWithPermissions(['tamu.view']);
         $tamu = $this->createTamu();
-        Storage::disk('private')->put($tamu->foto_ktp, 'fake-image-bytes');
+        Storage::disk('private')->put($tamu->dokumen_zip, 'fake-document-bytes');
 
         $response = $this->actingAs($admin)
-            ->get(route('admin.tamu.ktp', $tamu))
+            ->get(route('admin.tamu.dokumen', $tamu))
             ->assertOk();
 
-        $this->assertSame('fake-image-bytes', $response->streamedContent());
+        $this->assertSame('fake-document-bytes', $response->streamedContent());
     }
 
-    public function test_ktp_document_404_when_tamu_has_no_ktp(): void
+    public function test_dokumen_404_when_tamu_has_no_dokumen(): void
     {
         $admin = $this->adminWithPermissions(['tamu.view']);
-        $tamu = $this->createTamu(['foto_ktp' => null]);
+        $tamu = $this->createTamu(['dokumen_zip' => null]);
 
         $this->actingAs($admin)
-            ->get(route('admin.tamu.ktp', $tamu))
+            ->get(route('admin.tamu.dokumen', $tamu))
             ->assertNotFound();
     }
 
-    public function test_surat_document_streams_for_authorized_admin(): void
+    public function test_dokumen_404_when_file_missing_on_disk(): void
     {
-        Storage::fake('private');
         $admin = $this->adminWithPermissions(['tamu.view']);
-        $tamu = $this->createTamu(['surat_jalan' => 'surat/abc.pdf']);
-        Storage::disk('private')->put($tamu->surat_jalan, '%PDF-fake');
+        $tamu = $this->createTamu(); // path terisi, tapi file tidak ada
 
         $this->actingAs($admin)
-            ->get(route('admin.tamu.surat', $tamu))
-            ->assertOk();
+            ->get(route('admin.tamu.dokumen', $tamu))
+            ->assertNotFound();
     }
 
-    public function test_ktp_url_points_to_private_route_not_public_storage(): void
+    public function test_dokumen_url_points_to_private_route_not_public_storage(): void
     {
         $tamu = $this->createTamu();
 
-        // URL tidak boleh lagi mengarah ke /storage (publik)
-        $this->assertStringNotContainsString('/storage/', $tamu->foto_ktp_url);
-        $this->assertStringContainsString('/ktp', $tamu->foto_ktp_url);
+        // URL tidak boleh mengarah ke /storage (publik)
+        $url = $tamu->dokumen_zip_url;
+        $this->assertNotNull($url);
+        $this->assertStringNotContainsString('/storage/', $url);
+        $this->assertStringContainsString('/dokumen', $url);
     }
 }

@@ -14,10 +14,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *
  * index()    : daftar tamu + filter (search, rentang tanggal kunjungan,
  *              status kunjungan) + stats widget.
- * store()    : tambah tamu manual oleh admin (foto KTP opsional).
- * update()   : perubahan data tamu via modal edit (foto KTP opsional).
+ * store()    : tambah tamu manual oleh admin (dokumen pendukung opsional).
+ * update()   : perubahan data tamu via modal edit (dokumen opsional).
  * checkout() : tandai tamu selesai berkunjung (isi checked_out_at).
- * destroy()  : hapus data tamu beserta file KTP-nya.
+ * destroy()  : hapus data tamu beserta file dokumennya.
  * export()   : unduh CSV sesuai filter yang sedang aktif.
  * print()    : halaman cetak di bawah tabel (dua gaya: "excel" = look
  *              spreadsheet; "pdf" = laporan formal) via dialog print
@@ -61,8 +61,8 @@ class TamuController extends Controller
             'status'    => $t->checked_out_at ? 'Selesai' : 'Berkunjung',
             // Nilai mentah utk <input type="datetime-local"> pada modal edit
             'tanggal_input' => $t->tanggal_kunjungan?->format('Y-m-d\\TH:i'),
-            'ktp'       => $t->foto_ktp ? $t->foto_ktp_url : null,
-            'surat'     => $t->surat_jalan_url,
+            // URL unduh dokumen ZIP (null bila tanpa lampiran)
+            'dokumen'   => $t->dokumen_zip_url,
         ])->keyBy('id');
 
         return view('admin.tamu.index', compact('tamus', 'stats', 'tamuData'));
@@ -76,8 +76,9 @@ class TamuController extends Controller
             'instansi' => ['nullable', 'string', 'max:150'],
             'no_hp' => ['required', 'string', 'max:25', 'regex:/^[0-9+\-\s()]+$/'],
             'email' => ['nullable', 'email', 'max:150'],
-            // Untuk input manual, unggah KTP tidak diwajibkan
-            'foto_ktp' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            // Untuk input manual, unggah dokumen pendukung tidak diwajibkan
+            // (multi-format selaras form registrasi publik)
+            'dokumen' => ['nullable', 'file', 'mimes:zip,rar,pdf,jpg,jpeg,png', 'max:10240'],
             'tujuan_ditemui' => ['required', 'string', 'max:150'],
             'jumlah_tamu' => ['required', 'integer', 'min:1', 'max:100'],
             'tanggal_kunjungan' => ['required', 'date'],
@@ -89,8 +90,9 @@ class TamuController extends Controller
             'no_hp.regex' => 'Format No. WhatsApp / HP tidak valid.',
         ]);
 
-        if ($request->hasFile('foto_ktp')) {
-            $validated['foto_ktp'] = $request->file('foto_ktp')->store('ktp', 'private');
+        if ($request->hasFile('dokumen')) {
+            // Input manual admin: satu berkas pendukung (ZIP/RAR/PDF/gambar)
+            $validated['dokumen_zip'] = $request->file('dokumen')->store('dokumen', 'private');
         }
 
         $tamu = Tamu::create($validated);
@@ -107,7 +109,7 @@ class TamuController extends Controller
 
     /**
      * Perbarui data tamu (dipakai modal edit).
-     * NIK unik diabaikan untuk data tamu ini sendiri; foto KTP hanya
+     * NIK unik diabaikan untuk data tamu ini sendiri; dokumen pendukung hanya
      * diganti bila admin mengunggah file baru.
      */
     public function update(Request $request, Tamu $tamu)
@@ -119,8 +121,7 @@ class TamuController extends Controller
             'instansi' => ['required', 'string', 'max:150'],
             'no_hp' => ['required', 'string', 'max:25', 'regex:/^[0-9+\-\s()]+$/'],
             'email' => ['required', 'email', 'max:150'],
-            'foto_ktp' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'surat_jalan' => ['nullable', 'file', 'mimes:pdf', 'max:5120'],
+            'dokumen' => ['nullable', 'file', 'mimes:zip,rar,pdf,jpg,jpeg,png', 'max:10240'],
             'tujuan_ditemui' => ['required', 'string', 'max:150'],
             'jumlah_tamu' => ['required', 'integer', 'min:1', 'max:100'],
             'tanggal_kunjungan' => ['required', 'date'],
@@ -130,24 +131,17 @@ class TamuController extends Controller
             'nik.digits' => 'NIK harus tepat :digits digit angka.',
             'nik.unique' => 'NIK ini sudah terdaftar sebelumnya.',
             'no_hp.regex' => 'Format No. WhatsApp / HP tidak valid.',
-            'surat_jalan.mimes' => 'File surat harus berformat PDF.',
-            'surat_jalan.max' => 'Ukuran file surat maksimal :max kilobyte (5MB).',
+            'dokumen.mimes' => 'Dokumen harus berformat ZIP, RAR, PDF, JPG, JPEG, atau PNG.',
+            'dokumen.max' => 'Ukuran dokumen maksimal :max kilobyte (10MB).',
         ]);
 
-        if ($request->hasFile('foto_ktp')) {
-            // Hapus file KTP lama agar tidak menumpuk
-            if ($tamu->foto_ktp) {
-                Storage::disk('private')->delete($tamu->foto_ktp);
+        if ($request->hasFile('dokumen')) {
+            // Hapus file lama agar tidak menumpuk; unggahan baru
+            // menggantikan dokumen tamu ini.
+            if ($tamu->dokumen_zip) {
+                Storage::disk('private')->delete($tamu->dokumen_zip);
             }
-            $validated['foto_ktp'] = $request->file('foto_ktp')->store('ktp', 'private');
-        }
-
-        if ($request->hasFile('surat_jalan')) {
-            // Hapus file surat lama agar tidak menumpuk
-            if ($tamu->surat_jalan) {
-                Storage::disk('private')->delete($tamu->surat_jalan);
-            }
-            $validated['surat_jalan'] = $request->file('surat_jalan')->store('surat', 'private');
+            $validated['dokumen_zip'] = $request->file('dokumen')->store('dokumen', 'private');
         }
 
         $tamu->update($validated);
@@ -185,12 +179,9 @@ class TamuController extends Controller
     {
         $nama = $tamu->nama;
 
-        if ($tamu->foto_ktp) {
-            Storage::disk('private')->delete($tamu->foto_ktp);
-        }
-
-        if ($tamu->surat_jalan) {
-            Storage::disk('private')->delete($tamu->surat_jalan);
+        // Hapus file dokumen ZIP milik tamu ini
+        if ($tamu->dokumen_zip) {
+            Storage::disk('private')->delete($tamu->dokumen_zip);
         }
 
         $tamu->delete();

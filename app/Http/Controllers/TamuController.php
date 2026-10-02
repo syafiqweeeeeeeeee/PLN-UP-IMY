@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Tamu;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * TamuController — pendaftaran tamu kantor/instansi.
  *
  * create(): tampilkan form registrasi tamu (publik, tanpa auth).
- * store():  validasi input + upload foto KTP (maks 2MB, jpg/png),
- *           simpan file ke storage/app/public/ktp, lalu insert ke tabel tamus.
+ * store():  validasi input + upload SATU berkas pendukung
+ *           (multi-format: ZIP/RAR/PDF/JPG/JPEG/PNG — arsip KTP,
+ *           surat permohonan, dsb. disatukan dalam satu berkas,
+ *           maks 10MB), simpan ke disk private, lalu insert ke tabel tamus.
  */
 class TamuController extends Controller
 {
@@ -40,12 +41,14 @@ class TamuController extends Controller
             // Wajib: untuk konfirmasi & komunikasi kunjungan
             'email'          => ['required', 'email', 'max:150'],
 
-            // Foto KTP: wajib, gambar jpg/png, maksimal 2MB (2048 kilobyte)
-            'foto_ktp' => [
+            // Berkas pendukung: SATU file wajib (multi-format —
+            // ZIP/RAR/PDF/JPG/JPEG/PNG; arsip KTP, surat permohonan,
+            // dsb. disatukan oleh tamu) maksimal 10MB
+            'dokumen' => [
                 'required',
-                'image',
-                'mimes:jpg,jpeg,png',
-                'max:2048',
+                'file',
+                'mimes:zip,rar,pdf,jpg,jpeg,png',
+                'max:10240',
             ],
 
             'tujuan_ditemui' => ['required', 'string', 'max:150'],
@@ -57,15 +60,6 @@ class TamuController extends Controller
                 'required',
                 'date',
                 'after_or_equal:today',
-            ],
-
-            // Surat permohonan/undangan resmi dari perusahaan: opsional,
-            // namun bila diunggah harus PDF maks 5MB
-            'surat_jalan' => [
-                'nullable',
-                'file',
-                'mimes:pdf',
-                'max:5120',
             ],
 
             'keperluan'      => ['required', 'string', 'max:2000'],
@@ -80,12 +74,10 @@ class TamuController extends Controller
             'no_hp.regex'         => 'Format No. WhatsApp / HP tidak valid.',
             'email.required'      => 'Email wajib diisi.',
             'email.email'         => 'Format email tidak valid.',
-            'surat_jalan.mimes'    => 'File surat harus berformat PDF.',
-            'surat_jalan.max'      => 'Ukuran file surat maksimal :max kilobyte (5MB).',
-            'foto_ktp.required'   => 'Foto KTP wajib diunggah.',
-            'foto_ktp.image'      => 'File harus berupa gambar.',
-            'foto_ktp.mimes'      => 'Foto KTP harus berformat JPG atau PNG.',
-            'foto_ktp.max'        => 'Ukuran foto KTP maksimal :max kilobyte (2MB).',
+            'dokumen.required' => 'Berkas pendukung wajib diunggah.',
+            'dokumen.file'     => 'Berkas pendukung tidak valid.',
+            'dokumen.mimes'    => 'Berkas harus berformat ZIP, RAR, PDF, JPG, JPEG, atau PNG.',
+            'dokumen.max'      => 'Ukuran berkas maksimal :max kilobyte (10MB).',
             'tujuan_ditemui.required' => 'Orang / divisi yang ditemui wajib diisi.',
             'jumlah_tamu.required'=> 'Jumlah tamu wajib diisi.',
             'jumlah_tamu.min'     => 'Jumlah tamu minimal 1 orang.',
@@ -96,17 +88,14 @@ class TamuController extends Controller
         ]);
 
         /* =========================================================
-           2. SIMPAN FILE KTP & SURAT ke DISK PRIVATE
-              (storage/app/private/documents — tidak bisa diakses
-              via URL publik /storage; disajikan lewat controller
-              ber-auth TamuDocumentController)
-              - KTP   -> ktp/   (gambar jpg/png)
-              - Surat -> surat/ (PDF, wajib)
+           2. SIMPAN BERKAS PENDUKUNG ke DISK PRIVATE
+              (storage/app/private — tidak bisa diakses via URL
+              publik /storage; disajikan lewat controller ber-auth
+              TamuDocumentController)
+              - input `dokumen` -> disimpan di folder dokumen/;
+                kolom DB tetap bernama `dokumen_zip` (legacy name)
            ========================================================= */
-        $path      = $request->file('foto_ktp')->store('ktp', 'private');
-        $pathSurat = $request->hasFile('surat_jalan')
-            ? $request->file('surat_jalan')->store('surat', 'private')
-            : null;
+        $validated['dokumen_zip'] = $request->file('dokumen')->store('dokumen', 'private');
 
         /* =========================================================
            3. INSERT DATA
@@ -117,8 +106,7 @@ class TamuController extends Controller
             'instansi'       => $validated['instansi'],
             'no_hp'          => $validated['no_hp'],
             'email'          => $validated['email'],
-            'foto_ktp'       => $path,
-            'surat_jalan'    => $pathSurat, // null bila tanpa surat
+            'dokumen_zip'    => $validated['dokumen_zip'],
             'tujuan_ditemui' => $validated['tujuan_ditemui'],
             'jumlah_tamu'    => $validated['jumlah_tamu'],
             'tanggal_kunjungan' => $validated['tanggal_kunjungan'],

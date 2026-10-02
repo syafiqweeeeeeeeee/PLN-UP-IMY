@@ -116,23 +116,6 @@
         gap: 0.6rem;
         margin: 0 0 0.9rem;
     }
-    /* Sub-pembatas antar dokumen dalam satu panel (KTP / surat) */
-    .pln-doc-divider {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin: 1.2rem 0 0.85rem;
-        padding-top: 1rem;
-        border-top: 1px dashed var(--pg-line);
-    }
-    .pln-doc-divider i { color: var(--pg-soft); font-size: 0.78rem; }
-    .pln-doc-divider span {
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--pg-muted);
-    }
     .pln-section-icon {
         width: 30px;
         height: 30px;
@@ -153,8 +136,6 @@
         text-transform: uppercase;
         color: #475569;
     }
-    /* Jarak vertikal konsisten antar field di dalam seksi */
-    .pln-section > * + * { margin-top: 0.85rem; }
 
     /* ---------- GRID FIELD ---------- */
     .grid-2    { display: grid; gap: 0.85rem; grid-template-columns: 1fr; }
@@ -290,7 +271,7 @@
     .hidden      { display: none !important; }
     .flex        { display: flex; }
     .flex-wrap   { flex-wrap: wrap; }
-    .flex-1      { flex: 1 1 0%; }
+    .flex-1      { flex: 1 1 0%; min-width: 0; }
     .gap-2       { gap: 0.5rem; }
     .justify-center { justify-content: center; }
     .text-center { text-align: center; }
@@ -330,6 +311,31 @@
     /* Dropzone horizontal (ikon + teks sebaris) agar hemat tinggi.
        Input file diletakkan di LUAR dropzone agar klik tidak
        memicu dialog ganda lewat event bubbling. */
+    .pln-upload-wrap { position: relative; }
+
+    /* Input file asli disembunyikan secara VISUAL, tetapi tetap
+       focusable (bukan display:none) — dengan display:none, Chrome
+       menolak submit tanpa pesan saat validasi `required` gagal
+       ("invalid form control is not focusable"). */
+    .pln-file-input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+    }
+    /* Saat browser memfokuskan input tersembunyi (validasi required),
+       sorot dropzone-nya agar pengguna tahu bagian mana yang kurang */
+    .pln-file-input:focus + .pln-dropzone {
+        border-color: var(--pg-cyan);
+        box-shadow: 0 0 0 3px var(--pg-ring);
+    }
+
     .pln-dropzone {
         display: flex;
         align-items: center;
@@ -359,10 +365,11 @@
     .pln-dropzone-title { font-size: 0.84rem; font-weight: 500; color: var(--pg-text); }
     .pln-dropzone-hint  { font-size: 0.73rem; color: var(--pg-soft); margin-top: 0.1rem !important; }
 
-    /* ---------- KARTU FILE TERPILIH (PDF) ---------- */
+    /* ---------- KARTU FILE TERPILIH ---------- */
     .pln-file-card {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         gap: 0.85rem;
         border: 1px solid var(--pg-line);
         border-radius: 14px;
@@ -373,41 +380,19 @@
         width: 42px;
         height: 42px;
         border-radius: 10px;
-        background: #FEF2F2;
-        color: #DC2626;
+        /* Default (ZIP/RAR): aksen teal PLN */
+        background: rgba(0, 194, 209, 0.10);
+        color: var(--pg-blue);
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.1rem;
         flex-shrink: 0;
     }
+    .pln-file-card .file-badge.badge-pdf   { background: rgba(237, 28, 36, 0.10); color: var(--pg-red); }
+    .pln-file-card .file-badge.badge-image { background: rgba(22, 163, 74, 0.12); color: #15803D; }
     .pln-file-card .file-name { font-size: 0.8rem; font-weight: 600; color: var(--pg-text); margin: 0; word-break: break-all; }
     .pln-file-card .file-size { font-size: 0.72rem; color: var(--pg-soft); margin: 0.1rem 0 0; }
-
-    /* ---------- PREVIEW KTP ---------- */
-    .pln-preview {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        align-items: center;
-        border: 1px solid var(--pg-line);
-        border-radius: 14px;
-        background: #fff;
-        padding: 1rem;
-    }
-    @media (min-width: 640px) {
-        .pln-preview { flex-direction: row; }
-    }
-    .pln-preview img {
-        width: 100%;
-        max-width: 200px;
-        height: 110px;
-        object-fit: cover;
-        border-radius: 10px;
-        border: 1px solid var(--pg-line);
-    }
-    .pln-preview-name { font-size: 0.8rem; font-weight: 600; color: var(--pg-text); margin: 0; word-break: break-all; }
-    .pln-preview-size { font-size: 0.72rem; color: var(--pg-soft); margin: 0.1rem 0 0; }
 
     .btn-mini {
         display: inline-flex;
@@ -591,8 +576,8 @@
                 </div>
                 <h2 class="pln-success-title" id="successTitle" data-i18n="form.success_title">Data Anda Berhasil Dikirim!</h2>
                 <p class="pln-success-text" data-i18n="form.success_text">Menunggu konfirmasi admin.<br>Silakan cek email / WhatsApp Anda untuk informasi selanjutnya.</p>
-                <button type="button" class="btn-pln-primary pln-success-close" onclick="closeSuccessModal()" data-i18n="form.btn_done">
-                    <i class="fas fa-check"></i> Selesai
+                <button type="button" class="btn-pln-primary pln-success-close" onclick="closeSuccessModal()">
+                    <i class="fas fa-check"></i> <span data-i18n="form.btn_done">Selesai</span>
                 </button>
             </div>
         </div>
@@ -630,7 +615,8 @@
                         <h2 class="pln-section-title" data-i18n="form.section_identity">Data Diri</h2>
                     </div>
 
-                    {{-- NIK / No. KTP --}}
+                    {{-- NIK / No. KTP — hanya angka, maksimal 16 digit
+                         (dibersihkan otomatis via JS + pattern native) --}}
                     <div>
                         <label for="nik" class="pln-label" data-i18n="form.label_nik">
                             NIK / No. KTP <span class="required">*</span>
@@ -638,6 +624,7 @@
                         <div class="pln-input-icon">
                             <i class="fas fa-fingerprint"></i>
                             <input type="text" id="nik" name="nik" inputmode="numeric" maxlength="16"
+                                   pattern="[0-9]{16}"
                                    value="{{ old('nik') }}"
                                    placeholder="Masukkan 16 digit NIK"
                                    data-i18n-placeholder="form.ph_nik"
@@ -718,105 +705,68 @@
                     </div>
                 </div>
 
-                {{-- ========== SEKSI 2: DOKUMEN (KTP + SURAT) ========== --}}
+                {{-- ========== SEKSI 2: DOKUMEN (satu slot berkas pendukung,
+                     multi-format: ZIP / RAR / PDF / JPG / JPEG / PNG) ========== --}}
                 <div class="pln-section pln-section--doc">
                     <div class="pln-section-head">
-                        <span class="pln-section-icon"><i class="fas fa-id-card"></i></span>
+                        <span class="pln-section-icon"><i class="fas fa-folder-open"></i></span>
                         <h2 class="pln-section-title" data-i18n="form.section_documents">Dokumen</h2>
                     </div>
 
                     <div>
-                        <label class="pln-label">
-                            <span data-i18n="form.doc_ktp">Foto KTP</span> <span class="required">*</span>
-                            <span class="pln-hint" data-i18n="form.doc_ktp_hint">JPG / PNG, maks 2MB</span>
+                        <label class="pln-label" for="dokumen">
+                            <span data-i18n="form.doc_dokumen">Berkas Pendukung</span> <span class="required">*</span>
+                            <span class="pln-hint" data-i18n="form.doc_dokumen_hint">ZIP, RAR, PDF, JPG, JPEG, atau PNG — maks 10MB</span>
                         </label>
 
-                        {{-- Input file DI LUAR dropzone (hindari dialog ganda) --}}
-                        <input type="file" id="foto_ktp" name="foto_ktp" accept="image/jpeg,image/png" class="hidden"
-                               onchange="previewKtp(this)" />
+                        {{-- Satu slot upload untuk seluruh berkas pendukung
+                             (arsip KTP, surat permohonan, dsb.). Input file
+                             diletakkan di LUAR dropzone agar klik tidak
+                             memicu dialog ganda lewat event bubbling.
+                             Input disembunyikan secara visual tetapi tetap
+                             focusable supaya validasi `required` native
+                             tetap tampil. --}}
+                        <div class="pln-upload-wrap">
+                            <input type="file" id="dokumen" name="dokumen" required
+                                   accept=".zip,.rar,.pdf,.jpg,.jpeg,.png"
+                                   class="pln-file-input" />
 
-                        {{-- Dropzone (tersembunyi setelah ada preview) --}}
-                        <div id="ktp-upload-area" class="pln-dropzone @error('foto_ktp') has-error @enderror"
-                             role="button" tabindex="0" aria-label="Pilih foto KTP"
-                             onclick="document.getElementById('foto_ktp').click()">
-                            <i class="fas fa-cloud-arrow-up dz-icon"></i>
-                            <div>
-                                <p class="pln-dropzone-title" data-i18n="form.dz_ktp_title">Klik untuk memilih foto KTP</p>
-                                <p class="pln-dropzone-hint" data-i18n="form.dz_ktp_hint">atau seret &amp; letakkan di sini</p>
-                            </div>
-                        </div>
-
-                        {{-- Preview gambar + tombol hapus/ganti --}}
-                        <div id="ktp-preview-area" class="hidden">
-                            <div class="pln-preview">
-                                <img id="ktp-preview" src="" alt="Preview KTP" />
-                                <div class="flex-1 text-center sm:text-left">
-                                    <p id="ktp-file-name" class="pln-preview-name"></p>
-                                    <p id="ktp-file-size" class="pln-preview-size"></p>
-                                    <div class="flex flex-wrap gap-2 justify-center mt-3 sm:text-left">
-                                        <button type="button" class="btn-mini btn-mini-danger" onclick="removeKtp()">
-                                            <i class="fas fa-trash-can"></i> Hapus
-                                        </button>
-                                        <button type="button" class="btn-mini btn-mini-neutral" onclick="document.getElementById('foto_ktp').click()">
-                                            <i class="fas fa-rotate"></i> Ganti
-                                        </button>
-                                    </div>
+                            {{-- Dropzone horizontal (tersembunyi setelah ada file) --}}
+                            <div id="dokumen-upload-area"
+                                 class="pln-dropzone @error('dokumen') has-error @enderror"
+                                 role="button" tabindex="0"
+                                 aria-label="Pilih berkas dokumen pendukung"
+                                 aria-describedby="dokumen-hint">
+                                <i class="fas fa-cloud-arrow-up dz-icon"></i>
+                                <div>
+                                    <p class="pln-dropzone-title" data-i18n="form.dz_title">Klik untuk memilih berkas</p>
+                                    <p class="pln-dropzone-hint" id="dokumen-hint" data-i18n="form.dz_hint">
+                                        atau seret &amp; letakkan di sini — maksimal 10MB
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
-                        @error('foto_ktp')
-                            <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    {{-- Sub-seksi: surat permohonan (opsional) --}}
-                    <div class="pln-doc-divider">
-                        <i class="fas fa-file-pdf"></i>
-                        <span data-i18n="form.doc_surat_divider">Surat Permohonan / Undangan (Opsional)</span>
-                    </div>
-
-                    <div>
-                        <label class="pln-label">
-                            <span data-i18n="form.doc_surat_label">Upload Surat dari Perusahaan</span>
-                            <span class="pln-hint" data-i18n="form.doc_surat_hint">PDF, maks 5MB</span>
-                        </label>
-
-                        {{-- Input file di luar dropzone (hindari dialog ganda) --}}
-                        <input type="file" id="surat_jalan" name="surat_jalan" accept="application/pdf" class="hidden"
-                               onchange="previewSurat(this)" />
-
-                        {{-- Dropzone (tersembunyi setelah ada file terpilih) --}}
-                        <div id="surat-upload-area" class="pln-dropzone @error('surat_jalan') has-error @enderror"
-                             role="button" tabindex="0" aria-label="Pilih file surat PDF"
-                             onclick="document.getElementById('surat_jalan').click()">
-                            <i class="fas fa-file-pdf dz-icon"></i>
-                            <div>
-                                <p class="pln-dropzone-title" data-i18n="form.dz_surat_title">Klik untuk memilih file surat (PDF)</p>
-                                <p class="pln-dropzone-hint" data-i18n="form.dz_surat_hint">Opsional — surat permohonan/undangan resmi dari perusahaan Anda</p>
-                            </div>
-                        </div>
-
-                        {{-- Kartu file terpilih --}}
-                        <div id="surat-preview-area" class="hidden">
+                        {{-- Kartu pratinjau file terpilih (nama + ukuran MB/KB) --}}
+                        <div id="dokumen-preview-area" class="hidden">
                             <div class="pln-file-card">
-                                <div class="file-badge"><i class="fas fa-file-pdf"></i></div>
+                                <div class="file-badge" id="dokumen-file-badge"><i class="fas fa-file-lines"></i></div>
                                 <div class="flex-1">
-                                    <p id="surat-file-name" class="file-name"></p>
-                                    <p id="surat-file-size" class="file-size"></p>
+                                    <p id="dokumen-file-name" class="file-name"></p>
+                                    <p id="dokumen-file-size" class="file-size"></p>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button type="button" class="btn-mini btn-mini-danger" onclick="removeSurat()">
-                                        <i class="fas fa-trash-can"></i> Hapus
+                                    <button type="button" class="btn-mini btn-mini-danger" onclick="removeDokumen()">
+                                        <i class="fas fa-trash-can"></i> <span data-i18n="form.btn_hapus">Hapus</span>
                                     </button>
-                                    <button type="button" class="btn-mini btn-mini-neutral" onclick="document.getElementById('surat_jalan').click()">
-                                        <i class="fas fa-rotate"></i> Ganti
+                                    <button type="button" class="btn-mini btn-mini-neutral" onclick="document.getElementById('dokumen').click()">
+                                        <i class="fas fa-rotate"></i> <span data-i18n="form.btn_ganti">Ganti</span>
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        @error('surat_jalan')
+                        @error('dokumen')
                             <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                         @enderror
                     </div>
@@ -856,7 +806,7 @@
                                 <i class="fas fa-calendar-day"></i>
                                 <input type="datetime-local" id="tanggal_kunjungan" name="tanggal_kunjungan"
                                        value="{{ old('tanggal_kunjungan') }}" required
-                                       min="{{ now()->format('Y-m-d\\TH:i') }}"
+                                       min="{{ now()->format('Y-m-d\TH:i') }}"
                                        class="pln-input @error('tanggal_kunjungan') has-error @enderror" />
                             </div>
                             @error('tanggal_kunjungan')
@@ -879,7 +829,7 @@
                         </div>
                     </div>
 
-                    {{-- Maksud & Keperluan --}}
+                    {{-- Maksud & Keperluan — dengan counter karakter dinamis (0/2000) --}}
                     <div>
                         <div class="pln-label-row">
                             <label for="keperluan" class="pln-label" data-i18n="form.label_keperluan">
@@ -901,8 +851,8 @@
             {{-- ================= TOMBOL AKSI ================= --}}
             <div class="pln-actions">
                 <p class="pln-required-note" data-i18n="form.btn_note"><span class="required">*</span> Wajib diisi. Data Anda aman &amp; hanya untuk keperluan registrasi.</p>
-                <button type="submit" class="btn-pln-primary" id="btn-submit" data-i18n="form.btn_submit">
-                    <i class="fas fa-paper-plane"></i> Daftar Sekarang
+                <button type="submit" class="btn-pln-primary" id="btn-submit">
+                    <i class="fas fa-paper-plane"></i> <span data-i18n="form.btn_submit">Daftar Sekarang</span>
                 </button>
             </div>
         </form>
@@ -915,26 +865,159 @@
 @endsection
 
 @push('scripts')
-{{-- ================= JAVASCRIPT: PREVIEW KTP + POLISH INPUT ================= --}}
+{{-- ============ JAVASCRIPT: UPLOAD DOKUMEN MULTI-FORMAT + POLISH INPUT ============ --}}
 <script>
-    const inputKtp    = document.getElementById('foto_ktp');
-    const uploadArea  = document.getElementById('ktp-upload-area');
-    const previewArea = document.getElementById('ktp-preview-area');
-    const previewImg  = document.getElementById('ktp-preview');
-    const fileNameEl  = document.getElementById('ktp-file-name');
-    const fileSizeEl  = document.getElementById('ktp-file-size');
-    const nikInput    = document.getElementById('nik');
+    /* =====================================================================
+       0. KONSTANTA — WHITELIST FORMAT & BATAS UKURAN
+       ===================================================================== */
+    const MAX_DOKUMEN  = 10 * 1024 * 1024; // 10MB
+    const DOKUMEN_EXT  = ['zip', 'rar', 'pdf', 'jpg', 'jpeg', 'png'];
+    const DOKUMEN_TEXT = 'ZIP, RAR, PDF, JPG, JPEG, atau PNG';
 
-    const MAX_SIZE = 2 * 1024 * 1024; // 2MB
-
-    /* NIK: terima digit saja, maksimal 16 karakter */
+    /* =====================================================================
+       1. NIK — terima digit saja, maksimal 16 karakter
+       ===================================================================== */
+    const nikInput = document.getElementById('nik');
     if (nikInput) {
         nikInput.addEventListener('input', function () {
             this.value = this.value.replace(/\D/g, '').slice(0, 16);
         });
     }
 
-    /* ===== Pop-up sukses setelah submit ===== */
+    /* =====================================================================
+       2. DOKUMEN PENDUKUNG — SATU SLOT BERKAS (klik / keyboard / drag & drop)
+          Whitelist format: .zip .rar .pdf .jpg .jpeg .png — maks 10MB
+       ===================================================================== */
+    const inputDokumen = document.getElementById('dokumen');
+    const dokArea      = document.getElementById('dokumen-upload-area');
+    const dokPrevArea  = document.getElementById('dokumen-preview-area');
+    const dokNameEl    = document.getElementById('dokumen-file-name');
+    const dokSizeEl    = document.getElementById('dokumen-file-size');
+    const dokBadgeEl   = document.getElementById('dokumen-file-badge');
+
+    /* Ekstensi file dalam huruf kecil (tanpa titik) */
+    function getFileExt(name) {
+        const parts = String(name).split('.');
+        return parts.length > 1 ? parts.pop().toLowerCase() : '';
+    }
+
+    /* Apakah ekstensi file termasuk whitelist? */
+    function isAllowedDokumen(file) {
+        return DOKUMEN_EXT.indexOf(getFileExt(file.name)) !== -1;
+    }
+
+    /* Ukuran file: MB bila ≥ 1MB, selain itu KB */
+    function formatFileSize(bytes) {
+        if (bytes >= 1024 * 1024) {
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+        return Math.max(1, Math.round(bytes / 1024)) + ' KB';
+    }
+
+    /* Ikon & varian warna badge pratinjau sesuai jenis berkas */
+    const DOKUMEN_ICON = {
+        zip:  'fa-file-zipper',
+        rar:  'fa-file-zipper',
+        pdf:  'fa-file-pdf',
+        jpg:  'fa-file-image',
+        jpeg: 'fa-file-image',
+        png:  'fa-file-image',
+    };
+    const DOKUMEN_BADGE_CLASS = {
+        pdf:  'badge-pdf',
+        jpg:  'badge-image',
+        jpeg: 'badge-image',
+        png:  'badge-image',
+    };
+
+    /* Tampilkan pratinjau file (nama + ukuran MB/KB) */
+    function previewDokumen(input) {
+        if (!input.files || !input.files[0]) return;
+
+        const file = input.files[0];
+        const ext  = getFileExt(file.name);
+
+        /* Validasi sisi klien (server tetap sumber kebenaran):
+           whitelist ekstensi & maksimal 10MB */
+        if (!isAllowedDokumen(file)) {
+            alert('Format berkas tidak didukung. Gunakan: ' + DOKUMEN_TEXT + '.');
+            removeDokumen();
+            return;
+        }
+        if (file.size > MAX_DOKUMEN) {
+            alert('Ukuran berkas maksimal 10MB.');
+            removeDokumen();
+            return;
+        }
+
+        /* Badge mengikuti jenis berkas */
+        dokBadgeEl.className = 'file-badge' +
+            (DOKUMEN_BADGE_CLASS[ext] ? ' ' + DOKUMEN_BADGE_CLASS[ext] : '');
+        dokBadgeEl.innerHTML = '<i class="fas ' + (DOKUMEN_ICON[ext] || 'fa-file-lines') + '"></i>';
+
+        dokNameEl.textContent = file.name;
+        dokSizeEl.textContent = formatFileSize(file.size);
+
+        dokArea.classList.remove('has-error');
+        dokArea.classList.add('hidden');
+        dokPrevArea.classList.remove('hidden');
+    }
+
+    /* Hapus file terpilih → kembali ke dropzone kosong */
+    function removeDokumen() {
+        if (!inputDokumen) return;
+
+        inputDokumen.value = '';
+        dokNameEl.textContent = '';
+        dokSizeEl.textContent = '';
+        dokBadgeEl.className = 'file-badge';
+        dokBadgeEl.innerHTML = '<i class="fas fa-file-lines"></i>';
+
+        dokPrevArea.classList.add('hidden');
+        dokArea.classList.remove('hidden');
+    }
+
+    if (inputDokumen && dokArea) {
+        /* Klik dropzone → buka dialog file */
+        dokArea.addEventListener('click', () => inputDokumen.click());
+
+        /* Navigasi keyboard (Enter / Space) → buka dialog file */
+        dokArea.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                inputDokumen.click();
+            }
+        });
+
+        /* Drag & drop */
+        ['dragover', 'dragenter'].forEach(evt =>
+            dokArea.addEventListener(evt, e => { e.preventDefault(); dokArea.classList.add('is-dragover'); })
+        );
+        ['dragleave', 'drop'].forEach(evt =>
+            dokArea.addEventListener(evt, e => { e.preventDefault(); dokArea.classList.remove('is-dragover'); })
+        );
+        dokArea.addEventListener('drop', e => {
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                /* DataTransfer.files bersifat read-only — salin via
+                   DataTransfer sebagai gantinya */
+                try {
+                    inputDokumen.files = files;
+                } catch (err) {
+                    const dt = new DataTransfer();
+                    for (const f of files) dt.items.add(f);
+                    inputDokumen.files = dt.files;
+                }
+                previewDokumen(inputDokumen);
+            }
+        });
+
+        inputDokumen.addEventListener('change', () => previewDokumen(inputDokumen));
+    }
+
+    /* =====================================================================
+       3. POP-UP SUKSES SETELAH SUBMIT
+       ===================================================================== */
     const successModal = document.getElementById('successModal');
 
     if (successModal) {
@@ -956,137 +1039,9 @@
         modal.remove();
     }
 
-    /* Tampilkan preview gambar segera setelah file dipilih */
-    function previewKtp(input) {
-        if (!input.files || !input.files[0]) return;
-
-        const file = input.files[0];
-
-        /* Validasi tipe & ukuran di sisi klien (pengalaman lebih cepat;
-           validasi server tetap sumber kebenaran) */
-        if (!['image/jpeg', 'image/png'].includes(file.type)) {
-            alert('Format file harus JPG atau PNG.');
-            removeKtp();
-            return;
-        }
-        if (file.size > MAX_SIZE) {
-            alert('Ukuran foto maksimal 2MB.');
-            removeKtp();
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            previewImg.src = e.target.result;
-            fileNameEl.textContent = file.name;
-            fileSizeEl.textContent = (file.size / 1024).toFixed(1) + ' KB';
-
-            uploadArea.classList.add('hidden');
-            previewArea.classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-    }
-
-    /* Hapus/batal: kosongkan input, sembunyikan preview, kembalikan dropzone */
-    function removeKtp() {
-        inputKtp.value = '';
-        previewImg.src = '';
-        fileNameEl.textContent = '';
-        fileSizeEl.textContent = '';
-
-        previewArea.classList.add('hidden');
-        uploadArea.classList.remove('hidden');
-    }
-
-    /* Drag & drop — highlight pakai class .is-dragover (custom CSS) */
-    ['dragover', 'dragenter'].forEach(evt =>
-        uploadArea.addEventListener(evt, e => { e.preventDefault(); uploadArea.classList.add('is-dragover'); })
-    );
-    ['dragleave', 'drop'].forEach(evt =>
-        uploadArea.addEventListener(evt, e => { e.preventDefault(); uploadArea.classList.remove('is-dragover'); })
-    );
-    uploadArea.addEventListener('drop', e => {
-        const files = e.dataTransfer.files;
-        if (files.length) {
-            inputKtp.files = files;
-            previewKtp(inputKtp);
-        }
-    });
-
-    /* ===== Surat permohonan (PDF) ===== */
-    const inputSurat     = document.getElementById('surat_jalan');
-    const suratArea      = document.getElementById('surat-upload-area');
-    const suratPrevArea  = document.getElementById('surat-preview-area');
-    const suratNameEl    = document.getElementById('surat-file-name');
-    const suratSizeEl    = document.getElementById('surat-file-size');
-
-    const MAX_SURAT = 5 * 1024 * 1024; // 5MB
-
-    function previewSurat(input) {
-        if (!input.files || !input.files[0]) return;
-
-        const file = input.files[0];
-
-        /* Validasi klien: harus PDF & maks 5MB (server tetap sumber kebenaran) */
-        if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-            alert('File surat harus berformat PDF.');
-            removeSurat();
-            return;
-        }
-        if (file.size > MAX_SURAT) {
-            alert('Ukuran file surat maksimal 5MB.');
-            removeSurat();
-            return;
-        }
-
-        suratNameEl.textContent = file.name;
-        suratSizeEl.textContent = (file.size / 1024).toFixed(1) + ' KB';
-
-        suratArea.classList.add('hidden');
-        suratPrevArea.classList.remove('hidden');
-    }
-
-    function removeSurat() {
-        inputSurat.value = '';
-        suratNameEl.textContent = '';
-        suratSizeEl.textContent = '';
-
-        suratPrevArea.classList.add('hidden');
-        suratArea.classList.remove('hidden');
-    }
-
-    /* Drag & drop untuk dropzone surat */
-    ['dragover', 'dragenter'].forEach(evt =>
-        suratArea.addEventListener(evt, e => { e.preventDefault(); suratArea.classList.add('is-dragover'); })
-    );
-    ['dragleave', 'drop'].forEach(evt =>
-        suratArea.addEventListener(evt, e => { e.preventDefault(); suratArea.classList.remove('is-dragover'); })
-    );
-    suratArea.addEventListener('drop', e => {
-        const files = e.dataTransfer.files;
-        if (files.length) {
-            inputSurat.files = files;
-            previewSurat(inputSurat);
-        }
-    });
-
-    /* Dropzone surat bisa dioperasikan dari keyboard (Enter / Space) */
-    suratArea.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            inputSurat.click();
-        }
-    });
-
-    /* Dropzone bisa dioperasikan dari keyboard (Enter / Space) */
-    uploadArea.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            inputKtp.click();
-        }
-    });
-
-    /* Penghitung karakter Maksud & Keperluan */
+    /* =====================================================================
+       4. PENGHITUNG KARAKTER — MAKSUD & KEPERLUAN (0/2000)
+       ===================================================================== */
     const keperluanInput = document.getElementById('keperluan');
     const keperluanCount = document.getElementById('keperluan-count');
     if (keperluanInput && keperluanCount) {
@@ -1095,18 +1050,42 @@
         updateCount(); // inisialisasi (termasuk saat old() mengembalikan isi)
     }
 
-    /* Tombol submit: tampilkan status memproses, cegah klik ganda */
+    /* =====================================================================
+       5. TOMBOL SUBMIT: status memproses + anti klik ganda
+       ===================================================================== */
     const form      = document.getElementById('form-registrasi');
     const submitBtn = document.getElementById('btn-submit');
+    const submitBtnOriginalHtml = submitBtn ? submitBtn.innerHTML : '';
+    let isSubmitting = false;
+
     if (form && submitBtn) {
-        form.addEventListener('submit', function () {
+        form.addEventListener('submit', function (e) {
+            /* Cegah pengiriman ganda: abaikan submit berikutnya selagi
+               proses berjalan */
+            if (isSubmitting) {
+                e.preventDefault();
+                return;
+            }
+
+            /* Jaring pengaman berkas wajib (validasi native `required`
+               berjalan lebih dulu; ini cadangan bila browser melewatinya) */
+            if (inputDokumen && inputDokumen.files.length === 0) {
+                e.preventDefault();
+                dokArea.classList.add('has-error');
+                alert('Berkas pendukung wajib diunggah.');
+                return;
+            }
+
+            isSubmitting = true;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Memproses...';
         });
+
         /* Pulihkan tombol saat kembali ke halaman via cache browser */
         window.addEventListener('pageshow', function () {
+            isSubmitting = false;
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Daftar Sekarang';
+            submitBtn.innerHTML = submitBtnOriginalHtml;
         });
     }
 </script>

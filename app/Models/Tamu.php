@@ -21,8 +21,7 @@ class Tamu extends Model
         'instansi',
         'no_hp',
         'email',
-        'foto_ktp',
-        'surat_jalan',
+        'dokumen_zip',
         'tujuan_ditemui',
         'jumlah_tamu',
         'tanggal_kunjungan',
@@ -39,29 +38,27 @@ class Tamu extends Model
     ];
 
     /**
-     * URL foto KTP — disajikan lewat route PRIVAT (admin.tamu.ktp)
-     * yang meng-stream file dari disk private.
-     *
-     * Route berada di grup middleware auth + permission:tamu.view,
-     * sehingga foto KTP tidak bisa diakses publik via /storage.
-     * Relatif agar valid di host/port mana pun.
+     * Apakah tamu memiliki lampiran dokumen (ZIP).
      */
-    public function getFotoKtpUrlAttribute(): string
+    public function hasDokumen(): bool
     {
-        return route('admin.tamu.ktp', $this);
+        return ! empty($this->dokumen_zip);
     }
 
     /**
-     * URL surat permohonan PDF — juga lewat route privat (admin.tamu.surat).
-     * Null bila tamu tidak memiliki lampiran surat.
+     * URL unduh dokumen ZIP — disajikan lewat route PRIVAT
+     * (admin.tamu.dokumen) yang meng-stream file dari disk private.
+     *
+     * Route berada di grup middleware auth + permission:tamu.view,
+     * sehingga dokumen tidak bisa diakses publik via /storage.
      */
-    public function getSuratJalanUrlAttribute(): ?string
+    public function getDokumenZipUrlAttribute(): ?string
     {
-        if (! $this->surat_jalan) {
+        if (! $this->dokumen_zip) {
             return null;
         }
 
-        return route('admin.tamu.surat', $this);
+        return route('admin.tamu.dokumen', $this);
     }
 
     /**

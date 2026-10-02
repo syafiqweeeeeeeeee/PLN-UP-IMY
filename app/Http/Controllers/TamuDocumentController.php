@@ -7,12 +7,13 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * TamuDocumentController — penyaji dokumen sensitif tamu (foto KTP &
- * surat permohonan PDF) dari disk PRIVAT.
+ * TamuDocumentController — penyaji dokumen sensitif tamu (berkas pendukung:
+ * arsip ZIP/RAR, PDF, atau gambar berisi KTP, surat permohonan, dll.)
+ * dari disk PRIVAT.
  *
  * File TIDAK bisa diakses via URL publik /storage. Semua permintaan
  * melewati middleware auth + permission (didefinisikan pada route),
- * lalu controller meng-stream file dari storage/app/private/documents.
+ * lalu controller meng-stream file dari storage/app/private/dokumen.
  *
  * Response diberi header no-store karena berisi data pribadi
  * (KTP = data pribadi spesifik, lihat UU PDP).
@@ -20,23 +21,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class TamuDocumentController extends Controller
 {
     /**
-     * Tampilkan foto KTP (inline) — dipakai <img> thumbnail & modal.
+     * Unduh arsip dokumen ZIP tamu (attachment).
      */
-    public function ktp(Tamu $tamu): StreamedResponse
+    public function dokumen(Tamu $tamu): StreamedResponse
     {
-        abort_unless($tamu->foto_ktp, 404, 'Tamu tidak memiliki lampiran KTP.');
+        abort_unless($tamu->dokumen_zip, 404, 'Tamu tidak memiliki lampiran dokumen.');
 
-        return $this->serve($tamu->foto_ktp);
-    }
-
-    /**
-     * Tampilkan surat permohonan PDF (inline, bisa dibuka di tab baru).
-     */
-    public function surat(Tamu $tamu): StreamedResponse
-    {
-        abort_unless($tamu->surat_jalan, 404, 'Tamu tidak memiliki lampiran surat.');
-
-        return $this->serve($tamu->surat_jalan);
+        return $this->serve($tamu->dokumen_zip);
     }
 
     /**
