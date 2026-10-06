@@ -198,4 +198,99 @@ class RbacTest extends TestCase
             ->assertSee('href="' . route('admin.users.index') . '"', false)
             ->assertSee('href="' . route('admin.galeri.index') . '"', false);
     }
+
+    /* =========================================================
+       MATRIKS HAK AKSES — Direct Permission (per akun, menu Pengguna)
+       Berbasis master ID Menu Sidebar × 4 aksi CRUD.
+       ========================================================= */
+
+    public function test_role_update_preserves_non_matrix_permissions(): void
+    {
+        $this->seed(\Database\Seeders\PermissionSeeder::class);
+
+        $admin = $this->userWithPermissions(['roles.view', 'roles.edit']);
+
+        $role = \App\Models\Role::create(['name' => 'PIC Konten', 'status' => true]);
+        $role->permissions()->sync(
+            \App\Models\Permission::whereIn('name', ['news.view', 'news.publish'])->pluck('id')->all()
+        );
+
+        $newsViewId = \App\Models\Permission::where('name', 'news.view')->value('id');
+
+        // Simpan form Edit Role HANYA dengan centang matriks news.view —
+        // news.publish (di luar matriks) tetap dipertahankan.
+        $this->actingAs($admin)
+            ->put(route('admin.roles.update', $role), [
+                'name'        => 'PIC Konten',
+                'description' => 'Uji matriks permission',
+                'status'      => 'active',
+                'permissions' => [$newsViewId],
+            ])
+            ->assertRedirect(route('admin.roles.index'));
+
+        $this->assertTrue($role->hasPermission('news.view'));
+        $this->assertTrue($role->hasPermission('news.publish'));
+        $this->assertFalse($role->hasPermission('news.create'));
+    }
+
+    /* =========================================================
+       ROLE TERKUNCI — 3 Role Dasar permanen
+       ========================================================= */
+
+    public function test_role_creation_is_disabled(): void
+    {
+        // REVISI ARSITEKTUR: pembuatan role baru dinonaktifkan — route
+        // roles.create/roles.store dihapus → 404, tombol UI dikunci.
+        $admin = $this->userWithPermissions(['roles.view', 'roles.create']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.roles.index'))
+            ->assertOk()
+            // Tombol tambah DIKUNCI (disabled) — bukan lagi link <a>
+            ->assertSee('btn-corp-add" disabled', false)
+            ->assertDontSee('btn-corp-add" href=', false);
+
+        // POST ke endpoint roles (create) → tidak lagi tersedia.
+        $this->actingAs($admin)
+            ->post(route('admin.roles.index'), ['name' => 'Role Baru'])
+            ->assertStatus(405); // Method Not Allowed — route store dihapus
+    }
+
+    public function test_base_roles_cannot_be_deleted(): void
+    {
+        $this->seed(\Database\Seeders\PermissionSeeder::class);
+
+        $admin = $this->userWithPermissions(['roles.view', 'roles.delete']);
+
+        foreach (['Super Admin', 'Admin Bidang', 'Karyawan'] as $name) {
+            $role = \App\Models\Role::where('name', $name)->first();
+
+            $this->actingAs($admin)
+                ->delete(route('admin.roles.destroy', $role))
+                ->assertRedirect();
+
+            $this->assertDatabaseHas('roles', ['id' => $role->id]);
+        }
+    }
+
+    public function test_seeder_provides_crud_permissions_and_drops_legacy_administrator_role(): void
+    {
+        $this->seed(\Database\Seeders\PermissionSeeder::class);
+
+        // REVISI AKTOR — hanya 3 role di database
+        $this->assertSame(
+            ['Super Admin', 'Admin Bidang', 'Karyawan'],
+            \App\Models\Role::orderBy('id')->pluck('name')->all()
+        );
+
+        // Setiap ID Menu punya 4 hak akses granular CRUD
+        foreach (['users', 'news', 'tamu', 'galleries', 'work_links'] as $key) {
+            foreach (['view', 'create', 'edit', 'delete'] as $action) {
+                $this->assertDatabaseHas('permissions', ['name' => "{$key}.{$action}"]);
+            }
+        }
+
+        // Log aktivitas: aksi hapus terpisah dari lihat
+        $this->assertDatabaseHas('permissions', ['name' => 'activity_logs.delete']);
+    }
 }

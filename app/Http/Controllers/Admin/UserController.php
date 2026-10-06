@@ -3,55 +3,92 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\ActivityLogger;
+use App\Models\Department;
+use App\Models\MasterMenu;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
     public function index()
     {
+        Gate::authorize('users.view');
+
         $users = User::with('role')->latest()->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
     /**
      * Aturan validasi Hirarki Organisasi (level_jabatan, department,
-     * sub_department) — dipakai oleh store().
+     * sub_department) — dipakai oleh store() & update(). Digerakkan
+     * oleh ROLE yang dipilih (conditional fields):
      *
-     * Logika interaksi (disetujui client via JS, diverifikasi ulang server):
-     * - Administrator / Senior Manager → akses global: department &
-     *   sub_department disembunyikan (field disabled), nilai lama dihapus.
-     * - Manager Bidang → department wajib, sub_department disembunyikan.
-     * - Supervisor / Asisten Manager / Staf → department & sub_department wajib.
+     * - Super Admin → seluruh field hirarki disembunyikan: level_jabatan,
+     *   department & sub_department dipaksa null (nilai tersembunyi
+     *   dari form diabaikan).
+     * - Admin Bidang → Level Jabatan disembunyikan; Bidang Utama &
+     *   Sub-Bidang / Bagian tampil & wajib (dependent dropdown) — unit
+     *   kerja = bidang + sub-bidang (data scoping terkunci sub).
+     * - Karyawan → ketiga field selalu tampil; Level Jabatan HANYA 4
+     *   tingkat (Senior Manager, Manager Bidang, Asisten Manager, Staff).
+     *   Kewajiban department/sub_department mengikuti tingkat akses level:
+     *   * Senior Manager → akses global view-only semua bidang: Bidang
+     *     Utama & Sub-Bidang DISEMBUNYIKAN total dari form → keduanya
+     *     dipaksa null (ALL) otomatis di backend tanpa dipilih manual.
+     *   * Manager Bidang → department wajib; Sub-Bidang disembunyikan
+     *     (membawahi seluruh sub-bidang bidangnya) → nilai dikirim pun
+     *     diabaikan (dipaksa null di normalizeOrgHierarchy()).
+     *   * Asisten Manager / Staff → department & sub_department wajib
+     *     (akses portal terkunci di sub-bidangnya).
      *
      * @return array{0: array<string, string>, 1: array<string, string>} [rules, attributes]
      */
-    private static function orgHierarchyRules(string $levelJabatan): array
+    private static function orgHierarchyRules(string $roleName, string $levelJabatan): array
     {
         $levels      = implode(',', array_keys(User::LEVEL_JABATAN));
         $departments = array_keys(User::DEPARTMENTS);
         $subCodes    = array_merge(...array_map('array_keys', array_values(User::SUB_DEPARTMENTS)));
-        $inSubs      = 'in:' . implode(',', array_merge($subCodes, ['']));
 
         $rules = [
-            'level_jabatan' => 'required|in:' . $levels,
-            'department'    => 'nullable|in:' . implode(',', $departments),
-            'sub_department' => $inSubs,
+            'level_jabatan'  => 'nullable|in:' . $levels,
+            'department'     => 'nullable|in:' . implode(',', $departments),
+            'sub_department' => 'nullable|in:' . implode(',', array_merge($subCodes, [''])),
         ];
 
-        if (User::isGlobalLevel($levelJabatan)) {
-            // Global: department & sub tidak relevan — paksa null di store/update.
+        if ($roleName === User::SUPER_ADMIN_ROLE) {
+            // Super Admin: hirarki tidak relevan → field disembunyikan,
+            // nilai apa pun yang dikirim (mis. via API) diabaikan.
+            $rules['level_jabatan']  = 'nullable';
             $rules['department']     = 'nullable';
             $rules['sub_department'] = 'nullable';
-        } elseif ($levelJabatan === 'manager_bidang') {
-            $rules['department'] = 'required|in:' . implode(',', $departments);
-        } elseif ($levelJabatan === 'staf_spv') {
+        } elseif ($roleName === User::DEPARTMENT_ADMIN_ROLE) {
+            // Admin Bidang: Level disembunyikan; Bidang Utama & Sub-Bidang
+            // wajib dipilih (pemetaan per unit kerja spesifik).
+            $rules['level_jabatan']  = 'nullable';
             $rules['department']     = 'required|in:' . implode(',', $departments);
             $rules['sub_department'] = 'required|in:' . implode(',', $subCodes);
+        } elseif ($roleName === 'Karyawan') {
+            // Karyawan: Level Jabatan (4 tingkat) wajib; kewajiban bidang
+            // & sub mengikuti tingkat akses level terpilih.
+            $rules['level_jabatan'] = 'required|in:' . $levels;
+
+            if (! User::isGlobalLevel($levelJabatan)) {
+                $rules['department'] = 'required|in:' . implode(',', $departments);
+            }
+
+            if (User::subDepartmentRequired($levelJabatan)) {
+                $rules['sub_department'] = 'required|in:' . implode(',', $subCodes);
+            }
+        } else {
+            // Role tidak dikenal / tidak assignable — field tidak divalidasi
+            // (plain nullable) agar penolakan terjadi pada validasi role_id
+            // dengan pesan "Role yang dipilih tidak valid.".
+            $rules['level_jabatan']  = 'nullable';
+            $rules['department']     = 'nullable';
+            $rules['sub_department'] = 'nullable';
         }
 
         return [
@@ -65,64 +102,174 @@ class UserController extends Controller
     }
 
     /**
-     * Rapikan nilai hierarki sebelum disimpan: level global →
-     * department & sub_department dikosongkan; selain Staf/Asmen/Spv
-     * → sub_department dikosongkan.
+     * Rapikan nilai hierarki sebelum disimpan, sesuai ROLE terpilih:
+     * Super Admin → seluruh hirarki dikosongkan; Admin Bidang → Level
+     * Jabatan dikosongkan (field disembunyikan). Karyawan level Senior
+     * Manager → bidang & sub dikosongkan (akses global); level Manager
+     * Bidang → Sub-Bidang dikosongkan (membawahi seluruh sub-bidang).
+     * Ketiga key dijamin selalu ada (field opsional boleh absen).
      */
-    private static function normalizeOrgHierarchy(array &$data, string $levelJabatan): void
+    private static function normalizeOrgHierarchy(array &$data, string $roleName): void
     {
-        if (User::isGlobalLevel($levelJabatan)) {
+        if ($roleName === User::SUPER_ADMIN_ROLE) {
+            $data['level_jabatan']  = null;
             $data['department']     = null;
             $data['sub_department'] = null;
-        } elseif (! User::subDepartmentRequired($levelJabatan)) {
-            $data['sub_department'] = null;
+        } elseif ($roleName === User::DEPARTMENT_ADMIN_ROLE) {
+            $data['level_jabatan'] = null;
+        } elseif ($roleName === 'Karyawan') {
+            // Senior Manager: Bidang Utama & Sub-Bidang disembunyikan total
+            // → keduanya dipaksa null (ALL / akses global view-only) walau
+            // nilai dikirim via API.
+            if (($data['level_jabatan'] ?? null) === 'senior_manager') {
+                $data['department']     = null;
+                $data['sub_department'] = null;
+            }
+
+            // Manager Bidang membawahi seluruh sub-bidang → field
+            // Sub-Bidang disembunyikan; nilai terkirim (mis. via API)
+            // diabaikan.
+            if (($data['level_jabatan'] ?? null) === 'manager_bidang') {
+                $data['sub_department'] = null;
+            }
         }
+
+        $data['level_jabatan']  = $data['level_jabatan'] ?? null;
+        $data['department']     = $data['department'] ?? null;
+        $data['sub_department'] = $data['sub_department'] ?? null;
+    }
+
+    /**
+     * Validasi & sinkronisasi DIRECT PERMISSION (matriks ID Menu × CRUD)
+     * ke tabel user_has_permissions. Checkbox di luar matriks diabaikan.
+     */
+    private function syncDirectPermissions(User $user, Request $request, string $roleName): void
+    {
+        if ($roleName !== User::DEPARTMENT_ADMIN_ROLE) {
+            // Direct permission hanya relevan untuk Admin Bidang —
+            // sinkronkan kosong agar tidak ada sisa saat role diganti.
+            $user->syncPermissions([]);
+
+            return;
+        }
+
+        $submitted = array_map('intval', (array) $request->input('permissions', []));
+
+        // Intersect dengan permission matriks — ID injected di luar
+        // matriks (mis. roles.assign_permission) ditolak.
+        $matrixIds = \App\Models\Permission::whereIn('name', MasterMenu::matrixPermissionNames())
+            ->pluck('id')
+            ->all();
+
+        $user->syncPermissions(array_values(array_intersect($submitted, $matrixIds)));
+    }
+
+    /**
+     * Aturan payload bersama store() & update(). Password opsional
+     * pada update (kosong = tidak diganti).
+     */
+    private function validationRules(bool $isCreate, ?int $userId = null): array
+    {
+        return [
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email' . ($isCreate ? '' : ',' . $userId),
+            'password' => $isCreate ? 'required|min:8|confirmed' : 'nullable|min:8|confirmed',
+            'role_id'  => 'required|integer|exists:roles,id',
+            'no_hp'    => 'nullable|string|max:20',
+            'alamat'   => 'nullable|string|max:500',
+        ];
     }
 
     public function create()
     {
-        $roles = Role::where('status', true)->orderBy('name')->get();
-        return view('admin.users.create', compact('roles'));
+        Gate::authorize('users.create');
+
+        // REVISI — dropdown "Role Pengguna" HANYA berisi 3 aktor:
+        // Super Admin, Admin Bidang, Karyawan. Role "Administrator"
+        // (dan role lain) tidak lagi dapat dipilih; urutan mengikuti
+        // urutan ASSIGNABLE_ROLE_NAMES.
+        $roles = Role::where('status', true)
+            ->whereIn('name', User::ASSIGNABLE_ROLE_NAMES)
+            ->get()
+            ->sortBy(fn (Role $role) => array_search($role->name, User::ASSIGNABLE_ROLE_NAMES))
+            ->values();
+
+        return view('admin.users.create', [
+            'roles'      => $roles,
+            'menuMatrix' => MasterMenu::matrixForRoleForm(),
+        ]);
     }
 
     public function store(Request $request)
     {
-        [$orgRules, $orgAttributes] = self::orgHierarchyRules($request->input('level_jabatan', ''));
+        Gate::authorize('users.create');
 
-        $validated = $request->validate(array_merge([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8|confirmed',
-            'role_id' => 'required|integer|exists:roles,id',
-            'no_hp' => 'nullable|string|max:20',
-            'alamat' => 'nullable|string|max:500',
-        ], $orgRules), $orgAttributes);
+        $role     = Role::find($request->input('role_id'));
+        $roleName = $role?->name ?? '';
 
-        self::normalizeOrgHierarchy($validated, $validated['level_jabatan']);
+        [$orgRules, $orgAttributes] = self::orgHierarchyRules($roleName, $request->input('level_jabatan', ''));
+
+        $validated = $request->validate(array_merge(
+            $this->validationRules(true),
+            $orgRules
+        ), $orgAttributes);
 
         $role = Role::findOrFail($validated['role_id']);
+
+        // REVISI — hanya 3 role yang boleh dipilih (Super Admin,
+        // Admin Bidang, Karyawan). Role lain (mis. Administrator)
+        // ditolak walau dikirim langsung via API.
+        if (! in_array($role->name, User::ASSIGNABLE_ROLE_NAMES, true)) {
+            return back()->withErrors(['role_id' => 'Role yang dipilih tidak valid.'])->withInput();
+        }
 
         if (! $role->status) {
             return back()->withErrors(['role_id' => 'Role yang dipilih sedang dinonaktifkan.'])->withInput();
         }
 
+        // REVISI — binding kuota Super Admin: maksimal 3 akun di database.
+        if ($role->name === User::SUPER_ADMIN_ROLE
+            && User::superAdminAccountCount() >= User::MAX_SUPER_ADMIN_ACCOUNTS) {
+            return back()->withErrors([
+                'role_id' => 'Gagal: Jumlah akun Super Admin sudah mencapai batas maksimal (3 akun).',
+            ])->withInput();
+        }
+
+        // REVISI — kuota Level Jabatan "Senior Manager" (role Karyawan):
+        // maksimal 3 akun AKTIF di database.
+        if ($role->name === 'Karyawan'
+            && $validated['level_jabatan'] === 'senior_manager'
+            && User::seniorManagerAccountCount() >= User::MAX_SENIOR_MANAGER_ACCOUNTS) {
+            return back()->withErrors([
+                'level_jabatan' => 'Gagal: Jumlah akun Senior Manager sudah mencapai batas maksimal (3 akun).',
+            ])->withInput();
+        }
+
+        self::normalizeOrgHierarchy($validated, $role->name);
+
         $validated['password'] = bcrypt($validated['password']);
-        unset($validated['role_id']);
+        $validated['role_id']  = $role->id;
+        $validated['role']     = $role->name;
 
         // RBAC — sinkronkan FK department_id dengan kode bidang terpilih
         // (pengikatan akun Admin Bidang / Karyawan ke satu bidang).
         $validated['department_id'] = $validated['department'] !== null
-            ? \App\Models\Department::byCode($validated['department'])?->id
+            ? Department::byCode($validated['department'])?->id
             : null;
 
-        $user = User::create(array_merge($validated, [
-            'role_id' => $role->id,
-            'role' => $role->name,
-        ]));
+        $user = User::create($validated);
 
         // Sinkronkan pivot role_user agar sistem permission (@can, middleware
         // permission:) mengenali role user ini, bukan hanya kolom users.role_id.
         $user->roles()->sync([$role->id]);
+
+        // DIRECT PERMISSION — sinkronkan matriks hak akses per akun
+        // (khusus Admin Bidang) ke tabel user_has_permissions.
+        $this->syncDirectPermissions($user, $request, $role->name);
+
+        // Note: Jika nanti menginstal spatie/laravel-permission, aktifkan
+        // pembersihan cache di sini agar perubahan Direct Permission langsung
+        // berlaku real-time tanpa logout-login ulang.
 
         ActivityLogger::log('create', null, [
             'module'      => 'pengguna',
@@ -142,8 +289,121 @@ class UserController extends Controller
     }
 
     /**
-     * Toggle status akun pengguna (Aktif ⇄ Nonaktif) — pengganti fitur
-     * Edit Pengguna. Status dipetakan ke kolom email_verified_at:
+     * Edit Pengguna — bentuk form sama dengan Tambah; Direct Permission
+     * tercentang mengikuti hak akses aktif milik user (spec poin 2).
+     */
+    public function edit(User $user)
+    {
+        Gate::authorize('users.edit');
+
+        $roles = Role::where('status', true)
+            ->whereIn('name', User::ASSIGNABLE_ROLE_NAMES)
+            ->get()
+            ->sortBy(fn (Role $role) => array_search($role->name, User::ASSIGNABLE_ROLE_NAMES))
+            ->values();
+
+        return view('admin.users.edit', [
+            'user'              => $user,
+            'roles'             => $roles,
+            'menuMatrix'        => MasterMenu::matrixForRoleForm(),
+            'userPermissionIds' => $user->directPermissionIds(),
+        ]);
+    }
+
+    /**
+     * Update Pengguna — simpan data bidang/sub-bidang ke tabel users
+     * DAN sinkronisasi direct permission (user_has_permissions) ke ID
+     * User tersebut (spec poin 2: "Saat Form Disimpan").
+     */
+    public function update(Request $request, User $user)
+    {
+        Gate::authorize('users.edit');
+
+        $role     = Role::find($request->input('role_id'));
+        $roleName = $role?->name ?? '';
+
+        [$orgRules, $orgAttributes] = self::orgHierarchyRules($roleName, $request->input('level_jabatan', ''));
+
+        $validated = $request->validate(array_merge(
+            $this->validationRules(false, $user->id),
+            $orgRules
+        ), $orgAttributes);
+
+        if (! in_array($role->name, User::ASSIGNABLE_ROLE_NAMES, true)) {
+            return back()->withErrors(['role_id' => 'Role yang dipilih tidak valid.'])->withInput();
+        }
+
+        if (! $role->status) {
+            return back()->withErrors(['role_id' => 'Role yang dipilih sedang dinonaktifkan.'])->withInput();
+        }
+
+        // Kuota Super Admin: akun yang DIJADIKAN Super Admin dihitung
+        // (akun Super Admin existing tidak menggandakan slot-nya sendiri).
+        if ($role->name === User::SUPER_ADMIN_ROLE
+            && ! $user->isSuperAdmin()
+            && User::superAdminAccountCount() >= User::MAX_SUPER_ADMIN_ACCOUNTS) {
+            return back()->withErrors([
+                'role_id' => 'Gagal: Jumlah akun Super Admin sudah mencapai batas maksimal (3 akun).',
+            ])->withInput();
+        }
+
+        // Kuota Senior Manager: sama — yang sudah Senior Manager tidak
+        // menggandakan slot kuotanya sendiri.
+        if ($role->name === 'Karyawan'
+            && $validated['level_jabatan'] === 'senior_manager'
+            && $user->level_jabatan !== 'senior_manager'
+            && User::seniorManagerAccountCount() >= User::MAX_SENIOR_MANAGER_ACCOUNTS) {
+            return back()->withErrors([
+                'level_jabatan' => 'Gagal: Jumlah akun Senior Manager sudah mencapai batas maksimal (3 akun).',
+            ])->withInput();
+        }
+
+        self::normalizeOrgHierarchy($validated, $role->name);
+
+        // Password kosong (update) → tidak diganti.
+        if (($validated['password'] ?? '') !== '') {
+            $validated['password'] = bcrypt($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $validated['role_id'] = $role->id;
+        $validated['role']    = $role->name;
+
+        $validated['department_id'] = $validated['department'] !== null
+            ? Department::byCode($validated['department'])?->id
+            : null;
+
+        $user->update($validated);
+
+        // Pastikan pivot role_user mengikuti perubahan role.
+        $user->roles()->sync([$role->id]);
+
+        // DIRECT PERMISSION — sinkronkan matriks hak akses per akun.
+        $this->syncDirectPermissions($user, $request, $role->name);
+
+        // Note: Jika nanti menginstal spatie/laravel-permission, aktifkan
+        // pembersihan cache di sini agar perubahan Direct Permission langsung
+        // berlaku real-time tanpa logout-login ulang.
+
+        ActivityLogger::log('update', null, [
+            'module'      => 'pengguna',
+            'description' => "memperbarui akun pengguna \"{$user->name}\" ({$user->email})",
+            'subject'     => $user,
+        ]);
+
+        $message = 'Data pengguna berhasil diperbarui.';
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', $message);
+    }
+
+    /**
+     * Toggle status akun pengguna (Aktif ⇄ Nonaktif) — shortcut cepat
+     * dari Daftar Pengguna. Status dipetakan ke kolom email_verified_at:
      * mengaktifkan = verifikasi email; menonaktifkan = batalkan verifikasi.
      *
      * Menerima fetch AJAX (JSON) maupun submit form biasa (redirect).

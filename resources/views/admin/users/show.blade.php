@@ -217,7 +217,7 @@
                                 $roleModel = $user->getRelationValue('role');
                                 $roleName = $roleModel && $roleModel instanceof App\Models\Role ? $roleModel->name : (is_string($user->role) ? $user->role : 'Pengguna');
                                 $roleStatus = $roleModel && $roleModel instanceof App\Models\Role ? $roleModel->status : true;
-                                $roleIcon = $roleName === 'Administrator' ? 'shield-halved' : ($roleName === 'Karyawan' ? 'briefcase' : 'user');
+                                $roleIcon = in_array($roleName, ['Super Admin', 'Administrator'], true) ? 'shield-halved' : ($roleName === 'Karyawan' ? 'briefcase' : 'user');
                                 $roleBadgeClass = $roleStatus ? 'role-badge-active' : 'role-badge-inactive';
                                 $inactiveLabel = $roleStatus ? '' : ' (Nonaktif)';
                             @endphp

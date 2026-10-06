@@ -8,11 +8,13 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Membuat akun Administrator agar fresh install selalu punya
+ * Membuat akun Super Admin agar fresh install selalu punya
  * akun login ke dashboard admin.
  *
  * - Idempotent: aman dijalankan berulang (updateOrCreate).
- * - Role Administrator dibuat bila belum ada (mis. seeder ini
+ * - REVISI AKTOR: memakai role "Super Admin" (bukan legacy
+ *   "Administrator" yang sudah dihapus dari database).
+ * - Role Super Admin dibuat bila belum ada (mis. seeder ini
  *   dipanggil langsung via db:seed --class sebelum PermissionSeeder),
  *   lengkap dengan seluruh permission yang terdaftar.
  * - Email & password dapat dioverride lewat .env:
@@ -22,15 +24,13 @@ class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        $administrator = Role::where('name', 'Administrator')->first();
+        // PermissionSeeder selalu dijalankan (idempotent — firstOrCreate):
+        // selain membuat role Super Admin/Admin Bidang/Karyawan bila belum
+        // ada, ia juga memastikan seluruh permission terdaftar lalu
+        // tersinkron ke role — akun langsung punya akses penuh.
+        $this->call(PermissionSeeder::class);
 
-        if (! $administrator) {
-            // Role belum ada (PermissionSeeder belum jalan) — buat
-            // lengkap dengan seluruh permission agar akun langsung
-            // punya akses penuh.
-            $this->call(PermissionSeeder::class);
-            $administrator = Role::where('name', 'Administrator')->firstOrFail();
-        }
+        $superAdmin = Role::where('name', User::SUPER_ADMIN_ROLE)->firstOrFail();
 
         $email    = config('services.admin.email', 'admin@example.com');
         $password = config('services.admin.password', 'password123');
@@ -38,16 +38,16 @@ class AdminUserSeeder extends Seeder
         $admin = User::updateOrCreate(
             ['email' => $email],
             [
-                'name'     => 'Administrator',
+                'name'     => 'Super Admin',
                 'password' => Hash::make($password),
-                'role'     => $administrator->name,
-                'role_id'  => $administrator->id,
+                'role'     => $superAdmin->name,
+                'role_id'  => $superAdmin->id,
             ]
         );
 
         // Sistem permission (@can, middleware permission:) membaca dari
         // pivot role_user — pastikan relasinya selalu ada.
-        $admin->roles()->syncWithoutDetaching([$administrator->id]);
+        $admin->roles()->syncWithoutDetaching([$superAdmin->id]);
 
         $this->seedDepartmentAdmins();
     }

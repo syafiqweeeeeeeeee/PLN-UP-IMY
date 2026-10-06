@@ -44,10 +44,10 @@ class PortalContentService
      * Filter link kerja SESUAI Hirarki Organisasi user yang login.
      *
      * Aturan akses:
-     * - Administrator / Senior Manager → semua link (global).
+     * - Administrator (legacy) / Senior Manager → semua link (global).
      * - Manager Bidang → link bidang miliknya + link 'umum' (Akses Umum).
-     * - Supervisor / Asisten Manager / Staf → HANYA link sub-bidangnya
-     *   (department:subDepartment) + link 'umum' (Akses Umum).
+     * - Asisten Manager / Staf (legacy 'staf_spv') → HANYA link
+     *   sub-bidangnya (department:subDepartment) + link 'umum' (Akses Umum).
      * - Tanpa data hierarki (akun lama) → hanya link umum.
      *
      * @return array<int, array<string, mixed>>
@@ -61,7 +61,7 @@ class PortalContentService
         }
 
         // Administrator & Senior Manager: akses global — semua link.
-        if ($user->role === 'Administrator' || \App\Models\User::isGlobalLevel($user->level_jabatan)) {
+        if ($user->isSuperAdmin() || \App\Models\User::isGlobalLevel($user->level_jabatan)) {
             return $links;
         }
 
@@ -79,11 +79,11 @@ class PortalContentService
             ));
 }
 
-        // Staf / Asisten Manager / Supervisor: terkunci pada sub-bidangnya.
-        // HANYA 10 link: 5 Link Umum + 5 Link Khusus sub-bidang sendiri.
-        // Link level bidang (mis. SCADA untuk seluruh Bidang Operasi)
-        // tidak lagi ditampilkan untuk level ini.
-        if ($user->level_jabatan === 'staf_spv') {
+        // Asisten Manager / Staf (legacy 'staf_spv'): terkunci pada
+        // sub-bidangnya. HANYA 10 link: 5 Link Umum + 5 Link Khusus
+        // sub-bidang sendiri. Link level bidang (mis. SCADA untuk seluruh
+        // Bidang Operasi) tidak ditampilkan untuk level ini.
+        if (\App\Models\User::subDepartmentRequired($user->level_jabatan)) {
             if ($department === null || $subDepartment === null) {
                 return array_values(array_filter($links, fn ($l) => $l['category'] === 'umum'));
             }
@@ -116,7 +116,7 @@ class PortalContentService
         }
 
         // Administrator & Senior Manager: akses global — semua link terdaftar.
-        if ($user->role === 'Administrator' || \App\Models\User::isGlobalLevel($user->level_jabatan)) {
+        if ($user->isSuperAdmin() || \App\Models\User::isGlobalLevel($user->level_jabatan)) {
             return count(self::workLinks());
         }
 
@@ -205,7 +205,7 @@ class PortalContentService
      *         scope     → 'all' | 'department' | 'sub'
      *         mode      → 'tabs' (bisa berpindah) | 'locked' (terkunci)
      *         subKeys   → daftar kode sub-bidang yang bisa diakses (untuk tabs)
-     *         activeKey → sub-bidang aktif user ('staf_spv'); null jika tidak relevan
+     *         activeKey → sub-bidang aktif user (level terikat sub); null jika tidak relevan
      */
     public static function linkAccessFor(?\App\Models\User $user): array
     {
@@ -214,7 +214,7 @@ class PortalContentService
         }
 
         // Administrator & Senior Manager: global, tab bebas (semua bidang).
-        if ($user->role === 'Administrator' || \App\Models\User::isGlobalLevel($user->level_jabatan)) {
+        if ($user->isSuperAdmin() || \App\Models\User::isGlobalLevel($user->level_jabatan)) {
             return ['scope' => 'all', 'mode' => 'tabs', 'subKeys' => [], 'activeKey' => null];
         }
 
@@ -228,8 +228,8 @@ class PortalContentService
             ];
         }
 
-        // Staf / Asisten Manager / Supervisor: terkunci di sub-bidang sendiri.
-        if ($user->level_jabatan === 'staf_spv' && $user->department && $user->sub_department) {
+        // Asisten Manager / Staf (legacy 'staf_spv'): terkunci di sub-bidang sendiri.
+        if (\App\Models\User::subDepartmentRequired($user->level_jabatan) && $user->department && $user->sub_department) {
             return [
                 'scope'     => 'sub',
                 'mode'      => 'locked',
@@ -535,12 +535,12 @@ class PortalContentService
         $keep = fn (array $s) => match (true) {
             $user === null => ($s['department'] ?? null) === null,
             // Administrator & Senior Manager: semua layanan.
-            $user->role === 'Administrator' || \App\Models\User::isGlobalLevel($user->level_jabatan) => true,
+            $user->isSuperAdmin() || \App\Models\User::isGlobalLevel($user->level_jabatan) => true,
             // Manager Bidang: layanan bidangnya + layanan lintas-bidang (tanpa department).
             $user->level_jabatan === 'manager_bidang' =>
                 ($s['department'] ?? null) === null || ($s['department'] ?? null) === $user->department,
-            // Staf / Asisten Manager / Supervisor: layanan sub-bidangnya + lintas-bidang.
-            $user->level_jabatan === 'staf_spv' && $user->department && $user->sub_department =>
+            // Asisten Manager / Staf (legacy 'staf_spv'): layanan sub-bidangnya + lintas-bidang.
+            \App\Models\User::subDepartmentRequired($user->level_jabatan) && $user->department && $user->sub_department =>
                 ($s['department'] ?? null) === null
                 || (($s['department'] ?? null) === $user->department && ($s['sub_department'] ?? null) === $user->sub_department),
             // Tanpa data hierarki: hanya layanan lintas-bidang.

@@ -60,7 +60,9 @@ class WorkLinkController extends Controller
         $validated = $this->validatePayload($request);
 
         // Admin Bidang: department dipaksa ke bidangnya — input form diabaikan.
+        // Akun terkunci sub-bidang: sub-bidang juga dipaksa ke unit kerjanya.
         $validated['department'] = $this->forcedDepartmentForCreate($validated['department'] ?? null);
+        $validated['sub_department'] = $this->forcedSubDepartmentForCreate($validated['sub_department'] ?? null);
 
         $validated = $this->normalizeTargets($validated);
 
@@ -96,6 +98,10 @@ class WorkLinkController extends Controller
 
         // Admin Bidang tidak boleh memindahkan data ke bidang lain.
         $validated['department'] = $this->forcedDepartmentForCreate($validated['department'] ?? null) ?? $work_link->department;
+
+        // Akun terkunci sub-bidang: sub-bidang dipaksa ke unit kerjanya
+        // (anti manipulasi — tidak bisa memindah data ke sub lain).
+        $validated['sub_department'] = $this->forcedSubDepartmentForCreate($validated['sub_department'] ?? null) ?? $work_link->sub_department;
 
         $work_link->update($validated);
 

@@ -14,11 +14,25 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /** Level Jabatan (Role Utama) — Hirarki Organisasi. */
+    /**
+     * Level Jabatan (Role Utama) — Hirarki Organisasi.
+     * REVISI: HANYA 4 tingkat — opsi dropdown "Level Jabatan" pada form
+     * Pengguna (khusus role Karyawan). Nilai lama ('administrator',
+     * 'staf_spv') tetap dikenali via LEGACY_LEVEL_JABATAN.
+     */
     public const LEVEL_JABATAN = [
+        'senior_manager'  => 'Senior Manager',
+        'manager_bidang'  => 'Manager Bidang',
+        'asisten_manager' => 'Asisten Manager',
+        'staf'            => 'Staff',
+    ];
+
+    /**
+     * Level jabatan legacy (akun lama) — tidak lagi tersedia di dropdown
+     * form, tetapi label & aturan aksesnya tetap dikenali sistem.
+     */
+    public const LEGACY_LEVEL_JABATAN = [
         'administrator' => 'Administrator',
-        'senior_manager' => 'Senior Manager',
-        'manager_bidang' => 'Manager Bidang',
         'staf_spv'      => 'Supervisor / Asisten Manager / Staf',
     ];
 
@@ -109,23 +123,36 @@ class User extends Authenticatable
     ];
 
     /**
-     * Apakah level jabatan ini mewajibkan pemilihan Sub-Bidang?
-     * Staf / Asisten Manager / Supervisor wajib menentukan bagian spesifiknya.
-     * Null (belum diisi / akun lama) → tidak wajib.
+     * Apakah level jabatan ini terikat Sub-Bidang — wajib memilih
+     * Sub-Bidang pada form DAN akses portal terkunci di sub-bidangnya?
+     * Asisten Manager & Staff terikat sub-bidang; 'staf_spv' (gabungan
+     * lama "Supervisor / Asisten Manager / Staf") tetap dikenali untuk
+     * akun legacy. Null (belum diisi / akun lama) → tidak.
      */
     public static function subDepartmentRequired(?string $level): bool
     {
-        return $level === 'staf_spv';
+        return in_array($level, ['asisten_manager', 'staf', 'staf_spv'], true);
     }
 
     /**
      * Apakah level jabatan ini berhak akses global (tanpa Bidang Utama)?
-     * Senior Manager & Administrator: akses lintas bidang.
+     * Senior Manager: akses lintas bidang ('administrator' = legacy).
      * Null (belum diisi / akun lama) → bukan global.
      */
     public static function isGlobalLevel(?string $level): bool
     {
         return in_array($level, ['senior_manager', 'administrator'], true);
+    }
+
+    /**
+     * Label Level Jabatan (legacy-safe): cek daftar aktif dulu, lalu
+     * daftar legacy. Null bila nilai tidak dikenal.
+     */
+    public static function levelJabatanLabel(?string $level): ?string
+    {
+        return static::LEVEL_JABATAN[$level]
+            ?? static::LEGACY_LEVEL_JABATAN[$level]
+            ?? null;
     }
 
     /**
@@ -207,6 +234,31 @@ class User extends Authenticatable
     public const DEPARTMENT_ADMIN_ROLE = 'Admin Bidang';
 
     /**
+     * Role yang dapat dipilih pada form Tambah Pengguna — HANYA 3 aktor:
+     * Super Admin, Admin Bidang, Karyawan. Role legacy "Administrator"
+     * dihapus dari opsi; akun lama tetap dikenali sebagai Super Admin
+     * lewat isSuperAdmin().
+     */
+    public const ASSIGNABLE_ROLE_NAMES = [
+        self::SUPER_ADMIN_ROLE,       // 1) Super Admin
+        self::DEPARTMENT_ADMIN_ROLE,  // 2) Admin Bidang
+        'Karyawan',                   // 3) Karyawan
+    ];
+
+    /**
+     * Batas maksimal akun dengan Role "Super Admin" di dalam database.
+     * Pendaftaran akun Super Admin baru ditolak bila kuota penuh.
+     */
+    public const MAX_SUPER_ADMIN_ACCOUNTS = 3;
+
+    /**
+     * Batas maksimal akun KARYAWAN ber-Level Jabatan "Senior Manager"
+     * (status AKTIF / terverifikasi) di dalam database. Pendaftaran akun
+     * Senior Manager baru ditolak bila kuota penuh.
+     */
+    public const MAX_SENIOR_MANAGER_ACCOUNTS = 3;
+
+    /**
      * Apakah akun ini Super Admin (Sekretariat / Humas)?
      * Super Admin = nama role persis 'Super Admin' ATAU role legacy
      * 'Administrator' (kompatibilitas akun existing).
@@ -233,6 +285,43 @@ class User extends Authenticatable
     }
 
     /**
+     * Jumlah akun yang terikat Role "Super Admin" di database (melalui
+     * kolom role_id maupun pivot role_user). Alias legacy "Administrator"
+     * ikut dihitung karena isSuperAdmin() memperlakukannya setara
+     * Super Admin — kuota menjaga jumlah akun ber-akses-penuh tetap ≤ 3.
+     */
+    public static function superAdminAccountCount(): int
+    {
+        $roleIds = Role::query()
+            ->whereIn('name', [self::SUPER_ADMIN_ROLE, 'Administrator'])
+            ->pluck('id');
+
+        if ($roleIds->isEmpty()) {
+            return 0;
+        }
+
+        return static::query()
+            ->where(function ($query) use ($roleIds) {
+                $query->whereIn('role_id', $roleIds)
+                    ->orWhereHas('roles', fn ($q) => $q->whereIn('roles.id', $roleIds));
+            })
+            ->count();
+    }
+
+    /**
+     * Jumlah akun KARYAWAN ber-Level Jabatan "Senior Manager" dengan
+     * status AKTIF (email terverifikasi) di database. Akun nonaktif tidak
+     * dihitung sehingga slot kuota bebas saat akun dinonaktifkan.
+     */
+    public static function seniorManagerAccountCount(): int
+    {
+        return static::query()
+            ->where('level_jabatan', 'senior_manager')
+            ->whereNotNull('email_verified_at')
+            ->count();
+    }
+
+    /**
      * Kode bidang tempat admin bidang ini terikat. Prioritas:
      * department_id (FK tabel departments) → fallback kolom string
      * `department` (data legacy).
@@ -256,6 +345,76 @@ class User extends Authenticatable
         return $this->boundDepartment() !== null;
     }
 
+    /* =========================================================
+       DATA SCOPING — PENGIKATAN bidang_id & sub_bidang_id
+       ------------------------------------------------------------
+       REVISI ARSITEKTUR: isolasi data bidang TIDAK dibuat lewat
+       banyak role terpisah, melainkan diikat pada atribut milik
+       tabel users saat akun dibuat:
+
+         bidang_id      → kolom department_id (FK tabel departments)
+         sub_bidang_id  → kolom sub_department (kode string sub-bidang)
+
+       Nama domain-spec dipetakan ke kolom fisik via helper di bawah
+       supaya lapisan scoping (Global Scope & guard controller) bisa
+       membacanya dengan istilah spesifikasi tanpa rename kolom.
+       ========================================================= */
+
+    /** ID bidang tempat akun terikat (spec: bidang_id). Null = tidak terikat. */
+    public function bidangId(): ?int
+    {
+        return $this->department_id;
+    }
+
+    /** Kode bidang tempat akun terikat (mis. 'operasi', 'business_support'). */
+    public function bidangCode(): ?string
+    {
+        return $this->boundDepartment();
+    }
+
+    /** Kode sub-bidang tempat akun terikat (spec: sub_bidang_id). Null = tidak terikat. */
+    public function subBidangId(): ?string
+    {
+        return $this->sub_department;
+    }
+
+    /**
+     * Apakah akun ini bypass (tidak terkena) filter data scoping?
+     * Sesuai spec: Super Admin dan Level Jabatan "Senior Manager"
+     * (termasuk legacy 'administrator') melihat SELURUH data dari
+     * semua bidang/sub-bidang.
+     */
+    public function bypassesDataScoping(): bool
+    {
+        if (! $this->exists) {
+            return false;
+        }
+
+        return $this->isSuperAdmin() || static::isGlobalLevel($this->level_jabatan);
+    }
+
+    /**
+     * Tingkat penerapan data scoping untuk akun ini:
+     *
+     * - 'bypass'      → Super Admin / Senior Manager: lihat semua.
+     * - 'bidang_sub'  → akun terikat unit kerja (bidang + sub-bidang):
+     *                   Admin Bidang (sub wajib) & Karyawan Asisten
+     *                   Manager/Staff — filter bidang AND sub-bidang.
+     * - 'bidang'      → akun hanya terikat bidang (legacy Admin Bidang
+     *                   tanpa sub, atau Karyawan Manager Bidang yang
+     *                   membawahi seluruh sub-bidangnya).
+     *
+     * @return string
+     */
+    public function dataScopingLevel(): string
+    {
+        if ($this->bypassesDataScoping()) {
+            return 'bypass';
+        }
+
+        return $this->sub_department !== null ? 'bidang_sub' : 'bidang';
+    }
+
     public function departmentRef(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department_id');
@@ -277,6 +436,72 @@ class User extends Authenticatable
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'role_user')->withTimestamps();
+    }
+
+    /* =========================================================
+       DIRECT PERMISSION — hak akses langsung per akun (tabel
+       user_has_permissions). Pembagian hak akses menu yang
+       berbeda-beda TIDAK dibuat via role baru, melainkan diatur
+       langsung per akun di form Pengguna (matriks ID Menu × CRUD).
+       Efektif = permission role (baseline) ∪ direct permission.
+       ========================================================= */
+
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class, 'user_has_permissions')->withTimestamps();
+    }
+
+    /**
+     * Apakah akun punya DIRECT permission dengan nama ini (dari pivot
+     * user_has_permissions, tanpa memperhitungkan role)?
+     */
+    public function hasDirectPermission(string $permission): bool
+    {
+        if (! $this->exists) {
+            return false;
+        }
+
+        return $this->permissions()->where('permissions.name', $permission)->exists();
+    }
+
+    /**
+     * ID permission direct milik akun — untuk pre-check matriks pada
+     * form Edit Pengguna.
+     *
+     * @return array<int, int>
+     */
+    public function directPermissionIds(): array
+    {
+        if (! $this->exists) {
+            return [];
+        }
+
+        return $this->permissions()->pluck('permissions.id')->all();
+    }
+
+    /**
+     * Sinkronisasi direct permission akun (spec: syncPermissions ke
+     * tabel user_has_permissions).
+     *
+     * @param  array<int, int|string>  $permissionIds
+     */
+    public function syncPermissions(array $permissionIds): void
+    {
+        $this->permissions()->sync(array_map('intval', $permissionIds));
+    }
+
+    /**
+     * Nama-nama direct permission akun (dinamis untuk UI).
+     *
+     * @return \Illuminate\Support\Collection<int, string>
+     */
+    public function directPermissionNames(): \Illuminate\Support\Collection
+    {
+        if (! $this->exists) {
+            return collect();
+        }
+
+        return $this->permissions()->pluck('permissions.name');
     }
 
     /**
@@ -343,12 +568,65 @@ class User extends Authenticatable
         return $legacy !== '' && $legacy !== 'user' && $legacy !== 'Karyawan';
     }
 
+    /**
+     * Cek permission EFEKTIF: Direct Permission sebagai WHITE-LIST OVERRIDE.
+     *
+     * Logika:
+     * 1. Jika user memiliki DIRECT permission untuk permission ini → ALLOW
+     *    (user secara eksplisit mengikutsertakan permission ini)
+     * 2. Jika user memiliki SAMA SALAH SATU direct permission untuk modul
+     *    yang sama (mis. punya news.view tetapi tidak news.edit) → artinya
+     *    user pernah mengelola matriks ini, dan permission yang TIDAK
+     *    dicentang dianggap TIDAK DIINGINKAN → BLOCK (override role)
+     * 3. Jika user TIDAK PUNYA direct permission sama sekali untuk modul
+     *    ini → gunakan role permission sebagai fallback (perilaku legacy)
+     *
+     * Contoh:
+     * - Admin Bidang SO punya role permission [news.view, news.edit, news.delete]
+     * - Di Direct Permission hanya dicentang [news.view, news.delete]
+     *   (news.edit dicabut)
+     * - HasPermission('news.edit'):
+     *   1) hasDirectPermission('news.edit') → false
+     *   2) punya direct permission lain untuk modul 'news'? YA (news.view, news.delete)
+     *   3) → BLOCK (karena news.edit tidak ada di direct permission)
+     *
+     * - Admin Bidang yang BELUM PERNAH masuk menu Pengguna:
+     * - Tidak punya direct permission apa pun
+     * - HasPermission('news.edit'):
+     *   1) hasDirectPermission('news.edit') → false
+     *   2) punya direct permission lain untuk modul 'news'? TIDAK
+     *   3) → fallback ke role → ALLOW (role punya news.edit)
+     *
+     * Dipakai Gate (@can), middleware permission:, dan seluruh cek
+     * menu/tombol — perubahan matriks direct permission pada form
+     * Pengguna berlaku REAL-TIME tanpa deploy.
+     */
     public function hasPermission(string $permission): bool
     {
         if (! $this->exists) {
             return false;
         }
 
+        // 1) DIRECT PERMISSION — diatur per akun via form Pengguna.
+        //    Jika user secara eksplisit mengikutsertakan permission ini → ALLOW.
+        if ($this->hasDirectPermission($permission)) {
+            return true;
+        }
+
+        // 2) Cek apakah user memiliki direct permission untuk MODUL yang sama.
+        //    Jika YA → berarti user pernah mengelola matriks hak akses untuk
+        //    modul ini, dan permission yang tidak dicentang dianggap TIDAK
+        //    DIINGINKAN → BLOCK (override role permission).
+        $module = $this->permissionModule($permission);
+        if ($module !== null && $this->hasAnyDirectPermissionForModule($module)) {
+            // User pernah mengelola matriks modul ini, tapi permission ini
+            // tidak ada di direct permission → BLOCK.
+            return false;
+        }
+
+        // 3) FALLBACK ROLE — permission yang melekat pada role aktif.
+        //    Hanya digunakan jika user TIDAK PUNYA direct permission untuk
+        //    modul ini (belum pernah mengedit matriks hak akses).
         $roles = $this->relationLoaded('roles')
             ? $this->roles
             : $this->roles()->with('permissions')->get();
@@ -364,8 +642,7 @@ class User extends Authenticatable
         }
 
         // Fallback kompatibilitas: akun lama yang dibuat lewat UI hanya punya
-        // kolom users.role_id tanpa baris pivot role_user. Tanpa fallback ini,
-        // menu seperti Log Aktivitas & Role tidak muncul untuk akun tersebut.
+        // kolom users.role_id tanpa baris pivot role_user.
         if ($roles->isEmpty() && $this->role_id) {
             $role = $this->relationLoaded('role') ? $this->role : $this->role()->first();
 
@@ -375,5 +652,32 @@ class User extends Authenticatable
         }
 
         return false;
+    }
+
+    /**
+     * Ekstrak nama modul dari permission string.
+     * Contoh: 'news.edit' → 'news', 'activity_logs.delete' → 'activity_logs'.
+     * Permission yang tidak mengandung titik (mis. permission kustom) → null.
+     */
+    private function permissionModule(string $permission): ?string
+    {
+        $parts = explode('.', $permission);
+        return count($parts) > 1 ? $parts[0] : null;
+    }
+
+    /**
+     * Apakah user memiliki SAMA SALAH SATU direct permission untuk modul tertentu?
+     * Dipakai untuk menentukan apakah user pernah mengelola matriks hak akses
+     * untuk modul ini (sehingga permission yang tidak dicentang berarti ditolak).
+     */
+    private function hasAnyDirectPermissionForModule(string $module): bool
+    {
+        if (! $this->exists) {
+            return false;
+        }
+
+        return $this->permissions()
+            ->where('permissions.name', 'like', $module . '.%')
+            ->exists();
     }
 }

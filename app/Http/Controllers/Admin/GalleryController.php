@@ -202,10 +202,8 @@ class GalleryController extends Controller
             Storage::disk('public')->delete($gallery->file_gambar);
         }
 
-        $gallery->delete();
-
-        return redirect()
-            ->route('admin.galeri.index')
+        $gallery->delete();        return redirect()->route('admin.galeri.index')
             ->with('success', 'Foto galeri berhasil dihapus.');
     }
 }
+

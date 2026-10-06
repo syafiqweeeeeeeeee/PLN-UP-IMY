@@ -142,9 +142,7 @@ class MenuController extends Controller
         return back()->with('success', $menu->is_active
             ? "Menu \"{$menu->label}\" ditampilkan kembali di navbar."
             : "Menu \"{$menu->label}\" disembunyikan dari navbar (bisa diaktifkan lagi kapan saja).");
-    }
-
-    /** Naik/turunkan posisi menu di antara saudara satu level. */
+    }    /** Naik/turunkan posisi menu di antara saudara satu level. */
     public function move(Request $request, Menu $menu): RedirectResponse
     {
         $direction = $request->input('direction') === 'up' ? 'up' : 'down';

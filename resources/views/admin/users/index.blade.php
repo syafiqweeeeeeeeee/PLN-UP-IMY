@@ -321,9 +321,11 @@
             <h5><i class="fas fa-users header-icon"></i>Daftar Pengguna</h5>
             <p>Kelola semua akun pengguna di sistem</p>
         </div>
+        @can('users.create')
         <a href="{{ route('admin.users.create') }}" class="btn-corp btn-corp-add">
             <i class="fas fa-plus"></i> Tambah Pengguna
         </a>
+        @endcan
     </div>
 
     {{-- Stats Chips --}}
@@ -436,9 +438,16 @@
                             <a href="{{ route('admin.users.show', $user) }}" class="news-action-btn edit" style="background: #dbeafe; color: #1d4ed8;" title="Lihat Detail">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            @if (! $isSelf)
+                            @can('users.edit')
+                            <a href="{{ route('admin.users.edit', $user) }}" class="news-action-btn edit" title="Edit Pengguna & Hak Akses">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            @endcan
+                            @if (! $isSelf && auth()->user()?->can('users.edit'))
                                 {{-- Toggle status akun (pengganti Edit): kotak 30×30
-                                     berisi mini-switch — hijau = aktif, oranye = nonaktif. --}}
+                                     berisi mini-switch — hijau = aktif, oranye = nonaktif.
+                                     REVISI RBAC: tombol hanya tampil bila punya
+                                     permission users.edit. --}}
                                 <button type="button"
                                         class="user-switch {{ $isVerified ? 'on' : 'off' }}"
                                         role="switch" aria-checked="{{ $isVerified ? 'true' : 'false' }}"
@@ -449,25 +458,15 @@
                             @else
                                 <button type="button" class="user-switch off" disabled
                                         role="switch" aria-checked="false"
-                                        title="Akun Anda sendiri tidak dapat dinonaktifkan">
+                                        title="{{ $isSelf ? 'Akun Anda sendiri tidak dapat dinonaktifkan' : 'Anda tidak memiliki hak ubah status pengguna' }}">
                                     <span class="track"><span class="knob"></span></span>
-                                </button>
-                            @endif
-                            {{-- Reset password: kotak 30×30, ikon kunci — hanya
-                                 untuk akun lain & pemilik permission
-                                 user.reset-password (tetap divalidasi ulang
-                                 di BACKEND via middleware permission:). --}}
-                            @if (! $isSelf && auth()->user()?->hasPermission('user.reset-password'))
-                                <button type="button" class="news-action-btn edit" style="background: #FEF3C7; color: #B45309;"
-                                        title="Reset Password (password sementara sekali pakai)"
-                                        onclick="openUserResetModal({{ $user->id }}, '{{ addslashes($user->name) }}')">
-                                    <i class="fas fa-key"></i>
                                 </button>
                             @endif
                             <button type="button" class="news-action-btn delete" title="Hapus"
                                     onclick="openUserDeleteModal({{ $user->id }}, '{{ addslashes($user->name) }}')">
                                 <i class="fas fa-trash"></i>
                             </button>
+                            @endcan
                         </div>
                     </td>
                 </tr>

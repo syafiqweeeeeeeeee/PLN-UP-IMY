@@ -41,7 +41,7 @@ class KaryawanLayoutComposer
             return 'Karyawan';
         }
 
-        $levelLabel = User::LEVEL_JABATAN[$user->level_jabatan] ?? null;
+        $levelLabel = User::levelJabatanLabel($user->level_jabatan);
         $deptLabel  = User::DEPARTMENTS[$user->department] ?? null;
         $subLabel   = User::subDepartmentLabel($user->department, $user->sub_department);
 

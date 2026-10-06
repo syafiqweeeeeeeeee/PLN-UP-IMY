@@ -58,6 +58,84 @@
     .status-card.status-inactive .status-icon { background: #fef3c7; color: #92400e; }
     .status-card.status-inactive .status-title { color: #92400e; }
 
+    /* ============================================
+       MATRIKS HAK AKSES (checkbox per ID Menu Sidebar)
+       Kolom: [ Buka Menu (View) | Tambah (Create) |
+               Edit (Update) | Hapus (Delete) ]
+       ============================================ */
+    .perm-matrix-wrap { overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 12px; }
+    html.theme-dark .perm-matrix-wrap { border-color: var(--line); }
+    .perm-matrix { width: 100%; border-collapse: collapse; min-width: 720px; }
+    .perm-matrix thead th {
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 0.75rem 1rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6b7280;
+        text-align: center;
+        white-space: nowrap;
+    }
+    .perm-matrix thead th:nth-child(1),
+    .perm-matrix thead th:nth-child(2) { text-align: left; }
+    html.theme-dark .perm-matrix thead th { background: var(--panel-2); border-color: var(--line); color: var(--ink-muted); }
+    .perm-matrix tbody td {
+        padding: 0.65rem 1rem;
+        border-bottom: 1px solid #f3f4f6;
+        text-align: center;
+        font-size: 0.85rem;
+    }
+    .perm-matrix tbody td:nth-child(1),
+    .perm-matrix tbody td:nth-child(2) { text-align: left; }
+    .perm-matrix tbody tr:last-child td { border-bottom: none; }
+    .perm-matrix tbody tr:hover td { background: #f9fafb; }
+    html.theme-dark .perm-matrix tbody td { border-color: var(--line); }
+    html.theme-dark .perm-matrix tbody tr:hover td { background: var(--panel-hover); }
+    .perm-menu-id {
+        display: inline-block;
+        min-width: 1.75rem;
+        padding: 0.15rem 0.4rem;
+        border-radius: 6px;
+        background: #eef2ff;
+        color: #4338ca;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+    html.theme-dark .perm-menu-id { background: var(--panel-2); color: var(--ink-body); }
+    .perm-menu-name {
+        font-weight: 600;
+        color: var(--ink-heading);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .perm-menu-name i { color: var(--pln-blue); width: 1.1rem; text-align: center; }
+    .perm-check {
+        width: 1.05rem;
+        height: 1.05rem;
+        border-radius: 4px;
+        border: 1px solid #d1d5db;
+        accent-color: var(--pln-blue);
+        cursor: pointer;
+    }
+    .perm-na { color: #cbd5e1; font-size: 0.8rem; }
+    .btn-permission-outline {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0.55rem 1rem;
+        font-weight: 500;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .btn-permission-outline:hover { background: #e5e7eb; }
+    html.theme-dark .btn-permission-outline { background: var(--panel-2); color: var(--ink-body); border-color: var(--line); }
+
     /* Badge status pada ringkasan atas */
     .badge-role {
         font-size: 0.75rem; padding: 0.3rem 0.7rem; border-radius: 20px; font-weight: 600;
@@ -208,6 +286,29 @@
         @error('status')
             <div class="form-error mt-2"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
         @enderror
+    </div>
+
+    {{-- ============================================
+         SECTION: Matriks Hak Akses (ID Menu Sidebar × CRUD)
+         Checkbox disimpan dinamis ke pivot role_permission.
+         Permission di luar matriks (publish/checkout/assign)
+         tetap dikelola di halaman "Kelola Permission".
+         ============================================ --}}
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon purple">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div>
+                <h6 class="form-section-title">Hak Akses Menu (Permission)</h6>
+                <p class="form-section-desc">Centang hak akses granular per ID Menu Sidebar — perubahan tersimpan saat form disimpan</p>
+            </div>
+        </div>
+
+        @include('admin.partials.permission-matrix', [
+            'menuMatrix' => $menuMatrix,
+            'checkedIds' => old('permissions', $rolePermissionIds ?? []),
+        ])
     </div>
 
     {{-- ============================================

@@ -151,8 +151,20 @@
     function reexecuteScripts(container) {
         Array.prototype.forEach.call(container.querySelectorAll('script'), function (old) {
             var s = document.createElement('script');
-            if (old.src) s.src = old.src;
-            s.textContent = old.textContent;
+            if (old.src) {
+                s.src = old.src;
+                // Script dengan src tidak di-invoke Manual — biarkan browser handle
+                // tapi beri flag agar handler cls ketik sejarah eksekusi
+                s.setAttribute('data-reexec-src', '1');
+            } else {
+                // Inline script: inject then invoke via IIFE pattern jika berisi saya-executing
+                s.textContent = old.textContent;
+                // Coba jalankan script inline yang mengandung pola IIFE atau function declaration
+                // yang diharapkan dieksekusi segera setelah swap
+                if (old.textContent.trim().startsWith('(') || old.textContent.trim().startsWith('function') || old.textContent.trim().startsWith('!') || old.textContent.trim().startsWith(';')) {
+                    try { eval(s.textContent); } catch (e) { /* log error tapi jangan hentikan navigasi */ }
+                }
+            }
             old.parentNode.replaceChild(s, old);
         });
     }

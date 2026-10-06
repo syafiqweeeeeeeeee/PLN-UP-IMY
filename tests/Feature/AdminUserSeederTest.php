@@ -13,17 +13,18 @@ class AdminUserSeederTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_creates_admin_user_with_administrator_role(): void
+    public function test_creates_admin_user_with_super_admin_role(): void
     {
-        // Role Administrator sudah ada (mis. PermissionSeeder sudah jalan)
-        $role = Role::create(['name' => 'Administrator', 'status' => true]);
+        // REVISI AKTOR — role admin kini "Super Admin" (role legacy
+        // "Administrator" dihapus dari database).
+        $role = Role::firstOrCreate(['name' => 'Super Admin'], ['status' => true]);
 
         $this->seed(AdminUserSeeder::class);
 
         $admin = User::where('email', 'admin@example.com')->first();
 
         $this->assertNotNull($admin);
-        $this->assertSame('Administrator', $admin->role);
+        $this->assertSame('Super Admin', $admin->role);
         $this->assertSame($role->id, $admin->role_id);
         $this->assertTrue(Hash::check('password123', $admin->password));
 
@@ -38,7 +39,7 @@ class AdminUserSeederTest extends TestCase
         // DB kosong total — seeder harus memanggil PermissionSeeder sendiri
         $this->seed(AdminUserSeeder::class);
 
-        $role = Role::where('name', 'Administrator')->first();
+        $role = Role::where('name', 'Super Admin')->first();
         $this->assertNotNull($role);
         $this->assertGreaterThan(0, $role->permissions()->count());
 

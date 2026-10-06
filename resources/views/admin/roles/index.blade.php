@@ -110,11 +110,17 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-user-tag header-icon"></i>Daftar Role</h5>
-            <p>Kelola hak akses role pengguna di sistem</p>
+            <p>3 Role Dasar permanen — pembagian hak akses per akun diatur lewat menu Pengguna (Direct Permission)</p>
         </div>
-        <a href="{{ route('admin.roles.create') }}" class="btn-corp btn-corp-add">
-            <i class="fas fa-plus"></i> Tambah Role
-        </a>
+        {{-- REVISI ARSITEKTUR: tombol "+ Tambah Role" DIHAPUS/dinonaktifkan
+             permanen — hak akses menu berbeda-beda tidak dibuat via role
+             baru, melainkan diatur langsung per akun pengguna (Direct
+             Permission di form Pengguna). --}}
+        <button type="button" class="btn-corp btn-corp-add" disabled
+                title="Pembuatan role baru dinonaktifkan — atur hak akses per akun di menu Pengguna"
+                style="opacity:.55; cursor:not-allowed;">
+            <i class="fas fa-lock"></i> Tambah Role
+        </button>
     </div>
 
     {{-- Stats Chips --}}
@@ -179,9 +185,12 @@
                     </td>
                     <td class="td-actions">
                         <div class="d-flex gap-1 justify-content-end flex-wrap">
+                            @can('roles.assign_permission')
                             <button class="news-action-btn edit" style="background: #dbeafe; color: #1d4ed8;" onclick="window.location.href='{{ route('admin.roles.permissions', $role) }}'" title="Kelola Permission">
                                 <i class="fas fa-lock-open"></i>
                             </button>
+                            @endcan
+                            @can('roles.edit')
                             <a href="{{ route('admin.roles.edit', $role) }}" class="news-action-btn edit" title="Edit">
                                 <i class="fas fa-pen"></i>
                             </a>
@@ -194,10 +203,13 @@
                                     <i class="fas fa-check-circle"></i>
                                 </button>
                             @endif
+                            @endcan
+                            @can('roles.delete')
                             <button class="news-action-btn delete" title="Hapus"
                                     onclick="openRoleDeleteModal({{ $role->id }}, '{{ addslashes($role->name) }}')">
                                 <i class="fas fa-trash"></i>
                             </button>
+                            @endcan
                         </div>
                     </td>
                 </tr>

@@ -66,7 +66,11 @@ Route::get('/informasi/berita/{slug}', function ($slug) {
 })->name('berita.detail');
 
 Route::get('/informasi/pengumuman', function () {
-    $pengumuman = App\Models\Announcement::where('is_published', true)
+    // Landing page PUBLIK: data scoping per bidang TIDAK berlaku —
+    // konten dikurasi target_publication ('public'/'all'), bukan bidang
+    // pengunjung. Global scope dinonaktifkan eksplisit di sini.
+    $pengumuman = App\Models\Announcement::withoutGlobalScope(App\Models\Scopes\ScopedToUserDepartment::class)
+        ->where('is_published', true)
         ->forPublic()
         ->latest('published_at')
         ->paginate(8);
@@ -75,12 +79,14 @@ Route::get('/informasi/pengumuman', function () {
 })->name('pengumuman');
 
 Route::get('/informasi/pengumuman/{slug}', function ($slug) {
-    $pengumuman = App\Models\Announcement::where('slug', $slug)
+    $pengumuman = App\Models\Announcement::withoutGlobalScope(App\Models\Scopes\ScopedToUserDepartment::class)
+        ->where('slug', $slug)
         ->where('is_published', true)
         ->forPublic()
         ->firstOrFail();
 
-    $related = App\Models\Announcement::where('is_published', true)
+    $related = App\Models\Announcement::withoutGlobalScope(App\Models\Scopes\ScopedToUserDepartment::class)
+        ->where('is_published', true)
         ->forPublic()
         ->where('id', '!=', $pengumuman->id)
         ->where('category', $pengumuman->category)
@@ -172,6 +178,10 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         // Toggle status akun (Aktif ⇄ Nonaktif) — pengganti fitur Edit Pengguna.
         Route::middleware('permission:users.edit')->group(function () {
             Route::patch('users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
+
+            // Edit Pengguna + Direct Permission (hak akses per akun).
+            Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
+            Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
         });
         // Reset password → password sementara sekali pakai (user wajib
         // ganti password saat login berikutnya). Permission khusus
@@ -207,10 +217,11 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
                 Route::get('roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('roles.index');
                 Route::get('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');
             });
-            Route::middleware('permission:roles.create')->group(function () {
-                Route::get('roles/create', [\App\Http\Controllers\Admin\RoleController::class, 'create'])->name('roles.create');
-                Route::post('roles', [\App\Http\Controllers\Admin\RoleController::class, 'store'])->name('roles.store');
-            });
+            // REVISI ARSITEKTUR — pembuatan role baru DINONAKTIFKAN:
+            // hak akses menu berbeda-beda diatur langsung per akun
+            // (Direct Permission di menu Pengguna), bukan via role baru.
+            // Route roles.create/roles.store dihapus → 404 (bukan 403)
+            // dan tombolnya dikunci di UI.
             Route::middleware('permission:roles.edit')->group(function () {
                 Route::get('roles/{role}/edit', [\App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('roles.edit');
                 Route::put('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])->name('roles.update');
@@ -250,6 +261,9 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             });
             Route::middleware('permission:tamu.create')->group(function () {
                 Route::post('tamu', [\App\Http\Controllers\Admin\TamuController::class, 'store'])->name('tamu.store');
+            });
+            // Edit tamu = aksi .edit (matriks CRUD per ID Menu).
+            Route::middleware('permission:tamu.edit')->group(function () {
                 Route::put('tamu/{tamu}', [\App\Http\Controllers\Admin\TamuController::class, 'update'])->name('tamu.update');
             });
             Route::middleware('permission:tamu.checkout')->group(function () {
@@ -337,9 +351,12 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             });
         });
 
-        // Log Aktivitas — hanya untuk yang punya permission activity_logs.view (role Administrator)
+        // Log Aktivitas — gate per aksi:
+        // .view → halaman daftar log; .delete → hapus baris & bersihkan log.
         Route::middleware('permission:activity_logs.view')->group(function () {
             Route::get('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-logs.index');
+        });
+        Route::middleware('permission:activity_logs.delete')->group(function () {
             Route::delete('activity-logs/{uuid}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'destroy'])->name('activity-logs.destroy');
             Route::delete('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'clear'])->name('activity-logs.clear');
         });

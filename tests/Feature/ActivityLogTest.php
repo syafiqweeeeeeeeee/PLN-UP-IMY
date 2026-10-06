@@ -30,7 +30,9 @@ class ActivityLogTest extends TestCase
             'status'      => true,
         ]);
 
-        $permissions = ['activity_logs.view', 'logout'];
+        // REVISI RBAC — hapus/bersihkan log kini aksi .delete terpisah
+        // dari .view (matriks CRUD per ID Menu).
+        $permissions = ['activity_logs.view', 'activity_logs.delete', 'logout'];
 
         foreach ($permissions as $name) {
             $perm = Permission::create(['name' => $name, 'display_name' => $name, 'module' => 'Test']);
@@ -211,7 +213,11 @@ class ActivityLogTest extends TestCase
     public function test_user_create_and_delete_are_logged(): void
     {
         $admin = $this->userWithPermissions(['users.create', 'users.delete']);
-        $role  = Role::create(['name' => 'Karyawan Uji', 'description' => 'Role untuk test', 'status' => true]);
+        // Form pengguna hanya menerima 3 role aktor — pakai "Karyawan".
+        $role  = Role::firstOrCreate(
+            ['name' => 'Karyawan'],
+            ['description' => 'Pengguna internal / karyawan', 'status' => true]
+        );
 
         $this->actingAs($admin)->post(route('admin.users.store'), [
             'name'     => 'Karyawan Baru',
@@ -219,7 +225,7 @@ class ActivityLogTest extends TestCase
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'role_id'  => $role->id,
-            'level_jabatan' => 'staf_spv',
+            'level_jabatan' => 'staf',
             'department'    => 'operasi',
             'sub_department' => 'spv_chcb_a',
         ]);
@@ -477,6 +483,34 @@ class ActivityLogTest extends TestCase
 
         $descriptions = collect(ActivityLogger::readEntries())->pluck('description');
         $this->assertFalse($descriptions->contains('membuat berita "Hapus Saya"'));
+        $this->assertTrue($descriptions->contains('membuat berita "Tetap Ada"'));
+    }
+
+    public function test_delete_requires_activity_logs_delete_permission(): void
+    {
+        // REVISI RBAC — DELETE activity-logs dilindungi permission
+        // activity_logs.delete; admin yang hanya punya .view ditolak 403.
+        $role = Role::create(['name' => 'Viewer Log', 'status' => true]);
+        $perm = Permission::firstOrCreate(
+            ['name' => 'activity_logs.view'],
+            ['display_name' => 'Lihat Log Aktivitas', 'module' => 'Test']
+        );
+        $role->permissions()->attach($perm->id);
+
+        $user = User::factory()->create();
+        $user->roles()->attach($role->id);
+
+        ActivityLogger::log('create', $user, ['module' => 'berita', 'description' => 'membuat berita "Tetap Ada"']);
+
+        $target = collect(ActivityLogger::readEntries())
+            ->firstWhere('description', 'membuat berita "Tetap Ada"');
+        $this->assertNotNull($target);
+
+        $this->actingAs($user)
+            ->delete(route('admin.activity-logs.destroy', $target['id']))
+            ->assertForbidden();
+
+        $descriptions = collect(ActivityLogger::readEntries())->pluck('description');
         $this->assertTrue($descriptions->contains('membuat berita "Tetap Ada"'));
     }
 

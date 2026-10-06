@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\ScopedToUserDepartment;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -45,6 +47,43 @@ class Announcement extends Model
         return $this->belongsTo(User::class, 'author_user_id');
     }
 
+    protected static function booted(): void
+    {
+        // DATA SCOPING — filter otomatis per bidang (spec RBAC poin 4).
+        static::addGlobalScope(new ScopedToUserDepartment);
+    }
+
+    /**
+     * Kontrak global scope ScopedToUserDepartment: pengumuman dengan
+     * department_id NULL bersifat GLOBAL (target pembaca "Semua
+     * Karyawan (Umum)") — terlihat semua bidang. Selain itu hanya
+     * pengumuman milik bidang user login.
+     *
+     * Super Admin / Senior Manager / tanpa binding → tidak difilter
+     * (scope utama sudah bypass).
+     */
+    public function applyDataScoping(Builder $query, User $user): void
+    {
+        $query->where(function (Builder $q) use ($user) {
+            $q->whereNull('department_id')
+              ->orWhere('department_id', $user->bidangId());
+        });
+    }
+
+    /**
+     * Route binding TANPA global scope scoping: pengumuman milik
+     * bidang lain tetap ditemukan sehingga guard controller
+     * (authorizeAnnouncementAccess) menolaknya dengan 403 Forbidden —
+     * bukan 404 — sesuai spec "cegah akses lintas bidang via URL
+     * direct ID (403)".
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->withoutGlobalScope(ScopedToUserDepartment::class)
+            ->where($field ?? $this->getRouteKeyName(), $value)
+            ->first();
+    }
+
     /**
      * Scope konten yang tampil di landing page website publik
      * (target 'public' atau 'all').
@@ -70,9 +109,15 @@ class Announcement extends Model
         $slug = preg_replace('/-+/', '-', $slug);
         $base = $slug;
         $count = 1;
-        while (static::where('slug', $slug)->exists()) {
+
+        // Uniqueness slug dicek GLOBAL (tanpa data scoping) — slug dipakai
+        // routing publik; dua Admin Bidang beda bidang tidak boleh
+        // menghasilkan slug sama.
+        while (static::withoutGlobalScope(ScopedToUserDepartment::class)
+            ->where('slug', $slug)->exists()) {
             $slug = $base . '-' . $count++;
         }
+
         return $slug;
     }
 }

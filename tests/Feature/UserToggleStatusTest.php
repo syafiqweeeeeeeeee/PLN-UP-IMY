@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
- * Penggantian fitur Edit Pengguna dengan toggle status akun:
- * - Route edit/update pengguna SUDAH DIHAPUS (404/405).
+ * Fitur Pengguna:
+ * - REVISI ARSITEKTUR: route Edit Pengguna KEMBALI (dipakai untuk
+ *   Direct Permission per akun) — toggle status tetap ada sebagai
+ *   shortcut cepat dari Daftar Pengguna.
  * - UserController@toggleStatus mengubah email_verified_at (Aktif ⇄ Nonaktif).
  * - Proteksi: admin tidak bisa menonaktifkan akunnya sendiri.
  * - Feedback sukses: "Status pengguna berhasil diperbarui."
@@ -24,20 +26,17 @@ class UserToggleStatusTest extends TestCase
         return $this->userWithPermissions(['users.view', 'users.edit']);
     }
 
-    public function test_edit_and_update_routes_are_removed(): void
+    public function test_edit_and_update_routes_are_available_again(): void
     {
+        // REVISI ARSITEKTUR — Edit Pengguna aktif kembali: form yang sama
+        // dipakai mengatur Direct Permission per akun.
         $admin  = $this->admin();
         $target = User::factory()->create();
 
-        // GET /admin/users/{id}/edit → tidak terdaftar lagi (404).
         $this->actingAs($admin)
-            ->get("/admin/users/{$target->id}/edit")
-            ->assertNotFound();
-
-        // PUT /admin/users/{id} → tidak terdaftar lagi (405: PUT tanpa route).
-        $this->actingAs($admin)
-            ->put("/admin/users/{$target->id}", ['name' => 'Baru'])
-            ->assertStatus(405);
+            ->get(route('admin.users.edit', $target))
+            ->assertOk()
+            ->assertSee('Edit Pengguna');
     }
 
     public function test_toggle_status_activates_unverified_account(): void

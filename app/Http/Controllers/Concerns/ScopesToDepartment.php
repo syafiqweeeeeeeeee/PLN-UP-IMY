@@ -9,7 +9,15 @@ use App\Models\User;
  *
  * Super Admin (Sekretariat/Humas) melihat & mengelola SELURUH data.
  * Admin Bidang hanya melihat & mengelola data bidangnya sendiri;
- * akses tulis ke data bidang lain diblokir (guard URL/API direct access).
+ * akses tulis ke data bidang lain diblokir (guard URL/API direct access
+ * → 403 Forbidden).
+ *
+ * REVISI ARSITEKTUR: pengikatan data memakai atribut users bidang_id /
+ * sub_bidang_id (User::bidangId()/subBidangId()) — BUKAN banyak role
+ * terpisah. Selain itu, model WorkLink & Announcement kini memakai
+ * GLOBAL SCOPE ScopedToUserDepartment sehingga query list terfilter
+ * otomatis; trait ini tetap menjadi lapisan guard tulis (403) dan
+ * pemaksaan bidang pada create.
  */
 trait ScopesToDepartment
 {
@@ -22,18 +30,20 @@ trait ScopesToDepartment
     }
 
     /**
-     * Kode bidang tempat Admin Bidang terikat (null bila Super Admin /
-     * tidak terikat).
+     * Kode bidang tempat Admin Bidang terikat (null bila bypass —
+     * Super Admin maupun Senior Manager — atau tidak terikat).
      */
     protected function scopedDepartment(): ?string
     {
         $user = auth()->user();
 
-        if ($user === null || $user->isSuperAdmin()) {
+        // REVISI — bypass eksplisit sesuai spec: Super Admin DAN Level
+        // Jabatan "Senior Manager" melihat seluruh data semua bidang.
+        if ($user === null || $user->bypassesDataScoping()) {
             return null;
         }
 
-        return $user->boundDepartment();
+        return $user->bidangCode();
     }
 
     /**
@@ -80,10 +90,13 @@ trait ScopesToDepartment
     /**
      * Guard akses tulis khusus Link Kerja (kategori umum/khusus).
      *
-     * Aturan kelola Link Kerja untuk Admin Bidang:
+     * Aturan kelola Link Kerja (unit kerja = bidang + sub-bidang):
      * - Kategori 'umum'  → BOLEH dikelola (semua Admin Bidang berhak
      *   memelihara link yang tampil untuk seluruh karyawan).
-     * - Kategori 'khusus' → hanya milik bidangnya sendiri.
+     * - Kategori 'khusus' → hanya milik unit kerjanya: bidang harus
+     *   cocok, DAN bila akun terikat sub-bidang (Admin Bidang baru &
+     *   Karyawan Asmen/Staff) sub-bidang data harus sama — data level
+     *   bidang / sub lain hanya dikelola Super Admin.
      *
      * Super Admin bebas penuh. Melanggar → 403 (dihandle UI sebagai
      * toast "Akses Dibatasi").
@@ -102,17 +115,49 @@ trait ScopesToDepartment
             return; // Link umum boleh dikelola semua admin bidang.
         }
 
+        $user = auth()->user();
+
+        // Terkunci sub-bidang → wajib cocok bidang + sub-bidang.
+        if ($user !== null && $user->dataScopingLevel() === 'bidang_sub') {
+            if (($link->department ?? null) === $department
+                && ($link->sub_department ?? null) === $user->subBidangId()) {
+                return;
+            }
+
+            abort(403, 'Data ini di luar unit kerja Anda ('
+                . (User::DEPARTMENTS[$department] ?? $department) . ' — '
+                . (User::subDepartmentLabel($department, $user->subBidangId()) ?? $user->subBidangId())
+                . '): hanya Super Admin yang dapat mengelolanya.');
+        }
+
         $this->authorizeDepartmentAccess($link, 'department');
     }
 
     /**
      * Nilai department yang dipaksa pada create: Admin Bidang selalu
      * di-set ke bidangnya (input form diabaikan — anti manipulasi).
+     * Bila akun terikat sub-bidang, sub-bidang juga dipaksa ke
+     * unit kerjanya.
      */
     protected function forcedDepartmentForCreate(?string $requested = null): ?string
     {
         $department = $this->scopedDepartment();
 
         return $department ?? $requested;
+    }
+
+    /**
+     * Nilai sub-bidang yang dipaksa pada create Link Kerja untuk akun
+     * terkunci sub-bidang (anti manipulasi — input form diabaikan).
+     */
+    protected function forcedSubDepartmentForCreate(?string $requested = null): ?string
+    {
+        $user = auth()->user();
+
+        if ($user !== null && $user->dataScopingLevel() === 'bidang_sub') {
+            return $user->subBidangId();
+        }
+
+        return $requested;
     }
 }

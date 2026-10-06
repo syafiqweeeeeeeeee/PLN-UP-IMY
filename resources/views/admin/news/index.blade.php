@@ -538,9 +538,11 @@
             <h5><i class="fas fa-newspaper" style="color: var(--pln-blue); margin-right: 0.5rem;"></i>Daftar Berita</h5>
             <p>Kelola berita yang akan ditampilkan di situs informasi</p>
         </div>
+        @can('news.create')
         <a href="{{ route('admin.news.create') }}" class="btn-corp btn-corp-add">
             <i class="fas fa-plus"></i> Tambah Berita
         </a>
+        @endcan
     </div>
 
     {{-- Stats Chips --}}
@@ -637,9 +639,12 @@
                     @endif
                 </span>
                 <div class="news-card-actions">
+                    @can('news.edit')
                     <a href="{{ route('admin.news.edit', $item) }}" class="news-action-btn edit" title="Edit">
                         <i class="fas fa-pen"></i>
                     </a>
+                    @endcan
+                    @can('news.publish')
                     @if ($item->is_published)
                         <form action="{{ route('admin.news.publish', $item) }}" method="POST" style="display:inline;">
                             @csrf
@@ -648,10 +653,6 @@
                                 <i class="fas fa-eye-slash"></i>
                             </button>
                         </form>
-                        <button type="button" class="news-action-btn delete" title="Hapus"
-                                onclick="openDeleteModal('{{ route('admin.news.destroy', $item) }}', '{{ addslashes($item->title) }}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
                     @else
                         <form action="{{ route('admin.news.publish', $item) }}" method="POST" style="display:inline;">
                             @csrf
@@ -660,11 +661,14 @@
                                 <i class="fas fa-eye"></i>
                             </button>
                         </form>
-                        <button type="button" class="news-action-btn delete" title="Hapus"
-                                onclick="openDeleteModal('{{ route('admin.news.destroy', $item) }}', '{{ addslashes($item->title) }}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
                     @endif
+                    @endcan
+                    @can('news.delete')
+                    <button type="button" class="news-action-btn delete" title="Hapus"
+                            onclick="openDeleteModal('{{ route('admin.news.destroy', $item) }}', '{{ addslashes($item->title) }}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    @endcan
                 </div>
             </div>
         </div>

@@ -173,7 +173,9 @@ class AdminTamuTest extends TestCase
     public function test_update_replaces_dokumen_and_deletes_old_file(): void
     {
         Storage::fake('private');
-        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
+        // REVISI RBAC — edit tamu kini memakai permission tamu.edit
+        // (matriks CRUD per ID Menu), bukan tamu.create.
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.edit']);
         $tamu = $this->createTamu();
         Storage::disk('private')->put($tamu->dokumen_zip, 'lama');
 
@@ -187,6 +189,18 @@ class AdminTamuTest extends TestCase
         $tamu->refresh();
         Storage::disk('private')->assertMissing('dokumen/budi.zip');
         Storage::disk('private')->assertExists($tamu->dokumen_zip);
+    }
+
+    public function test_update_requires_tamu_edit_permission(): void
+    {
+        // REVISI RBAC — PUT tamu/{tamu} dilindungi permission:tamu.edit;
+        // admin yang hanya punya tamu.create ditolak 403.
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
+        $tamu = $this->createTamu();
+
+        $this->actingAs($admin)
+            ->put(route('admin.tamu.update', $tamu), $this->validPayload())
+            ->assertForbidden();
     }
 
     /* =========================================================

@@ -767,7 +767,7 @@
                                 onclick="openDetailModal({{ $tamu->id }})">
                             <i class="fas fa-eye"></i>
                         </button>
-                        @can('tamu.create')
+                        @can('tamu.edit')
                             <button type="button" class="tamu-action-btn edit" title="Edit Data Tamu"
                                     onclick='openEditModal(@json($tamuData[$tamu->id] ?? []))'>
                                 <i class="fas fa-pen"></i>
@@ -1001,7 +1001,7 @@
 {{-- ============================================
      MODAL: EDIT TAMU (POP-UP)
      ============================================ --}}
-@can('tamu.create')
+@can('tamu.edit')
 <div class="tamu-modal-overlay" id="editModal" onclick="if(event.target===this) closeTamuModal('editModal')">
     <div class="tamu-modal modal-lg">
         <div class="tamu-modal-header">

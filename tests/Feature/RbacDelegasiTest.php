@@ -158,29 +158,156 @@ class RbacDelegasiTest extends TestCase
        2. DYNAMIC DATA SCOPING — LINK KERJA
        ========================================================= */
 
-    public function test_admin_bidang_sees_all_work_links_but_scoped_edit(): void
+    public function test_admin_bidang_work_links_index_is_scoped_to_own_department(): void
     {
+        // REVISI ARSITEKTUR (global scope): read Admin Bidang kini
+        // otomatis terfilter bidangnya + link 'umum' — bukan katalog penuh.
         WorkLink::create(['title' => 'Link Operasi', 'url' => 'https://ops.co.id', 'category' => 'khusus', 'department' => 'operasi', 'is_active' => true]);
         WorkLink::create(['title' => 'Link Pemeliharaan', 'url' => 'https://pml.co.id', 'category' => 'khusus', 'department' => 'pemeliharaan', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Umum Bersama', 'url' => 'https://umum.co.id', 'category' => 'umum', 'is_active' => true]);
 
         $html = $this->actingAs($this->adminBidang('operasi'))
             ->get(route('admin.work-links.index'))
             ->assertOk()
             ->getContent();
 
-        // Read transparan: seluruh katalog terlihat.
+        // Milik bidangnya + link umum terlihat.
         $this->assertStringContainsString('Link Operasi', $html);
-        $this->assertStringContainsString('Link Pemeliharaan', $html);
+        $this->assertStringContainsString('Link Umum Bersama', $html);
 
-        // Tulis dibatasi: baris milik bidang lain ditandai can-edit=false.
-        $this->assertMatchesRegularExpression(
-            '/data-title="link pemeliharaan"[\s\S]*?data-can-edit="false"/',
-            $html
-        );
-        $this->assertMatchesRegularExpression(
-            '/data-title="link operasi"[\s\S]*?data-can-edit="true"/',
-            $html
-        );
+        // Bidang lain terfilter otomatis oleh global scope.
+        $this->assertStringNotContainsString('Link Pemeliharaan', $html);
+    }
+
+    /* =========================================================
+       4b. GLOBAL SCOPE DATA SCOPING — KARYAWAN & BYPASS
+       Isolasi data diikat atribut bidang_id/sub_bidang_id user
+       (bukan banyak role). Super Admin & Senior Manager bypass.
+       ========================================================= */
+
+    private function karyawanWithHierarchy(?string $department, ?string $level, ?string $sub = null): User
+    {
+        $role = $this->makeRole('Karyawan', []);
+
+        $departmentId = $department !== null
+            ? (Department::byCode($department)?->id ?? Department::create([
+                'code' => $department, 'name' => ucfirst($department), 'is_active' => true,
+            ])->id)
+            : null;
+
+        $user = User::factory()->create([
+            'role'           => 'Karyawan',
+            'role_id'        => $role->id,
+            'level_jabatan'  => $level,
+            'department'     => $department,
+            'department_id'  => $departmentId,
+            'sub_department' => $sub,
+        ]);
+        $user->roles()->sync([$role->id]);
+
+        return $user;
+    }
+
+    public function test_karyawan_manager_bidang_scoped_to_own_department_links(): void
+    {
+        WorkLink::create(['title' => 'Link Umum A', 'url' => 'https://u.co.id', 'category' => 'umum', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Ops Bidang', 'url' => 'https://ops.co.id', 'category' => 'khusus', 'department' => 'operasi', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Ops Sub Lain', 'url' => 'https://ops2.co.id', 'category' => 'khusus', 'department' => 'operasi', 'sub_department' => 'asmen_prod_b', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Pemeliharaan', 'url' => 'https://pml.co.id', 'category' => 'khusus', 'department' => 'pemeliharaan', 'is_active' => true]);
+
+        $this->actingAs($this->karyawanWithHierarchy('operasi', 'manager_bidang'));
+
+        $titles = WorkLink::query()->pluck('title')->all();
+
+        $this->assertContains('Link Umum A', $titles);
+        $this->assertContains('Link Ops Bidang', $titles);
+        $this->assertContains('Link Ops Sub Lain', $titles); // Manager membawahi semua sub
+        $this->assertNotContains('Link Pemeliharaan', $titles);
+    }
+
+    public function test_karyawan_staf_locked_to_own_sub_bidang_links(): void
+    {
+        WorkLink::create(['title' => 'Link Umum A', 'url' => 'https://u.co.id', 'category' => 'umum', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Ops Bidang', 'url' => 'https://ops.co.id', 'category' => 'khusus', 'department' => 'operasi', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Prod A', 'url' => 'https://pa.co.id', 'category' => 'khusus', 'department' => 'operasi', 'sub_department' => 'asmen_prod_a', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Prod B', 'url' => 'https://pb.co.id', 'category' => 'khusus', 'department' => 'operasi', 'sub_department' => 'asmen_prod_b', 'is_active' => true]);
+
+        $this->actingAs($this->karyawanWithHierarchy('operasi', 'staf', 'asmen_prod_a'));
+
+        $titles = WorkLink::query()->pluck('title')->all();
+
+        $this->assertSame(['Link Umum A', 'Link Prod A'], $titles);
+    }
+
+    public function test_senior_manager_bypasses_data_scoping(): void
+    {
+        WorkLink::create(['title' => 'Link Operasi', 'url' => 'https://ops.co.id', 'category' => 'khusus', 'department' => 'operasi', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Pemeliharaan', 'url' => 'https://pml.co.id', 'category' => 'khusus', 'department' => 'pemeliharaan', 'is_active' => true]);
+
+        // Senior Manager: view-only seluruh bidang — tanpa pengikatan bidang.
+        $this->actingAs($this->karyawanWithHierarchy(null, 'senior_manager'));
+
+        $titles = WorkLink::query()->pluck('title')->all();
+
+        $this->assertContains('Link Operasi', $titles);
+        $this->assertContains('Link Pemeliharaan', $titles);
+    }
+
+    public function test_karyawan_with_bidang_sees_scoped_announcements(): void
+    {
+        $ops = Department::byCode('operasi')->id;
+        $pml = Department::byCode('pemeliharaan')->id;
+
+        Announcement::create(['title' => 'Pengumuman Ops', 'slug' => 'pg-scope-ops', 'category' => 'umum', 'excerpt' => 'e', 'department_id' => $ops, 'is_published' => true]);
+        Announcement::create(['title' => 'Pengumuman PML', 'slug' => 'pg-scope-pml', 'category' => 'umum', 'excerpt' => 'e', 'department_id' => $pml, 'is_published' => true]);
+        Announcement::create(['title' => 'Pengumuman Global', 'slug' => 'pg-scope-global', 'category' => 'umum', 'excerpt' => 'e', 'department_id' => null, 'is_published' => true]);
+
+        $this->actingAs($this->karyawanWithHierarchy('operasi', 'manager_bidang'));
+
+        $titles = Announcement::query()->pluck('title')->all();
+
+        $this->assertContains('Pengumuman Ops', $titles);
+        $this->assertContains('Pengumuman Global', $titles); // global = semua bidang
+        $this->assertNotContains('Pengumuman PML', $titles);
+    }
+
+    public function test_public_landing_announcements_ignore_data_scoping(): void
+    {
+        // Landing page publik TIDAK boleh terkena scoping — konten publik
+        // dikurasi target_publication, bukan bidang pengunjung.
+        $ops = Department::byCode('operasi')->id;
+        $pml = Department::byCode('pemeliharaan')->id;
+
+        Announcement::create(['title' => 'Publik Ops', 'slug' => 'pg-pub-ops', 'category' => 'umum', 'excerpt' => 'e', 'department_id' => $ops, 'is_published' => true, 'target_publication' => 'public', 'published_at' => now()]);
+        Announcement::create(['title' => 'Publik PML', 'slug' => 'pg-pub-pml', 'category' => 'umum', 'excerpt' => 'e', 'department_id' => $pml, 'is_published' => true, 'target_publication' => 'public', 'published_at' => now()]);
+
+        $html = $this->actingAs($this->adminBidang('operasi'))
+            ->get(route('pengumuman'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('Publik Ops', $html);
+        $this->assertStringContainsString('Publik PML', $html);
+    }
+
+    public function test_super_admin_bypasses_data_scoping_on_queries(): void
+    {
+        WorkLink::create(['title' => 'Link Operasi', 'url' => 'https://ops.co.id', 'category' => 'khusus', 'department' => 'operasi', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Pemeliharaan', 'url' => 'https://pml.co.id', 'category' => 'khusus', 'department' => 'pemeliharaan', 'is_active' => true]);
+
+        $this->actingAs($this->superAdmin());
+
+        $this->assertCount(2, WorkLink::query()->get());
+    }
+
+    public function test_admin_bidang_announcement_slug_generation_is_global_not_scoped(): void
+    {
+        // Slug harus unik lintas bidang — generateSlug bypass global scope.
+        Announcement::create(['title' => 'Rapat Koordinasi', 'slug' => 'rapat-koordinasi', 'category' => 'umum', 'excerpt' => 'e', 'department_id' => Department::byCode('pemeliharaan')->id, 'is_published' => true]);
+
+        $this->actingAs($this->adminBidang('operasi'));
+
+        $this->assertSame('rapat-koordinasi-1', Announcement::generateSlug('Rapat Koordinasi'));
     }
 
     public function test_admin_bidang_create_forces_own_department(): void

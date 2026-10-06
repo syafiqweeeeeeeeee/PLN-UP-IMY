@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\ScopedToUserDepartment;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,6 +17,10 @@ use Illuminate\Database\Eloquent\Model;
  *
  * Label bidang & sub-bidang diambil dari konstanta User::DEPARTMENTS
  * dan User::SUB_DEPARTMENTS agar konsisten dengan Hirarki Organisasi.
+ *
+ * DATA SCOPING: model ini memakai global scope ScopedToUserDepartment
+ * — query otomatis terfilter bidang/sub-bidang milik user login
+ * (Admin Bidang & Karyawan; Super Admin/Senior Manager bypass).
  */
 class WorkLink extends Model
 {
@@ -25,6 +31,63 @@ class WorkLink extends Model
 
     /** Icon FontAwesome yang dipilih admin — fallback bila kosong. */
     public const DEFAULT_ICON = 'fa-link';
+
+    protected static function booted(): void
+    {
+        // DATA SCOPING — filter otomatis per bidang (spec RBAC poin 4).
+        static::addGlobalScope(new ScopedToUserDepartment);
+    }
+
+    /**
+     * Kontrak global scope ScopedToUserDepartment: terjemahkan tingkat
+     * akses user login menjadi WHERE filter sesuai skema tabel ini.
+     *
+     * REVISI — unit kerja = bidang + sub-bidang:
+     * - Terikat sub (Admin Bidang baru & Karyawan Asmen/Staff) → link
+     *   'umum' + link khusus sub-bidangnya SAJA; data level bidang &
+     *   sub lain dikelola Super Admin.
+     * - Terikat bidang tanpa sub (legacy Admin Bidang / Karyawan
+     *   Manager Bidang) → link 'umum' + seluruh link bidangnya.
+     * - Super Admin / Senior Manager / tanpa binding → tidak difilter
+     *   (scope utama sudah bypass).
+     */
+    public function applyDataScoping(Builder $query, User $user): void
+    {
+        $bidang = $user->bidangCode();
+        $sub    = $user->subBidangId();
+
+        $query->where(function (Builder $q) use ($bidang, $sub, $user) {
+            if ($user->dataScopingLevel() === 'bidang_sub') {
+                // Terkunci sub-bidang: link 'umum' + link khusus unit
+                // kerjanya SAJA — link khusus level bidang & sub lain
+                // tidak ditampilkan.
+                $q->where('category', self::CATEGORY_UMUM)
+                  ->orWhere(function (Builder $q2) use ($bidang, $sub) {
+                      $q2->where('department', $bidang)
+                         ->where('sub_department', $sub);
+                  });
+            } else {
+                // Terikat bidang saja:
+                // link 'umum' + seluruh link bidangnya (semua sub).
+                $q->where('category', self::CATEGORY_UMUM)
+                  ->orWhere('department', $bidang);
+            }
+        });
+    }
+
+    /**
+     * Route binding TANPA global scope scoping: baris lintas-bidang
+     * tetap ditemukan sehingga guard controller
+     * (authorizeWorkLinkAccess) dapat menolaknya dengan 403 Forbidden
+     * — bukan 404 — sesuai spec "cegah akses lintas bidang via URL
+     * direct ID (403)".
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->withoutGlobalScope(ScopedToUserDepartment::class)
+            ->where($field ?? $this->getRouteKeyName(), $value)
+            ->first();
+    }
 
     /**
      * Class <i> siap pakai untuk ikon link — mendukung nilai DB lama

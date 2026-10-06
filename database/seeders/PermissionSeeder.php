@@ -50,6 +50,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'work_links.delete',     'display_name' => 'Hapus Link Kerja',                'module' => 'Work Link Management'],
             ['name' => 'tamu.view',             'display_name' => 'Lihat Data Tamu',                 'module' => 'Guest Book'],
             ['name' => 'tamu.create',           'display_name' => 'Tambah Tamu Manual',              'module' => 'Guest Book'],
+            ['name' => 'tamu.edit',             'display_name' => 'Edit Data Tamu',                  'module' => 'Guest Book'],
             ['name' => 'tamu.checkout',         'display_name' => 'Check-Out Tamu',                  'module' => 'Guest Book'],
             ['name' => 'tamu.delete',           'display_name' => 'Hapus Data Tamu',                 'module' => 'Guest Book'],
             ['name' => 'applications.view',     'display_name' => 'Lihat Aplikasi',                'module' => 'Application Management'],
@@ -62,6 +63,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'groups.delete',         'display_name' => 'Hapus Grup Karyawan',           'module' => 'Employee Group'],
             ['name' => 'internal.view',         'display_name' => 'Akses Halaman Internal',        'module' => 'Internal Page'],
             ['name' => 'activity_logs.view',    'display_name' => 'Lihat Log Aktivitas',           'module' => 'Activity Log'],
+            ['name' => 'activity_logs.delete',  'display_name' => 'Hapus Log Aktivitas',           'module' => 'Activity Log'],
             ['name' => 'settings.view',         'display_name' => 'Lihat Pengaturan',              'module' => 'Settings'],
             ['name' => 'settings.edit',         'display_name' => 'Edit Pengaturan',               'module' => 'Settings'],
             ['name' => 'logout',                'display_name' => 'Logout',                        'module' => 'Auth'],
@@ -75,13 +77,12 @@ class PermissionSeeder extends Seeder
             )->id;
         }
 
-        $administrator = Role::firstOrCreate(
-            ['name' => 'Administrator'],
-            ['description' => 'Akses penuh sistem', 'status' => true]
-        );
+        // REVISI AKTOR — role yang diizinkan HANYA 3: Super Admin,
+        // Admin Bidang, Karyawan. Role legacy "Administrator" TIDAK
+        // dibuat lagi (dihapus dari database via migrasi).
 
         // RBAC — Super Admin (Sekretariat/Humas): akses penuh seluruh
-        // fitur & menu Admin Panel (setara Administrator).
+        // fitur & menu Admin Panel.
         $superAdmin = Role::firstOrCreate(
             ['name' => \App\Models\User::SUPER_ADMIN_ROLE],
             ['description' => 'Super Admin — Sekretariat/Humas, akses penuh seluruh fitur', 'status' => true]
@@ -111,12 +112,12 @@ class PermissionSeeder extends Seeder
             'menus.view', 'menus.create', 'menus.edit', 'menus.delete',
             'announcements.view', 'announcements.create', 'announcements.edit', 'announcements.delete', 'announcements.publish',
             'galleries.view', 'galleries.create', 'galleries.edit', 'galleries.delete',
-            'tamu.view', 'tamu.create', 'tamu.checkout', 'tamu.delete',
+            'tamu.view', 'tamu.create', 'tamu.edit', 'tamu.checkout', 'tamu.delete',
             'work_links.view', 'work_links.create', 'work_links.edit', 'work_links.delete',
             'applications.view', 'applications.create', 'applications.edit', 'applications.delete',
             'groups.view', 'groups.create', 'groups.edit', 'groups.delete',
             'internal.view',
-            'activity_logs.view',
+            'activity_logs.view', 'activity_logs.delete',
             'settings.view', 'settings.edit',
             'logout',
         ];
@@ -130,10 +131,9 @@ class PermissionSeeder extends Seeder
             'logout',
         ];
 
-        $administrator->permissions()->syncWithoutDetaching(array_intersect_key($permissionIds, array_flip($adminPermissions)));
         $karyawan->permissions()->syncWithoutDetaching(array_intersect_key($permissionIds, array_flip($karyawanPermissions)));
 
-        // Super Admin: setara Administrator — seluruh permission admin.
+        // Super Admin: akses penuh — seluruh permission admin.
         $superAdmin->permissions()->syncWithoutDetaching(
             array_intersect_key($permissionIds, array_flip($adminPermissions))
         );

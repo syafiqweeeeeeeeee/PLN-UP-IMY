@@ -280,9 +280,11 @@
             <h5><i class="fas fa-images header-icon"></i>Daftar Galeri</h5>
             <p>Kelola foto kegiatan, fasilitas, dokumentasi, dan seremonial UP PLTU Indramayu</p>
         </div>
+        @can('galleries.create')
         <a href="{{ route('admin.galeri.create') }}" class="btn-corp btn-corp-add">
             <i class="fas fa-plus"></i> Tambah Foto
         </a>
+        @endcan
     </div>
 
     {{-- Stats Chips --}}
@@ -369,6 +371,7 @@
                 </span>
                 <div class="galeri-card-actions">
                     {{-- Toggle status: mata = publikasi (klik → draft), mata coret = draft (klik → publikasi) --}}
+                    @can('galleries.edit')
                     <form action="{{ route('admin.galeri.toggle-status', $item->id) }}" method="POST" style="display:inline;">
                         @csrf
                         @method('PATCH')
@@ -379,10 +382,13 @@
                     <a href="{{ route('admin.galeri.edit', $item->id) }}" class="news-action-btn edit" title="Edit">
                         <i class="fas fa-pen"></i>
                     </a>
+                    @endcan
+                    @can('galleries.delete')
                     <button type="button" class="news-action-btn delete" title="Hapus"
                             onclick="openGaleriDeleteModal('{{ route('admin.galeri.destroy', $item->id) }}', '{{ addslashes($item->judul) }}')">
                         <i class="fas fa-trash"></i>
                     </button>
+                    @endcan
                 </div>
             </div>
         </div>
