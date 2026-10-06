@@ -466,7 +466,6 @@
                                     onclick="openUserDeleteModal({{ $user->id }}, '{{ addslashes($user->name) }}')">
                                 <i class="fas fa-trash"></i>
                             </button>
-                            @endcan
                         </div>
                     </td>
                 </tr>
