@@ -16,6 +16,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'users.view',             'display_name' => 'Lihat Pengguna',                'module' => 'User Management'],
             ['name' => 'users.create',          'display_name' => 'Tambah Pengguna',               'module' => 'User Management'],
             ['name' => 'users.edit',            'display_name' => 'Kelola Status Pengguna',        'module' => 'User Management'],
+            ['name' => 'user.reset-password',   'display_name' => 'Reset Password Pengguna',       'module' => 'User Management'],
             ['name' => 'users.delete',          'display_name' => 'Hapus Pengguna',                'module' => 'User Management'],
             ['name' => 'roles.view',            'display_name' => 'Lihat Role',                    'module' => 'Role Management'],
             ['name' => 'roles.create',          'display_name' => 'Tambah Role',                   'module' => 'Role Management'],
@@ -102,6 +103,8 @@ class PermissionSeeder extends Seeder
             'dashboard.view',
             'users.view', 'users.create', 'users.edit', 'users.delete',
             // users.edit kini berarti "Kelola Status Pengguna" (toggle Aktif/Nonaktif).
+            // Reset password permission terpisah agar dapat didelegasikan sendiri.
+            'user.reset-password',
             'roles.view', 'roles.create', 'roles.edit', 'roles.delete', 'roles.assign_permission',
             'news.view', 'news.create', 'news.edit', 'news.delete', 'news.publish',
             'pages.view', 'pages.create', 'pages.edit', 'pages.delete',

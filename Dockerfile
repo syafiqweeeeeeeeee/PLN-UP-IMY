@@ -1,10 +1,11 @@
 FROM dunglas/frankenphp:latest-php8.2
 
 # Ekstensi PHP untuk MySQL + zip (dibutuhkan Composer untuk mengekstrak paket)
+# + gd (dibutuhkan test yang membuat gambar dummy via Intervention Image)
 # Source apt dialihkan ke HTTPS untuk menghindari 403 dari CDN Debian
 RUN find /etc/apt -name '*.sources' -o -name 'sources.list' \
     | xargs -r sed -ri 's|http://deb\.debian\.org|https://deb.debian.org|g' \
-    && install-php-extensions pdo_mysql zip
+    && install-php-extensions pdo_mysql zip gd
 
 # Composer tersedia di dalam container (tidak perlu install Composer di laptop)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

@@ -185,6 +185,90 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', $message);
     }
 
+    /**
+     * Reset password akun oleh admin → password sementara sekali pakai.
+     *
+     * Alur:
+     * 1. Sistem membuat password sementara otomatis & acak (12 karakter
+     *    alfanumerik, CSPRNG) — tidak dikirim email; admin menyampaikannya
+     *    langsung ke user (WA/lisan). Password ditampilkan SEKALI di modal
+     *    setelah reset, dengan tombol copy.
+     * 2. Akun ditandai must_change_password = true sehingga saat login
+     *    user WAJIB mengganti password dulu (middleware must.password).
+     * 3. Semua sesi login lama user tersebut di-invalidate.
+     *
+     * Keamanan: password sementara TIDAK pernah disimpan plaintext di
+     * database (cast 'hashed'), TIDAK dicatat di activity log, dan TIDAK
+     * ditampilkan pada daftar user — hanya pada response reset ini.
+     *
+     * Guard keamanan: Super Admin saja tidak boleh me-reset akun
+     * Administrator lain (mencegah eskalasi/penurunan hak); admin juga
+     * tidak dapat me-reset akunnya sendiri (pakai fitur ganti password).
+     * Menerima fetch AJAX (JSON) maupun submit form biasa (redirect).
+     */
+    public function resetPassword(Request $request, User $user)
+    {
+        $actor = $request->user();
+
+        $failMessage = null;
+
+        if ($user->id === $actor?->id) {
+            $failMessage = 'Anda tidak dapat me-reset password akun Anda sendiri. Gunakan fitur ganti password di profil.';
+        } elseif ($actor?->isSuperAdmin() && ! $actor->isDepartmentAdmin()
+            && $user->roleNames()->contains(fn ($n) => in_array($n, [User::SUPER_ADMIN_ROLE, 'Administrator'], true))) {
+            $failMessage = 'Password akun Administrator lain hanya dapat direset melalui mekanisme Lupa Password (OTP email).';
+        }
+
+        if ($failMessage !== null) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $failMessage], 422);
+            }
+
+            return redirect()->route('admin.users.index')->with('error', $failMessage);
+        }
+
+        // Password sementara dibuat SISTEM — acak & aman (Str::random
+        // memakai CSPRNG, alfabet A-Z a-z 0-9), 12 karakter: cukup kuat
+        // namun tetap praktis disampaikan via WhatsApp/lisan.
+        $temporaryPassword = \Illuminate\Support\Str::random(12);
+
+        // Cast 'hashed' pada model User otomatis meng-hash nilai ini.
+        $user->forceFill([
+            'password'             => $temporaryPassword,
+            'must_change_password' => true,
+            'remember_token'       => \Illuminate\Support\Str::random(60),
+        ])->save();
+
+        // Invalidate seluruh sesi login lama target: hapus baris di tabel
+        // `sessions` milik user terkait. Session driver database (lihat
+        // config/session.php) memvalidasi setiap request terhadap baris ini;
+        // tanpa baris, middleware Authenticate akan memaksa login ulang.
+        \Illuminate\Support\Facades\DB::table('sessions')
+            ->where('user_id', $user->id)
+            ->delete();
+
+        ActivityLogger::log('reset_password', $actor, [
+            'module'      => 'pengguna',
+            'description' => "me-reset password akun \"{$user->name}\" ({$user->email}) — password sementara acak dibuat oleh sistem",
+            'subject'     => $user,
+        ]);
+
+        $message = "Password akun \"{$user->name}\" berhasil direset. "
+            . 'Sampaikan password sementara tersebut kepada pengguna; saat login ia akan diminta mengganti password.';
+
+        if ($request->expectsJson()) {
+            // temporary_password dikembalikan HANYA di sini agar admin dapat
+            // menyalin & menyampaikannya; tidak pernah tersimpan / dilog.
+            return response()->json([
+                'success'            => true,
+                'message'            => $message,
+                'temporary_password' => $temporaryPassword,
+            ]);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', $message);
+    }
+
     public function destroy(User $user)
     {
         ActivityLogger::log('delete', null, [

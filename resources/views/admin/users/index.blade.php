@@ -177,6 +177,118 @@
         cursor: not-allowed;
     }
 
+    /* ===== RESET PASSWORD MODAL ===== */
+    .user-reset-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        backdrop-filter: blur(4px);
+    }
+    .user-reset-overlay.show { display: flex; }
+    .user-reset-dialog {
+        background: #fff;
+        border-radius: 16px;
+        padding: 2rem 1.75rem 1.5rem;
+        max-width: 460px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        animation: userDeleteIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .user-reset-icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 1rem;
+        background: #FEF3C7;
+        color: #D97706;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+    }
+    .user-reset-title { font-size: 1.05rem; font-weight: 700; color: #1f2937; margin: 0 0 0.5rem; text-align: center; }
+    .user-reset-text { font-size: 0.85rem; color: var(--ink-muted); line-height: 1.6; margin: 0 0 0.75rem; text-align: center; }
+    .user-reset-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1f2937;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        margin: 0 0 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+    }
+    .user-reset-field { margin-bottom: 1rem; }
+    .user-reset-field label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.35rem;
+    }
+    .user-reset-inputwrap { position: relative; }
+    .user-reset-inputwrap input {
+        width: 100%;
+        padding: 0.6rem 2.4rem 0.6rem 0.85rem;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-family: monospace;
+        letter-spacing: 0.5px;
+    }
+    .user-reset-inputwrap input:focus {
+        outline: none;
+        border-color: var(--pln-blue);
+        box-shadow: 0 0 0 3px rgba(0, 91, 156, 0.12);
+    }
+    .user-reset-toggle {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none;
+        background: none;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 0.3rem;
+    }
+    .user-reset-hint { font-size: 0.72rem; color: #9ca3af; margin-top: 0.35rem; }
+    .user-reset-error {
+        display: none;
+        font-size: 0.78rem;
+        color: #DC2626;
+        background: #FEF2F2;
+        border: 1px solid #FECACA;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    .user-reset-error.show { display: block; }
+    .user-reset-actions { display: flex; gap: 0.6rem; justify-content: center; margin-top: 1.25rem; }
+    .user-reset-btn {
+        padding: 0.6rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    .user-reset-btn.cancel { background: #f3f4f6; color: #6b7280; }
+    .user-reset-btn.cancel:hover { background: #e5e7eb; color: #374151; }
+    .user-reset-btn.confirm { background: #D97706; color: #fff; }
+    .user-reset-btn.confirm:hover { background: #B45309; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3); }
+    .user-reset-btn.confirm:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
     /* ===== Kepadatan kolom aksi & baris tabel ===== */
     /* Gap rapat antar 3 tombol aksi (Lihat, Switch, Hapus) */
     .user-action-group {
@@ -341,6 +453,17 @@
                                     <span class="track"><span class="knob"></span></span>
                                 </button>
                             @endif
+                            {{-- Reset password: kotak 30×30, ikon kunci — hanya
+                                 untuk akun lain & pemilik permission
+                                 user.reset-password (tetap divalidasi ulang
+                                 di BACKEND via middleware permission:). --}}
+                            @if (! $isSelf && auth()->user()?->hasPermission('user.reset-password'))
+                                <button type="button" class="news-action-btn edit" style="background: #FEF3C7; color: #B45309;"
+                                        title="Reset Password (password sementara sekali pakai)"
+                                        onclick="openUserResetModal({{ $user->id }}, '{{ addslashes($user->name) }}')">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                            @endif
                             <button type="button" class="news-action-btn delete" title="Hapus"
                                     onclick="openUserDeleteModal({{ $user->id }}, '{{ addslashes($user->name) }}')">
                                 <i class="fas fa-trash"></i>
@@ -407,6 +530,64 @@
                     <i class="fas fa-trash me-1"></i> Ya, Hapus
                 </button>
             </form>
+        </div>
+    </div>
+</div>
+
+{{-- ============================================
+     RESET PASSWORD MODAL (password sementara sekali pakai)
+     Dua tahap: (1) konfirmasi — password lama dinonaktifkan,
+     (2) hasil — password sementara ACAK dari sistem + tombol Copy.
+     Password hanya ditampilkan SEKALI di sini: tidak muncul di daftar
+     user, tidak dicatat activity log, tidak disimpan plaintext.
+     ============================================ --}}
+<div class="user-reset-overlay" id="resetUserModal">
+    <div class="user-reset-dialog">
+        <div class="user-reset-icon">
+            <i class="fas fa-key"></i>
+        </div>
+
+        {{-- Tahap 1: konfirmasi reset --}}
+        <div id="resetUserStepConfirm">
+            <h6 class="user-reset-title">Reset Password Pengguna?</h6>
+            <p class="user-reset-text">
+                Password lama pengguna akan <strong style="color:#d97706">dinonaktifkan</strong> dan diganti
+                <strong>password sementara acak</strong> yang dibuat otomatis oleh sistem.
+                Saat login berikutnya, pengguna <strong>wajib mengganti password</strong> sebelum dapat masuk.
+            </p>
+            <div class="user-reset-name" id="resetUserName"></div>
+            <div class="user-reset-error" id="resetUserError"></div>
+            <div class="user-reset-actions">
+                <button type="button" class="user-reset-btn cancel" onclick="closeUserResetModal()">Batal</button>
+                <button type="button" class="user-reset-btn confirm" id="resetUserSubmit" onclick="confirmUserReset()">
+                    <i class="fas fa-key me-1"></i> Ya, Reset Password
+                </button>
+            </div>
+        </div>
+
+        {{-- Tahap 2: hasil — password sementara ditampilkan sekali --}}
+        <div id="resetUserStepResult" style="display:none;">
+            <h6 class="user-reset-title">Password Berhasil Direset</h6>
+            <p class="user-reset-text">
+                Password sementara untuk <strong id="resetUserResultName"></strong>.
+                Salin dan sampaikan via WhatsApp/lisan — <strong>tidak dikirim email</strong>
+                dan hanya ditampilkan sekali ini.
+            </p>
+            <div class="user-reset-field">
+                <label for="resetUserPasswordValue">Password Sementara</label>
+                <div class="user-reset-inputwrap">
+                    <input type="text" id="resetUserPasswordValue" readonly autocomplete="off" onclick="this.select()">
+                </div>
+                <div class="user-reset-hint">Pengguna wajib mengganti password ini saat login berikutnya.</div>
+            </div>
+            <div class="user-reset-actions">
+                <button type="button" class="user-reset-btn cancel" id="resetUserCopyBtn" onclick="copyTemporaryPassword()">
+                    <i class="fas fa-copy me-1"></i> Copy Password
+                </button>
+                <button type="button" class="user-reset-btn confirm" onclick="closeUserResetModal()">
+                    <i class="fas fa-check me-1"></i> Selesai
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -550,6 +731,114 @@
                 });
             });
         };
+    }
+</script>
+{{-- ============================================================
+     Script INLINE modal reset password — pola sama dengan modal
+     hapus: WAJIB di dalam content agar router.js mengeksekusi
+     ulang setelah navigasi SPA.
+     ============================================================ --}}
+<script>
+    // Guard re-eksekusi: hindari listener ganda saat router.js
+    // menjalankan ulang script ini setelah swap konten.
+    if (!window.__userResetBound) {
+        window.__userResetBound = true;
+
+        let resetTargetId = null;
+
+        window.openUserResetModal = function(userId, userName) {
+            resetTargetId = userId;
+            document.getElementById('resetUserName').textContent = userName;
+            document.getElementById('resetUserError').classList.remove('show');
+            document.getElementById('resetUserSubmit').disabled = false;
+            // Selalu mulai dari tahap konfirmasi (bukan hasil).
+            document.getElementById('resetUserStepConfirm').style.display = '';
+            document.getElementById('resetUserStepResult').style.display = 'none';
+            const modal = document.getElementById('resetUserModal');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeUserResetModal = function() {
+            document.getElementById('resetUserModal').classList.remove('show');
+            document.body.style.overflow = '';
+            resetTargetId = null;
+        };
+
+        window.confirmUserReset = function() {
+            const errBox = document.getElementById('resetUserError');
+            const btn = document.getElementById('resetUserSubmit');
+
+            errBox.classList.remove('show');
+            btn.disabled = true;
+
+            // Password sementara dibuat & di-hash di SERVER (Str::random +
+            // cast 'hashed'); klien hanya menerima hasilnya untuk ditampilkan.
+            fetch(`/admin/users/${resetTargetId}/reset-password`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({})
+            })
+            .then(function (res) {
+                return res.json().catch(function () {
+                    throw new Error('Terjadi kesalahan server (HTTP ' + res.status + ').');
+                });
+            })
+            .then(function (data) {
+                if (data.success && data.temporary_password) {
+                    // Tahap 2: tampilkan password sementara + tombol Copy.
+                    document.getElementById('resetUserResultName').textContent =
+                        document.getElementById('resetUserName').textContent;
+                    document.getElementById('resetUserPasswordValue').value = data.temporary_password;
+                    document.getElementById('resetUserStepConfirm').style.display = 'none';
+                    document.getElementById('resetUserStepResult').style.display = '';
+                } else {
+                    errBox.textContent = data.message || 'Gagal melakukan reset password.';
+                    errBox.classList.add('show');
+                    btn.disabled = false;
+                }
+            })
+            .catch(function (err) {
+                errBox.textContent = (err && err.message) ? err.message : 'Terjadi kesalahan jaringan.';
+                errBox.classList.add('show');
+                btn.disabled = false;
+            });
+        };
+
+        window.copyTemporaryPassword = function() {
+            const input = document.getElementById('resetUserPasswordValue');
+            const btn = document.getElementById('resetUserCopyBtn');
+            const done = function () {
+                btn.innerHTML = '<i class="fas fa-check me-1"></i> Tersalin!';
+                setTimeout(function () {
+                    btn.innerHTML = '<i class="fas fa-copy me-1"></i> Copy Password';
+                }, 2000);
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(input.value).then(done);
+            } else {
+                // Fallback browser lama / konteks non-secure.
+                input.select();
+                document.execCommand('copy');
+                done();
+            }
+        };
+
+        // Escape = tutup modal.
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && document.getElementById('resetUserModal')?.classList.contains('show')) {
+                closeUserResetModal();
+            }
+        });
+        document.getElementById('resetUserModal')?.addEventListener('click', function (e) {
+            if (e.target === this) closeUserResetModal();
+        });
     }
 </script>
 @endsection

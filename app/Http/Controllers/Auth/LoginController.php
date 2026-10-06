@@ -31,6 +31,20 @@ class LoginController extends Controller
 
         Auth::login($user, $request->boolean('remember'));
 
+        // Password sementara (reset oleh admin) → wajib ganti password
+        // dulu: alihkan ke halaman pemberitahuan, abaikan URL intended.
+        if ($user->must_change_password) {
+            $request->session()->regenerate();
+
+            ActivityLogger::log('login', $user, [
+                'module'      => 'autentikasi',
+                'description' => 'login dengan password sementara — diarahkan untuk mengganti password',
+                'subject'     => $user,
+            ]);
+
+            return redirect()->route('account.password-notice');
+        }
+
         ActivityLogger::log('login', $user, [
             'module'      => 'autentikasi',
             'description' => $user->isKaryawan()

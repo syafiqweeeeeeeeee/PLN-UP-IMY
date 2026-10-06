@@ -146,6 +146,15 @@ Route::group(['middleware' => 'throttle:10,1'], function () {
     Route::post('/forgot-password/reset', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'reset'])->name('password.reset');
 });
 
+// Ganti Password Wajib — akun yang password-nya direset admin
+// (must_change_password) diarahkan ke sini oleh middleware must.password.
+// Logout sengaja di luar middleware agar user tetap bisa keluar.
+Route::middleware(['auth', 'must.password'])->group(function () {
+    Route::get('/account/password/notice', [\App\Http\Controllers\Auth\ChangePasswordController::class, 'notice'])->name('account.password-notice');
+    Route::get('/account/password/change', [\App\Http\Controllers\Auth\ChangePasswordController::class, 'form'])->name('account.password-form');
+    Route::post('/account/password/change', [\App\Http\Controllers\Auth\ChangePasswordController::class, 'update'])->name('account.password-update');
+});
+
 // Admin Dashboard
 Route::middleware(['auth', 'admin.access'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -164,6 +173,13 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         Route::middleware('permission:users.edit')->group(function () {
             Route::patch('users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
         });
+        // Reset password → password sementara sekali pakai (user wajib
+        // ganti password saat login berikutnya). Permission khusus
+        // user.reset-password — divalidasi di BACKEND via middleware,
+        // bukan sekadar disembunyikan tombolnya di UI.
+        Route::middleware('permission:user.reset-password')->group(function () {
+            Route::patch('users/{user}/reset-password', [\App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
+        });
         Route::middleware('permission:users.delete')->group(function () {
             Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
         });
@@ -179,6 +195,9 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             });
             Route::middleware('permission:users.edit')->group(function () {
                 Route::patch('users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
+            });
+            Route::middleware('permission:user.reset-password')->group(function () {
+                Route::patch('users/{user}/reset-password', [\App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
             });
             Route::middleware('permission:users.delete')->group(function () {
                 Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');

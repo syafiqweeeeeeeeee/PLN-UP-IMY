@@ -17,6 +17,16 @@ return Application::configure(basePath: dirname(__DIR__))
             'page.visible' => \App\Http\Middleware\EnsurePageVisible::class,
             'admin.access' => \App\Http\Middleware\EnsureNotKaryawan::class,
             'karyawan.access' => \App\Http\Middleware\EnsureKaryawan::class,
+            'must.password' => \App\Http\Middleware\MustChangePassword::class,
+        ]);
+
+        /* ---- Wajib ganti password setelah reset oleh admin ----
+           Ditambahkan ke grup `web` (setelah StartSession) agar semua
+           halaman — admin, portal karyawan, dan publik yang butuh auth —
+           dijaga: akun dengan penanda must_change_password diarahkan
+           ke halaman ganti password sebelum boleh lanjut. */
+        $middleware->web(append: [
+            \App\Http\Middleware\MustChangePassword::class,
         ]);
 
         /* ---- Trust semua proxy (ngrok / cloudflare tunnel / LB) ----

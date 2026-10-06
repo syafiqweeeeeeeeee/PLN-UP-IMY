@@ -2,6 +2,10 @@
 vendor/
 node_modules/
 public/build/
+# Symlink storage (dibuat via `php artisan storage:link` di dalam
+# container, menunjuk ke path absolut Linux) — tidak boleh masuk build
+# context: Docker di Windows gagal dengan "invalid file request".
+public/storage
 .env
 .env.backup
 .phpunit.result.cache

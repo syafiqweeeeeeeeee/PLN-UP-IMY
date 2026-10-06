@@ -143,7 +143,13 @@ class ForgotPasswordController extends Controller
             'remember_token' => Str::random(60),
         ])->save();
 
-        // Paksa semua sesi lama logout (lapisan keamanan tambahan).
+        // Paksa semua sesi lama logout: hapus baris sesi user di tabel
+        // `sessions` (driver database) sehingga perangkat lain yang masih
+        // login dipaksa masuk kembali dengan password baru.
+        \Illuminate\Support\Facades\DB::table('sessions')
+            ->where('user_id', $user->id)
+            ->delete();
+
         cache()->forget($cacheKey);
 
         ActivityLogger::log('password_reset', $user, [
