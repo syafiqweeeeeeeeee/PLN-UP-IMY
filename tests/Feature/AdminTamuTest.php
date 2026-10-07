@@ -270,11 +270,16 @@ class AdminTamuTest extends TestCase
     public function test_index_filters_by_status(): void
     {
         $admin = $this->adminWithPermissions(['tamu.view']);
-        $this->createTamu(['nama' => 'Tamu Aktif']);
+        // "berkunjung" hanya untuk tamu yang sudah DISETUJUI & belum check-out
         $this->createTamu([
-            'nama'           => 'Tamu Selesai',
-            'nik'            => '3201123456780002',
-            'checked_out_at' => now()->subHour(),
+            'nama'               => 'Tamu Aktif',
+            'status_verifikasi'  => Tamu::STATUS_DISETUJUI,
+        ]);
+        $this->createTamu([
+            'nama'               => 'Tamu Selesai',
+            'nik'                => '3201123456780002',
+            'status_verifikasi'  => Tamu::STATUS_DISETUJUI,
+            'checked_out_at'     => now()->subHour(),
         ]);
 
         $this->actingAs($admin)
@@ -282,6 +287,76 @@ class AdminTamuTest extends TestCase
             ->assertOk()
             ->assertSee('Tamu Aktif')
             ->assertDontSee('Tamu Selesai');
+    }
+
+    public function test_index_filters_by_verifikasi_menunggu(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $this->createTamu(['nama' => 'Tamu Menunggu Verifikasi']);
+        $this->createTamu([
+            'nama'              => 'Tamu Sudah Disetujui',
+            'nik'               => '3201123456780005',
+            'status_verifikasi' => Tamu::STATUS_DISETUJUI,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.tamu.index', ['status' => 'menunggu']))
+            ->assertOk()
+            ->assertSee('Tamu Menunggu Verifikasi')
+            ->assertDontSee('Tamu Sudah Disetujui');
+    }
+
+    public function test_verifikasi_setuju_updates_status_and_redirects_with_wa(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.checkout']);
+        $tamu = $this->createTamu();
+
+        $this->actingAs($admin)
+            ->post(route('admin.tamu.verifikasi', $tamu), ['keputusan' => 'setuju'])
+            ->assertRedirect(route('admin.tamu.index'))
+            ->assertSessionHas('success')
+            ->assertSessionHas('wa_konfirmasi');
+
+        $tamu->refresh();
+        $this->assertSame(Tamu::STATUS_DISETUJUI, $tamu->status_verifikasi);
+        $this->assertNotNull($tamu->verified_at);
+        $this->assertSame($admin->id, $tamu->verified_by);
+    }
+
+    public function test_verifikasi_tolak_updates_status(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.checkout']);
+        $tamu = $this->createTamu();
+
+        $this->actingAs($admin)
+            ->post(route('admin.tamu.verifikasi', $tamu), ['keputusan' => 'tolak'])
+            ->assertRedirect(route('admin.tamu.index'))
+            ->assertSessionHas('wa_konfirmasi');
+
+        $tamu->refresh();
+        $this->assertSame(Tamu::STATUS_DITOLAK, $tamu->status_verifikasi);
+    }
+
+    public function test_verifikasi_requires_checkout_permission(): void
+    {
+        $viewer = $this->adminWithPermissions(['tamu.view']);
+        $tamu = $this->createTamu();
+
+        $this->actingAs($viewer)
+            ->post(route('admin.tamu.verifikasi', $tamu), ['keputusan' => 'setuju'])
+            ->assertForbidden();
+
+        $this->assertSame(Tamu::STATUS_MENUNGGU, $tamu->fresh()->status_verifikasi);
+    }
+
+    public function test_verifikasi_rejects_invalid_keputusan(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.checkout']);
+        $tamu = $this->createTamu();
+
+        $this->actingAs($admin)
+            ->post(route('admin.tamu.verifikasi', $tamu), ['keputusan' => 'cacat'])
+            ->assertSessionHasErrors(['keputusan']);
     }
 
     public function test_index_search_matches_nama_instansi_nik(): void

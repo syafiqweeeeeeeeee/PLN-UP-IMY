@@ -234,8 +234,10 @@
         font-weight: 700;
     }
 
+    .report .badge.menunggu  { background: #fef3c7; color: #b45309; }
     .report .badge.berkunjung { background: #dbeafe; color: #1d4ed8; }
     .report .badge.selesai { background: #dcfce7; color: #15803d; }
+    .report .badge.ditolak { background: #fee2e2; color: #dc2626; }
 
     /* ---------- Tanda tangan (gaya pdf) ---------- */
     .ttd {
@@ -450,12 +452,23 @@
                     <td class="ctr">{{ $tamu->checked_in_at?->format('d/m/Y H:i') ?? '—' }}</td>
                     <td class="ctr">{{ $tamu->checked_out_at?->format('d/m/Y H:i') ?? '—' }}</td>
                     <td class="ctr">
+                        @php
+                            $statusLabel = match ($tamu->status_verifikasi) {
+                                \App\Models\Tamu::STATUS_DITOLAK   => 'Ditolak',
+                                \App\Models\Tamu::STATUS_MENUNGGU  => 'Menunggu',
+                                default => $tamu->checked_out_at ? 'Selesai' : 'Berkunjung',
+                            };
+                            $statusClass = match ($statusLabel) {
+                                'Ditolak'  => 'ditolak',
+                                'Menunggu' => 'menunggu',
+                                'Selesai'  => 'selesai',
+                                default    => 'berkunjung',
+                            };
+                        @endphp
                         @if ($style === 'pdf')
-                            <span class="badge {{ $tamu->checked_out_at ? 'selesai' : 'berkunjung' }}">
-                                {{ $tamu->checked_out_at ? 'Selesai' : 'Berkunjung' }}
-                            </span>
+                            <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
                         @else
-                            {{ $tamu->checked_out_at ? 'Selesai' : 'Berkunjung' }}
+                            {{ $statusLabel }}
                         @endif
                     </td>
                 </tr>

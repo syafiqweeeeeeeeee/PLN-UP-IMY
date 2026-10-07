@@ -16,6 +16,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *              status kunjungan) + stats widget.
  * store()    : tambah tamu manual oleh admin (dokumen pendukung opsional).
  * update()   : perubahan data tamu via modal edit (dokumen opsional).
+ * verifikasi(): setujui / tolak pendaftaran kunjungan tamu. Setelahnya
+ *              admin diarahkan ke WhatsApp tamu (wa.me click-to-chat)
+ *              dengan pesan konfirmasi yang sudah terisi otomatis.
  * checkout() : tandai tamu selesai berkunjung (isi checked_out_at).
  * destroy()  : hapus data tamu beserta file dokumennya.
  * export()   : unduh CSV sesuai filter yang sedang aktif.
@@ -38,9 +41,7 @@ class TamuController extends Controller
             'hari_ini'   => (clone $query)->whereDate('created_at', today())->count(),
             'aktif'      => (clone $query)->whereNull('checked_out_at')->count(),
             'bulan_ini'  => (clone $query)->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
-        ];
-
-        $tamus = $query->paginate(15)->withQueryString();
+        ];        $tamus = $query->paginate(15)->withQueryString();
 
         // Payload ringkas untuk modal detail di sisi klien (per halaman).
         $tamuData = collect($tamus->items())->map(fn (Tamu $t) => [
@@ -58,14 +59,34 @@ class TamuController extends Controller
             'daftar'    => $t->created_at->format('d M Y, H:i'),
             'checkin'   => $t->checked_in_at?->format('d M Y, H:i'),
             'checkout'  => $t->checked_out_at?->format('d M Y, H:i'),
-            'status'    => $t->checked_out_at ? 'Selesai' : 'Berkunjung',
+            'status'    => $t->verifikasi_label === 'Disetujui'
+                ? ($t->checked_out_at ? 'Selesai' : 'Berkunjung')
+                : $t->verifikasi_label,
+            'verifikasi' => $t->status_verifikasi,
             // Nilai mentah utk <input type="datetime-local"> pada modal edit
             'tanggal_input' => $t->tanggal_kunjungan?->format('Y-m-d\\TH:i'),
             // URL unduh dokumen ZIP (null bila tanpa lampiran)
             'dokumen'   => $t->dokumen_zip_url,
+            // Untuk kompatibilitas dengan modal edit (JS mengakses model Carbon)
+            'tanggal_kunjungan' => $t->tanggal_kunjungan,
         ])->keyBy('id');
 
-        return view('admin.tamu.index', compact('tamus', 'stats', 'tamuData'));
+        // Data lengkap untuk JavaScript (sudah diformat, aman untuk @json)
+        $tamuFullDataForJs = collect($tamus->items())->map(fn (Tamu $t) => [
+            'id' => $t->id,
+            'nik' => $t->nik,
+            'nama' => $t->nama,
+            'instansi' => $t->instansi,
+            'no_hp' => $t->no_hp,
+            'email' => $t->email,
+            'tujuan_ditemui' => $t->tujuan_ditemui,
+            'jumlah_tamu' => $t->jumlah_tamu,
+            'keperluan' => $t->keperluan,
+            'tanggal_input' => $t->tanggal_kunjungan ? $t->tanggal_kunjungan->format('Y-m-d\\TH:i') : null,
+            'dokumen_zip_url' => $t->dokumen_zip_url,
+        ])->toArray();
+
+        return view('admin.tamu.index', compact('tamus', 'stats', 'tamuData', 'tamuFullDataForJs'));
     }
 
     public function store(Request $request)
@@ -154,6 +175,48 @@ class TamuController extends Controller
 
         return redirect()->route('admin.tamu.index')
             ->with('success', "Data tamu \"{$tamu->nama}\" berhasil diperbarui.");
+    }
+
+    /**
+     * Keputusan verifikasi kunjungan: "setuju" atau "tolak".
+     *
+     * Status disimpan, lalu admin diarahkan ke WhatsApp tamu (wa.me
+     * click-to-chat) dengan pesan konfirmasi yang sudah terisi — admin
+     * cukup menekan tombol kirim di aplikasi WA-nya.
+     */
+    public function verifikasi(Request $request, Tamu $tamu)
+    {
+        $validated = $request->validate([
+            'keputusan' => ['required', 'in:setuju,tolak'],
+        ], [
+            'keputusan.required' => 'Pilih keputusan verifikasi terlebih dahulu.',
+            'keputusan.in'       => 'Keputusan verifikasi tidak valid.',
+        ]);
+
+        $setuju = $validated['keputusan'] === 'setuju';
+
+        $tamu->update([
+            'status_verifikasi' => $setuju ? Tamu::STATUS_DISETUJUI : Tamu::STATUS_DITOLAK,
+            'verified_at'       => now(),
+            'verified_by'       => $request->user()->id,
+        ]);
+
+        ActivityLogger::log($setuju ? 'approve' : 'reject', null, [
+            'module' => 'tamu',
+            'description' => ($setuju ? 'menyetujui' : 'menolak') . " pendaftaran tamu \"{$tamu->nama}\" (NIK {$tamu->nik})",
+            'subject' => $tamu,
+        ]);
+
+        $statusLabel = $setuju ? 'disetujui' : 'ditolak';
+
+        // Flash data untuk pop-up "kirim konfirmasi WA" di halaman index:
+        // memuat URL wa.me dengan pesan yang sudah terisi sesuai keputusan.
+        return redirect()->route('admin.tamu.index')->with('wa_konfirmasi', [
+            'nama'   => $tamu->nama,
+            'no_wa'  => $tamu->wa_number,
+            'status' => $statusLabel,
+            'wa_url' => $setuju ? $tamu->wa_approve_url : $tamu->wa_reject_url,
+        ])->with('success', "Pendaftaran tamu \"{$tamu->nama}\" {$statusLabel}.");
     }
 
     public function checkout(Tamu $tamu)

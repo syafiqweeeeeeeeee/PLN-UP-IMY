@@ -319,9 +319,15 @@
         white-space: nowrap;
     }
     .tamu-badge i { font-size: 0.6rem; }
+    .tamu-badge.menunggu  { background: #fef3c7; color: #b45309; }
     .tamu-badge.berkunjung { background: #dbeafe; color: #1d4ed8; }
+    .tamu-badge.disetujui { background: #dcfce7; color: #15803d; }
+    .tamu-badge.ditolak   { background: #fee2e2; color: #dc2626; }
     .tamu-badge.selesai    { background: #f1f5f9; color: #64748b; }
+    html.theme-dark .tamu-badge.menunggu  { background: rgba(180,83,9,0.25); color: #fcd34d; }
     html.theme-dark .tamu-badge.berkunjung { background: rgba(29,78,216,0.25); color: #93c5fd; }
+    html.theme-dark .tamu-badge.disetujui { background: rgba(21,128,61,0.25); color: #86efac; }
+    html.theme-dark .tamu-badge.ditolak   { background: rgba(220,38,38,0.25); color: #fca5a5; }
     html.theme-dark .tamu-badge.selesai    { background: var(--panel); color: var(--ink-muted); }
 
     /* Action Buttons */
@@ -341,10 +347,13 @@
     }
     .tamu-action-btn.detail   { background: #eff6ff; color: #2563eb; }
     .tamu-action-btn.detail:hover { background: #dbeafe; }
-    .tamu-action-btn.edit   { background: #f0fdf4; color: #16a34a; }
-    .tamu-action-btn.edit:hover { background: #dcfce7; }
+    
     .tamu-action-btn.delete   { background: #fef2f2; color: #dc2626; }
     .tamu-action-btn.delete:hover { background: #fee2e2; }
+    .tamu-action-btn.setuju  { background: #dcfce7; color: #15803d; }
+    .tamu-action-btn.setuju:hover { background: #bbf7d0; }
+    .tamu-action-btn.tolak   { background: #fee2e2; color: #dc2626; }
+    .tamu-action-btn.tolak:hover { background: #fecaca; }
 
     /* Empty State */
     .tamu-empty {
@@ -540,6 +549,10 @@
     .tamu-delete-actions .cancel:hover { background: #e2e8f0; }
     .tamu-delete-actions .confirm { background: #dc2626; color: #fff; }
     .tamu-delete-actions .confirm:hover { background: #b91c1c; }
+    .tamu-delete-actions .confirm.tolak-btn { background: #dc2626; }
+    .tamu-delete-actions .confirm.tolak-btn:hover { background: #b91c1c; }
+    .tamu-delete-actions .confirm.setuju-btn { background: #15803d; }
+    .tamu-delete-actions .confirm.setuju-btn:hover { background: #166534; }
 
     /* ---------- Print bar (di bawah tabel) ---------- */
     .tamu-print-bar {
@@ -610,10 +623,6 @@
             <p>Daftar riwayat dan verifikasi pendaftaran kunjungan tamu PLN Nusantara Power.</p>
         </div>
         <div class="header-actions">
-            <a href="{{ route('admin.tamu.export', request()->only(['q', 'dari', 'sampai', 'status'])) }}"
-               class="btn-corp btn-corp-soft" title="Unduh CSV (dapat dibuka di Excel)">
-                <i class="fas fa-file-csv me-1"></i> Export Excel/CSV
-            </a>
             @can('tamu.create')
             <button type="button" class="btn-corp btn-corp-primary" onclick="openAddModal()">
                 <i class="fas fa-user-plus me-1"></i> Tambah Tamu Manual
@@ -673,6 +682,9 @@
     <input type="date" name="sampai" value="{{ request('sampai') }}" title="Tanggal kunjungan sampai" style="font-size:0.82rem;">
     <select name="status" style="font-size:0.82rem;">
         <option value="">Semua Status</option>
+        <option value="menunggu" @selected(request('status') === 'menunggu')>Menunggu Verifikasi</option>
+        <option value="disetujui" @selected(request('status') === 'disetujui')>Disetujui</option>
+        <option value="ditolak" @selected(request('status') === 'ditolak')>Ditolak</option>
         <option value="berkunjung" @selected(request('status') === 'berkunjung')>Berkunjung</option>
         <option value="selesai" @selected(request('status') === 'selesai')>Selesai</option>
     </select>
@@ -712,8 +724,9 @@
                     <div class="tamu-waktu-row">
                         <span class="tamu-no-badge">{{ ($tamus->currentPage() - 1) * $tamus->perPage() + $loop->iteration }}</span>
                         <div>
-                            <span class="tgl"><i class="fas fa-calendar-day"></i>{{ $tamu->created_at->translatedFormat('d M Y') }}</span><br>
-                            <span class="jam"><i class="fas fa-clock"></i>{{ $tamu->created_at->format('H:i') }}</span>
+                            <span class="tgl" title="Waktu pendaftaran"><i class="fas fa-calendar-day"></i>{{ $tamu->created_at->translatedFormat('d M Y') }}</span><br>
+                            <span class="jam" title="Waktu pendaftaran"><i class="fas fa-clock"></i>{{ $tamu->created_at->format('H:i') }}</span><br>
+                            <span class="tgl" title="Jadwal kunjungan yang dipilih tamu"><i class="fas fa-calendar-check" style="color:#15803d;"></i>Kunjungan: {{ $tamu->tanggal_kunjungan?->translatedFormat('d M Y, H:i') }}</span>
                         </div>
                     </div>
                 </td>
@@ -755,10 +768,19 @@
                     @endif
                 </td>
                 <td>
-                    @if ($tamu->checked_out_at)
-                        <span class="tamu-badge selesai"><i class="fas fa-circle"></i> Selesai</span>
+                    {{-- Alur verifikasi: Menunggu -> Disetujui/Ditolak.
+                         Setelah disetujui, kunjungan berjalan (Berkunjung/Selesai
+                         mengikuti check-in/out). Ditolak = kunjungan batal. --}}
+                    @if ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_DITOLAK)
+                        <span class="tamu-badge ditolak" title="Kunjungan ditolak"><i class="fas fa-circle"></i> Ditolak</span>
+                    @elseif ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_DISETUJUI)
+                        @if ($tamu->checked_out_at)
+                            <span class="tamu-badge selesai"><i class="fas fa-circle"></i> Selesai</span>
+                        @else
+                            <span class="tamu-badge disetujui" title="Disetujui — tamu dapat berkunjung"><i class="fas fa-circle"></i> Disetujui</span>
+                        @endif
                     @else
-                        <span class="tamu-badge berkunjung"><i class="fas fa-circle"></i> Berkunjung</span>
+                        <span class="tamu-badge menunggu" title="Menunggu verifikasi admin"><i class="fas fa-circle"></i> Menunggu</span>
                     @endif
                 </td>
                 <td>
@@ -772,6 +794,18 @@
                                     onclick='openEditModal(@json($tamuData[$tamu->id] ?? []))'>
                                 <i class="fas fa-pen"></i>
                             </button>
+                        @endcan
+                        @can('tamu.checkout')
+                            @if ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_MENUNGGU)
+                                <button type="button" class="tamu-action-btn setuju" title="Setujui kunjungan & kirim konfirmasi WA"
+                                        onclick="openVerifikasiModal({{ $tamu->id }}, 'setuju')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button type="button" class="tamu-action-btn tolak" title="Tolak kunjungan & kirim konfirmasi WA"
+                                        onclick="openVerifikasiModal({{ $tamu->id }}, 'tolak')">
+                                    <i class="fas fa-xmark"></i>
+                                </button>
+                            @endif
                         @endcan
                         @can('tamu.delete')
                             <button type="button" class="tamu-action-btn delete" title="Hapus"
@@ -907,6 +941,61 @@
         </div>
     </div>
 </div>
+
+{{-- ============================================
+     MODAL: VERIFIKASI KUNJUNGAN (Setuju / Tolak)
+     ============================================ --}}
+@can('tamu.checkout')
+<div class="tamu-modal-overlay" id="verifikasiModal" onclick="if(event.target===this) closeTamuModal('verifikasiModal')">
+    <div class="tamu-modal">
+        <div class="tamu-delete-dialog">
+            <div class="del-icon" id="verifikasiIcon"><i class="fas fa-circle-check"></i></div>
+            <h6 id="verifikasiTitle">Setujui Kunjungan?</h6>
+            <p id="verifikasiDesc">Kunjungan tamu ini akan disetujui. Setelah itu,
+                Anda akan diarahkan ke WhatsApp tamu untuk mengirim konfirmasi.</p>
+            <div class="tamu-delete-name" id="verifikasiTamuName"></div>
+            <div class="tamu-delete-actions">
+                <button type="button" class="cancel" onclick="closeTamuModal('verifikasiModal')">Batal</button>
+                <form id="verifikasiForm" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="confirm" id="verifikasiConfirmBtn">
+                        <i class="fas fa-check me-1"></i> Ya, Setujui
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ============================================
+     POP-UP: KIRIM KONFIRMASI WA (setelah verifikasi)
+     Muncul saat session('wa_konfirmasi') tersedia —
+     menyediakan tombol buka WhatsApp (pesan sudah terisi)
+     dan tombol lewati.
+     ============================================ --}}
+@if (session('wa_konfirmasi'))
+@php($wa = session('wa_konfirmasi'))
+<div class="tamu-modal-overlay show" id="waKonfirmasiModal">
+    <div class="tamu-modal">
+        <div class="tamu-delete-dialog">
+            <div class="del-icon" style="background:#e7f9ee; color:#16a34a;"><i class="fab fa-whatsapp" style="font-size:1.5rem;"></i></div>
+            <h6>Kirim Konfirmasi WhatsApp</h6>
+            <p>Berbaskan tamu <b>{{ $wa['nama'] }}</b> ({{ $wa['no_wa'] }}) bahwa kunjungannya
+                <b>{{ $wa['status'] }}</b>. WhatsApp akan terbuka dengan pesan yang sudah terisi otomatis —
+                cukup tekan <b>Kirim</b>.</p>
+            <div class="tamu-delete-actions">
+                <button type="button" class="cancel" onclick="closeTamuModal('waKonfirmasiModal')">Lewati</button>
+                <a href="{{ $wa['wa_url'] }}" target="_blank" rel="noopener" class="confirm"
+                   style="background:#25D366; color:#fff; text-decoration:none; display:inline-flex; align-items:center;"
+                   onclick="setTimeout(function(){ closeTamuModal('waKonfirmasiModal'); }, 300);">
+                    <i class="fab fa-whatsapp me-1"></i> Buka WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+@endcan
 
 {{-- ============================================
      MODAL: TAMBAH TAMU MANUAL
@@ -1119,8 +1208,16 @@
 <script>
     /* ===== Buka/tutup modal generik ===== */
     function openTamuModal(id) {
-        document.getElementById(id).classList.add('show');
+        console.log('[Modal] openTamuModal dipanggil:', id);
+        const el = document.getElementById(id);
+        if (!el) {
+            console.error('[Modal] Elemen tidak ditemukan:', id);
+            alert('[Modal] Elemen ' + id + ' tidak ditemukan!');
+            return;
+        }
+        el.classList.add('show');
         document.body.style.overflow = 'hidden';
+        console.log('[Modal] Modal', id, 'dibuka. classList:', el.classList.contains('show'));
     }
     function closeTamuModal(id) {
         document.getElementById(id).classList.remove('show');
@@ -1128,7 +1225,7 @@
     }
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
-            ['dokumenModal', 'detailModal', 'deleteModal', 'addModal', 'editModal'].forEach(function (id) {
+            ['dokumenModal', 'detailModal', 'deleteModal', 'verifikasiModal', 'waKonfirmasiModal', 'addModal', 'editModal'].forEach(function (id) {
                 const el = document.getElementById(id);
                 if (el && el.classList.contains('show')) closeTamuModal(id);
             });
@@ -1140,31 +1237,35 @@
         document.getElementById('dokumenModalUrl').href = url;
         document.getElementById('dokumenModalName').textContent = nama;
         openTamuModal('dokumenModal');
-    }
-
-    /* ===== Modal Detail ===== */
-    const tamuData = @json($tamuData);
+    }    /* ===== Modal Detail ===== */
+    var tamuData = @json($tamuData);
+    var tamuFullData = @json($tamuFullDataForJs);
 
     function openDetailModal(id) {
-        const t = tamuData[id];
-        if (!t) return;
+        var t = tamuData[id];
+        if (!t) {
+            // Fallback: coba dari tamuFullData kalau tamuData tidak ada
+            var tf = tamuFullData && tamuFullData.find ? tamuFullData.find(function(item) { return item.id === id; }) : null;
+            if (!tf) return;
+            t = tf;
+        }
 
-        const rows = [
+        var rows = [
             ['Nama Lengkap', t.nama],
             ['NIK / No. KTP', t.nik],
             t.wa ? ['No. WhatsApp / HP', t.wa] : null,
             t.email ? ['Email', t.email] : null,
             ['Instansi', t.instansi || '-'],
             ['Tujuan Ditemui', t.tujuan],
-            ['Jumlah Tamu', t.jumlah + ' orang'],
-            ['Tanggal Kunjungan', t.tanggal],
-            ['Waktu Pendaftaran', t.daftar],
-            ['Check-In', t.checkin],
-            ['Check-Out', t.checkout],
-            ['Status', t.status],
+            ['Jumlah Tamu', (t.jumlah || 1) + ' orang'],
+            ['Tanggal Kunjungan', t.tanggal || '-'],
+            ['Waktu Pendaftaran', t.daftar || '-'],
+            ['Check-In', t.checkin || '-'],
+            ['Check-Out', t.checkout || '-'],
+            ['Status', t.status || '-'],
         ];
 
-        let html = '<div class="detail-list">';
+        var html = '<div class="detail-list">';
         rows.forEach(function (row) {
             if (!row) return; // lewati baris kosong (WA/email null)
             html += '<div class="detail-row"><dt>' + row[0] + '</dt><dd>' + String(row[1]).replace(/</g, '&lt;') + '</dd></div>';
@@ -1179,8 +1280,10 @@
         }
 
         if (t.dokumen) {
+            var namaSafe = String(t.nama || '-').replace(/'/g, "\\'");
+            var dokumenUrl = String(t.dokumen).replace(/'/g, "\\'");
             html += '<div style="margin-top:1rem;"><div style="font-size:0.72rem; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">Dokumen Pendukung</div>'
-                 + '<a href="javascript:void(0)" onclick="openDokumenModal(\'' + t.dokumen + '\', \'' + String(t.nama).replace(/'/g, "\\'") + '\')" style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.8rem; font-weight:600; color:#2563eb; background:#eff6ff; border:1px solid #dbeafe; border-radius:9px; padding:0.5rem 0.9rem; text-decoration:none; cursor:pointer;">'
+                 + '<a href="javascript:void(0)" onclick="openDokumenModal(\'' + dokumenUrl + '\', \'' + namaSafe + '\')" style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.8rem; font-weight:600; color:#2563eb; background:#eff6ff; border:1px solid #dbeafe; border-radius:9px; padding:0.5rem 0.9rem; text-decoration:none; cursor:pointer;">'
                  + '<i class="fas fa-paperclip" style="color:#dc2626;"></i> Buka / Unduh Dokumen</a></div>';
         }
 
@@ -1195,74 +1298,68 @@
         openTamuModal('deleteModal');
     }
 
-    /* ===== Modal Edit (pop-up) ===== */
-    const editUrlTemplate = '{{ route('admin.tamu.update', ['tamu' => ':id']) }}';
+    /* ===== Modal Verifikasi (Setuju / Tolak) =====
+       Setelah submit, controller mengarahkan kembali dengan flash
+       wa_konfirmasi → pop-up "Buka WhatsApp" tampil otomatis. */
+    const verifikasiUrlTemplate = '{{ route('admin.tamu.verifikasi', ['tamu' => ':id']) }}';
 
-    /* Tampilkan nama file yang baru dipilih pada modal edit (dokumen) */
-    function showEditFileName(input, targetId) {
-        const target = document.getElementById(targetId);
-        if (!target) return;
-        const file = input.files && input.files[0];
-        if (file) {
-            target.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
-            target.style.display = 'block';
-        } else {
-            target.textContent = '';
-            target.style.display = 'none';
+    function openVerifikasiModal(id, keputusan) {
+        const t = tamuData[id];
+        if (!t) return;
+
+        const setuju = keputusan === 'setuju';
+        const form   = document.getElementById('verifikasiForm');
+
+        form.action = verifikasiUrlTemplate.replace(':id', id);
+
+        /* Hidden input keputusan (setuju / tolak) */
+        let keputusanInput = form.querySelector('input[name="keputusan"]');
+        if (!keputusanInput) {
+            keputusanInput = document.createElement('input');
+            keputusanInput.type  = 'hidden';
+            keputusanInput.name  = 'keputusan';
+            form.appendChild(keputusanInput);
         }
-    }
+        keputusanInput.value = keputusan;
 
-    /* Penghitung karakter Maksud & Keperluan pada modal edit */
-    const editKeperluanInput = document.getElementById('edit-keperluan');
-    const editKeperluanCount = document.getElementById('edit-keperluan-count');
-    if (editKeperluanInput && editKeperluanCount) {
-        editKeperluanInput.addEventListener('input', function () {
-            editKeperluanCount.textContent = this.value.length;
-        });
-    }
+        /* Sesuaikan ikon, judul & tombol sesuai keputusan */
+        const icon = document.getElementById('verifikasiIcon');
+        icon.style.background = setuju ? '#dcfce7' : '#fee2e2';
+        icon.style.color      = setuju ? '#15803d' : '#dc2626';
+        icon.innerHTML        = setuju
+            ? '<i class="fas fa-circle-check"></i>'
+            : '<i class="fas fa-circle-xmark"></i>';
 
-    function openEditModal(t) {
-        if (!t || !t.id) return;
+        document.getElementById('verifikasiTitle').textContent = setuju
+            ? 'Setujui Kunjungan?' : 'Tolak Kunjungan?';
 
-        const form = document.getElementById('editTamuForm');
-        form.action = editUrlTemplate.replace(':id', t.id);
+        document.getElementById('verifikasiDesc').textContent = setuju
+            ? 'Kunjungan tamu ini akan disetujui & slot jadwalnya terkunci. Setelah itu Anda akan diarahkan ke WhatsApp tamu untuk mengirim konfirmasi.'
+            : 'Kunjungan tamu ini akan ditolak. Setelah itu Anda akan diarahkan ke WhatsApp tamu untuk memberitahukan penolakan.';
 
-        /* Isi field dengan data tamu terpilih */
-        document.getElementById('edit-nik').value = t.nik || '';
-        document.getElementById('edit-nama').value = t.nama || '';
-        document.getElementById('edit-instansi').value = t.instansi || '';
-        document.getElementById('edit-no_hp').value = t.no_hp || '';
-        document.getElementById('edit-email').value = t.email || '';
-        document.getElementById('edit-tujuan_ditemui').value = t.tujuan || '';
-        document.getElementById('edit-jumlah_tamu').value = t.jumlah || 1;
-        document.getElementById('edit-tanggal_kunjungan').value = t.tanggal_input || '';
-        document.getElementById('edit-keperluan').value = t.keperluan || '';
-        if (editKeperluanCount) editKeperluanCount.textContent = (t.keperluan || '').length;
+        document.getElementById('verifikasiTamuName').textContent =
+            (t.nama || '-') + ' — ' + (t.tanggal || '-');
 
-        /* Reset pilihan file agar tidak terbawa dari edit sebelumnya */
-        const dokInput = document.getElementById('edit-dokumen');
-        if (dokInput) dokInput.value = '';
-        showEditFileName(dokInput, 'edit-dokumen-filename');
+        const btn = document.getElementById('verifikasiConfirmBtn');
+        btn.innerHTML = setuju
+            ? '<i class="fas fa-check me-1"></i> Ya, Setujui'
+            : '<i class="fas fa-xmark me-1"></i> Ya, Tolak';
+        btn.className = 'confirm ' + (setuju ? 'setuju-btn' : 'tolak-btn');
 
-        /* Link dokumen saat ini (disajikan privat via route ber-auth) */
-        const dokWrap = document.getElementById('edit-dokumen-link');
-        const dokEmpty = document.getElementById('edit-dokumen-empty');
-        if (t.dokumen) {
-            document.getElementById('edit-dokumen-url').href = t.dokumen;
-            dokWrap.classList.remove('hidden');
-            dokEmpty.classList.add('hidden');
-        } else {
-            dokWrap.classList.add('hidden');
-            dokEmpty.classList.remove('hidden');
-        }
-
-        openTamuModal('editModal');
+        openTamuModal('verifikasiModal');
     }
 
     /* ===== Modal Tambah Manual ===== */
     function openAddModal() {
         openTamuModal('addModal');
     }
+
+    /* ===== Helper: Dapatkan data tamu lengkap ===== */
+    function getTamuData(id) {
+        if (!tamuFullData) return null;
+        return tamuFullData.find(item => item.id === id);
+    }
+
 </script>
 @endpush
 @endsection

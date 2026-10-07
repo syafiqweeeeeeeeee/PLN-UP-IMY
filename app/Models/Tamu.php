@@ -10,10 +10,32 @@ use Illuminate\Support\Facades\Storage;
  *
  * Kolom status: checked_in_at / checked_out_at (null = belum).
  * Helper isCheckedin() & durasiKunjungan() memudahkan front office.
+ *
+ * Alur verifikasi admin: status_verifikasi "menunggu" -> "disetujui"
+ * / "ditolak" (keputusan tercatat di verified_at / verified_by).
+ *
+ * PENJADWALAN (slot locking): tiap kunjungan yang DISETUJUI memblokir
+ * rentang DURASI_KUNJUNGAN_JAM sejak jam mulai untuk tujuan_ditemui
+ * yang sama. Pengajuan divisi berbeda pada jam yang sama TETAP BOLEH.
  */
 class Tamu extends Model
 {
     protected $table = 'tamus';
+
+    /** Status verifikasi kunjungan. */
+    public const STATUS_MENUNGGU = 'menunggu';
+    public const STATUS_DISETUJUI = 'disetujui';
+    public const STATUS_DITOLAK   = 'ditolak';
+
+    /** Durasi kunjungan standar (jam) — rentang waktu yang diblokir tiap pengajuan. */
+    public const DURASI_KUNJUNGAN_JAM = 3;
+
+    /**
+     * Pilihan jam mulai kunjungan (dropdown form).
+     * Sesi pagi 08:00–11:30 & sesi siang 13:00–16:00;
+     * jam 12:00–13:00 adalah istirahat (tidak ada slot).
+     */
+    public const SLOT_JAM = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00'];
 
     protected $fillable = [
         'nik',
@@ -28,6 +50,9 @@ class Tamu extends Model
         'keperluan',
         'checked_in_at',
         'checked_out_at',
+        'status_verifikasi',
+        'verified_at',
+        'verified_by',
     ];
 
     protected $casts = [
@@ -35,7 +60,20 @@ class Tamu extends Model
         'tanggal_kunjungan' => 'datetime',
         'checked_in_at'     => 'datetime',
         'checked_out_at'    => 'datetime',
+        'verified_at'       => 'datetime',
     ];
+
+    /**
+     * Label status verifikasi dalam bahasa Indonesia (untuk badge UI).
+     */
+    public function getVerifikasiLabelAttribute(): string
+    {
+        return match ($this->status_verifikasi) {
+            self::STATUS_DISETUJUI => 'Disetujui',
+            self::STATUS_DITOLAK   => 'Ditolak',
+            default                => 'Menunggu',
+        };
+    }
 
     /**
      * Apakah tamu memiliki lampiran dokumen (ZIP).
@@ -92,6 +130,50 @@ class Tamu extends Model
             . "kami ingin mengonfirmasi jadwal kunjungan Anda. Terima kasih.";
 
         return 'https://wa.me/' . $this->wa_number . '?text=' . rawurlencode($message);
+    }
+
+    /**
+     * Pesan WA konfirmasi kunjungan DIIZINKAN (disetujui admin).
+     * Menyertakan jadwal kunjungan yang disetujui.
+     */
+    public function getPesanWaDisetujuiAttribute(): string
+    {
+        return "Halo Bpk/Ibu {$this->nama}, pendaftaran kunjungan Anda di "
+            . "PT PLN Nusantara Power UP PLTU Indramayu telah DIIZINKAN.\n\n"
+            . "Jadwal kunjungan: {$this->tanggal_kunjungan?->translatedFormat('d F Y, H:i')} WIB\n"
+            . "Yang akan ditemui: {$this->tujuan_ditemui}\n"
+            . "Jumlah tamu: {$this->jumlah_tamu} orang\n\n"
+            . "Silakan tunjukkan pesan ini dan membawa identitas diri (KTP) "
+            . "saat tiba di front office. Terima kasih.";
+    }
+
+    /**
+     * Pesan WA konfirmasi kunjungan DITOLAK (ditolak admin).
+     */
+    public function getPesanWaDitolakAttribute(): string
+    {
+        return "Halo Bpk/Ibu {$this->nama}, mohon maaf pendaftaran kunjungan Anda di "
+            . "PT PLN Nusantara Power UP PLTU Indramayu pada "
+            . "{$this->tanggal_kunjungan?->translatedFormat('d F Y, H:i')} WIB "
+            . "belum dapat kami izinkan.\n\n"
+            . "Silakan hubungi petugas atau lakukan pendaftaran ulang di waktu lain. "
+            . "Terima kasih atas pengertiannya.";
+    }
+
+    /**
+     * URL wa.me dengan pesan DIIZINKAN — dibuka saat admin menyetujui.
+     */
+    public function getWaApproveUrlAttribute(): string
+    {
+        return 'https://wa.me/' . $this->wa_number . '?text=' . rawurlencode($this->pesan_wa_disetujui);
+    }
+
+    /**
+     * URL wa.me dengan pesan DITOLAK — dibuka saat admin menolak.
+     */
+    public function getWaRejectUrlAttribute(): string
+    {
+        return 'https://wa.me/' . $this->wa_number . '?text=' . rawurlencode($this->pesan_wa_ditolak);
     }
 
     /**
@@ -168,15 +250,72 @@ class Tamu extends Model
     }
 
     /**
-     * Filter status kunjungan: "berkunjung" (belum check-out)
-     * atau "selesai" (sudah check-out).
+     * Filter status gabungan untuk dropdown admin:
+     * - "menunggu" / "disetujui" / "ditolak" → status verifikasi
+     * - "berkunjung" (belum check-out) / "selesai" (sudah check-out)
+     *   → hanya di antara tamu yang sudah disetujui.
      */
     public function scopeStatus($query, ?string $status)
     {
         return match ($status) {
-            'berkunjung' => $query->whereNull('checked_out_at'),
-            'selesai'    => $query->whereNotNull('checked_out_at'),
+            self::STATUS_MENUNGGU  => $query->where('status_verifikasi', self::STATUS_MENUNGGU),
+            self::STATUS_DISETUJUI => $query->where('status_verifikasi', self::STATUS_DISETUJUI),
+            self::STATUS_DITOLAK   => $query->where('status_verifikasi', self::STATUS_DITOLAK),
+            'berkunjung' => $query->where('status_verifikasi', self::STATUS_DISETUJUI)->whereNull('checked_out_at'),
+            'selesai'    => $query->where('status_verifikasi', self::STATUS_DISETUJUI)->whereNotNull('checked_out_at'),
             default      => $query,
         };
+    }
+
+    /* =========================================================
+       SLOT LOCKING — pemblokiran jam kunjungan per divisi
+       ========================================================= */
+
+    /**
+     * Jam-jam slot yang TERBLOKIR untuk satu divisi pada satu tanggal.
+     *
+     * Setiap kunjungan berstatus "disetujui" memblokir rentang
+     * DURASI_KUNJUNGAN_JAM sejak jam mulainya (mis. 09:00 -> 09:00–12:00),
+     * sehingga slot yang jatuh DI DALAM rentang itu (09:00, 10:00, 11:00)
+     * tidak dapat dipilih untuk divisi yang sama. Divisi berbeda tidak
+     * terpengaruh.
+     *
+     * @param  string  $tanggal  Format Y-m-d
+     * @param  string  $divisi   Nilai kolom tujuan_ditemui
+     * @return array<int, string> Daftar jam (HH:MM) terblokir, terurut
+     */
+    public static function jamTerblokir(string $tanggal, string $divisi): array
+    {
+        $disetujui = self::query()
+            ->where('status_verifikasi', self::STATUS_DISETUJUI)
+            ->where('tujuan_ditemui', $divisi)
+            ->whereDate('tanggal_kunjungan', $tanggal)
+            ->pluck('tanggal_kunjungan');
+
+        $terblokir = [];
+
+        foreach ($disetujui as $mulai) {
+            $akhir = $mulai->copy()->addHours(self::DURASI_KUNJUNGAN_JAM);
+
+            foreach (self::SLOT_JAM as $jam) {
+                $slot = \Carbon\Carbon::parse("{$tanggal} {$jam}");
+
+                if ($slot->greaterThanOrEqualTo($mulai) && $slot->lessThan($akhir)) {
+                    $terblokir[] = $jam;
+                }
+            }
+        }
+
+        return array_values(array_unique($terblokir));
+    }
+
+    /**
+     * Apakah jam mulai tertentu terblokir untuk divisi & tanggal ini?
+     * Dipakai validasi store() agar double booking divisi yang sama
+     * tidak lolos meski dilewati dari sisi frontend.
+     */
+    public static function isJamTerblokir(string $tanggal, string $jam, string $divisi): bool
+    {
+        return in_array($jam, self::jamTerblokir($tanggal, $divisi), true);
     }
 }

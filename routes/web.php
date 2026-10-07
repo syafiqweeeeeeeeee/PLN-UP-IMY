@@ -20,6 +20,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/layanan/form-registrasi-tamu', [\App\Http\Controllers\TamuController::class, 'create'])->name('layanan.registrasi-tamu');
 Route::post('/layanan/form-registrasi-tamu', [\App\Http\Controllers\TamuController::class, 'store'])->name('layanan.registrasi-tamu.store');
 
+// API slot kunjungan terblokir (dipakai fetch JS form registrasi):
+// ?divisi=...&tanggal=YYYY-MM-DD -> JSON daftar jam yang sudah penuh.
+Route::get('/api/booked-slots', [\App\Http\Controllers\TamuController::class, 'bookedSlots'])
+    ->name('layanan.registrasi-tamu.booked-slots');
+
 Route::get('/tentang-kami/sejarah', [HomeController::class, 'sejarah'])->name('sejarah');
 Route::get('/tentang-kami/visi-misi', [HomeController::class, 'visiMisi'])->name('visi-misi');
 Route::get('/tentang-kami/profil-perusahaan', [HomeController::class, 'profilPerusahaan'])->name('profil-perusahaan');
@@ -268,6 +273,10 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             });
             Route::middleware('permission:tamu.checkout')->group(function () {
                 Route::patch('tamu/{tamu}/checkout', [\App\Http\Controllers\Admin\TamuController::class, 'checkout'])->name('tamu.checkout');
+
+                // Verifikasi kunjungan (setuju / tolak) — satu gate dengan
+                // check-out karena keduanya keputusan front office.
+                Route::post('tamu/{tamu}/verifikasi', [\App\Http\Controllers\Admin\TamuController::class, 'verifikasi'])->name('tamu.verifikasi');
             });
             Route::middleware('permission:tamu.delete')->group(function () {
                 Route::delete('tamu/{tamu}', [\App\Http\Controllers\Admin\TamuController::class, 'destroy'])->name('tamu.destroy');

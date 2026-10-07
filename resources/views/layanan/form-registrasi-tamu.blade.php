@@ -95,13 +95,87 @@
         height: 4px;
         background: var(--pg-gradient);
     }
-    .pln-card-body { padding: 1.2rem 1.15rem 1.35rem; }
+    .pln-card-body { padding: 1.1rem 1rem 1.25rem; }
 
     /* Jarak antar seksi pada mode satu kolom */
-    .pln-card-body > .pln-section + .pln-section { margin-top: 1.1rem; }
+    .pln-card-body > .pln-section + .pln-section { margin-top: 1rem; }
 
     /* Jarak antar blok field dalam satu seksi (label+input berikutnya) */
-    .pln-section > * + * { margin-top: 0.85rem; }
+    .pln-section > * + * { margin-top: 0.8rem; }
+
+    /* ---- MOBILE (≤639px): lebih kompak agar muat tanpa scroll berlebih ---- */
+    @media (max-width: 639.98px) {
+        .pln-card-body {
+            padding: 0.9rem 0.85rem 1rem;
+        }
+
+        .pln-card-body > .pln-section + .pln-section { margin-top: 0.8rem; }
+
+        .pln-section > * + * { margin-top: 0.65rem; }
+
+        .pln-section {
+            padding: 0.85rem 0.85rem 1rem;
+        }
+
+        .pln-section-head {
+            margin-bottom: 0.7rem;
+        }
+
+        .pln-section-icon {
+            width: 26px;
+            height: 26px;
+            font-size: 0.65rem;
+        }
+
+        .pln-section-title {
+            font-size: 0.7rem;
+        }
+
+        .pln-label {
+            font-size: 0.74rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .pln-input,
+        .pln-textarea,
+        select.pln-input {
+            padding: 0.5rem 0.8rem 0.5rem 2.2rem;
+            font-size: 0.82rem;
+        }
+
+        .pln-textarea {
+            padding-left: 0.8rem;
+            min-height: 80px;
+        }
+
+        .pln-input-icon > i {
+            left: 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .pln-input[type="date"] { padding-right: 0.3rem; }
+
+        select.pln-input {
+            padding-right: 2.2rem;
+            background-position: right 0.6rem center;
+            background-size: 0.85rem;
+        }
+
+        select.pln-input option {
+            padding: 0.25rem 0.4rem;
+        }
+
+        .btn-pln-primary {
+            font-size: 0.82rem;
+            padding: 0.5rem 1.2rem;
+        }
+
+        .pln-actions {
+            padding: 0.75rem 1rem;
+        }
+
+        .pln-hint { font-size: 0.68rem; }
+    }
 
     /* ---------- PANEL SEKSI ---------- */
     .pln-section {
@@ -171,11 +245,16 @@
         .pln-page { padding-top: 6rem; }
     }
 
-    /* Grid field menjadi 2 kolom di layar ≥640px */
+    /* Tablet/desktop kecil (≥640px): grid-2 jadi 2 kolom */
     @media (min-width: 640px) {
-        .grid-2    { grid-template-columns: 1fr 1fr; }
-        .grid-meet { grid-template-columns: 3fr 2fr; }
-        .sm\:text-left { text-align: left; }
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Tablet landscape (≥900px): grid-meet — Tanggal | Jam | Jumlah
+       jadi 3 kolom sejajar */
+    @media (min-width: 900px) {        .grid-meet {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
     }
 
     /* ---------- LABEL ---------- */
@@ -254,8 +333,54 @@
     .pln-input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
     /* Beri ruang untuk ikon kalender bawaan browser */
-    .pln-input[type="datetime-local"] { padding-right: 0.5rem; }
-    .pln-input[type="datetime-local"]::-webkit-calendar-picker-indicator { opacity: 0.55; cursor: pointer; }
+    .pln-input[type="date"] { padding-right: 0.5rem; }
+    .pln-input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.55; cursor: pointer; }
+
+    /* Dropdown (jam & divisi) */
+    select.pln-input {
+        padding-right: 2.2rem;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.8rem center;
+        background-size: 1rem;
+        padding-right: 2.5rem;
+    }
+
+    /* Opsi jam yang TERBLOKIR (rentang 3 jam sudah di-approve untuk
+       divisi sama): teks & latar merah — disabled oleh JS sehingga
+       tidak dapat dipilih */
+    select.pln-input option.slot-penuh { color: #B91C1C; background: #FEF2F2; font-weight: 600; }
+
+    /* Garis pemisah antar optgroup */
+    select.pln-input optgroup {
+        font-weight: 600;
+        color: #475569;
+        background: #F8FAFB;
+    }
+
+    select.pln-input option {
+        padding: 0.35rem 0.5rem;
+        line-height: 1.4;
+    }
+
+    /* Kotak peringatan slot tidak tersedia */
+    .slot-warning {
+        display: none;
+        align-items: flex-start;
+        gap: 0.45rem;
+        margin-top: 0.45rem;
+        padding: 0.55rem 0.75rem;
+        border: 1px solid #FECACA;
+        background: #FEF2F2;
+        color: #B91C1C;
+        border-radius: 10px;
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+    .slot-warning.show { display: flex; }
+    .slot-warning i { margin-top: 0.1rem; }
 
     .pln-field-error {
         display: flex;
@@ -275,9 +400,7 @@
     .gap-2       { gap: 0.5rem; }
     .justify-center { justify-content: center; }
     .text-center { text-align: center; }
-    .mt-3        { margin-top: 0.75rem; }
-
-    /* ---------- ALERT ---------- */
+    .mt-3        { margin-top: 0.75rem; }        /* ---- ALERT ---- */
     .pln-alert {
         display: flex;
         align-items: flex-start;
@@ -290,11 +413,14 @@
         background: #fff;
         box-shadow: 0 4px 16px rgba(2, 32, 48, 0.08);
     }
+
     .pln-alert > i { margin-top: 0.15rem; }
     .pln-alert p { margin: 0; }
     .pln-alert ul { margin: 0.3rem 0 0; padding-left: 1.1rem; }
+
     .pln-alert-success { border-color: #BBF7D0; color: #15803D; background: #F0FDF4; }
     .pln-alert-error   { border-color: #FECACA; color: #B91C1C; background: #FEF2F2; }
+
     .pln-alert-close {
         margin-left: auto;
         background: none;
@@ -305,18 +431,17 @@
         color: inherit;
         transition: opacity 0.2s ease;
     }
+
     .pln-alert-close:hover { opacity: 1; }
 
-    /* ---------- DROPZONE ---------- */
-    /* Dropzone horizontal (ikon + teks sebaris) agar hemat tinggi.
+    /* ---- DROPZONE ----
        Input file diletakkan di LUAR dropzone agar klik tidak
-       memicu dialog ganda lewat event bubbling. */
+       memicu dialog ganda lewat event bubbling.
+       Input disembunyikan secara VISUAL tetapi tetap focusable
+       (bukan display:none) agar validasi `required` native tetap
+       dapat menampilkan pesan browser. */
     .pln-upload-wrap { position: relative; }
 
-    /* Input file asli disembunyikan secara VISUAL, tetapi tetap
-       focusable (bukan display:none) — dengan display:none, Chrome
-       menolak submit tanpa pesan saat validasi `required` gagal
-       ("invalid form control is not focusable"). */
     .pln-file-input {
         position: absolute;
         width: 1px;
@@ -329,8 +454,7 @@
         white-space: nowrap;
         border: 0;
     }
-    /* Saat browser memfokuskan input tersembunyi (validasi required),
-       sorot dropzone-nya agar pengguna tahu bagian mana yang kurang */
+
     .pln-file-input:focus + .pln-dropzone {
         border-color: var(--pg-cyan);
         box-shadow: 0 0 0 3px var(--pg-ring);
@@ -349,7 +473,9 @@
         cursor: pointer;
         transition: border-color 0.2s ease, background 0.2s ease;
     }
+
     .pln-dropzone .dz-icon { font-size: 1.45rem; color: #B6C2CC; transition: color 0.2s ease; }
+
     .pln-dropzone:hover,
     .pln-dropzone:focus-visible,
     .pln-dropzone.is-dragover {
@@ -357,15 +483,18 @@
         background: rgba(0, 194, 209, 0.05);
         outline: none;
     }
+
     .pln-dropzone.has-error { border-color: var(--pg-red); }
+
     .pln-dropzone:hover > .dz-icon,
     .pln-dropzone:focus-visible > .dz-icon,
     .pln-dropzone.is-dragover > .dz-icon { color: var(--pg-cyan); }
+
     .pln-dropzone p { margin: 0; }
     .pln-dropzone-title { font-size: 0.84rem; font-weight: 500; color: var(--pg-text); }
     .pln-dropzone-hint  { font-size: 0.73rem; color: var(--pg-soft); margin-top: 0.1rem !important; }
 
-    /* ---------- KARTU FILE TERPILIH ---------- */
+    /* ---- KARTU FILE TERPILIH ---- */
     .pln-file-card {
         display: flex;
         align-items: center;
@@ -376,11 +505,11 @@
         background: #fff;
         padding: 0.85rem 1rem;
     }
+
     .pln-file-card .file-badge {
         width: 42px;
         height: 42px;
         border-radius: 10px;
-        /* Default (ZIP/RAR): aksen teal PLN */
         background: rgba(0, 194, 209, 0.10);
         color: var(--pg-blue);
         display: flex;
@@ -389,8 +518,10 @@
         font-size: 1.1rem;
         flex-shrink: 0;
     }
+
     .pln-file-card .file-badge.badge-pdf   { background: rgba(237, 28, 36, 0.10); color: var(--pg-red); }
     .pln-file-card .file-badge.badge-image { background: rgba(22, 163, 74, 0.12); color: #15803D; }
+
     .pln-file-card .file-name { font-size: 0.8rem; font-weight: 600; color: var(--pg-text); margin: 0; word-break: break-all; }
     .pln-file-card .file-size { font-size: 0.72rem; color: var(--pg-soft); margin: 0.1rem 0 0; }
 
@@ -411,7 +542,7 @@
     .btn-mini-neutral { background: #F1F5F9; color: var(--pg-muted); }
     .btn-mini-neutral:hover { color: var(--pg-blue); background: #E2E8F0; }
 
-    /* ---------- TOMBOL AKSI ---------- */
+    /* ---- TOMBOL AKSI ---- */
     .pln-actions {
         border-top: 1px solid var(--pg-line);
         background: #FBFDFE;
@@ -422,15 +553,22 @@
         flex-wrap: wrap;
         gap: 0.6rem;
     }
-    @media (max-width: 639.98px) {
-        .pln-actions { flex-direction: column-reverse; align-items: stretch; }
-        .pln-required-note { text-align: center; }
-    }
+
     .pln-required-note {
         margin: 0;
         font-size: 0.74rem;
         color: var(--pg-soft);
     }
+
+    @media (max-width: 639.98px) {
+        .pln-actions {
+            flex-direction: column-reverse;
+            align-items: stretch;
+            gap: 0.4rem;
+        }
+        .pln-required-note { text-align: center; }
+    }
+
     .pln-required-note .required { color: var(--pg-red); font-weight: 700; }
 
     .btn-pln-primary {
@@ -444,7 +582,6 @@
         border-radius: 25px;
         border: none;
         cursor: pointer;
-        /* Primary: kuning PLN — identik tombol Login di navbar */
         background: var(--pg-yellow);
         color: var(--pg-blue);
         transition: all 0.2s ease;
@@ -459,16 +596,19 @@
         .btn-pln-primary { width: 100%; }
     }
 
-    /* ---------- MODAL SUKSES (pop-up centang hijau) ---------- */
+    /* ---- MODAL SUKSES ---- */
     @keyframes pln-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
     @keyframes pln-pop {
         from { opacity: 0; transform: scale(0.82) translateY(10px); }
         to   { opacity: 1; transform: scale(1) translateY(0); }
     }
+
     @keyframes pln-ring {
         from { transform: scale(0.75); opacity: 0.9; }
         to   { transform: scale(1.18); opacity: 0; }
     }
+
     .pln-modal-overlay {
         position: fixed;
         inset: 0;
@@ -481,6 +621,7 @@
         padding: 1.25rem;
         animation: pln-fade-in 0.2s ease both;
     }
+
     .pln-modal-success {
         background: #fff;
         border-radius: 20px;
@@ -491,6 +632,7 @@
         box-shadow: 0 24px 70px rgba(2, 32, 48, 0.35);
         animation: pln-pop 0.28s ease both;
     }
+
     .pln-success-icon {
         position: relative;
         width: 76px;
@@ -505,7 +647,7 @@
         margin: 0 auto 1.1rem;
         animation: pln-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.4) both;
     }
-    /* Cincin pulse sekali saat modal muncul */
+
     .pln-success-icon::before {
         content: '';
         position: absolute;
@@ -514,31 +656,35 @@
         border: 3px solid rgba(22, 163, 74, 0.3);
         animation: pln-ring 1.4s ease-out 0.25s 1 both;
     }
+
     .pln-success-title {
         font-size: 1.05rem;
         font-weight: 800;
         color: #14532D;
         margin: 0 0 0.4rem;
     }
+
     .pln-success-text {
         font-size: 0.86rem;
         color: var(--pg-muted);
         margin: 0 0 1.4rem;
         line-height: 1.6;
     }
+
     .pln-success-close {
         width: 100%;
         border: none;
         cursor: pointer;
     }
 
-    /* ---------- FOOTNOTE ---------- */
+    /* ---- FOOTNOTE ---- */
     .pln-footnote {
         text-align: center;
         font-size: 0.72rem;
         color: rgba(255, 255, 255, 0.85);
         margin: 1rem 0 0;
     }
+
     .pln-footnote i { color: var(--pg-yellow); margin-right: 0.25rem; }
 
     /* Hormati preferensi reduced motion (scoped ke halaman ini) */
@@ -615,8 +761,7 @@
                         <h2 class="pln-section-title" data-i18n="form.section_identity">Data Diri</h2>
                     </div>
 
-                    {{-- NIK / No. KTP — hanya angka, maksimal 16 digit
-                         (dibersihkan otomatis via JS + pattern native) --}}
+                    {{-- NIK / No. KTP — hanya angka, maksimal 16 digit (JS + pattern native) --}}
                     <div>
                         <label for="nik" class="pln-label" data-i18n="form.label_nik">
                             NIK / No. KTP <span class="required">*</span>
@@ -705,8 +850,7 @@
                     </div>
                 </div>
 
-                {{-- ========== SEKSI 2: DOKUMEN (satu slot berkas pendukung,
-                     multi-format: ZIP / RAR / PDF / JPG / JPEG / PNG) ========== --}}
+                {{-- ========== SEKSI 2: DOKUMEN (multi-format: ZIP / RAR / PDF / JPG / JPEG / PNG) ========== --}}
                 <div class="pln-section pln-section--doc">
                     <div class="pln-section-head">
                         <span class="pln-section-icon"><i class="fas fa-folder-open"></i></span>
@@ -719,13 +863,9 @@
                             <span class="pln-hint" data-i18n="form.doc_dokumen_hint">ZIP, RAR, PDF, JPG, JPEG, atau PNG — maks 10MB</span>
                         </label>
 
-                        {{-- Satu slot upload untuk seluruh berkas pendukung
-                             (arsip KTP, surat permohonan, dsb.). Input file
-                             diletakkan di LUAR dropzone agar klik tidak
-                             memicu dialog ganda lewat event bubbling.
-                             Input disembunyikan secara visual tetapi tetap
-                             focusable supaya validasi `required` native
-                             tetap tampil. --}}
+                        {{-- Satu slot upload untuk seluruh berkas pendukung.
+                             Input diletakkan di LUAR dropzone agar klik tidak
+                             memicu dialog ganda lewat event bubbling. --}}
                         <div class="pln-upload-wrap">
                             <input type="file" id="dokumen" name="dokumen" required
                                    accept=".zip,.rar,.pdf,.jpg,.jpeg,.png"
@@ -747,7 +887,7 @@
                             </div>
                         </div>
 
-                        {{-- Kartu pratinjau file terpilih (nama + ukuran MB/KB) --}}
+                        {{-- Kartu pratinjau file terpilih --}}
                         <div id="dokumen-preview-area" class="hidden">
                             <div class="pln-file-card">
                                 <div class="file-badge" id="dokumen-file-badge"><i class="fas fa-file-lines"></i></div>
@@ -779,37 +919,103 @@
                         <h2 class="pln-section-title" data-i18n="form.section_visit">Detail Kunjungan</h2>
                     </div>
 
-                    {{-- Orang/Divisi yang Ditemui --}}
+                    {{-- Orang/Divisi yang Ditemui — Select Option statis + Tom Select --}}
                     <div>
                         <label for="tujuan_ditemui" class="pln-label" data-i18n="form.label_tujuan">
                             Orang / Divisi yang Ditemui <span class="required">*</span>
                         </label>
                         <div class="pln-input-icon">
-                            <i class="fas fa-user-tie"></i>
-                            <input type="text" id="tujuan_ditemui" name="tujuan_ditemui" value="{{ old('tujuan_ditemui') }}"
-                                   placeholder="Nama orang / divisi tujuan" required
-                                   data-i18n-placeholder="form.ph_tujuan"
-                                   class="pln-input @error('tujuan_ditemui') has-error @enderror" />
+                            <select id="tujuan_ditemui" name="tujuan_ditemui" required
+                                    class="pln-input @error('tujuan_ditemui') has-error @enderror">
+                                <option value="">— Pilih Divisi —</option>
+
+                                {{-- Manager Operasi --}}
+                                <optgroup label="Manager Operasi">
+                                    <option value="Assisten Manajer Prod A">Assisten Manajer Prod A</option>
+                                    <option value="Assisten Manajer Prod B">Assisten Manajer Prod B</option>
+                                    <option value="Assisten Manajer Prod C">Assisten Manajer Prod C</option>
+                                    <option value="Assisten Manajer Prod D">Assisten Manajer Prod D</option>
+                                    <option value="Supervisor CHCB A">Supervisor CHCB A</option>
+                                    <option value="Supervisor CHCB B">Supervisor CHCB B</option>
+                                    <option value="Supervisor CHCB C">Supervisor CHCB C</option>
+                                    <option value="Supervisor CHCB D">Supervisor CHCB D</option>
+                                    <option value="Assisten Manajer RenOps">Assisten Manajer RenOps</option>
+                                    <option value="Assisten Manajer Niaga BB">Assisten Manajer Niaga BB</option>
+                                    <option value="Assisten Manajer Kimia &amp; Lab">Assisten Manajer Kimia &amp; Lab</option>
+                                </optgroup>
+
+                                {{-- Manager Pemeliharaan --}}
+                                <optgroup label="Manager Pemeliharaan">
+                                    <option value="Assisten Manajer Rendal Har">Assisten Manajer Rendal Har</option>
+                                    <option value="Assisten Manajer MO">Assisten Manajer MO</option>
+                                    <option value="Assisten Manajer Mesin 1">Assisten Manajer Mesin 1</option>
+                                    <option value="Assisten Manajer Mesin 2">Assisten Manajer Mesin 2</option>
+                                    <option value="Assisten Manajer Listrik">Assisten Manajer Listrik</option>
+                                    <option value="Assisten Manajer Konin">Assisten Manajer Konin</option>
+                                    <option value="Assisten Manajer Inventori Kontrol &amp; Gudang">Assisten Manajer Inventori Kontrol &amp; Gudang</option>
+                                </optgroup>
+
+                                {{-- Manager Engineering --}}
+                                <optgroup label="Manager Engineering">
+                                    <option value="Assisten Manajer SO">Assisten Manajer SO</option>
+                                    <option value="Assisten Manajer CBM">Assisten Manajer CBM</option>
+                                    <option value="Assisten Manajer MMRK">Assisten Manajer MMRK</option>
+                                </optgroup>
+
+                                {{-- Manager Business Support --}}
+                                <optgroup label="Manager Business Support">
+                                    <option value="Assisten Manajer Pengadaan">Assisten Manajer Pengadaan</option>
+                                    <option value="Assisten Manajer SDM Umum CSR">Assisten Manajer SDM Umum CSR</option>
+                                    <option value="Assisten Manajer Keuangan">Assisten Manajer Keuangan</option>
+                                </optgroup>
+
+                                {{-- Posisi Langsung di Bawah Senior Manager (tanpa nama pejabat &amp; tanpa "Senior Manager") --}}
+                                <optgroup label="Posisi Langsung di Bawah Senior Manager">
+                                    <option value="Assisten Manager K3 &amp; KAM">Assisten Manager K3 &amp; KAM</option>
+                                    <option value="Assisten Manager Lingkungan">Assisten Manager Lingkungan</option>
+                                </optgroup>
+                            </select>
                         </div>
                         @error('tujuan_ditemui')
                             <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                         @enderror
                     </div>
 
-                    {{-- Tanggal & Jam Kunjungan + Jumlah Tamu --}}
+                    {{-- Tanggal, Jam & Jumlah Tamu — opsi jam dirender dinamis oleh JS --}}
                     <div class="grid-meet">
                         <div>
                             <label for="tanggal_kunjungan" class="pln-label" data-i18n="form.label_tanggal">
-                                Tanggal &amp; Jam Kunjungan <span class="required">*</span>
+                                Tanggal Kunjungan <span class="required">*</span>
                             </label>
                             <div class="pln-input-icon">
                                 <i class="fas fa-calendar-day"></i>
-                                <input type="datetime-local" id="tanggal_kunjungan" name="tanggal_kunjungan"
+                                <input type="date" id="tanggal_kunjungan" name="tanggal_kunjungan"
                                        value="{{ old('tanggal_kunjungan') }}" required
-                                       min="{{ now()->format('Y-m-d\TH:i') }}"
+                                       min="{{ now()->toDateString() }}"
                                        class="pln-input @error('tanggal_kunjungan') has-error @enderror" />
                             </div>
                             @error('tanggal_kunjungan')
+                                <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="jam_kunjungan" class="pln-label" data-i18n="form.label_jam">
+                                Jam Kunjungan <span class="required">*</span>
+                            </label>
+                            <div class="pln-input-icon">
+                                <i class="fas fa-clock"></i>
+                                <select id="jam_kunjungan" name="jam_kunjungan" required
+                                        data-old="{{ old('jam_kunjungan') }}"
+                                        class="pln-input @error('jam_kunjungan') has-error @enderror">
+                                    <option value="">— Pilih Jam —</option>
+                                </select>
+                            </div>
+                            {{-- Peringatan: jam terpilih ternyata sudah terblokir --}}
+                            <div class="slot-warning" id="slot-warning">
+                                <i class="fas fa-circle-exclamation"></i>
+                                <span data-i18n="form.slot_taken">Jam ini sudah penuh / sudah di-approve untuk divisi ini. Silakan pilih jam lain.</span>
+                            </div>
+                            @error('jam_kunjungan')
                                 <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                             @enderror
                         </div>
@@ -1021,10 +1227,8 @@
     const successModal = document.getElementById('successModal');
 
     if (successModal) {
-        /* Kunci scroll halaman selama modal tampil */
         document.body.style.overflow = 'hidden';
 
-        /* Tutup lewat tombol Escape */
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape' && document.getElementById('successModal')) {
                 closeSuccessModal();
@@ -1040,18 +1244,124 @@
     }
 
     /* =====================================================================
-       4. PENGHITUNG KARAKTER — MAKSUD & KEPERLUAN (0/2000)
+       4. SLOT LOCKING — dropdown jam dirender dinamis.
+          Setiap kali user memilih Divisi & Tanggal, frontend memanggil
+          API /api/booked-slots. Jam dalam rentang 3-jam kunjungan
+          yang sudah DI-APPROVE untuk divisi yang sama ditandai
+          "(Penuh / Sudah Di-approve)" dan disabled.
+       ===================================================================== */
+    const SLOT_JAM          = @json(\App\Models\Tamu::SLOT_JAM);
+    const BOOKED_SLOTS_API  = @json(route('layanan.registrasi-tamu.booked-slots'));
+    const SLOT_PENUH_LABEL  = ' (Penuh / Sudah Di-approve)';
+
+    const divisiInput  = document.getElementById('tujuan_ditemui');
+    const tanggalInput = document.getElementById('tanggal_kunjungan');
+    const jamSelect    = document.getElementById('jam_kunjungan');
+    const slotWarning  = document.getElementById('slot-warning');    let jamTerblokir = [];
+    let slotAbort    = null;
+
+    /* ---- Render ulang opsi dropdown jam sesuai daftar slot terblokir ---- */
+    function renderOpsiJam() {
+        const terpilih = jamSelect.dataset.old || jamSelect.value;
+
+        jamSelect.innerHTML = '';
+        jamSelect.add(new Option('— Pilih Jam —', ''));
+
+        SLOT_JAM.forEach(jam => {
+            const penuh = jamTerblokir.includes(jam);
+            const opsi  = new Option(jam + (penuh ? SLOT_PENUH_LABEL : ''), jam);
+
+            if (penuh) {
+                opsi.disabled  = true;
+                opsi.className = 'slot-penuh';
+            }
+            jamSelect.add(opsi);
+        });
+
+        if (terpilih && !jamTerblokir.includes(terpilih)) {
+            jamSelect.value = terpilih;
+        }
+        jamSelect.dataset.old = '';
+
+        evaluasiSlot();
+    }
+
+    /* Peringatan + blokir submit bila jam terpilih ternyata terblokir */
+    function evaluasiSlot() {
+        if (!jamSelect || !slotWarning) return;
+
+        const bentrok = jamSelect.value !== '' && jamTerblokir.includes(jamSelect.value);
+        slotWarning.classList.toggle('show', bentrok);
+
+        jamSelect.setCustomValidity(bentrok
+            ? 'Jam kunjungan ini sudah penuh. Silakan pilih jam lain.'
+            : '');
+    }
+
+    /* Panggil API booked-slots untuk kombinasi divisi + tanggal terpilih */
+    async function muatSlotTerblokir() {
+        const divisi  = divisiInput ? divisiInput.value.trim() : '';
+        const tanggal = tanggalInput ? tanggalInput.value : '';
+
+        if (!divisi || !tanggal) {
+            jamTerblokir = [];
+            renderOpsiJam();
+            return;
+        }
+
+        /* Batalkan request sebelumnya yang masih berjalan */
+        if (slotAbort) slotAbort.abort();
+        slotAbort = new AbortController();
+
+        try {
+            const res = await fetch(
+                BOOKED_SLOTS_API
+                + '?divisi=' + encodeURIComponent(divisi)
+                + '&tanggal=' + encodeURIComponent(tanggal),
+                { headers: { 'Accept': 'application/json' }, signal: slotAbort.signal }
+            );
+            const data = await res.json();
+            jamTerblokir = Array.isArray(data.jam_terblokir) ? data.jam_terblokir : [];
+        } catch (err) {
+            if (err.name === 'AbortError') return; // digantikan request baru
+
+            /* Gagal memuat: semua slot dianggap aktif — validasi store()
+               di server tetap sumber kebenaran */
+            jamTerblokir = [];
+        }
+
+        renderOpsiJam();
+    }
+
+    if (jamSelect && divisiInput && tanggalInput) {
+        jamSelect.addEventListener('change', evaluasiSlot);
+        tanggalInput.addEventListener('change', muatSlotTerblokir);
+        divisiInput.addEventListener('change', muatSlotTerblokir);
+
+        renderOpsiJam();
+        muatSlotTerblokir();
+    }
+
+    /* =====================================================================
+       5. DIVISI — select native (tanpa Tom Select / pencarian)
+          Dropdown divisi bersifat statis, sudah berisi semua opsi
+          yang di-render di HTML. Tidak ada library pihak ketiga.
+       ===================================================================== */
+    // Tidak ada inisialisasi Tom Select — menggunakan <select> native.
+
+    /* =====================================================================
+       6. PENGHITUNG KARAKTER — MAKSUD & KEPERLUAN (0/2000)
        ===================================================================== */
     const keperluanInput = document.getElementById('keperluan');
     const keperluanCount = document.getElementById('keperluan-count');
     if (keperluanInput && keperluanCount) {
         const updateCount = () => { keperluanCount.textContent = keperluanInput.value.length; };
         keperluanInput.addEventListener('input', updateCount);
-        updateCount(); // inisialisasi (termasuk saat old() mengembalikan isi)
+        updateCount();
     }
 
     /* =====================================================================
-       5. TOMBOL SUBMIT: status memproses + anti klik ganda
+       7. TOMBOL SUBMIT: status memproses + anti klik ganda
        ===================================================================== */
     const form      = document.getElementById('form-registrasi');
     const submitBtn = document.getElementById('btn-submit');
@@ -1060,15 +1370,8 @@
 
     if (form && submitBtn) {
         form.addEventListener('submit', function (e) {
-            /* Cegah pengiriman ganda: abaikan submit berikutnya selagi
-               proses berjalan */
-            if (isSubmitting) {
-                e.preventDefault();
-                return;
-            }
+            if (isSubmitting) { e.preventDefault(); return; }
 
-            /* Jaring pengaman berkas wajib (validasi native `required`
-               berjalan lebih dulu; ini cadangan bila browser melewatinya) */
             if (inputDokumen && inputDokumen.files.length === 0) {
                 e.preventDefault();
                 dokArea.classList.add('has-error');
@@ -1081,7 +1384,6 @@
             submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Memproses...';
         });
 
-        /* Pulihkan tombol saat kembali ke halaman via cache browser */
         window.addEventListener('pageshow', function () {
             isSubmitting = false;
             submitBtn.disabled = false;
