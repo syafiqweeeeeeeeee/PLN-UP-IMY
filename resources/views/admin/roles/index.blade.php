@@ -154,7 +154,7 @@
                     <th>Nama Role</th>
                     <th class="col-hide-mobile">Deskripsi</th>
                     <th style="text-align: center;">User</th>
-                    <th style="text-align: center;">Permission</th>
+                    <th style="text-align: center;">HAK AKSES</th>
                     <th style="text-align: center;">Status</th>
                     <th class="col-hide-mobile">Dibuat</th>
                     <th class="th-actions">Aksi</th>

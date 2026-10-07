@@ -87,7 +87,8 @@ class User extends Authenticatable
             'asmen_keuangan'  => 'Asisten Manager Keuangan',
         ],
         'k3_kam' => [
-            'k3_kam' => 'K3 & KAM',
+            'k3_kam'   => 'K3 & KAM',
+            'security' => 'Security',
         ],
         'lingkungan' => [
             'lingkungan' => 'Lingkungan',
