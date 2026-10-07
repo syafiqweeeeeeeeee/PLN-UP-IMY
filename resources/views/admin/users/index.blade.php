@@ -290,7 +290,7 @@
     .user-reset-btn.confirm:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
 
     /* ===== Kepadatan kolom aksi & baris tabel ===== */
-    /* Gap rapat antar 3 tombol aksi (Lihat, Switch, Hapus) */
+    /* Gap rapat antar tombol aksi (Lihat, Edit, Switch, Reset, Hapus) */
     .user-action-group {
         display: flex;
         align-items: center;
@@ -462,6 +462,20 @@
                                     <span class="track"><span class="knob"></span></span>
                                 </button>
                             @endif
+                            {{-- Reset password → modal reset (password sementara
+                                 sekali pakai). Dibungkus @can('user.reset-password')
+                                 mengikuti middleware backend pada route
+                                 users.reset-password; akun sendiri disembunyikan
+                                 karena backend menolaknya (pakai Ganti Password). --}}
+                            @can('user.reset-password')
+                                @unless ($isSelf)
+                                <button type="button" class="news-action-btn" title="Reset Password"
+                                        style="background: #fef3c7; color: #b45309;"
+                                        onclick="openUserResetModal({{ $user->id }}, '{{ addslashes($user->name) }}')">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                                @endunless
+                            @endcan
                             <button type="button" class="news-action-btn delete" title="Hapus"
                                     onclick="openUserDeleteModal({{ $user->id }}, '{{ addslashes($user->name) }}')">
                                 <i class="fas fa-trash"></i>

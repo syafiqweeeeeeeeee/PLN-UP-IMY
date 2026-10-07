@@ -48,26 +48,6 @@ class AuthServiceProvider extends ServiceProvider
             }
             $this->gatesRegistered = true;
         }
-
-        if (! $this->gatesRegistered) {
-            static $bootStarted = false;
-            if ($bootStarted) {
-                return;
-            }
-
-            if (! app('db')->connection()->getTablePrefix()) {
-                return;
-            }
-            $bootStarted = true;
-
-            if (!app()->make('cache')->store()->get('permission.gates.registered', false)) {
-                foreach (Permission::whereNotNull('name')->pluck('name') as $permission) {
-                    $this->registerPermissionGate($permission);
-                }
-                app()->make('cache')->store()->put('permission.gates.registered', true, 60);
-            }
-            $this->gatesRegistered = true;
-        }
     }
 
     protected function registerPermissionGate(string $permission): void
