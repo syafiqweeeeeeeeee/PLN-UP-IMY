@@ -157,8 +157,8 @@ class PortalController extends Controller
 
         $validated = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
-            'no_hp'    => ['nullable', 'string', 'max:20'],
-            'alamat'   => ['nullable', 'string', 'max:500'],
+            'no_hp'    => ['required', 'string', 'max:20'],
+            'alamat'   => ['required', 'string', 'max:500'],
             'password' => ['nullable', 'confirmed', 'min:8'],
         ]);
 

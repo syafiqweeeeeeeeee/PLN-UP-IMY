@@ -181,8 +181,8 @@ class UserController extends Controller
             'email'    => 'required|email|unique:users,email' . ($isCreate ? '' : ',' . $userId),
             'password' => $isCreate ? 'required|min:8|confirmed' : 'nullable|min:8|confirmed',
             'role_id'  => 'required|integer|exists:roles,id',
-            'no_hp'    => 'nullable|string|max:20',
-            'alamat'   => 'nullable|string|max:500',
+            'no_hp'    => 'required|string|max:20',
+            'alamat'   => 'required|string|max:500',
         ];
     }
 

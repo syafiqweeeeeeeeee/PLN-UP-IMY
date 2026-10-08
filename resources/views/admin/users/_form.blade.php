@@ -90,7 +90,7 @@
                 <p class="form-section-desc">
                     {{ $isSuperAdminEdit
                         ? 'Akun Super Admin — data diri dikunci. Hanya Role & Hak Akses yang bisa diubah.'
-                        : 'Nama, email, dan keamanan akun' }}
+                        : 'Nama, email, kontak, dan keamanan akun' }}
                 </p>
             </div>
         </div>
@@ -103,9 +103,7 @@
                     Nama, email, dan password tidak dapat diubah. Hanya Role dan Matriks Hak Akses yang dapat dikonfigurasi.
                 </div>
             </div>
-        @endif
-
-        <div class="row g-3">
+        @endif        <div class="row g-2">
             <div class="col-md-6">
                 <div class="form-group">
                     <label class="form-group-label" for="name">
@@ -185,11 +183,33 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="no_hp">
+                        No. Telepon <span class="required">*</span>
+                    </label>
+                    <div class="input-icon">
+                        <i class="fas fa-phone icon"></i>
+                        <input type="text" id="no_hp" name="no_hp" class="form-input"
+                               value="{{ old('no_hp', $user->no_hp ?? '') }}" placeholder="081234567890" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="alamat">
+                        Alamat <span class="required">*</span>
+                    </label>
+                    <textarea id="alamat" name="alamat" class="form-input" rows="2" style="resize:vertical; max-height:80px;" placeholder="Alamat lengkap pengguna..." required>{{ old('alamat', $user->alamat ?? '') }}</textarea>
+                </div>
+            </div>
         </div>
     </div>
 
     {{-- ============================================
-         SECTION: Role & Kontak
+         SECTION: Role
          selalu tampil — termasuk untuk Super Admin (yang hanya bisa ubah role & permission)
          ============================================ --}}
     <div class="form-section">
@@ -198,14 +218,13 @@
                 <i class="fas fa-user-tag"></i>
             </div>
             <div>
-                <h6 class="form-section-title">Role & Kontak</h6>
+                <h6 class="form-section-title">Role</h6>
                 <p class="form-section-desc">
                     {{ $isSuperAdminEdit
                         ? 'Tetapkan Role serta Hak Akses Fitur (Direct Permission) untuk akun ini'
-                        : 'Hak akses dan informasi kontak pengguna' }}
+                        : 'Pengaturan hak akses dan peran pengguna' }}
                 </p>
-            </div>
-        </div>
+            </div>        </div>
 
         <div class="row g-3">
             <div class="col-12">
@@ -238,8 +257,10 @@
                 </div>
             </div>
 
-            {{-- ===== Hirarki Organisasi: 3 dropdown dinamis =====
-                 TIDAK tampil untuk Super Admin edit (tidak ada hirarki) --}}
+            {{-- =====================================================
+                 Hierarki Organisasi (HANYA untuk non-Super Admin)
+                 Level Jabatan / Bidang Utama / Sub-Bidang
+                 ===================================================== --}}
             @if (! $isSuperAdminEdit)
             <div class="col-md-4" id="levelWrapper">
                 <div class="form-group">
@@ -295,34 +316,6 @@
                 </div>
             </div>
             @endif
-
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="form-group-label" for="no_hp">
-                        No. Telepon <span class="optional">(opsional)</span>
-                    </label>
-                    <div class="input-icon">
-                        <i class="fas fa-phone icon"></i>
-                        <input type="text" id="no_hp" name="no_hp" class="form-input"
-                               value="{{ old('no_hp', $user->no_hp ?? '') }}" placeholder="081234567890">
-                    </div>
-                    <div class="form-hint flex">
-                        <i class="far fa-lightbulb"></i> Isi jika diperlukan untuk kontak
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="form-group-label" for="alamat">
-                        Alamat <span class="optional">(opsional)</span>
-                    </label>
-                    <textarea id="alamat" name="alamat" class="form-input" rows="2" placeholder="Alamat lengkap pengguna...">{{ old('alamat', $user->alamat ?? '') }}</textarea>
-                    <div class="form-hint flex">
-                        <i class="far fa-lightbulb"></i> Isi jika diperlukan
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
