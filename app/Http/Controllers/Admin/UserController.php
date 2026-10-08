@@ -286,9 +286,7 @@ class UserController extends Controller
             'subject'     => $user,
         ]);
 
-        // Selalu kembali ke Daftar Pengguna dengan notifikasi sukses.
-        return redirect()->route('admin.users.index')
-            ->with('success', 'Pengguna baru berhasil ditambahkan!');
+        // Selalu kembali ke Daftar Pengguna dengan notifikasi sukses.            return redirect()->route('admin.users.index')->with('success', 'Pengguna baru berhasil ditambahkan!');
     }
 
     public function show(User $user)
@@ -303,7 +301,24 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        Gate::authorize('users.edit');
+        $actor = auth()->user();
+
+        // Cek izin edit:
+        // - Super Admin / Admin utama = akses penuh.
+        // - Role lain hanya boleh edit profil milik sendiri.
+        $roleRaw = ($actor && $actor->role) ? trim((string) $actor->role) : '';
+        $roleName = strtolower($roleRaw);
+        $isSuperUser = ($roleName === 'super admin' || $roleName === 'admin' || ($actor->role_id ?? null) == 1);
+
+        if ($user->id === $actor?->id) {
+            // Pemilik akun tetap bisa edit profil sendiri.
+            Gate::authorize('users.edit:self');
+        } elseif ($isSuperUser) {
+            // Super Admin / Admin utama boleh edit semua.
+            Gate::authorize('users.edit:self');
+        } else {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit pengguna ini.');
+        }
 
         // Dropdown "Role Pengguna" menampilkan SELURUH role aktif.
         // Role yang dibuat admin (di luar 3 role dasar) juga tersedia.
@@ -336,46 +351,107 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        Gate::authorize('users.edit');
+        $actor = auth()->user();
 
-        $role     = Role::find($request->input('role_id'));
-        $roleName = $role?->name ?? '';
+        // Cek izin update:
+        // - Super Admin / Admin utama = akses penuh.
+        // - Role lain hanya boleh update profil milik sendiri.
+        $roleRaw = ($actor && $actor->role) ? trim((string) $actor->role) : '';
+        $roleName = strtolower($roleRaw);
+        $isSuperUser = ($roleName === 'super admin' || $roleName === 'admin' || ($actor->role_id ?? null) == 1);
+
+        if ($user->id === $actor?->id) {
+            Gate::authorize('users.edit:self');
+        } elseif ($isSuperUser) {
+            Gate::authorize('users.edit:self');
+        } else {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit pengguna ini.');
+        }
+
+        $actor      = auth()->user();
+        $roleNameRaw = ($actor && $actor->role) ? trim((string) $actor->role) : '';
+        $actorRoleName = strtolower($roleNameRaw);
+        $actorIsSuperUser = ($actorRoleName === 'super admin' || $actorRoleName === 'admin' || ($actor->role_id ?? null) == 1);
+
+        // Batasan update:
+        // - Jika yang update BUKAN Super Admin / Admin utama:
+        //   role_id, level_jabatan, department, sub_department, dan
+        //   permissions TIDAK PERNAH boleh diubah, meski dikirim dari
+        //   frontend (mencegah manipulasi via Inspect Element / API).
+        $actorMayChangeRole = $actorIsSuperUser;
+
+        $requestedRoleId = (int) ($request->input('role_id', 0) ?: 0);
+        $requestedRole = null;
+
+        if ($actorMayChangeRole && $requestedRoleId > 0) {
+            $requestedRole = Role::find($requestedRoleId);
+        }
+
+        // Jika tidak diizinkan ubah role, paksa role tetap role lama.
+        if (! $actorMayChangeRole) {
+            $requestedRole = $user->role ? Role::find($user->role_id) : null;
+        }
+
+        $role = $requestedRole;
+        $roleName = $role?->name ?? (($actorMayChangeRole && $requestedRoleId > 0) ? '' : $user->role);
 
         [$orgRules, $orgAttributes] = self::orgHierarchyRules($roleName, $request->input('level_jabatan', ''));
+
+        // Jika bukan Super Admin / Admin utama, validasi role_id tetap
+        // dilewatkan dan role lama dipaksa tetap ada.
+        if (! $actorMayChangeRole) {
+            $orgRules['role_id'] = 'sometimes|integer|exists:roles,id';
+        }
 
         $validated = $request->validate(array_merge(
             $this->validationRules(false, $user->id),
             $orgRules
         ), $orgAttributes);
 
+        // Jika actor tidak punya hak ubah role, force role lama.
+        if (! $actorMayChangeRole) {
+            $validated['role_id'] = $user->role_id;
+            $validated['role']    = $user->role;
+            $validated['department']     = $user->department;
+            $validated['sub_department'] = $user->sub_department;
+            $validated['level_jabatan']  = $user->level_jabatan;
+        }
+
         // Validasi: role yang dipilih harus aktif.
-        // Semua role (termasuk role buatan admin) boleh dipilih.
-        if (! $role->status) {
-            return back()->withErrors(['role_id' => 'Role yang dipilih sedang dinonaktifkan.'])->withInput();
+        // Dipakai HANYA bila actor diizinkan mengubah role.
+        if ($actorMayChangeRole) {
+            if (! $role->status) {
+                return back()->withErrors(['role_id' => 'Role yang dipilih sedang dinonaktifkan.'])->withInput();
+            }
+
+            // Kuota Super Admin: akun yang DIJADIKAN Super Admin dihitung
+            // (akun Super Admin existing tidak menggandakan slot-nya sendiri).
+            if ($role->name === User::SUPER_ADMIN_ROLE
+                && ! $user->isSuperAdmin()
+                && User::superAdminAccountCount() >= User::MAX_SUPER_ADMIN_ACCOUNTS) {
+                return back()->withErrors([
+                    'role_id' => 'Gagal: Jumlah akun Super Admin sudah mencapai batas maksimal (3 akun).',
+                ])->withInput();
+            }
+
+            // Kuota Senior Manager: sama — yang sudah Senior Manager tidak
+            // menggandakan slot kuotanya sendiri.
+            if ($role->name === 'Karyawan'
+                && ($validated['level_jabatan'] ?? '') === 'senior_manager'
+                && $user->level_jabatan !== 'senior_manager'
+                && User::seniorManagerAccountCount() >= User::MAX_SENIOR_MANAGER_ACCOUNTS) {
+                return back()->withErrors([
+                    'level_jabatan' => 'Gagal: Jumlah akun Senior Manager sudah mencapai batas maksimal (3 akun).',
+                ])->withInput();
+            }
+        } else {
+            // Actor tidak diizinkan ubah role; pastikan role tetap aktif.
+            if ($role && ! $role->status) {
+                return back()->withErrors(['role_id' => 'Role akun ini saat ini tidak aktif. Kontak Super Admin.'])->withInput();
+            }
         }
 
-        // Kuota Super Admin: akun yang DIJADIKAN Super Admin dihitung
-        // (akun Super Admin existing tidak menggandakan slot-nya sendiri).
-        if ($role->name === User::SUPER_ADMIN_ROLE
-            && ! $user->isSuperAdmin()
-            && User::superAdminAccountCount() >= User::MAX_SUPER_ADMIN_ACCOUNTS) {
-            return back()->withErrors([
-                'role_id' => 'Gagal: Jumlah akun Super Admin sudah mencapai batas maksimal (3 akun).',
-            ])->withInput();
-        }
-
-        // Kuota Senior Manager: sama — yang sudah Senior Manager tidak
-        // menggandakan slot kuotanya sendiri.
-        if ($role->name === 'Karyawan'
-            && $validated['level_jabatan'] === 'senior_manager'
-            && $user->level_jabatan !== 'senior_manager'
-            && User::seniorManagerAccountCount() >= User::MAX_SENIOR_MANAGER_ACCOUNTS) {
-            return back()->withErrors([
-                'level_jabatan' => 'Gagal: Jumlah akun Senior Manager sudah mencapai batas maksimal (3 akun).',
-            ])->withInput();
-        }
-
-        self::normalizeOrgHierarchy($validated, $role->name);
+        self::normalizeOrgHierarchy($validated, $roleName);
 
         // Password kosong (update) → tidak diganti.
         if (($validated['password'] ?? '') !== '') {
@@ -397,7 +473,14 @@ class UserController extends Controller
         $user->roles()->sync([$role->id]);
 
         // DIRECT PERMISSION — sinkronkan matriks hak akses per akun.
-        $this->syncDirectPermissions($user, $request, $role->name);
+        // Hanya Super Admin / Admin utama yang boleh ubah direct permission.
+        if ($actorMayChangeRole) {
+            $this->syncDirectPermissions($user, $request, $role->name);
+        } else {
+            // Pemilik biasa / Admin Bidang self-edit tidak boleh ubah hak akses.
+            // Pastikan tetap sinkron pada hak akses yang sudah ada.
+            $this->syncDirectPermissions($user, $request, $user->role);
+        }
 
         // Note: Jika nanti menginstal spatie/laravel-permission, aktifkan
         // pembersihan cache di sini agar perubahan Direct Permission langsung

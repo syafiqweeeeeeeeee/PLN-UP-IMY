@@ -183,10 +183,6 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         // Toggle status akun (Aktif ⇄ Nonaktif) — pengganti fitur Edit Pengguna.
         Route::middleware('permission:users.edit')->group(function () {
             Route::patch('users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
-
-            // Edit Pengguna + Direct Permission (hak akses per akun).
-            Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
-            Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
         });
         // Reset password → password sementara sekali pakai (user wajib
         // ganti password saat login berikutnya). Permission khusus
@@ -197,6 +193,14 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         });
         Route::middleware('permission:users.delete')->group(function () {
             Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+        });
+        // Edit Pengguna + Direct Permission (hak akses per akun).
+        // Pengecualian: user SELALU boleh mengedit profil milik sendiri
+        // (auth()->id() == $user->id), meskipun role/tidak punya permission
+        // users.edit secara penuh di App\Providers\AuthServiceProvider.
+        Route::middleware('can:users.edit:self')->group(function () {
+            Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('admin.users.edit');
+            Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('admin.users.update');
         });
 
         // ============================================================

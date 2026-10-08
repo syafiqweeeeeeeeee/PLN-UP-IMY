@@ -5,10 +5,42 @@
      ============================================================ --}}
 @php
     $isEdit = $user !== null;
-    $isSuperAdminEdit = ($isEdit && ($isEditingSuperAdmin ?? false));
+
+    // Penentu hak edit & kompak:
+    // - SuperAdminEdit = akun yang diedit adalah Super Admin / Admin utama
+    //   DAN pembuka form juga Super Admin / Admin utama.
+    // - LockedEdit     = profil sendiri yang diedit oleh Non-Super Admin.
+    // - CompactSelfEdit= versi bentuk pendek (hanya Informasi Akun).
+    $actor = $actor ?? auth()->user();
+    $actorRoleRaw = ($actor && $actor->role) ? trim((string) $actor->role) : '';
+    $actorRoleName = strtolower($actorRoleRaw);
+    $actorIsSuperUser = ($actorRoleName === 'super admin' || $actorRoleName === 'admin' || ($actor->role_id ?? null) == 1);
+
+    $targetRoleRaw = ($user && $user->role) ? trim((string) $user->role) : '';
+    $isEditingSuperAdmin = ($isEdit && ($targetRoleRaw === 'Super Admin' || $targetRoleRaw === 'Admin' || ($user->role_id ?? null) == 1));
+
+    $isSuperAdminEdit = ($isEditingSuperAdmin && $actorIsSuperUser);
+    $isLockedEdit     = ($isEdit && !$actorIsSuperUser && $user->id === $actor?->id);
+    $isCompactSelfEdit = $isLockedEdit;
+
     // Direct permission tercentang: input lama (validasi gagal) atau
     // hak akses aktif milik user (spec: edit menampilkan kondisi saat ini).
     $checkedPermissionIds = old('permissions', $userPermissionIds ?? []);
+
+    // Tujuan tombol Kembali / Batal
+    // - Bagi Super Admin / Admin utama: kembali ke tabel pengguna.
+    // - Bagi Admin Bidang / Non-Super Admin yang edit profil sendiri:
+    //   kembali ke profil mereka (admin.users.show).
+    if ($actorIsSuperUser) {
+        $backUrl   = route('admin.users.index');
+        $cancelUrl = $backUrl;
+    } elseif ($isEdit && $user?->id === $actor?->id) {
+        $backUrl   = route('admin.users.show', $user);
+        $cancelUrl = $backUrl;
+    } else {
+        $backUrl   = url()->previous();
+        $cancelUrl = $backUrl;
+    }
 @endphp
 
 @push('styles')
@@ -40,7 +72,7 @@
      ============================================ --}}
 <div class="form-topbar">
     <div class="form-topbar-left">
-        <a href="{{ route('admin.users.index') }}" class="form-back-btn">
+        <a href="{{ $backUrl }}" class="form-back-btn">
             <i class="fas fa-arrow-left"></i> Kembali
         </a>
         <div>
@@ -66,7 +98,7 @@
 </div>
 @endif
 
-<form action="{{ $isEdit ? route('admin.users.update', $user) : route('admin.users.store') }}"
+<form action="{{ $isEdit ? route('admin.admin.users.update', $user) : route('admin.users.store') }}"
       method="POST" id="userForm">
     @csrf
     @if ($isEdit)
@@ -80,7 +112,7 @@
         // Super Admin edit: kunci field data diri (nama, email, password)
         $lockedFields = $isSuperAdminEdit ? 'field-locked' : '';
     @endphp
-    <div class="form-section {{ $lockedFields }}">
+    <div class="form-section">
         <div class="form-section-header">
             <div class="form-section-icon blue">
                 <i class="fas fa-user"></i>
@@ -89,18 +121,20 @@
                 <h6 class="form-section-title">Informasi Akun</h6>
                 <p class="form-section-desc">
                     {{ $isSuperAdminEdit
-                        ? 'Akun Super Admin — data diri dikunci. Hanya Role & Hak Akses yang bisa diubah.'
-                        : 'Nama, email, kontak, dan keamanan akun' }}
+                        ? 'Akun Super Admin / Admin utama — Role dan Hak Akses diproteksi.'
+                        : ($isCompactSelfEdit
+                            ? 'Profil Anda. Hanya data dasar diri yang dapat diperbarui.'
+                            : 'Nama, email, kontak, dan keamanan akun') }}
                 </p>
             </div>
         </div>
 
-        @if ($isSuperAdminEdit)
+        @if($isSuperAdminEdit)
             <div class="alert alert-info d-flex align-items-start gap-2 mb-3">
                 <i class="fas fa-lock"></i>
                 <div>
-                    <strong>Data diri Super Admin terkunci.</strong>
-                    Nama, email, dan password tidak dapat diubah. Hanya Role dan Matriks Hak Akses yang dapat dikonfigurasi.
+                    <strong>Anda sedang mengedit akun Super Admin / Admin utama.</strong>
+                    Hanya role Super Admin yang sedang dipilih yang tidak dapat dipindahkan.
                 </div>
             </div>
         @endif        <div class="row g-2">
@@ -113,9 +147,9 @@
                     <div class="input-icon">
                         <i class="fas fa-user icon"></i>
                         <input type="text" id="name" name="name"
-                               class="form-input {{ $lockedFields }}"
+                               class="form-input"
                                value="{{ old('name', $user->name ?? '') }}"
-                               {{ $isSuperAdminEdit ? 'readonly' : 'required' }}
+                               {{ $isLockedEdit ? 'readonly' : 'required' }}
                                autocomplete="name" placeholder="Nama lengkap pengguna...">
                     </div>
                     @error('name')
@@ -132,9 +166,9 @@
                     </label>
                     <div class="input-icon">
                         <i class="fas fa-envelope icon"></i>
-                        <input type="email" id="email" name="email" class="form-input {{ $lockedFields }}"
+                        <input type="email" id="email" name="email" class="form-input"
                                value="{{ old('email', $user->email ?? '') }}"
-                               {{ $isSuperAdminEdit ? 'readonly' : 'required' }}
+                               {{ $isLockedEdit ? 'readonly' : 'required' }}
                                autocomplete="email" placeholder="email@contoh.com">
                     </div>
                     @error('email')
@@ -151,12 +185,12 @@
                         @if ($isSuperAdminEdit)<span class="text-muted" style="font-size:0.7rem;">(dikunci)</span>@endif
                     </label>
                     <div class="password-wrapper">
-                        <input type="password" id="password" name="password" class="form-input {{ $lockedFields }}"
-                               {{ $isSuperAdminEdit ? 'readonly' : ($isEdit ? '' : 'required') }}
+                        <input type="password" id="password" name="password" class="form-input"
+                               {{ $isLockedEdit ? 'readonly' : ($isEdit ? '' : 'required') }}
                                autocomplete="new-password"
                                placeholder="{{ $isEdit ? 'Biarkan kosong jika tidak ingin mengganti' : 'Min. 8 karakter' }}">
                         <button type="button" class="password-toggle" onclick="togglePassword('password', this)" aria-label="Tampilkan password"
-                                {{ $isSuperAdminEdit ? 'disabled style="opacity:0.4;"' : '' }}><i class="fas fa-eye-slash"></i></button>
+                                {{ $isLockedEdit ? 'disabled style="opacity:0.4;"' : '' }}><i class="fas fa-eye-slash"></i></button>
                     </div>
                     <div id="passwordStrength" class="password-strength"></div>
                     <div id="strengthText" class="strength-text"></div>
@@ -174,12 +208,12 @@
                         @if ($isSuperAdminEdit)<span class="text-muted" style="font-size:0.7rem;">(dikunci)</span>@endif
                     </label>
                     <div class="password-wrapper">
-                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-input {{ $lockedFields }}"
-                               {{ $isSuperAdminEdit ? 'readonly' : ($isEdit ? '' : 'required') }}
+                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-input"
+                               {{ $isLockedEdit ? 'readonly' : ($isEdit ? '' : 'required') }}
                                autocomplete="new-password"
                                placeholder="{{ $isEdit ? 'Ulangi password baru (opsional)' : 'Ulangi password...' }}">
                         <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', this)" aria-label="Tampilkan password"
-                                {{ $isSuperAdminEdit ? 'disabled style="opacity:0.4;"' : '' }}><i class="fas fa-eye-slash"></i></button>
+                                {{ $isLockedEdit ? 'disabled style="opacity:0.4;"' : '' }}><i class="fas fa-eye-slash"></i></button>
                     </div>
                 </div>
             </div>
@@ -209,9 +243,14 @@
     </div>
 
     {{-- ============================================
-         SECTION: Role
-         selalu tampil — termasuk untuk Super Admin (yang hanya bisa ubah role & permission)
+         SECTION: Role & Hak Akses Fitur
+         Hanya tampil jika:
+         - Super Admin / Admin utama yang membuka form, ATAU
+         - Form tambah pengguna baru.
+         Bagi Admin Bidang / Karyawan self-edit, seluruh bagian ini
+         SEMBUNYI total agar form tetap rapi (hanya Informasi Akun).
          ============================================ --}}
+    @if(! $isCompactSelfEdit)
     <div class="form-section">
         <div class="form-section-header">
             <div class="form-section-icon cyan">
@@ -224,7 +263,8 @@
                         ? 'Tetapkan Role serta Hak Akses Fitur (Direct Permission) untuk akun ini'
                         : 'Pengaturan hak akses dan peran pengguna' }}
                 </p>
-            </div>        </div>
+            </div>
+        </div>
 
         <div class="row g-3">
             <div class="col-12">
@@ -237,9 +277,9 @@
                         @foreach($roles as $role)
                             <option value="{{ $role->id }}"
                                 {{ old('role_id', $user->role_id ?? '') == $role->id ? 'selected' : '' }}
-                                {{ $isSuperAdminEdit && $role->name === User::SUPER_ADMIN_ROLE ? 'disabled' : '' }}>
+                                {{ ($isEditingSuperAdmin && $role->name === User::SUPER_ADMIN_ROLE) ? 'disabled' : '' }}>
                                 {{ $role->name }} {{ $role->status ? '' : '(Nonaktif)' }}
-                                @if ($isSuperAdminEdit && $role->name === User::SUPER_ADMIN_ROLE)
+                                @if ($isEditingSuperAdmin && $role->name === User::SUPER_ADMIN_ROLE)
                                     (akun sedang dipilih)
                                 @endif
                             </option>
@@ -247,8 +287,8 @@
                     </select>
                     <div class="form-hint flex">
                         <i class="far fa-lightbulb"></i>
-                        {{ $isSuperAdminEdit
-                            ? 'Pilih role aktif. Role Super Admin tidak dapat diubah karena akun sedang diedit.'
+                        {{ $isEditingSuperAdmin
+                            ? 'Pilih role aktif. Role Super Admin sedang dipilih; tidak dapat dipindahkan.'
                             : 'Pilih role aktif — role nonaktif tidak dapat digunakan.' }}
                     </div>
                     @error('role_id')
@@ -258,10 +298,13 @@
             </div>
 
             {{-- =====================================================
-                 Hierarki Organisasi (HANYA untuk non-Super Admin)
-                 Level Jabatan / Bidang Utama / Sub-Bidang
+                 Hierarki Organisasi (Hanya tampil & boleh diubah jika:
+                 - Super Admin / Admin utama mengedit akun non-Super Admin, ATAU
+                 - Form tambah pengguna.
+                 Untuk self-edit oleh Admin Bidang/Karyawan, bagian ini
+                 sudah disembunyikan total di atas (form compact).
                  ===================================================== --}}
-            @if (! $isSuperAdminEdit)
+            @if(! $isCompactSelfEdit)
             <div class="col-md-4" id="levelWrapper">
                 <div class="form-group">
                     <label class="form-group-label" for="level_jabatan">
@@ -328,14 +371,18 @@
          Berita/Pengumuman/Galeri, "Karyawan Sekuriti" → Data Tamu).
          TIDAK tampil untuk Super Admin edit (akses penuh sudah otomatis).
          ============================================ --}}
-    <div class="form-section" id="directPermSection" @if($isSuperAdminEdit) style="display:none;" @endif>
+    <div class="form-section" id="directPermSection" @if($isCompactSelfEdit) style="display:none;" @endif>
         <div class="form-section-header">
             <div class="form-section-icon purple">
                 <i class="fas fa-shield-halved"></i>
             </div>
             <div>
                 <h6 class="form-section-title">Hak Akses Fitur (Direct Permission)</h6>
-                <p class="form-section-desc">Centang menu &amp; aksi yang boleh diakses akun ini — tersimpan langsung ke akun, bukan ke role</p>
+                <p class="form-section-desc">
+                    {{ $isCompactSelfEdit
+                        ? 'Hak Akses Fitur tidak dapat diubah (hanya Super Admin / Admin utama yang boleh ubah).'
+                        : 'Centang menu & aksi yang boleh diakses akun ini — tersimpan langsung ke akun, bukan ke role' }}
+                </p>
             </div>
         </div>
 
@@ -346,6 +393,7 @@
             ])
         </div>
     </div>
+    @endif
 
     {{-- ============================================
          FOOTER — standar Design System Form
@@ -355,7 +403,8 @@
             <i class="fas fa-circle-info"></i> Field dengan <span style="color:#dc2626;">*</span> wajib diisi
         </div>
         <div class="form-footer-actions">
-            <button type="button" class="form-btn-cancel" onclick="history.back()">
+            <button type="button" class="form-btn-cancel"
+                    onclick="location.href='{{ $cancelUrl }}'">
                 Batal
             </button>
             <button type="submit" class="form-btn-save">
