@@ -145,9 +145,15 @@ class UserController extends Controller
      */
     private function syncDirectPermissions(User $user, Request $request, string $roleName): void
     {
-        if ($roleName !== User::DEPARTMENT_ADMIN_ROLE) {
-            // Direct permission hanya relevan untuk Admin Bidang —
-            // sinkronkan kosong agar tidak ada sisa saat role diganti.
+        // Cakupan direct permission:
+        // - Admin Bidang → delegasi hak akses per bidang.
+        // - KARYAWAN     → akses fitur per ORANG (mis. "Karyawan SDM"
+        //                  diberi news.create, "Karyawan Sekuriti"
+        //                  diberi tamu.view — role tetap "Karyawan").
+        // Role lain (Super Admin / legacy) → bersihkan, tidak ada sisa.
+        $directPermissionRoles = [User::DEPARTMENT_ADMIN_ROLE, 'Karyawan'];
+
+        if (! in_array($roleName, $directPermissionRoles, true)) {
             $user->syncPermissions([]);
 
             return;
@@ -184,15 +190,23 @@ class UserController extends Controller
     {
         Gate::authorize('users.create');
 
-        // REVISI — dropdown "Role Pengguna" HANYA berisi 3 aktor:
-        // Super Admin, Admin Bidang, Karyawan. Role "Administrator"
-        // (dan role lain) tidak lagi dapat dipilih; urutan mengikuti
-        // urutan ASSIGNABLE_ROLE_NAMES.
-        $roles = Role::where('status', true)
+        // Dropdown "Role Pengguna" menampilkan SELURUH role aktif.
+        // Role yang dibuat admin (di luar 3 role dasar) juga tersedia
+        // untuk diberikan ke user. Urutan: role dasar di depan,
+        // role buatan admin di belakang (sesuai nama).
+        $baseRoles = Role::where('status', true)
             ->whereIn('name', User::ASSIGNABLE_ROLE_NAMES)
             ->get()
             ->sortBy(fn (Role $role) => array_search($role->name, User::ASSIGNABLE_ROLE_NAMES))
             ->values();
+
+        $otherRoles = Role::where('status', true)
+            ->whereNotIn('name', User::ASSIGNABLE_ROLE_NAMES)
+            ->get()
+            ->sortBy('name')
+            ->values();
+
+        $roles = $baseRoles->merge($otherRoles);
 
         return view('admin.users.create', [
             'roles'      => $roles,
@@ -216,13 +230,8 @@ class UserController extends Controller
 
         $role = Role::findOrFail($validated['role_id']);
 
-        // REVISI — hanya 3 role yang boleh dipilih (Super Admin,
-        // Admin Bidang, Karyawan). Role lain (mis. Administrator)
-        // ditolak walau dikirim langsung via API.
-        if (! in_array($role->name, User::ASSIGNABLE_ROLE_NAMES, true)) {
-            return back()->withErrors(['role_id' => 'Role yang dipilih tidak valid.'])->withInput();
-        }
-
+        // Validasi: role yang dipilih harus aktif.
+        // Semua role (termasuk role buatan admin) boleh dipilih.
         if (! $role->status) {
             return back()->withErrors(['role_id' => 'Role yang dipilih sedang dinonaktifkan.'])->withInput();
         }
@@ -264,7 +273,7 @@ class UserController extends Controller
         $user->roles()->sync([$role->id]);
 
         // DIRECT PERMISSION — sinkronkan matriks hak akses per akun
-        // (khusus Admin Bidang) ke tabel user_has_permissions.
+        // (Admin Bidang & Karyawan) ke tabel user_has_permissions.
         $this->syncDirectPermissions($user, $request, $role->name);
 
         // Note: Jika nanti menginstal spatie/laravel-permission, aktifkan
@@ -296,11 +305,21 @@ class UserController extends Controller
     {
         Gate::authorize('users.edit');
 
-        $roles = Role::where('status', true)
+        // Dropdown "Role Pengguna" menampilkan SELURUH role aktif.
+        // Role yang dibuat admin (di luar 3 role dasar) juga tersedia.
+        $baseRoles = Role::where('status', true)
             ->whereIn('name', User::ASSIGNABLE_ROLE_NAMES)
             ->get()
             ->sortBy(fn (Role $role) => array_search($role->name, User::ASSIGNABLE_ROLE_NAMES))
             ->values();
+
+        $otherRoles = Role::where('status', true)
+            ->whereNotIn('name', User::ASSIGNABLE_ROLE_NAMES)
+            ->get()
+            ->sortBy('name')
+            ->values();
+
+        $roles = $baseRoles->merge($otherRoles);
 
         return view('admin.users.edit', [
             'user'              => $user,
@@ -329,10 +348,8 @@ class UserController extends Controller
             $orgRules
         ), $orgAttributes);
 
-        if (! in_array($role->name, User::ASSIGNABLE_ROLE_NAMES, true)) {
-            return back()->withErrors(['role_id' => 'Role yang dipilih tidak valid.'])->withInput();
-        }
-
+        // Validasi: role yang dipilih harus aktif.
+        // Semua role (termasuk role buatan admin) boleh dipilih.
         if (! $role->status) {
             return back()->withErrors(['role_id' => 'Role yang dipilih sedang dinonaktifkan.'])->withInput();
         }

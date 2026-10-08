@@ -260,6 +260,26 @@ class User extends Authenticatable
     public const MAX_SENIOR_MANAGER_ACCOUNTS = 3;
 
     /**
+     * Baseline permission bawaan role Karyawan — HANYA daftar ini yang
+     * dianggap "wajar" dimiliki semua karyawan (satu sumber kebenaran
+     * dipakai PermissionSeeder untuk memberi permission ke role Karyawan).
+     *
+     * Permission di LUAR daftar ini disebut "permission ekstra" dan
+     * menjadi syarat akun Karyawan murni boleh masuk area /admin
+     * (lihat EnsureNotKaryawan & hasExtraKaryawanPermission()).
+     * Di dalam /admin, tiap route & menu tetap dijaga permission
+     * masing-masing seperti biasa.
+     */
+    public const KARYAWAN_BASELINE_PERMISSIONS = [
+        'dashboard.view',
+        'news.view',
+        'pages.view',
+        'internal.view',
+        'applications.view',
+        'logout',
+    ];
+
+    /**
      * Apakah akun ini Super Admin (Sekretariat / Humas)?
      * Super Admin = nama role persis 'Super Admin' ATAU role legacy
      * 'Administrator' (kompatibilitas akun existing).
@@ -567,6 +587,62 @@ class User extends Authenticatable
         $legacy = (string) ($this->role ?? '');
 
         return $legacy !== '' && $legacy !== 'user' && $legacy !== 'Karyawan';
+    }
+
+    /**
+     * Daftar permission EKSTRA milik akun ini — seluruh permission
+     * (direct ∪ role aktif ∪ fallback role_id) MINUS baseline karyawan
+     * (KARYAWAN_BASELINE_PERMISSIONS).
+     *
+     * Dipakai middleware admin.access: karyawan murni hanya boleh masuk
+     * /admin bila daftar ini tidak kosong (dia DIBERI akses tambahan,
+     * mis. users.view lewat Edit Role). Karyawan biasa tetap tertutup.
+     *
+     * @return array<int, string>
+     */
+    public function extraKaryawanPermissions(): array
+    {
+        if (! $this->exists) {
+            return [];
+        }
+
+        // loadMissing agar aman dipanggil berulang dalam satu request
+        // (nav portal + middleware) tanpa query ganda. Catatan: relasi
+        // `role` TIDAK di-nested-load di sini — kolom legacy users.role
+        // (string) menaungi relasi tersebut sehingga pluck('role')
+        // mengembalikan string, bukan model.
+        $this->loadMissing(['permissions', 'roles.permissions']);
+
+        $names = $this->permissions->pluck('name')->all();
+
+        foreach ($this->roles as $role) {
+            if ($role->isInactive()) {
+                continue;
+            }
+
+            $names = array_merge($names, $role->permissions->pluck('name')->all());
+        }
+
+        // Fallback akun lama: kolom users.role_id tanpa pivot role_user.
+        // Akses via method role() (bukan atribut $this->role — itu string).
+        if ($this->roles->isEmpty() && $this->role_id) {
+            $role = $this->role()->first();
+
+            if ($role !== null && ! $role->isInactive()) {
+                $names = array_merge($names, $role->permissions()->pluck('name')->all());
+            }
+        }
+
+        return array_values(array_diff(array_unique($names), self::KARYAWAN_BASELINE_PERMISSIONS));
+    }
+
+    /**
+     * Apakah akun Karyawan murni ini punya permission ekstra (di luar
+     * baseline) sehingga BOLEH masuk area /admin?
+     */
+    public function hasExtraKaryawanPermission(): bool
+    {
+        return $this->extraKaryawanPermissions() !== [];
     }
 
     /**

@@ -222,11 +222,11 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
                 Route::get('roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('roles.index');
                 Route::get('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');
             });
-            // REVISI ARSITEKTUR — pembuatan role baru DINONAKTIFKAN:
-            // hak akses menu berbeda-beda diatur langsung per akun
-            // (Direct Permission di menu Pengguna), bukan via role baru.
-            // Route roles.create/roles.store dihapus → 404 (bukan 403)
-            // dan tombolnya dikunci di UI.
+            // Pembuatan role baru — dibatasi role yang punya permission roles.create
+            Route::middleware('permission:roles.create')->group(function () {
+                Route::get('roles/create', [\App\Http\Controllers\Admin\RoleController::class, 'create'])->name('roles.create');
+                Route::post('roles', [\App\Http\Controllers\Admin\RoleController::class, 'store'])->name('roles.store');
+            });
             Route::middleware('permission:roles.edit')->group(function () {
                 Route::get('roles/{role}/edit', [\App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('roles.edit');
                 Route::put('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])->name('roles.update');

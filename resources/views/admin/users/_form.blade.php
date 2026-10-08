@@ -328,9 +328,11 @@
 
     {{-- ============================================
          SECTION: Hak Akses Fitur (DIRECT PERMISSION)
-         Tampil HANYA saat Role "Admin Bidang" dipilih — hak akses
-         menu berbeda-beda diatur langsung per akun (bukan via role
-         baru), disinkronkan ke tabel user_has_permissions.
+         Tampil saat Role "Admin Bidang" ATAU "KARYAWAN" dipilih — hak
+         akses menu berbeda-beda diatur langsung per akun (bukan via role
+         baru), disinkronkan ke tabel user_has_permissions. Untuk karyawan,
+         ini jalur membuat varian tugas (mis. "Karyawan SDM" → centang
+         Berita/Pengumuman/Galeri, "Karyawan Sekuriti" → Data Tamu).
          TIDAK tampil untuk Super Admin edit (akses penuh sudah otomatis).
          ============================================ --}}
     <div class="form-section" id="directPermSection" @if($isSuperAdminEdit) style="display:none;" @endif>
@@ -525,7 +527,9 @@
             } else if (roleName === 'Karyawan') {
                 setVisible(levelWrapper, levelSelect, null, null, true);
                 applyLevelRules();
-                setDirectPermVisible(false);
+                // Direct permission TAMPIL untuk karyawan — hak akses
+                // fitur per orang (varian tugas) diatur di sini.
+                setDirectPermVisible(true);
             } else {
                 // Role belum dipilih → sembunyikan seluruh field hirarki.
                 setHidden(levelWrapper, levelSelect, null, null);
