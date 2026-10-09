@@ -1641,3 +1641,53 @@ textarea.form-input {
 
     .kry-detail { padding: 22px 20px; }
 }
+
+/* ============================================================
+   DROPDOWN SERAGAM — mengikuti gaya dropdown "Divisi" pada
+   form registrasi publik: kotak membulat, panah chevron di
+   kanan, border tipis, hover halus & focus ring.
+   ============================================================ */
+select {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 1.75 6 6.25l4.5-4.5' stroke='%2394a3b8' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.85rem center !important;
+    background-size: 11px 7px !important;
+    padding-right: 2.2rem !important; /* ruang untuk panah */
+    border: 1px solid var(--kry-line, #e2e8f0);
+    border-radius: 10px;
+    color: var(--kry-text, #1e293b);
+    font-family: inherit;
+    line-height: 1.45;
+    cursor: pointer;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+select:hover:not(:disabled) { border-color: var(--kry-teal, #008fa8); }
+
+select:focus,
+select:focus-visible {
+    outline: none;
+    border-color: var(--kry-teal, #008fa8);
+    box-shadow: 0 0 0 3px rgba(0, 143, 168, 0.12);
+}
+
+select:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+select option {
+    color: #1e293b;
+    background-color: #fff;
+    padding: 4px 8px;
+}
+select optgroup {
+    font-weight: 600;
+    font-style: normal;
+    color: #475569;
+    background-color: #f1f5f9;
+}
