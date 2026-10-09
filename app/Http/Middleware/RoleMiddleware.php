@@ -16,9 +16,11 @@ use Symfony\Component\HttpFoundation\Response;
  *   ->middleware('role.scope:admin')              // admin apa pun (Super,
  *                                                 // Bidang, maupun legacy)
  *
- * Aturan menu sensitif (Manajemen User & Role, Data Tamu, Halaman/Menu
- * landing page): role 'Admin Bidang' SELALU ditolak — sesuai spesifikasi
- * delegasi per bidang. Role admin lain (Super Admin, Administrator,
+ * Aturan menu sensitif (Manajemen User & Role, Halaman/Menu landing
+ * page): role 'Admin Bidang' SELALU ditolak — sesuai spesifikasi
+ * delegasi per bidang. Data Tamu TIDAK lagi termasuk modul sensitif:
+ * semua admin boleh akses selama punya permission tamu.*.
+ * Role admin lain (Super Admin, Administrator,
  * role kustom bawaan panel) tetap diizinkan selama punya permission.
  *
  * Untuk modul milik bidang (work-links, announcements), middleware ini

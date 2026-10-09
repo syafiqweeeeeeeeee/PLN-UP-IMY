@@ -256,9 +256,9 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         });
 
         // Data Tamu (Guest Book) — gate per aksi.
-        // role.scope:super_admin → modul sensitif, HANYA Super Admin
-        // (Sekretariat/Humas); Admin Bidang tidak mengelola buku tamu.
-        Route::middleware('role.scope:super_admin')->group(function () {
+        // role.scope:admin → semua admin (Super Admin & Admin Bidang);
+        // akses final ditentukan permission tamu.* per role.
+        Route::middleware('role.scope:admin')->group(function () {
             Route::middleware('permission:tamu.view')->group(function () {
                 Route::get('tamu', [\App\Http\Controllers\Admin\TamuController::class, 'index'])->name('tamu.index');
                 Route::get('tamu/export', [\App\Http\Controllers\Admin\TamuController::class, 'export'])->name('tamu.export');

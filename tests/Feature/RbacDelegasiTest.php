@@ -87,16 +87,24 @@ class RbacDelegasiTest extends TestCase
 
     public function test_admin_bidang_blocked_from_sensitive_menus_and_routes(): void
     {
-        $admin = $this->adminBidang('operasi', ['users.view', 'roles.view', 'tamu.view', 'pages.view']);
+        $admin = $this->adminBidang('operasi', ['users.view', 'roles.view', 'pages.view']);
 
         // Middleware role.scope:super_admin memblokir manajemen user/role.
         $this->actingAs($admin)->get(route('admin.users.create'))->assertForbidden();
         $this->actingAs($admin)->post(route('admin.users.store'), [])->assertForbidden();
         $this->actingAs($admin)->get(route('admin.roles.index'))->assertForbidden();
 
-        // Data Tamu & Halaman (landing page) hanya Super Admin.
-        $this->actingAs($admin)->get(route('admin.tamu.index'))->assertForbidden();
+        // Halaman (landing page) hanya Super Admin.
         $this->actingAs($admin)->get(route('admin.pages.index'))->assertForbidden();
+    }
+
+    public function test_admin_bidang_with_tamu_permission_can_access_tamu(): void
+    {
+        // Data Tamu bukan lagi modul sensitif — Admin Bidang dengan
+        // permission tamu.view boleh mengakses buku tamu.
+        $admin = $this->adminBidang('operasi', ['tamu.view']);
+
+        $this->actingAs($admin)->get(route('admin.tamu.index'))->assertOk();
     }
 
     public function test_super_admin_has_full_access(): void
