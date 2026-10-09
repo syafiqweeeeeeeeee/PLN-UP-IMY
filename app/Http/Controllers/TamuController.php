@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Tamu;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * TamuController — pendaftaran tamu kantor/instansi.
@@ -43,10 +44,12 @@ class TamuController extends Controller
             'tanggal' => ['required', 'date'],
         ]);
 
+        $terblokir = Tamu::jamTerblokir($data['tanggal'], $data['divisi']);
+
         return response()->json([
             'divisi'        => $data['divisi'],
             'tanggal'       => $data['tanggal'],
-            'jam_terblokir' => Tamu::jamTerblokir($data['tanggal'], $data['divisi']),
+            'jam_terblokir' => $terblokir,
         ]);
     }
 
@@ -68,12 +71,12 @@ class TamuController extends Controller
             'no_hp'    => ['required', 'string', 'max:25', 'regex:/^[0-9+\-\s()]+$/'],
             'email'    => ['required', 'email', 'max:150'],
 
-            // Berkas pendukung: SATU file wajib (multi-format —
-            // ZIP/RAR/PDF/JPG/JPEG/PNG) maksimal 10MB
+            // Berkas pendukung: WAJIB (multi-format —
+            // PDF, DOC/DOCX, XLS/XLSX, ZIP, RAR) maksimal 10MB
             'dokumen' => [
                 'required',
                 'file',
-                'mimes:zip,rar,pdf,jpg,jpeg,png',
+                'mimes:pdf,doc,docx,xls,xlsx,zip,rar',
                 'max:10240',
             ],
 
@@ -122,8 +125,8 @@ class TamuController extends Controller
             'email.required'            => 'Email wajib diisi.',
             'email.email'               => 'Format email tidak valid.',
             'dokumen.required'          => 'Berkas pendukung wajib diunggah.',
-            'dokumen.file'              => 'Berkas pendukung tidak valid.',
-            'dokumen.mimes'             => 'Berkas harus berformat ZIP, RAR, PDF, JPG, JPEG, atau PNG.',
+            'dokumen.file'              => 'Berkas yang diunggah tidak valid.',
+            'dokumen.mimes'             => 'Berkas harus berformat PDF, DOC, DOCX, XLS, XLSX, ZIP, atau RAR.',
             'dokumen.max'               => 'Ukuran berkas maksimal :max kilobyte (10MB).',
             'tujuan_ditemui.required'   => 'Orang / divisi yang ditemui wajib diisi.',
             'jumlah_tamu.required'      => 'Jumlah tamu wajib diisi.',
@@ -137,12 +140,33 @@ class TamuController extends Controller
         ]);
 
         /* =========================================================
-           2. SIMPAN BERKAS PENDUKUNG ke DISK PRIVATE
+           2. SIMPAN BERKAS PENDUKUNG ke DISK PRIVATE (jika ada)
               (storage/app/private — disajikan lewat controller
               ber-auth TamuDocumentController; kolom DB tetap
               bernama `dokumen_zip` — legacy name)
            ========================================================= */
-        $validated['dokumen_zip'] = $request->file('dokumen')->store('dokumen', 'private');
+        $dokumen_zip = null;
+        
+        // Debug: Cek apakah file dikirim
+        if ($request->hasFile('dokumen')) {
+            $file = $request->file('dokumen');
+            Log::info('[Dokumen] File diterima:', [
+                'name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+                'mime' => $file->getMimeType(),
+                'extension' => $file->getClientOriginalExtension(),
+                'isValid' => $file->isValid(),
+            ]);
+            
+            if ($file->isValid()) {
+                $dokumen_zip = $file->store('dokumen', 'private');
+                Log::info('[Dokumen] File disimpan:', ['path' => $dokumen_zip]);
+            } else {
+                Log::error('[Dokumen] File tidak valid');
+            }
+        } else {
+            Log::warning('[Dokumen] Tidak ada file yang dikirim');
+        }
 
         /* =========================================================
            3. INSERT DATA — gabungkan tanggal + jam menjadi datetime
@@ -153,7 +177,7 @@ class TamuController extends Controller
             'instansi'       => $validated['instansi'],
             'no_hp'          => $validated['no_hp'],
             'email'          => $validated['email'],
-            'dokumen_zip'    => $validated['dokumen_zip'],
+            'dokumen_zip'    => $dokumen_zip,
             'tujuan_ditemui' => $validated['tujuan_ditemui'],
             'jumlah_tamu'    => $validated['jumlah_tamu'],
             'tanggal_kunjungan' => $validated['tanggal_kunjungan'] . ' ' . $validated['jam_kunjungan'],
