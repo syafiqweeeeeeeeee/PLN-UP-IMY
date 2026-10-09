@@ -110,17 +110,15 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-user-tag header-icon"></i>Daftar Role</h5>
-            <p>3 Role Dasar permanen — pembagian hak akses per akun diatur lewat menu Pengguna (Direct Permission)</p>
+            <p>Kelola role pengguna — buat, edit, dan atur hak akses menu untuk setiap role</p>
         </div>
-        {{-- REVISI ARSITEKTUR: tombol "+ Tambah Role" DIHAPUS/dinonaktifkan
-             permanen — hak akses menu berbeda-beda tidak dibuat via role
-             baru, melainkan diatur langsung per akun pengguna (Direct
-             Permission di form Pengguna). --}}
-        <button type="button" class="btn-corp btn-corp-add" disabled
-                title="Pembuatan role baru dinonaktifkan — atur hak akses per akun di menu Pengguna"
-                style="opacity:.55; cursor:not-allowed;">
-            <i class="fas fa-lock"></i> Tambah Role
-        </button>
+        {{-- Tombol "+ Tambah Role" — mengarah ke form pembuatan role baru.
+             Hak akses diatur via Gate 'roles.create'. --}}
+        @can('roles.create')
+        <a href="{{ route('admin.roles.create') }}" class="btn-corp btn-corp-add">
+            <i class="fas fa-plus"></i> Tambah Role
+        </a>
+        @endcan
     </div>
 
     {{-- Stats Chips --}}
@@ -154,7 +152,7 @@
                     <th>Nama Role</th>
                     <th class="col-hide-mobile">Deskripsi</th>
                     <th style="text-align: center;">User</th>
-                    <th style="text-align: center;">Permission</th>
+                    <th style="text-align: center;">HAK AKSES</th>
                     <th style="text-align: center;">Status</th>
                     <th class="col-hide-mobile">Dibuat</th>
                     <th class="th-actions">Aksi</th>
@@ -219,7 +217,7 @@
                         <div style="color:#9ca3af;">
                             <i class="fas fa-user-tag" style="font-size:2.5rem; margin-bottom:1rem; display:block;"></i>
                             <strong style="font-size:1rem;">Belum ada role</strong>
-                            <p style="font-size:0.85rem; margin-top:0.5rem;">Klik tombol "Tambah Role" untuk membuat role baru.</p>
+                            <p style="font-size:0.85rem; margin-top:0.5rem;">Buat role baru untuk mengelompokkan hak akses pengguna.</p>
                         </div>
                     </td>
                 </tr>

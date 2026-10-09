@@ -36,7 +36,9 @@ class AdminResetPasswordTest extends TestCase
             'email'    => 'admin-reset@example.com',
             'password' => Hash::make('password123'),
         ]);
-        $admin->roles()->sync([\App\Models\Role::where('name', 'Administrator')->firstOrFail()->id]);
+        // REVISI AKTOR — role legacy "Administrator" dihapus oleh migration
+        // 2026_10_06_000002; penggantinya "Super Admin" (akses penuh).
+        $admin->roles()->sync([\App\Models\Role::where('name', 'Super Admin')->firstOrFail()->id]);
 
         return $admin;
     }
@@ -186,7 +188,7 @@ class AdminResetPasswordTest extends TestCase
         $user = User::factory()->create([
             'must_change_password' => true,
         ]);
-        $user->roles()->sync([\App\Models\Role::where('name', 'Administrator')->firstOrFail()->id]);
+        $user->roles()->sync([\App\Models\Role::where('name', 'Super Admin')->firstOrFail()->id]);
 
         $this->actingAs($user)
             ->get(route('admin.dashboard'))

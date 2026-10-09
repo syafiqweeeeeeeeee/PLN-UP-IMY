@@ -22,7 +22,10 @@
 
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-        <link href="{{ asset('css/admin.css') }}" rel="stylesheet" />
+        {{-- Cache-busting: versi ikut filemtime admin.css — setiap kali CSS
+             diubah (mis. setelah pull), URL berubah → browser WAJIB unduh
+             versi baru, tidak lagi memakai salinan lama dari cache. --}}
+        <link href="{{ asset('css/admin.css') }}?v={{ @filemtime(public_path('css/admin.css')) }}" rel="stylesheet" />
 
         {{-- ============================================================
              THEME BOOTSTRAP (anti-FOUC) — jalan SEBELUM render.

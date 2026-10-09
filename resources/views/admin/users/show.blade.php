@@ -196,13 +196,25 @@
                             {{ $user->email_verified_at ? 'Aktif' : 'Nonaktif' }}
                         </button>
                     @endif
-                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn-delete" onclick="return confirm('Yakin ingin menghapus pengguna ini?')">
-                            <i class="fas fa-trash me-1"></i> Hapus
-                        </button>
-                    </form>
+
+                    @if((auth()->user()->role === 'Admin Bidang' || optional(auth()->user()->role)->name === 'Admin Bidang') && auth()->id() == $user->id)
+                        <a href="{{ route('admin.admin.users.edit', $user) }}" class="btn-edit"
+                           style="background:var(--pln-yellow);color:var(--pln-blue);border:none;border-radius:8px;padding:0.6rem 1.2rem;font-weight:600;font-size:0.85rem;display:inline-flex;align-items:center;gap:0.5rem;text-decoration:none;">
+                            <i class="fas fa-edit me-1"></i> Edit Profil
+                        </a>
+                    @else
+                        @if(auth()->id() == $user->id)
+                            <span class="badge bg-warning">Akun Anda</span>
+                        @else
+                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-delete" onclick="return confirm('Yakin ingin menghapus pengguna ini?')">
+                                    <i class="fas fa-trash me-1"></i> Hapus
+                                </button>
+                            </form>
+                        @endif
+                    @endif
                 </div>
             </div>
 
