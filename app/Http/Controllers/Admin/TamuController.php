@@ -94,27 +94,46 @@ class TamuController extends Controller
         $validated = $request->validate([
             'nik' => ['required', 'digits:16', 'unique:tamus,nik'],
             'nama' => ['required', 'string', 'max:150'],
-            'instansi' => ['nullable', 'string', 'max:150'],
+            // Selaras form registrasi publik: instansi & email wajib
+            'instansi' => ['required', 'string', 'max:150'],
             'no_hp' => ['required', 'string', 'max:25', 'regex:/^[0-9+\-\s()]+$/'],
-            'email' => ['nullable', 'email', 'max:150'],
-            // Untuk input manual, unggah dokumen pendukung tidak diwajibkan
-            // (multi-format selaras form registrasi publik)
-            'dokumen' => ['nullable', 'file', 'mimes:zip,rar,pdf,jpg,jpeg,png', 'max:10240'],
+            'email' => ['required', 'email', 'max:150'],
+            // Input manual admin: satu berkas pendukung (opsional) dengan
+            // format gabungan — selaras form registrasi publik
+            'dokumen' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,zip,rar,jpg,jpeg,png', 'max:10240'],
             'tujuan_ditemui' => ['required', 'string', 'max:150'],
             'jumlah_tamu' => ['required', 'integer', 'min:1', 'max:100'],
             'tanggal_kunjungan' => ['required', 'date'],
+            // Slot jam operasional + blokir double-booking divisi sama
+            'jam_kunjungan' => $this->jamRules($request),
             'keperluan' => ['required', 'string', 'max:2000'],
         ], [
             'nik.required' => 'NIK wajib diisi.',
             'nik.digits' => 'NIK harus tepat :digits digit angka.',
             'nik.unique' => 'NIK ini sudah terdaftar sebelumnya.',
+            'instansi.required' => 'Perusahaan / instansi wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
             'no_hp.regex' => 'Format No. WhatsApp / HP tidak valid.',
+            'dokumen.mimes' => 'Dokumen harus berformat PDF, DOC, DOCX, XLS, XLSX, ZIP, RAR, JPG, JPEG, atau PNG.',
+            'dokumen.max' => 'Ukuran dokumen maksimal :max kilobyte (10MB).',
+            'tanggal_kunjungan.required' => 'Tanggal kunjungan wajib diisi.',
+            'tanggal_kunjungan.date' => 'Tanggal kunjungan tidak valid.',
+            'jam_kunjungan.required' => 'Jam kunjungan wajib dipilih.',
+            'jam_kunjungan.in' => 'Jam kunjungan harus di luar jam istirahat & sesuai jam operasional.',
         ]);
 
         if ($request->hasFile('dokumen')) {
-            // Input manual admin: satu berkas pendukung (ZIP/RAR/PDF/gambar)
+            // Input manual admin: satu berkas pendukung (opsional)
             $validated['dokumen_zip'] = $request->file('dokumen')->store('dokumen', 'private');
         }
+
+        // Tanggal (input date) + jam (dropdown slot) digabung jadi datetime,
+        // sama seperti form registrasi publik.
+        $validated['tanggal_kunjungan'] =
+            \Carbon\Carbon::parse($validated['tanggal_kunjungan'])->format('Y-m-d')
+            . ' ' . $validated['jam_kunjungan'];
+        unset($validated['jam_kunjungan']);
 
         $tamu = Tamu::create($validated);
 
@@ -142,18 +161,27 @@ class TamuController extends Controller
             'instansi' => ['required', 'string', 'max:150'],
             'no_hp' => ['required', 'string', 'max:25', 'regex:/^[0-9+\-\s()]+$/'],
             'email' => ['required', 'email', 'max:150'],
-            'dokumen' => ['nullable', 'file', 'mimes:zip,rar,pdf,jpg,jpeg,png', 'max:10240'],
+            'dokumen' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,zip,rar,jpg,jpeg,png', 'max:10240'],
             'tujuan_ditemui' => ['required', 'string', 'max:150'],
             'jumlah_tamu' => ['required', 'integer', 'min:1', 'max:100'],
             'tanggal_kunjungan' => ['required', 'date'],
+            // Blokir slot divisi sama — kunjungan INI sendiri dikecualikan,
+            // dan jam lamanya (meski di luar slot) tetap boleh dipertahankan
+            'jam_kunjungan' => $this->jamRules($request, $tamu->id, $tamu->tanggal_kunjungan?->format('H:i')),
             'keperluan' => ['required', 'string', 'max:2000'],
         ], [
             'nik.required' => 'NIK wajib diisi.',
             'nik.digits' => 'NIK harus tepat :digits digit angka.',
             'nik.unique' => 'NIK ini sudah terdaftar sebelumnya.',
+            'instansi.required' => 'Perusahaan / instansi wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
             'no_hp.regex' => 'Format No. WhatsApp / HP tidak valid.',
-            'dokumen.mimes' => 'Dokumen harus berformat ZIP, RAR, PDF, JPG, JPEG, atau PNG.',
+            'dokumen.mimes' => 'Dokumen harus berformat PDF, DOC, DOCX, XLS, XLSX, ZIP, RAR, JPG, JPEG, atau PNG.',
             'dokumen.max' => 'Ukuran dokumen maksimal :max kilobyte (10MB).',
+            'tanggal_kunjungan.required' => 'Tanggal kunjungan wajib diisi.',
+            'tanggal_kunjungan.date' => 'Tanggal kunjungan tidak valid.',
+            'jam_kunjungan.required' => 'Jam kunjungan wajib dipilih.',
         ]);
 
         if ($request->hasFile('dokumen')) {
@@ -165,6 +193,12 @@ class TamuController extends Controller
             $validated['dokumen_zip'] = $request->file('dokumen')->store('dokumen', 'private');
         }
 
+        // Tanggal (input date) + jam (dropdown slot) digabung jadi datetime
+        $validated['tanggal_kunjungan'] =
+            \Carbon\Carbon::parse($validated['tanggal_kunjungan'])->format('Y-m-d')
+            . ' ' . $validated['jam_kunjungan'];
+        unset($validated['jam_kunjungan']);
+
         $tamu->update($validated);
 
         ActivityLogger::log('update', null, [
@@ -175,6 +209,52 @@ class TamuController extends Controller
 
         return redirect()->route('admin.tamu.index')
             ->with('success', "Data tamu \"{$tamu->nama}\" berhasil diperbarui.");
+    }
+
+    /**
+     * Rule validasi "Jam Kunjungan" — selaras form registrasi publik:
+     * wajib salah satu slot operasional, dan belum DISETUJUI untuk
+     * divisi + tanggal yang sama (anti double-booking).
+     *
+     * @param  int|null  $kecualiId  ID kunjungan yang dikecualikan saat edit,
+     *                               supaya tidak memblokir dirinya sendiri.
+     * @param  string|null  $jamLama  Jam lama milik rekornya sendiri — masih
+     *                               diterima saat edit agar data lama yang
+     *                               di luar slot operasional tetap bisa disimpan.
+     * @return array<int, mixed>
+     */
+    private function jamRules(Request $request, ?int $kecualiId = null, ?string $jamLama = null): array
+    {
+        return [
+            'required',
+            'date_format:H:i',
+            function (string $attribute, mixed $value, \Closure $fail) use ($request, $kecualiId, $jamLama) {
+                $divisi  = (string) $request->input('tujuan_ditemui');
+                $tanggal = (string) $request->input('tanggal_kunjungan');
+
+                if ($divisi === '' || $tanggal === '') {
+                    return; // biarkan rule required yang menolak
+                }
+
+                try {
+                    $tanggal = \Carbon\Carbon::parse($tanggal)->format('Y-m-d');
+                } catch (\Throwable) {
+                    return; // biarkan rule date yang menolak
+                }
+
+                // Harus slot operasional — kecuali tidak berubah dari nilai lama
+                if (! in_array($value, Tamu::SLOT_JAM, true) && $value !== $jamLama) {
+                    $fail('Jam kunjungan harus di luar jam istirahat & sesuai jam operasional.');
+
+                    return;
+                }
+
+                if (Tamu::isJamTerblokir($tanggal, $value, $divisi, $kecualiId)) {
+                    $fail("Jam {$value} sudah di-approve untuk divisi \"{$divisi}\" "
+                        . "pada tanggal {$tanggal}. Silakan pilih jam lain.");
+                }
+            },
+        ];
     }
 
     /**

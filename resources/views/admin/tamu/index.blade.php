@@ -486,6 +486,27 @@
         word-break: break-all;
     }
 
+    /* ===== Slot jam kunjungan (selaras form registrasi publik) =====
+       Opsi yang sudah DISETUJUI admin → merah & disabled (tidak bisa
+       dipilih); jam istirahat / non-aktif tampil netral. */
+    .tamu-modal select option:disabled {
+        color: #94a3b8 !important;
+        background: #f1f5f9 !important;
+    }
+    .tamu-modal select option.slot-penuh {
+        color: #dc2626 !important;
+        background: #fef2f2 !important;
+        font-weight: 600;
+    }
+    .tamu-jam-status {
+        display: block;
+        font-size: 0.7rem;
+        margin-top: 0.28rem;
+        color: #64748b;
+    }
+    .tamu-jam-status.blocked { color: #dc2626; font-weight: 600; }
+    .tamu-jam-status.ok { color: #16a34a; }
+
     /* Utilitas toggle sembunyikan elemen (dipakai modal edit) */
     .hidden { display: none !important; }
     .tamu-modal-body img.ktp-full {
@@ -665,6 +686,17 @@
 @if (session('error'))
     <div class="alert alert-danger py-2 px-3" style="border-radius:10px; font-size:0.83rem;">
         <i class="fas fa-circle-exclamation me-2"></i>{{ session('error') }}
+    </div>
+@endif
+@if ($errors->any())
+    <div class="alert alert-danger py-2 px-3" style="border-radius:10px; font-size:0.83rem;">
+        <i class="fas fa-circle-exclamation me-2"></i>
+        <strong>Data belum bisa disimpan — periksa kembali:</strong>
+        <ul style="margin:0.3rem 0 0; padding-left:1.2rem;">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
     </div>
 @endif
 
@@ -974,7 +1006,7 @@
      dan tombol lewati.
      ============================================ --}}
 @if (session('wa_konfirmasi'))
-@php($wa = session('wa_konfirmasi'))
+@php $wa = session('wa_konfirmasi'); @endphp
 <div class="tamu-modal-overlay show" id="waKonfirmasiModal">
     <div class="tamu-modal">
         <div class="tamu-delete-dialog">
@@ -1000,6 +1032,18 @@
 {{-- ============================================
      MODAL: TAMBAH TAMU MANUAL
      ============================================ --}}
+@php
+    /* Label rentang jam per slot — identik dengan form registrasi publik */
+    $labelJam = [
+        '08:00' => '08:00 – 09:00',
+        '09:00' => '09:00 – 10:00',
+        '10:00' => '10:00 – 11:00',
+        '11:00' => '11:00 – 11:30',
+        '13:00' => '13:00 – 14:00',
+        '14:00' => '14:00 – 15:00',
+        '15:00' => '15:00 – 16:00',
+    ];
+@endphp
 @can('tamu.create')
 <div class="tamu-modal-overlay" id="addModal" onclick="if(event.target===this) closeTamuModal('addModal')">
     <div class="tamu-modal modal-lg">
@@ -1010,68 +1054,111 @@
         <form action="{{ route('admin.tamu.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="tamu-modal-body">
+
+                {{-- ========== SEKSI 1: DATA DIRI (selaras form registrasi publik) ========== --}}
+                <div class="tamu-form-section-head">
+                    <span class="tamu-form-section-icon"><i class="fas fa-user"></i></span>
+                    <span class="tamu-form-section-title">Data Diri</span>
+                </div>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">NIK / No. KTP <span class="text-danger">*</span></label>
-                        <input type="text" name="nik" inputmode="numeric" maxlength="16" required
+                        <input type="text" name="nik" inputmode="numeric" maxlength="16" required autocomplete="off"
                                class="form-control @error('nik') is-invalid @enderror" value="{{ old('nik') }}"
-                               placeholder="16 digit NIK" style="font-size:0.85rem;">
+                               placeholder="Masukkan 16 digit NIK" style="font-size:0.85rem;">
                         @error('nik')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Nama Lengkap <span class="text-danger">*</span></label>
-                        <input type="text" name="nama" required class="form-control @error('nama') is-invalid @enderror"
+                        <input type="text" name="nama" required autocomplete="name" class="form-control @error('nama') is-invalid @enderror"
                                value="{{ old('nama') }}" placeholder="Nama sesuai KTP" style="font-size:0.85rem;">
                         @error('nama')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Perusahaan / Instansi</label>
-                        <input type="text" name="instansi" class="form-control" value="{{ old('instansi') }}"
-                               placeholder="Opsional" style="font-size:0.85rem;">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Perusahaan / Instansi <span class="text-danger">*</span></label>
+                        <input type="text" name="instansi" required autocomplete="organization" class="form-control @error('instansi') is-invalid @enderror"
+                               value="{{ old('instansi') }}" placeholder="Nama instansi asal" style="font-size:0.85rem;">
+                        @error('instansi')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">No. WhatsApp / HP <span class="text-danger">*</span></label>
-                        <input type="tel" name="no_hp" required class="form-control @error('no_hp') is-invalid @enderror"
+                        <input type="tel" name="no_hp" required autocomplete="tel" class="form-control @error('no_hp') is-invalid @enderror"
                                value="{{ old('no_hp') }}" placeholder="08xxxxxxxxxx" style="font-size:0.85rem;">
                         @error('no_hp')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Email</label>
-                        <input type="email" name="email" class="form-control" value="{{ old('email') }}"
-                               placeholder="Opsional" style="font-size:0.85rem;">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Email <span class="text-danger">*</span></label>
+                        <input type="email" name="email" required autocomplete="email" class="form-control @error('email') is-invalid @enderror"
+                               value="{{ old('email') }}" placeholder="nama@email.com" style="font-size:0.85rem;">
+                        @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Dokumen Pendukung <small class="text-muted">(opsional, maks 10MB)</small></label>
-                        <input type="file" name="dokumen" accept=".zip,.rar,.pdf,.jpg,.jpeg,.png"
+                </div>
+
+                {{-- ========== SEKSI 2: BERKAS PENDUKUNG (selaras form registrasi publik) ========== --}}
+                <div class="tamu-form-section-head">
+                    <span class="tamu-form-section-icon"><i class="fas fa-folder-open"></i></span>
+                    <span class="tamu-form-section-title">Berkas Pendukung</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Upload Dokumen <small class="text-muted">(opsional, maks 10MB)</small></label>
+                        <input type="file" name="dokumen"
+                               accept=".zip,.rar,.pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
                                class="form-control @error('dokumen') is-invalid @enderror" style="font-size:0.8rem;">
-                        <small class="text-muted" style="font-size:0.7rem;">ZIP / RAR / PDF / JPG / JPEG / PNG</small>
+                        <small class="text-muted" style="font-size:0.7rem;">ZIP, RAR, PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG — maksimal 10MB</small>
                         @error('dokumen')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                    <div class="col-md-6">
+                </div>
+
+                {{-- ========== SEKSI 3: DETAIL KUNJUNGAN (selaras form registrasi publik) ========== --}}
+                <div class="tamu-form-section-head">
+                    <span class="tamu-form-section-icon"><i class="fas fa-calendar-check"></i></span>
+                    <span class="tamu-form-section-title">Detail Kunjungan</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Orang / Divisi yang Ditemui <span class="text-danger">*</span></label>
-                        <input type="text" name="tujuan_ditemui" required class="form-control @error('tujuan_ditemui') is-invalid @enderror"
-                               value="{{ old('tujuan_ditemui') }}" placeholder="Nama orang / divisi" style="font-size:0.85rem;">
+                        <select name="tujuan_ditemui" id="add-tujuan_ditemui" required
+                                class="form-select @error('tujuan_ditemui') is-invalid @enderror" style="font-size:0.85rem;">
+                            @include('admin.tamu._divisi-options')
+                        </select>
                         @error('tujuan_ditemui')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Tanggal Kunjungan <span class="text-danger">*</span></label>
+                        <input type="date" name="tanggal_kunjungan" id="add-tanggal_kunjungan" required
+                               class="form-control @error('tanggal_kunjungan') is-invalid @enderror"
+                               value="{{ \Illuminate\Support\Str::substr((string) old('tanggal_kunjungan', ''), 0, 10) ?: now()->format('Y-m-d') }}"
+                               style="font-size:0.85rem;">
+                        @error('tanggal_kunjungan')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jam Kunjungan <span class="text-danger">*</span></label>
+                        <select name="jam_kunjungan" id="add-jam_kunjungan" required
+                                class="form-select @error('jam_kunjungan') is-invalid @enderror" style="font-size:0.85rem;">
+                            <option value="">— Pilih Jam —</option>
+                            @foreach (\App\Models\Tamu::SLOT_JAM as $jam)
+                                <option value="{{ $jam }}" data-label="{{ $labelJam[$jam] ?? $jam }}" @selected(old('jam_kunjungan') === $jam)>{{ $labelJam[$jam] ?? $jam }}</option>
+                            @endforeach
+                        </select>
+                        <small id="add-jam-status" class="tamu-jam-status" style="display:none;"></small>
+                        @error('jam_kunjungan')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jumlah Tamu <span class="text-danger">*</span></label>
                         <input type="number" name="jumlah_tamu" min="1" max="100" required
                                class="form-control @error('jumlah_tamu') is-invalid @enderror" value="{{ old('jumlah_tamu', 1) }}"
                                style="font-size:0.85rem;">
                         @error('jumlah_tamu')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Tanggal & Jam <span class="text-danger">*</span></label>
-                        <input type="datetime-local" name="tanggal_kunjungan" required
-                               class="form-control @error('tanggal_kunjungan') is-invalid @enderror"
-                               value="{{ old('tanggal_kunjungan') }}" style="font-size:0.85rem;">
-                        @error('tanggal_kunjungan')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
                     <div class="col-12">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Maksud & Keperluan <span class="text-danger">*</span></label>
-                        <textarea name="keperluan" rows="3" required maxlength="2000"
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label class="form-label" style="font-size:0.78rem; font-weight:600; margin-bottom:0;">Maksud &amp; Keperluan Kunjungan <span class="text-danger">*</span></label>
+                            <span class="edit-char-counter"><span id="add-keperluan-count">0</span>/2000</span>
+                        </div>
+                        <textarea name="keperluan" id="add-keperluan" rows="3" required maxlength="2000"
                                   class="form-control @error('keperluan') is-invalid @enderror"
-                                  placeholder="Jelaskan singkat keperluan kunjungan..." style="font-size:0.85rem;">{{ old('keperluan') }}</textarea>
+                                  placeholder="Jelaskan singkat maksud dan keperluan kunjungan Anda..." style="font-size:0.85rem;">{{ old('keperluan') }}</textarea>
                         @error('keperluan')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>
@@ -1100,6 +1187,9 @@
         <form id="editTamuForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            {{-- ID tujuan — dipakai JS untuk membuka ulang modal edit
+                 saat validasi server menolak (old input dipertahankan) --}}
+            <input type="hidden" name="tamu_id" id="edit-tamu_id" value="">
             <div class="tamu-modal-body">
 
                 {{-- ========== SEKSI 1: DATA DIRI (selaras form registrasi publik) ========== --}}
@@ -1143,9 +1233,9 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Ganti Dokumen Pendukung <small class="text-muted">(opsional)</small></label>
-                        <input type="file" name="dokumen" id="edit-dokumen" accept=".zip,.rar,.pdf,.jpg,.jpeg,.png" class="form-control" style="font-size:0.8rem;"
+                        <input type="file" name="dokumen" id="edit-dokumen" accept=".zip,.rar,.pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" class="form-control" style="font-size:0.8rem;"
                                onchange="showEditFileName(this, 'edit-dokumen-filename')">
-                        <small class="text-muted" style="font-size:0.7rem;">ZIP/RAR/PDF/JPG/JPEG/PNG, maks 10MB — kosongkan jika tidak ingin mengganti.</small>
+                        <small class="text-muted" style="font-size:0.7rem;">ZIP, RAR, PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG — maks 10MB; kosongkan jika tidak ingin mengganti.</small>
                         <div id="edit-dokumen-filename" class="edit-file-selected" style="display:none;"></div>
                         <div id="edit-dokumen-link" class="hidden mt-1">
                             <a id="edit-dokumen-url" href="#" target="_blank" rel="noopener" style="font-size:0.75rem; color:#2563eb; text-decoration:none;">
@@ -1166,15 +1256,26 @@
                 <div class="row g-3">
                     <div class="col-12">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Orang / Divisi yang Ditemui <span class="text-danger">*</span></label>
-                        <input type="text" name="tujuan_ditemui" id="edit-tujuan_ditemui" required class="form-control"
-                               placeholder="Nama orang / divisi tujuan" style="font-size:0.85rem;">
+                        <select name="tujuan_ditemui" id="edit-tujuan_ditemui" required class="form-select" style="font-size:0.85rem;">
+                            @include('admin.tamu._divisi-options')
+                        </select>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Tanggal &amp; Jam Kunjungan <span class="text-danger">*</span></label>
-                        <input type="datetime-local" name="tanggal_kunjungan" id="edit-tanggal_kunjungan" required
+                    <div class="col-md-4">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Tanggal Kunjungan <span class="text-danger">*</span></label>
+                        <input type="date" name="tanggal_kunjungan" id="edit-tanggal_kunjungan" required
                                class="form-control" style="font-size:0.85rem;">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jam Kunjungan <span class="text-danger">*</span></label>
+                        <select name="jam_kunjungan" id="edit-jam_kunjungan" required class="form-select" style="font-size:0.85rem;">
+                            <option value="">— Pilih Jam —</option>
+                            @foreach (\App\Models\Tamu::SLOT_JAM as $jam)
+                                <option value="{{ $jam }}" data-label="{{ $labelJam[$jam] ?? $jam }}">{{ $labelJam[$jam] ?? $jam }}</option>
+                            @endforeach
+                        </select>
+                        <small id="edit-jam-status" class="tamu-jam-status" style="display:none;"></small>
+                    </div>
+                    <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jumlah Tamu <span class="text-danger">*</span></label>
                         <input type="number" name="jumlah_tamu" id="edit-jumlah_tamu" min="1" max="100" required
                                class="form-control" style="font-size:0.85rem;">
@@ -1352,7 +1453,257 @@
     /* ===== Modal Tambah Manual ===== */
     function openAddModal() {
         openTamuModal('addModal');
+        refreshJam('add');
+
+        const ta = document.getElementById('add-keperluan');
+        const count = document.getElementById('add-keperluan-count');
+        if (ta && count) count.textContent = ta.value.length;
     }
+
+    /* ===== Modal Edit Tamu =====
+       Mengisi form edit dari payload $tamuData (satu objek per baris
+       tabel) lalu menargetkan PUT /admin/tamu/{id}. */
+    const editUrlTemplate = '{{ route('admin.tamu.update', ['tamu' => ':id']) }}';
+
+    function openEditModal(t) {
+        if (!t || !t.id) {
+            console.error('[Edit] Data tamu tidak ditemukan untuk modal edit');
+            return;
+        }
+
+        const form = document.getElementById('editTamuForm');
+        if (!form) return;
+        form.action = editUrlTemplate.replace(':id', t.id);
+
+        const idField = document.getElementById('edit-tamu_id');
+        if (idField) idField.value = t.id;
+
+        const set = function (id, value) {
+            const el = document.getElementById(id);
+            if (el) el.value = (value === undefined || value === null) ? '' : value;
+        };
+
+        set('edit-nik', t.nik);
+        set('edit-nama', t.nama);
+        set('edit-instansi', t.instansi);
+        set('edit-no_hp', t.no_hp);
+        set('edit-email', t.email);
+        set('edit-tujuan_ditemui', t.tujuan);
+        set('edit-tanggal_kunjungan', t.tanggal_input ? t.tanggal_input.slice(0, 10) : '');
+        set('edit-jumlah_tamu', t.jumlah || 1);
+        set('edit-keperluan', t.keperluan);
+
+        /* Jam kunjungan: pakai waktu rekaman. Bila di luar slot
+           operasional (data lama), tetap sediakan sebagai opsi
+           "(waktu lama)" supaya nilainya tidak hilang. */
+        const jamSel = document.getElementById('edit-jam_kunjungan');
+        if (jamSel) {
+            const jamLama = t.tanggal_input ? t.tanggal_input.slice(11, 16) : '';
+            if (jamLama && !jamSel.querySelector('option[value="' + jamLama + '"]')) {
+                const opt = document.createElement('option');
+                opt.value = jamLama;
+                opt.textContent = jamLama + ' (waktu lama)';
+                opt.dataset.label = jamLama + ' (waktu lama)';
+                jamSel.appendChild(opt);
+            }
+            jamSel.value = jamLama || '';
+        }
+
+        /* Reset pilihan berkas baru (jika sebelumnya pernah dipilih) */
+        const fileInput = document.getElementById('edit-dokumen');
+        if (fileInput) fileInput.value = '';
+        const fileNameBox = document.getElementById('edit-dokumen-filename');
+        if (fileNameBox) {
+            fileNameBox.style.display = 'none';
+            fileNameBox.innerHTML = '';
+        }
+
+        /* Tampilkan / sembunyikan tautan dokumen saat ini */
+        const linkWrap = document.getElementById('edit-dokumen-link');
+        const emptyWrap = document.getElementById('edit-dokumen-empty');
+        if (t.dokumen) {
+            const urlEl = document.getElementById('edit-dokumen-url');
+            if (urlEl) urlEl.href = t.dokumen;
+            if (linkWrap) linkWrap.classList.remove('hidden');
+            if (emptyWrap) emptyWrap.classList.add('hidden');
+        } else {
+            if (linkWrap) linkWrap.classList.add('hidden');
+            if (emptyWrap) emptyWrap.classList.remove('hidden');
+        }
+
+        updateEditCounter();
+        openTamuModal('editModal');
+        refreshJam('edit'); // muat slot terblokir untuk divisi & tanggal ini
+    }
+
+    /* Counter karakter Maksud & Keperluan pada modal edit (0/2000) */
+    function updateEditCounter() {
+        const ta = document.getElementById('edit-keperluan');
+        const count = document.getElementById('edit-keperluan-count');
+        if (ta && count) count.textContent = ta.value.length;
+    }
+
+    (function () {
+        const ta = document.getElementById('edit-keperluan');
+        if (ta) ta.addEventListener('input', updateEditCounter);
+    })();
+
+    /* Preview nama berkas terpilih pada modal edit */
+    function showEditFileName(input, targetId) {
+        const box = document.getElementById(targetId);
+        if (!box) return;
+
+        if (!input.files || !input.files[0]) {
+            box.style.display = 'none';
+            box.innerHTML = '';
+            return;
+        }
+
+        const file = input.files[0];
+        const size = file.size >= 1024 * 1024
+            ? (file.size / (1024 * 1024)).toFixed(2) + ' MB'
+            : Math.max(1, Math.round(file.size / 1024)) + ' KB';
+
+        box.innerHTML = '<i class="fas fa-file-lines me-1"></i>' + file.name + ' <small>(' + size + ')</small>';
+        box.style.display = 'block';
+    }
+
+    /* ============================================================
+       SLOT JAM KUNJUNGAN — modal Tambah & Edit
+       Selaras form registrasi publik: slot yang sudah DISETUJUI admin
+       untuk divisi + tanggal sama ditandai MERAH dan tidak bisa
+       dipilih (data diambil dari /api/booked-slots).
+       ============================================================ */
+    const bookedSlotsUrl = '{{ route('layanan.registrasi-tamu.booked-slots') }}';
+
+    function setJamStatus(el, text, kind) {
+        if (!el) return;
+        el.style.display = text ? 'block' : 'none';
+        el.textContent = text || '';
+        el.className = 'tamu-jam-status' + (kind ? ' ' + kind : '');
+    }
+
+    function jamContext(prefix) {
+        return {
+            jam:     document.getElementById(prefix + '-jam_kunjungan'),
+            tanggal: document.getElementById(prefix + '-tanggal_kunjungan'),
+            divisi:  document.getElementById(prefix + '-tujuan_ditemui'),
+            status:  document.getElementById(prefix + '-jam-status'),
+        };
+    }
+
+    function refreshJam(prefix) {
+        const c = jamContext(prefix);
+        if (!c.jam || !c.tanggal || !c.divisi) return;
+
+        // Lepas dulu penanda terblokir (divisi/tanggal mungkin berubah)
+        Array.prototype.forEach.call(c.jam.options, function (o) {
+            if (!o.value) return;
+            if (o.dataset.label) o.textContent = o.dataset.label;
+            o.classList.remove('slot-penuh');
+            o.disabled = false;
+        });
+
+        const tanggal = c.tanggal.value;
+        const divisi = c.divisi.value;
+
+        if (!tanggal || !divisi) {
+            setJamStatus(c.status, 'Pilih divisi & tanggal untuk melihat ketersediaan jam');
+            return;
+        }
+
+        setJamStatus(c.status, 'Memuat ketersediaan jam...');
+
+        fetch(bookedSlotsUrl + '?tanggal=' + encodeURIComponent(tanggal) + '&divisi=' + encodeURIComponent(divisi))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                const blocked = Array.isArray(data.jam_terblokir) ? data.jam_terblokir : [];
+
+                Array.prototype.forEach.call(c.jam.options, function (o) {
+                    if (o.value && blocked.indexOf(o.value) !== -1) {
+                        if (!o.dataset.label) o.dataset.label = o.textContent;
+                        o.classList.add('slot-penuh');
+                        o.disabled = true;
+                        o.textContent = o.dataset.label + ' (Terblokir)';
+                    }
+                });
+
+                const cur = c.jam.selectedOptions && c.jam.selectedOptions[0];
+                if (cur && cur.disabled) c.jam.value = '';
+
+                setJamStatus(
+                    c.status,
+                    blocked.length ? '⚠ Jam terblokir: ' + blocked.join(', ') : '✓ Semua slot tersedia',
+                    blocked.length ? 'blocked' : 'ok'
+                );
+            })
+            .catch(function () {
+                setJamStatus(c.status, 'Gagal memuat ketersediaan jam', 'blocked');
+            });
+    }
+
+    (function () {
+        ['add', 'edit'].forEach(function (prefix) {
+            const c = jamContext(prefix);
+            if (!c.jam || !c.tanggal || !c.divisi) return;
+
+            c.tanggal.addEventListener('change', function () { refreshJam(prefix); });
+            c.divisi.addEventListener('change', function () { refreshJam(prefix); });
+        });
+    })();
+
+    /* ============================================================
+       Buka kembali modal setelah server MENOLAK isian
+       (old input dipertahankan Laravel) supaya admin tidak perlu
+       mengisi ulang dari nol.
+       ============================================================ */
+    (function () {
+        const hasError = {{ $errors->any() ? 'true' : 'false' }};
+        if (!hasError) return;
+
+        const oldInput = @json(old());
+        if (!oldInput || !oldInput.nik) return;
+
+        const set = function (id, value) {
+            const el = document.getElementById(id);
+            if (el && value !== undefined && value !== null) el.value = value;
+        };
+
+        if (oldInput.tamu_id && typeof tamuData !== 'undefined' && tamuData[oldInput.tamu_id]) {
+            /* Form Edit — isi dengan data asli (termasuk tautan dokumen),
+               lalu timpa pakai isian yang tadi ditolak. */
+            openEditModal(tamuData[oldInput.tamu_id]);
+
+            set('edit-nik', oldInput.nik);
+            set('edit-nama', oldInput.nama);
+            set('edit-instansi', oldInput.instansi);
+            set('edit-no_hp', oldInput.no_hp);
+            set('edit-email', oldInput.email);
+            set('edit-tujuan_ditemui', oldInput.tujuan_ditemui);
+            set('edit-tanggal_kunjungan', String(oldInput.tanggal_kunjungan || '').slice(0, 10));
+            set('edit-jumlah_tamu', oldInput.jumlah_tamu);
+            set('edit-keperluan', oldInput.keperluan);
+
+            const jamSel = document.getElementById('edit-jam_kunjungan');
+            const jamBaru = oldInput.jam_kunjungan || '';
+            if (jamSel && jamBaru) {
+                if (!jamSel.querySelector('option[value="' + jamBaru + '"]')) {
+                    const opt = document.createElement('option');
+                    opt.value = jamBaru;
+                    opt.textContent = jamBaru;
+                    opt.dataset.label = jamBaru;
+                    jamSel.appendChild(opt);
+                }
+                jamSel.value = jamBaru;
+            }
+
+            updateEditCounter();
+            refreshJam('edit');
+        } else if (document.getElementById('addModal')) {
+            /* Form Tambah Manual — isian sudah terisi old() di markup */
+            openAddModal();
+        }
+    })();
 
     /* ===== Helper: Dapatkan data tamu lengkap ===== */
     function getTamuData(id) {

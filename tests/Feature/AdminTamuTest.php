@@ -52,7 +52,10 @@ class AdminTamuTest extends TestCase
             'email'          => 'siti@contoh.id',
             'tujuan_ditemui' => 'Divisi IT',
             'jumlah_tamu'    => '3',
-            'tanggal_kunjungan' => now()->addDay()->format('Y-m-d\TH:i'),
+            // Selaras form: tanggal (input date) + jam (dropdown slot)
+            // dikirim terpisah, digabung jadi datetime oleh controller
+            'tanggal_kunjungan' => now()->addDay()->format('Y-m-d'),
+            'jam_kunjungan'     => '09:00',
             'keperluan'      => 'Audit sistem informasi.',
         ], $overrides);
     }
@@ -139,8 +142,7 @@ class AdminTamuTest extends TestCase
 
         $this->actingAs($admin)
             ->post(route('admin.tamu.store'), $this->validPayload([
-                'dokumen' => UploadedFile::fake()->create('dokumen.docx', 300,
-                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
+                'dokumen' => UploadedFile::fake()->create('dokumen.txt', 300, 'text/plain'),
             ]))
             ->assertSessionHasErrors(['dokumen']);
     }

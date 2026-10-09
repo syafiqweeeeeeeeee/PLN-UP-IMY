@@ -28,7 +28,10 @@
         font-size: 14px;
         line-height: 1.42;
         -webkit-font-smoothing: antialiased;
-        padding: 1.4rem 1rem 1.1rem;
+        /* Jarak atas mengikuti tinggi navbar fixed (--nav-h disinkronkan via JS,
+           fallback 81px desktop / 92px mobile) agar logo & judul header
+           tidak menempel/tertutup top bar. */
+        padding: calc(var(--nav-h, 81px) + 1.1rem) 1rem 1.1rem;
         position: relative;
         overflow: hidden;
     }
@@ -268,7 +271,7 @@
 
     /* Tablet desktop kecil: kompak */
     @media (max-width: 991.98px) {
-        .pln-page { padding-top: 1.4rem; }
+        .pln-page { padding-top: calc(var(--nav-h, 81px) + 1rem); }
     }
 
     /* Tablet landscape: grid-2 menjadi 2 kolom */
@@ -278,7 +281,7 @@
 
     /* Mobile: full-width */
     @media (max-width: 767.98px) {
-        .pln-page { padding-top: 1.2rem; }
+        .pln-page { padding-top: calc(var(--nav-h, 92px) + 0.85rem); }
         .pln-card { border-radius: 11px; max-width: 100%; box-shadow: 0 6px 16px rgba(0,0,0,0.05); }
         .pln-card-body { grid-template-columns: 1fr; padding: 0.5rem 0.6rem; gap: 0.4rem; }
         .pln-section { padding: 0.5rem 0.55rem; }
@@ -507,17 +510,22 @@
         margin: 0.02rem 0.08rem;
     }
 
+    /* Opsi non-aktif (mis. jam istirahat) — netral, bukan merah */
+    select.pln-input option:disabled {
+        color: #94a3b8 !important;
+        background: #f1f5f9 !important;
+    }
+
     /* Opsi jam yang TERBLOKIR (sudah di-approve oleh admin):
        teks & latar merah, disabled sehingga tidak bisa dipilih */
     select.pln-input option.slot-penuh {
         color: #dc2626 !important;
         background: #fef2f2 !important;
-        font-weight: 500;
-        text-decoration: line-through;
+        font-weight: 600;
     }
-    select.pln-input option:disabled {
-        color: #dc2626 !important;
-        background: #fef2f2 !important;
+    select.pln-input option.slot-penuh:checked {
+        color: #fff !important;
+        background: #dc2626 !important;
     }
     select.pln-input optgroup { font-weight: 600; color: #475569; background: #f8fafc; }
     select.pln-input option { padding: 0.25rem 0.4rem; line-height: 1.25; }
@@ -698,6 +706,7 @@
     .pln-file-card .file-badge.badge-doc   { background: rgba(0, 112, 192, 0.1); color: #0070c0; }
     .pln-file-card .file-badge.badge-xls   { background: rgba(166, 89, 16, 0.1); color: #a65910; }
     .pln-file-card .file-badge.badge-zip   { background: rgba(0, 194, 209, 0.1); color: #00c2d1; }
+    .pln-file-card .file-badge.badge-img   { background: rgba(217, 119, 6, 0.1); color: #d97706; }
 
     .pln-file-card .file-name {
         font-size: 0.7rem;
@@ -889,7 +898,7 @@
 @endpush
 
 @section('content')
-<div class="pln-page" style="padding-top: 4.6rem;">
+<div class="pln-page">
     <div class="pln-container">
 
         {{-- ================= HEADER RENGAN UNTUK FORM (kecil & mengikuti brand top bar) ================= --}}
@@ -961,10 +970,10 @@
                     {{-- NIK / No. KTP — hanya angka, maksimal 16 digit (JS + pattern native) --}}
                     <div>
                         <label for="nik" class="pln-label" data-i18n="form.label_nik">
-                            Foto KTP <span class="required">*</span>
+                            NIK / No. KTP <span class="required">*</span>
                         </label>
                         <p class="pln-hint" style="margin: -0.4rem 0 0.5rem; font-size: 0.72rem;">
-                            JPG / PNG, maks 2MB
+                            16 digit angka sesuai KTP
                         </p>                            <div class="pln-input-icon">
                                 <i class="fas fa-fingerprint"></i>
                                 <input type="text" id="nik" name="nik"
@@ -1058,7 +1067,7 @@
                 <div class="pln-section pln-section--doc">
                     <div class="pln-section-head">
                         <span class="pln-section-icon"><i class="fas fa-file"></i></span>
-                        <h2 class="pln-section-title" data-i18n="form.doc_dokumen">BERKAS PENDUKUNG</h2>
+                        <h2 class="pln-section-title" data-i18n="form.doc_dokumen">Berkas Pendukung</h2>
                     </div>
 
                     <div>
@@ -1066,12 +1075,12 @@
                             Upload Dokumen <span class="required">*</span>
                         </label>
                         <p class="pln-hint" style="margin: -0.4rem 0 0.5rem; font-size: 0.72rem;">
-                            ZIP, DOC, DOCX, XLS, XLSX, PDF — maksimal 10MB
+                            ZIP, RAR, PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG — maksimal 10MB
                         </p>
                         <div id="dokumen-upload-status" class="text-danger" style="font-size: 0.75rem; margin-top: 0.25rem;"></div>
                         <div class="pln-upload-wrap">
                             <input type="file" id="dokumen" name="dokumen"
-                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/zip,application/x-zip-compressed,application/x-rar-compressed"
+                                   accept=".zip,.rar,.pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,application/pdf,image/jpeg,image/png,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                                    class="pln-file-input" />
                             <div id="dokumen-area"
                                  class="pln-dropzone @error('dokumen') has-error @enderror"
@@ -1265,6 +1274,33 @@
 
 @push('scripts')
 <script>
+    /* ============================================================
+       SINKRONISASI TINGGI TOP BAR (navbar fixed)
+       --nav-h dipakai oleh padding atas .pln-page supaya header
+       logo + judul selalu berada di bawah navbar (tidak tertutup),
+       di semua ukuran layar.
+       ============================================================ */
+    (function () {
+        var nav = document.querySelector('.navbar-pln');
+        if (!nav || !document.documentElement.style.setProperty) return;
+
+        function sync() {
+            var collapse = document.getElementById('navbarResponsive');
+            // Saat menu mobile terbuka navbar memanjang — jangan dipakai,
+            // cukup pakai tinggi navbar dalam kondisi tertutup.
+            if (collapse && collapse.classList.contains('show')) return;
+
+            var h = Math.round(nav.getBoundingClientRect().height);
+            if (h > 0) document.documentElement.style.setProperty('--nav-h', h + 'px');
+        }
+
+        sync();
+        window.addEventListener('load', sync);
+        window.addEventListener('resize', sync);
+        document.addEventListener('shown.bs.collapse', sync);
+        document.addEventListener('hidden.bs.collapse', sync);
+    })();
+
     (function () {
         'use strict';
 
@@ -1278,12 +1314,15 @@
 
         // KONSTANTA
         var MAX_DOKUMEN  = 10 * 1024 * 1024; // 10 MB
-        var DOKUMEN_EXT  = ['zip', 'doc', 'docx', 'xls', 'xlsx', 'pdf', 'rar'];
-        var DOKUMEN_TEXT = 'PDF, DOC, DOCX, XLS, XLSX, ZIP, atau RAR';
+        var DOKUMEN_EXT  = ['zip', 'doc', 'docx', 'xls', 'xlsx', 'pdf', 'rar', 'jpg', 'jpeg', 'png'];
+        var DOKUMEN_TEXT = 'PDF, DOC, DOCX, XLS, XLSX, ZIP, RAR, JPG, JPEG, atau PNG';
 
         var DOKUMEN_BADGE_CLASS = {
             zip: 'badge-zip',
             pdf: 'badge-pdf',
+            jpg: 'badge-img',
+            jpeg: 'badge-img',
+            png: 'badge-img',
         };
         var DOKUMEN_ICON = {
             zip: 'fa-file-archive',
@@ -1293,6 +1332,9 @@
             xls: 'fa-file-excel',
             xlsx: 'fa-file-excel',
             pdf: 'fa-file-pdf',
+            jpg: 'fa-file-image',
+            jpeg: 'fa-file-image',
+            png: 'fa-file-image',
         };
 
         // HELPER
@@ -1595,16 +1637,16 @@
 
         /* ===== JAM KUNJUNGAN ===== */
         (function () {
+            /* Slot harus 1:1 dengan Tamu::SLOT_JAM di server supaya jam yang
+               di-approve admin (jam_terblokir) bisa dicocokkan & ditandai merah. */
             var SLOT_OPSIONAL = [
                 { jam: '08:00', label: '08:00 – 09:00' },
                 { jam: '09:00', label: '09:00 – 10:00' },
                 { jam: '10:00', label: '10:00 – 11:00' },
                 { jam: '11:00', label: '11:00 – 11:30' },
-                { jam: '12:00', label: '13:00 – 14:00' },
-                { jam: '13:00', label: '14:00 – 15:00' },
-                { jam: '14:00', label: '15:00 – 16:00' },
-                { jam: '15:00', label: '16:00 – 17:00' },
-                { jam: '16:00', label: '17:00 – 18:00' },
+                { jam: '13:00', label: '13:00 – 14:00' },
+                { jam: '14:00', label: '14:00 – 15:00' },
+                { jam: '15:00', label: '15:00 – 16:00' },
             ];
             var JAM_ISTIRAHAT_AWAL = '11:30';
             var JAM_ISTIRAHAT_AKHR = '13:00';
@@ -1666,8 +1708,13 @@
             console.log('[Jam] Tanggal awal:', tanggalInput.value);
 
             var loading = false;
+            var refreshDirty = false;
 
             function buildJamOptions(blocked, istirahatAwal, istirahatAkhr) {
+                // Pertahankan pilihan user bila masih valid (tidak disabled),
+                // supaya ganti tanggal/divisi tidak menghapus pilihan jamnya.
+                var previous = selectJam.value;
+
                 selectJam.innerHTML = '<option value="">— Pilih Jam —</option>';
 
                 var mulai = istirahatAwal ? istirahatAwal.trim() : '';
@@ -1695,6 +1742,9 @@
                     option.textContent = label;
                     if (blockedReason) {
                         option.setAttribute('data-status', 'terblokir');
+                        // Slot yang sudah di-approve admin: merah + tidak bisa dipilih
+                        option.classList.add('slot-penuh');
+                        option.title = 'Jam ini sudah di-approve admin dan tidak dapat dipilih.';
                     } else if (disabled && val >= mulai && val < akhir) {
                         option.setAttribute('data-status', 'istirahat');
                     } else {
@@ -1705,14 +1755,12 @@
                     selectJam.appendChild(option);
                 });
 
-                var old = selectJam.dataset.old;
-                if (old) {
-                    var found = selectJam.querySelector('option[value="' + old + '"]');
-                    if (found && !found.disabled) {
-                        selectJam.value = old;
-                    } else {
-                        selectJam.value = '';
-                    }
+                var candidate = previous || selectJam.dataset.old || '';
+                var found = candidate ? selectJam.querySelector('option[value="' + candidate + '"]') : null;
+                if (found && !found.disabled) {
+                    selectJam.value = candidate;
+                } else {
+                    selectJam.value = '';
                 }
             }
 
@@ -1733,7 +1781,12 @@
                     return;
                 }
 
-                if (loading) return;
+                // Ada request lain masih berjalan — jangan dibuang,
+                // tandai saja supaya diulang otomatis setelah selesai.
+                if (loading) {
+                    refreshDirty = true;
+                    return;
+                }
                 loading = true;
 
                 if (jamStatus) {
@@ -1746,6 +1799,11 @@
                     .then(function (r) { return r.json(); })
                     .then(function (data) {
                         loading = false;
+                        if (refreshDirty) {
+                            refreshDirty = false;
+                            refreshJamSlot(); // parameternya sudah berubah — muat ulang
+                            return;
+                        }
                         var blocked = Array.isArray(data.jam_terblokir) ? data.jam_terblokir : [];
                         buildJamOptions(blocked, JAM_ISTIRAHAT_AWAL, JAM_ISTIRAHAT_AKHR);
 
@@ -1767,6 +1825,11 @@
                     })
                     .catch(function (err) {
                         loading = false;
+                        if (refreshDirty) {
+                            refreshDirty = false;
+                            refreshJamSlot();
+                            return;
+                        }
                         console.error('[Jam] Error:', err);
                         if (jamStatus) {
                             jamStatus.style.display = 'block';
@@ -1776,9 +1839,8 @@
                     });
             }
 
-            renderSlots();
-            console.log('[Jam] memanggil refreshJamSlot() saat init');
             refreshJamSlot();
+            console.log('[Jam] memanggil refreshJamSlot() saat init');
             setTimeout(function () {
                 console.log('[Jam] cek ulang divisi setelah timeout 300ms:', divisiInput.value);
                 if (divisiInput.value) {
@@ -1793,14 +1855,6 @@
                 tanggalValue: tanggalInput.value,
                 divisiValue: divisiInput.value,
             });
-
-            buildJamOptions([], JAM_ISTIRAHAT_AWAL, JAM_ISTIRAHAT_AKHR);
-
-            if (jamStatus) {
-                jamStatus.style.display = 'block';
-                jamStatus.textContent = 'Silakan pilih divisi dan tanggal untuk melihat ketersediaan jam';
-                jamStatus.style.color = '#64748b';
-            }
 
             tanggalInput.addEventListener('change', function () {
                 console.log('[Jam] tanggalInput change:', tanggalInput.value);
@@ -1833,6 +1887,15 @@
                 });
             }
             selectJam.addEventListener('change', function () {
+                // Guard: slot terblokir/istirahat tidak boleh tersimpan
+                // (bisa ter-set lewat manipulasi nilai programatis).
+                var opt = selectJam.selectedOptions && selectJam.selectedOptions[0];
+                if (opt && opt.disabled) {
+                    selectJam.value = '';
+                    if (slotWarning && opt.getAttribute('data-status') === 'terblokir') {
+                        slotWarning.style.display = 'flex';
+                    }
+                }
                 refreshJamSlot();
             });
 

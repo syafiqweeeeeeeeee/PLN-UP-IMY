@@ -72,11 +72,11 @@ class TamuController extends Controller
             'email'    => ['required', 'email', 'max:150'],
 
             // Berkas pendukung: WAJIB (multi-format —
-            // PDF, DOC/DOCX, XLS/XLSX, ZIP, RAR) maksimal 10MB
+            // PDF, DOC/DOCX, XLS/XLSX, ZIP, RAR, JPG/JPEG/PNG) maksimal 10MB
             'dokumen' => [
                 'required',
                 'file',
-                'mimes:pdf,doc,docx,xls,xlsx,zip,rar',
+                'mimes:pdf,doc,docx,xls,xlsx,zip,rar,jpg,jpeg,png',
                 'max:10240',
             ],
 
@@ -126,7 +126,7 @@ class TamuController extends Controller
             'email.email'               => 'Format email tidak valid.',
             'dokumen.required'          => 'Berkas pendukung wajib diunggah.',
             'dokumen.file'              => 'Berkas yang diunggah tidak valid.',
-            'dokumen.mimes'             => 'Berkas harus berformat PDF, DOC, DOCX, XLS, XLSX, ZIP, atau RAR.',
+            'dokumen.mimes'             => 'Berkas harus berformat PDF, DOC, DOCX, XLS, XLSX, ZIP, RAR, JPG, JPEG, atau PNG.',
             'dokumen.max'               => 'Ukuran berkas maksimal :max kilobyte (10MB).',
             'tujuan_ditemui.required'   => 'Orang / divisi yang ditemui wajib diisi.',
             'jumlah_tamu.required'      => 'Jumlah tamu wajib diisi.',

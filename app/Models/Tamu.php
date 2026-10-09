@@ -282,15 +282,22 @@ class Tamu extends Model
      *
      * @param  string  $tanggal  Format Y-m-d
      * @param  string  $divisi   Nilai kolom tujuan_ditemui
+     * @param  int|null $kecualiId  ID kunjungan yang dikecualikan (dipakai
+     *                              saat edit, agar tidak memblokir dirinya sendiri)
      * @return array<int, string> Daftar jam (HH:MM) terblokir, terurut
      */
-    public static function jamTerblokir(string $tanggal, string $divisi): array
+    public static function jamTerblokir(string $tanggal, string $divisi, ?int $kecualiId = null): array
     {
-        $disetujui = self::query()
+        $query = self::query()
             ->where('status_verifikasi', self::STATUS_DISETUJUI)
             ->where('tujuan_ditemui', $divisi)
-            ->whereDate('tanggal_kunjungan', $tanggal)
-            ->pluck('tanggal_kunjungan');
+            ->whereDate('tanggal_kunjungan', $tanggal);
+
+        if ($kecualiId !== null) {
+            $query->where('id', '!=', $kecualiId);
+        }
+
+        $disetujui = $query->pluck('tanggal_kunjungan');
 
         $terblokir = [];
 
@@ -314,8 +321,8 @@ class Tamu extends Model
      * Dipakai validasi store() agar double booking divisi yang sama
      * tidak lolos meski dilewati dari sisi frontend.
      */
-    public static function isJamTerblokir(string $tanggal, string $jam, string $divisi): bool
+    public static function isJamTerblokir(string $tanggal, string $jam, string $divisi, ?int $kecualiId = null): bool
     {
-        return in_array($jam, self::jamTerblokir($tanggal, $divisi), true);
+        return in_array($jam, self::jamTerblokir($tanggal, $divisi, $kecualiId), true);
     }
 }

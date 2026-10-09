@@ -124,8 +124,8 @@ class TamuTest extends TestCase
         Storage::fake('private');
 
         $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
-            'dokumen' => UploadedFile::fake()->create('dokumen.docx', 300,
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
+            // .txt di luar daftar format yang diizinkan
+            'dokumen' => UploadedFile::fake()->create('dokumen.txt', 300, 'text/plain'),
         ]))->assertSessionHasErrors(['dokumen']);
     }
 
