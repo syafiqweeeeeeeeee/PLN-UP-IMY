@@ -284,9 +284,13 @@ class Tamu extends Model
      * @param  string  $divisi   Nilai kolom tujuan_ditemui
      * @param  int|null $kecualiId  ID kunjungan yang dikecualikan (dipakai
      *                              saat edit, agar tidak memblokir dirinya sendiri)
+     * @param  int|null $durasiJam   Rentang blokir dalam jam (default
+     *                              DURASI_KUNJUNGAN_JAM). Dikirim 1 oleh
+     *                              modal edit admin — hanya jam booking
+     *                              itu sendiri yang ditandai merah.
      * @return array<int, string> Daftar jam (HH:MM) terblokir, terurut
      */
-    public static function jamTerblokir(string $tanggal, string $divisi, ?int $kecualiId = null): array
+    public static function jamTerblokir(string $tanggal, string $divisi, ?int $kecualiId = null, ?int $durasiJam = null): array
     {
         $query = self::query()
             ->where('status_verifikasi', self::STATUS_DISETUJUI)
@@ -299,10 +303,12 @@ class Tamu extends Model
 
         $disetujui = $query->pluck('tanggal_kunjungan');
 
+        $durasi = $durasiJam ?? self::DURASI_KUNJUNGAN_JAM;
+
         $terblokir = [];
 
         foreach ($disetujui as $mulai) {
-            $akhir = $mulai->copy()->addHours(self::DURASI_KUNJUNGAN_JAM);
+            $akhir = $mulai->copy()->addHours($durasi);
 
             foreach (self::SLOT_JAM as $jam) {
                 $slot = \Carbon\Carbon::parse("{$tanggal} {$jam}");
@@ -320,9 +326,12 @@ class Tamu extends Model
      * Apakah jam mulai tertentu terblokir untuk divisi & tanggal ini?
      * Dipakai validasi store() agar double booking divisi yang sama
      * tidak lolos meski dilewati dari sisi frontend.
+     *
+     * @param  int|null $durasiJam  Rentang blokir (jam) — 1 untuk jalur
+     *                              edit admin, null untuk aturan normal.
      */
-    public static function isJamTerblokir(string $tanggal, string $jam, string $divisi, ?int $kecualiId = null): bool
+    public static function isJamTerblokir(string $tanggal, string $jam, string $divisi, ?int $kecualiId = null, ?int $durasiJam = null): bool
     {
-        return in_array($jam, self::jamTerblokir($tanggal, $divisi, $kecualiId), true);
+        return in_array($jam, self::jamTerblokir($tanggal, $divisi, $kecualiId, $durasiJam), true);
     }
 }

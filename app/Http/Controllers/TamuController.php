@@ -36,19 +36,25 @@ class TamuController extends Controller
      * Kunjungan berstatus "disetujui" untuk divisi yang sama memblokir
      * rentang DURASI_KUNJUNGAN_JAM sejak jam mulainya; response berisi
      * daftar jam slot (HH:MM) yang jatuh di dalam rentang tersebut.
+     * Parameter opsional `durasi` (jam) dipakai modal edit admin untuk
+     * menandai hanya SATU jam booking (durasi=1), bukan rentang penuh.
      */
     public function bookedSlots(Request $request): JsonResponse
     {
         $data = $request->validate([
             'divisi'  => ['required', 'string', 'max:150'],
             'tanggal' => ['required', 'date'],
+            'durasi'  => ['nullable', 'integer', 'min:1', 'max:' . Tamu::DURASI_KUNJUNGAN_JAM],
         ]);
 
-        $terblokir = Tamu::jamTerblokir($data['tanggal'], $data['divisi']);
+        $durasi = isset($data['durasi']) ? (int) $data['durasi'] : null;
+
+        $terblokir = Tamu::jamTerblokir($data['tanggal'], $data['divisi'], null, $durasi);
 
         return response()->json([
             'divisi'        => $data['divisi'],
             'tanggal'       => $data['tanggal'],
+            'durasi'        => $durasi ?? Tamu::DURASI_KUNJUNGAN_JAM,
             'jam_terblokir' => $terblokir,
         ]);
     }

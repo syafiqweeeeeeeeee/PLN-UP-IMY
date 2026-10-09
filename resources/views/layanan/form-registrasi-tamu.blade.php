@@ -180,12 +180,10 @@
             font-size: 0.6rem;
         }
 
-        .pln-input[type="date"] { padding-right: 0.15rem; }
+        .pln-input[type="date"] { padding-right: 1.6rem; }
 
         select.pln-input {
             padding-right: 1.6rem;
-            background-position: right 0.35rem center;
-            background-size: 0.65rem;
         }
 
         .btn-pln-primary {
@@ -390,20 +388,29 @@
         appearance: textfield;
     }
 
-    /* Ikon calendar untuk input date */
+    /* Select jam: hilangkan panah bawaan browser supaya tampilannya
+       persis seperti dropdown Divisi (satu panah FA di kiri). */
+    select.pln-input {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    /* Input date: kotak menyerupai dropdown Divisi —
+       ruang kanan lega & indikator kalender bawaan browser disembunyikan
+       (klik area tersebut tetap membuka kalender). */
     .pln-input[type="date"] {
-        padding-right: 0.3rem;
+        padding-right: 1.6rem;
         color-scheme: light;
     }
     .pln-input[type="date"]::-webkit-calendar-picker-indicator {
-        opacity: 0.4;
+        opacity: 0;
         cursor: pointer;
         padding: 0.18rem;
         border-radius: 5px;
-        transition: opacity 0.18s ease, background 0.18s ease;
+        transition: background 0.18s ease;
     }
     .pln-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-        opacity: 0.7;
         background: rgba(0, 0, 0, 0.03);
     }
 
@@ -1138,40 +1145,40 @@
                                     <div class="dropdown-option" data-value="" data-selected="true">— Pilih Divisi —</div>
 
                                     <div class="dropdown-optgroup">Manager Operasi</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Prod A">Assisten Manajer Prod A</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Prod B">Assisten Manajer Prod B</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Prod C">Assisten Manajer Prod C</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Prod D">Assisten Manajer Prod D</div>
+                                    <div class="dropdown-option" data-value="Bidang Prod A">Bidang Prod A</div>
+                                    <div class="dropdown-option" data-value="Bidang Prod B">Bidang Prod B</div>
+                                    <div class="dropdown-option" data-value="Bidang Prod C">Bidang Prod C</div>
+                                    <div class="dropdown-option" data-value="Bidang Prod D">Bidang Prod D</div>
                                     <div class="dropdown-option" data-value="Supervisor CHCB A">Supervisor CHCB A</div>
                                     <div class="dropdown-option" data-value="Supervisor CHCB B">Supervisor CHCB B</div>
                                     <div class="dropdown-option" data-value="Supervisor CHCB C">Supervisor CHCB C</div>
                                     <div class="dropdown-option" data-value="Supervisor CHCB D">Supervisor CHCB D</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer RenOps">Assisten Manajer RenOps</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Niaga BB">Assisten Manajer Niaga BB</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Kimia &amp; Lab">Assisten Manajer Kimia &amp; Lab</div>
+                                    <div class="dropdown-option" data-value="Bidang RenOps">Bidang RenOps</div>
+                                    <div class="dropdown-option" data-value="Bidang Niaga BB">Bidang Niaga BB</div>
+                                    <div class="dropdown-option" data-value="Bidang Kimia &amp; Lab">Bidang Kimia &amp; Lab</div>
 
                                     <div class="dropdown-optgroup">Manager Pemeliharaan</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Rendal Har">Assisten Manajer Rendal Har</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer MO">Assisten Manajer MO</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Mesin 1">Assisten Manajer Mesin 1</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Mesin 2">Assisten Manajer Mesin 2</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Listrik">Assisten Manajer Listrik</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Konin">Assisten Manajer Konin</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Inventori Kontrol &amp; Gudang">Assisten Manajer Inventori Kontrol &amp; Gudang</div>
+                                    <div class="dropdown-option" data-value="Bidang Rendal Har">Bidang Rendal Har</div>
+                                    <div class="dropdown-option" data-value="Bidang MO">Bidang MO</div>
+                                    <div class="dropdown-option" data-value="Bidang Mesin 1">Bidang Mesin 1</div>
+                                    <div class="dropdown-option" data-value="Bidang Mesin 2">Bidang Mesin 2</div>
+                                    <div class="dropdown-option" data-value="Bidang Listrik">Bidang Listrik</div>
+                                    <div class="dropdown-option" data-value="Bidang Konin">Bidang Konin</div>
+                                    <div class="dropdown-option" data-value="Bidang Inventori Kontrol &amp; Gudang">Bidang Inventori Kontrol &amp; Gudang</div>
 
                                     <div class="dropdown-optgroup">Manager Engineering</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer SO">Assisten Manajer SO</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer CBM">Assisten Manajer CBM</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer MMRK">Assisten Manajer MMRK</div>
+                                    <div class="dropdown-option" data-value="Bidang SO">Bidang SO</div>
+                                    <div class="dropdown-option" data-value="Bidang CBM">Bidang CBM</div>
+                                    <div class="dropdown-option" data-value="Bidang MMRK">Bidang MMRK</div>
 
                                     <div class="dropdown-optgroup">Manager Business Support</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Pengadaan">Assisten Manajer Pengadaan</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer SDM Umum CSR">Assisten Manajer SDM Umum CSR</div>
-                                    <div class="dropdown-option" data-value="Assisten Manajer Keuangan">Assisten Manajer Keuangan</div>
+                                    <div class="dropdown-option" data-value="Bidang Pengadaan">Bidang Pengadaan</div>
+                                    <div class="dropdown-option" data-value="Bidang SDM Umum CSR">Bidang SDM Umum CSR</div>
+                                    <div class="dropdown-option" data-value="Bidang Keuangan">Bidang Keuangan</div>
 
-                                    <div class="dropdown-optgroup">Posisi Langsung di Bawah Senior Manager</div>
-                                    <div class="dropdown-option" data-value="Assisten Manager K3 &amp; KAM">Assisten Manager K3 &amp; KAM</div>
-                                    <div class="dropdown-option" data-value="Assisten Manager Lingkungan">Assisten Manager Lingkungan</div>
+                                    <div class="dropdown-optgroup">Divisi / Jabatan Lainnya</div>
+                                    <div class="dropdown-option" data-value="Bidang K3 &amp; KAM">Bidang K3 &amp; KAM</div>
+                                    <div class="dropdown-option" data-value="Bidang Lingkungan">Bidang Lingkungan</div>
                                 </div>
                             </div>
                         </div>
@@ -1187,13 +1194,19 @@
                             <label for="tanggal_kunjungan" class="pln-label" data-i18n="form.label_tanggal">
                                 Tanggal Kunjungan <span class="required">*</span>
                             </label>
-                            <div class="pln-input-icon">
-                                <i class="fas fa-calendar-alt"></i>
+                            <div class="pln-input-icon" style="position: relative;">
+                                {{-- Dibatasi hari ini ke depan: attribute min = hari ini (server),
+                                     lalu disesuaikan lagi dengan tanggal lokal browser via JS. --}}
                                 <input type="date" id="tanggal_kunjungan" name="tanggal_kunjungan"
+                                       min="{{ now()->format('Y-m-d') }}"
                                        value="{{ old('tanggal_kunjungan', today()->format('Y-m-d')) }}"
                                        required aria-label="tanggal kunjungan"
-                                       class="pln-input @error('tanggal_kunjungan') has-error @enderror" />
+                                       title="Tanggal kunjungan minimal hari ini"
+                                       class="pln-input custom-dropdown-input @error('tanggal_kunjungan') has-error @enderror" />
+                                {{-- Panah persis seperti dropdown Divisi (ikon kiri, ruang kanan lega) --}}
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
                             </div>
+                            <p class="pln-hint" style="margin: 0.25rem 0 0;">Minimal hari ini — tanggal kemarin &amp; sebelumnya tidak dapat dipilih.</p>
                             @error('tanggal_kunjungan')
                                 <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                             @enderror
@@ -1203,7 +1216,6 @@
                                 Jam Kunjungan <span class="required">*</span>
                             </label>
                             <div class="pln-input-icon">
-                                <i class="fas fa-clock"></i>
                                 <select id="jam_kunjungan" name="jam_kunjungan" required
                                         data-old="{{ old('jam_kunjungan') }}"
                                         aria-label="jam kunjungan"
@@ -1633,6 +1645,50 @@
             }
 
             console.log('[Divisi] Inisialisasi selesai');
+        })();
+
+        /* ===== TANGGAL KUNJUNGAN: blokir tanggal yang sudah lewat ===== */
+        (function () {
+            var tanggal = document.getElementById('tanggal_kunjungan');
+            if (!tanggal) return;
+
+            function todayLocal() {
+                var d = new Date();
+                var mm = String(d.getMonth() + 1).padStart(2, '0');
+                var dd = String(d.getDate()).padStart(2, '0');
+                return d.getFullYear() + '-' + mm + '-' + dd;
+            }
+
+            function batasiTanggal() {
+                var min = todayLocal();
+                tanggal.min = min; // browser menutup pilihan tanggal sebelum hari ini
+                if (tanggal.value && tanggal.value < min) {
+                    tanggal.value = min; // bersihkan nilai lama yang sudah lewat
+                }
+            }
+
+            batasiTanggal();
+            // Setelah lewat tengah malam, perbarui batasnya
+            setInterval(batasiTanggal, 60000);
+
+            // Ikon kalender bawaan browser disembunyikan agar kotaknya
+            // seperti dropdown Divisi — kalender tetap terbuka saat field
+            // atau panahnya diklik.
+            tanggal.addEventListener('click', function () {
+                if (typeof tanggal.showPicker === 'function') {
+                    try { tanggal.showPicker(); } catch (e) { /* dibuka browser via klik biasa */ }
+                }
+            });
+
+            tanggal.addEventListener('input', function () {
+                var min = tanggal.min || todayLocal();
+                if (tanggal.value && tanggal.value < min) {
+                    tanggal.setCustomValidity('Tanggal kunjungan tidak boleh di masa lalu (minimal hari ini).');
+                    try { tanggal.reportValidity(); } catch (e) {}
+                } else {
+                    tanggal.setCustomValidity('');
+                }
+            });
         })();
 
         /* ===== JAM KUNJUNGAN ===== */

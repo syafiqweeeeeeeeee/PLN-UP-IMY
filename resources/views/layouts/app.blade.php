@@ -618,6 +618,59 @@
                 }
                 .hero-section h1 { font-size: 1.8rem; }
             }
+
+            /* ============================================================
+               DROPDOWN SERAGAM — mengikuti gaya dropdown "Divisi"
+               (form registrasi): kotak membulat, panah chevron di
+               kanan, border tipis, hover halus & focus ring.
+               Select .pln-input dikecualikan — sudah punya panah sendiri.
+               ============================================================ */
+            select:not(.pln-input) {
+                -webkit-appearance: none !important;
+                -moz-appearance: none !important;
+                appearance: none !important;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 1.75 6 6.25l4.5-4.5' stroke='%2394a3b8' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+                background-repeat: no-repeat !important;
+                background-position: right 0.85rem center !important;
+                background-size: 11px 7px !important;
+                padding-right: 2.2rem !important; /* ruang untuk panah */
+                border: 1px solid var(--pg-line, #e2e8f0);
+                border-radius: 8px;
+                background-color: #fff;
+                color: var(--pg-text, #1e293b);
+                font-family: inherit;
+                font-size: 0.85rem;
+                line-height: 1.45;
+                cursor: pointer;
+                transition: border-color 0.18s ease, box-shadow 0.18s ease;
+            }
+
+            select:not(.pln-input):hover:not(:disabled) { border-color: #cbd5e1; }
+
+            select:not(.pln-input):focus,
+            select:not(.pln-input):focus-visible {
+                outline: none;
+                border-color: var(--pln-blue, #008fa8);
+                box-shadow: 0 0 0 3px rgba(0, 143, 168, 0.12);
+            }
+
+            select:not(.pln-input):disabled {
+                background-color: #f1f5f9;
+                color: #94a3b8;
+                cursor: not-allowed;
+            }
+
+            select:not(.pln-input) option {
+                color: #1e293b;
+                background-color: #fff;
+                padding: 4px 8px;
+            }
+            select:not(.pln-input) optgroup {
+                font-weight: 600;
+                font-style: normal;
+                color: #475569;
+                background-color: #f1f5f9;
+            }
         </style>
 
         @stack('styles')

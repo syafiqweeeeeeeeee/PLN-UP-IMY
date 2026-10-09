@@ -166,8 +166,10 @@ class TamuController extends Controller
             'jumlah_tamu' => ['required', 'integer', 'min:1', 'max:100'],
             'tanggal_kunjungan' => ['required', 'date'],
             // Blokir slot divisi sama — kunjungan INI sendiri dikecualikan,
-            // dan jam lamanya (meski di luar slot) tetap boleh dipertahankan
-            'jam_kunjungan' => $this->jamRules($request, $tamu->id, $tamu->tanggal_kunjungan?->format('H:i')),
+            // dan jam lamanya (meski di luar slot) tetap boleh dipertahankan.
+            // Edit: rentang blokir 1 jam (hanya jam booking itu sendiri),
+            // selaras tampilan merah di modal edit.
+            'jam_kunjungan' => $this->jamRules($request, $tamu->id, $tamu->tanggal_kunjungan?->format('H:i'), 1),
             'keperluan' => ['required', 'string', 'max:2000'],
         ], [
             'nik.required' => 'NIK wajib diisi.',
@@ -221,14 +223,17 @@ class TamuController extends Controller
      * @param  string|null  $jamLama  Jam lama milik rekornya sendiri — masih
      *                               diterima saat edit agar data lama yang
      *                               di luar slot operasional tetap bisa disimpan.
+     * @param  int|null  $durasiJam   Rentang blokir (jam). Jalur update kirim 1
+     *                               — edit hanya membaca SATU jam booking,
+     *                               bukan rentang 3 jam seperti form publik.
      * @return array<int, mixed>
      */
-    private function jamRules(Request $request, ?int $kecualiId = null, ?string $jamLama = null): array
+    private function jamRules(Request $request, ?int $kecualiId = null, ?string $jamLama = null, ?int $durasiJam = null): array
     {
         return [
             'required',
             'date_format:H:i',
-            function (string $attribute, mixed $value, \Closure $fail) use ($request, $kecualiId, $jamLama) {
+            function (string $attribute, mixed $value, \Closure $fail) use ($request, $kecualiId, $jamLama, $durasiJam) {
                 $divisi  = (string) $request->input('tujuan_ditemui');
                 $tanggal = (string) $request->input('tanggal_kunjungan');
 
@@ -249,7 +254,7 @@ class TamuController extends Controller
                     return;
                 }
 
-                if (Tamu::isJamTerblokir($tanggal, $value, $divisi, $kecualiId)) {
+                if (Tamu::isJamTerblokir($tanggal, $value, $divisi, $kecualiId, $durasiJam)) {
                     $fail("Jam {$value} sudah di-approve untuk divisi \"{$divisi}\" "
                         . "pada tanggal {$tanggal}. Silakan pilih jam lain.");
                 }

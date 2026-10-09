@@ -157,46 +157,65 @@
     .tamu-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 900px;
+        min-width: 1060px;
     }
     .tamu-table thead th {
         text-align: left;
-        padding: 0.85rem 1rem;
-        font-size: 0.72rem;
+        padding: 0.8rem 0.9rem;
+        font-size: 0.7rem;
         font-weight: 700;
         color: #9ca3af;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 1px solid #eef2f7;
+        letter-spacing: 0.6px;
+        border-bottom: 2px solid #e8edf5;
         white-space: nowrap;
         background: #f9fafb;
+        vertical-align: middle;
     }
     .tamu-table thead th.text-right { text-align: right; }
+    .tamu-table thead th.text-center { text-align: center; }
+
+    /* Lebar kolom agar tabel tidak "loncat" antar halaman & tetap rapi */
+    .tamu-table th.col-no        { width: 215px; }
+    .tamu-table th.col-identitas { width: 17%; min-width: 170px; }
+    .tamu-table th.col-instansi  { width: 13%; min-width: 120px; }
+    .tamu-table th.col-email     { width: 15%; min-width: 140px; }
+    .tamu-table th.col-tujuan    { width: 18%; min-width: 150px; }
+    .tamu-table th.col-doc       { width: 92px; }
+    .tamu-table th.col-status    { width: 118px; }
+    .tamu-table th.col-aksi      { width: 178px; }
     html.theme-dark .tamu-table thead th { background: var(--panel); border-color: var(--line); }
     .tamu-table tbody td {
-        padding: 0.9rem 1rem;
-        border-bottom: 1px solid #f3f4f6;
+        padding: 0.75rem 0.9rem;
+        border-bottom: 1px solid #f1f4f9;
         vertical-align: middle;
-        font-size: 0.84rem;
+        font-size: 0.83rem;
+        line-height: 1.45;
         color: #374151;
     }
+    .tamu-table td.text-center { text-align: center; }
     .tamu-table tbody tr:last-child td { border-bottom: none; }
-    .tamu-table tbody tr { transition: background 0.15s ease; }
+    .tamu-table tbody tr { transition: background 0.15s ease, box-shadow 0.15s ease; }
 
     /* Baris genap diberi latar tipis (zebra) agar mudah dipindai */
     .tamu-table tbody tr:nth-child(even) { background: #fafbfd; }
-    .tamu-table tbody tr:hover { background: #eff6ff; }
+    .tamu-table tbody tr:hover {
+        background: #eff6ff;
+        box-shadow: inset 3px 0 0 var(--pln-blue, #005b9c);
+    }
     html.theme-dark .tamu-table tbody td { color: var(--ink-body); border-color: var(--line); }
     html.theme-dark .tamu-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
     html.theme-dark .tamu-table tbody tr:hover { background: var(--panel); }
 
-    /* ===== Kolom Waktu Daftar: nomor + tanggal/jam bertumpuk ===== */
-    .tamu-waktu-row { display: flex; align-items: center; gap: 0.6rem; }
+    /* ===== Kolom Waktu Daftar: nomor + tanggal/jam bertumpuk =====
+       Struktur dua kolom kecil — label kiri (ikon) + nilai kanan —
+       agar tanggal & jam sejajar vertikal dan mudah dipindai. */
+    .tamu-waktu-row { display: flex; align-items: center; gap: 0.65rem; }
     .tamu-no-badge {
-        min-width: 28px;
-        height: 28px;
+        min-width: 30px;
+        height: 30px;
         padding: 0 6px;
-        border-radius: 8px;
+        border-radius: 9px;
         background: #f1f5f9;
         color: #64748b;
         font-size: 0.72rem;
@@ -207,23 +226,51 @@
         flex-shrink: 0;
     }
     html.theme-dark .tamu-no-badge { background: var(--panel); color: var(--ink-muted); }
-    .tamu-waktu { font-size: 0.78rem; white-space: nowrap; line-height: 1.5; }
-    .tamu-waktu .tgl {
+    .tamu-waktu { font-size: 0.78rem; white-space: nowrap; line-height: 1.45; }
+    .tamu-waktu-meta {
         display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    /* Baris "Daftar": tanggal + jam dalam satu pill netral */
+    .waktu-pill {
+        display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
+        gap: 0.45rem;
+        padding: 0.16rem 0.5rem;
+        border-radius: 8px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+        font-size: 0.71rem;
+        color: #475569;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+    .waktu-pill i { font-size: 0.64rem; color: #94a3b8; width: 13px; text-align: center; }
+    .waktu-pill .pill-jam { font-weight: 600; color: var(--pln-text); }
+    .waktu-pill .pill-sep { color: #cbd5e1; }
+    html.theme-dark .waktu-pill { background: var(--panel); border-color: var(--line); color: var(--ink-muted); }
+    html.theme-dark .waktu-pill .pill-jam { color: var(--ink-heading); }
+    /* Baris "Jadwal kunjungan" — pill hijau sebagai pembeda jelas */
+    .kunjungan-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        max-width: 100%;
+        padding: 0.16rem 0.5rem;
+        border-radius: 8px;
+        background: #f0fdf4;
+        border: 1px solid #dcfce7;
+        color: #15803d;
+        font-size: 0.7rem;
         font-weight: 600;
-        color: var(--pln-text);
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
     }
-    .tamu-waktu .tgl i { color: #9ca3af; font-size: 0.68rem; width: 12px; text-align: center; }
-    .tamu-waktu .jam {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        color: #9ca3af;
-        font-size: 0.72rem;
-    }
-    .tamu-waktu .jam i { font-size: 0.66rem; width: 12px; text-align: center; }
+    .kunjungan-chip i { font-size: 0.62rem; color: #16a34a; width: 13px; text-align: center; }
+    .kunjungan-chip .chip-sep { color: #86efac; }
+    html.theme-dark .kunjungan-chip { background: rgba(21,128,61,0.18); border-color: rgba(34,197,94,0.3); color: #86efac; }
 
     .tamu-nama { font-weight: 700; color: var(--pln-text); }
     .tamu-nik  { font-size: 0.74rem; color: #9ca3af; font-family: monospace; letter-spacing: 0.4px; }
@@ -297,15 +344,20 @@
     .doc-chip:hover { background: #dbeafe; border-color: #bfdbfe; color: #1d4ed8; }
     .doc-empty {
         width: 56px;
-        height: 36px;
-        border-radius: 6px;
+        height: 34px;
+        border-radius: 8px;
         border: 1px dashed #d1d5db;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #cbd5e1;
         font-size: 0.7rem;
+        margin: 0 auto;
     }
+
+    /* Kolom dokumen & status agar isinya rapi di tengah */
+    .tamu-table td.text-center .tamu-badge { justify-content: center; }
+    .tamu-table td.text-center .doc-chip { max-width: 100%; }
 
     /* Status Badge */
     .tamu-badge {
@@ -331,7 +383,7 @@
     html.theme-dark .tamu-badge.selesai    { background: var(--panel); color: var(--ink-muted); }
 
     /* Action Buttons */
-    .tamu-actions { display: flex; gap: 0.35rem; justify-content: flex-end; }
+    .tamu-actions { display: flex; gap: 0.3rem; justify-content: flex-end; flex-wrap: wrap; }
     .tamu-action-btn {
         width: 32px;
         height: 32px;
@@ -486,18 +538,6 @@
         word-break: break-all;
     }
 
-    /* ===== Slot jam kunjungan (selaras form registrasi publik) =====
-       Opsi yang sudah DISETUJUI admin → merah & disabled (tidak bisa
-       dipilih); jam istirahat / non-aktif tampil netral. */
-    .tamu-modal select option:disabled {
-        color: #94a3b8 !important;
-        background: #f1f5f9 !important;
-    }
-    .tamu-modal select option.slot-penuh {
-        color: #dc2626 !important;
-        background: #fef2f2 !important;
-        font-weight: 600;
-    }
     .tamu-jam-status {
         display: block;
         font-size: 0.7rem;
@@ -622,6 +662,133 @@
     .print-chip.pdf { background: #fdeaea; color: #b91c1c; border-color: #f5c6c6; }
     .print-chip.pdf:hover { background: #fbdcdc; }
 
+    /* ============================================================
+       CUSTOM DROPDOWN DIVISI + INPUT TANGGAL — modal Tambah/Edit
+       Pola & gaya selaras form registrasi publik
+       (/layanan/form-registrasi-tamu): input readonly dengan ikon
+       chevron, menu absolut berisi opsi bertingkat, plus input date
+       yang ikon kalender bawaannya disembunyikan.
+       ============================================================ */
+    .tamu-dd-wrap { position: relative; }
+    .tamu-dd-input {
+        cursor: pointer;
+        padding-right: 1.6rem;
+        background-clip: padding-box;
+    }
+    .tamu-dd-input[readonly] { background: #fff; }
+    .tamu-dd-input.dropdown-open {
+        border-color: var(--pln-blue);
+        box-shadow: 0 0 0 3px rgba(0,91,156,0.08);
+    }
+    .tamu-dd-arrow {
+        position: absolute;
+        right: 0.6rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        pointer-events: none;
+        transition: transform 0.18s ease, color 0.18s ease;
+        z-index: 1;
+        font-size: 0.75rem;
+    }
+    .tamu-dd-input:focus ~ .tamu-dd-arrow,
+    .tamu-dd-wrap.dropdown-open .tamu-dd-arrow {
+        transform: translateY(-50%) rotate(180deg);
+        color: var(--pln-blue);
+    }
+    .tamu-dd-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 1100;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        box-shadow: 0 10px 26px rgba(0,0,0,0.09);
+        max-height: 210px;
+        overflow-y: auto;
+        padding: 0.2rem 0;
+        display: none;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
+    .tamu-dd-menu.open { display: block; }
+    .tamu-dd-menu::-webkit-scrollbar { width: 4px; }
+    .tamu-dd-menu::-webkit-scrollbar-track { background: transparent; }
+    .tamu-dd-menu::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .tamu-dd-menu::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .tamu-dd-menu .dropdown-optgroup {
+        padding: 0.3rem 0.7rem 0.2rem;
+        font-weight: 600;
+        font-size: 0.62rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        background: #f8fafc;
+        border-bottom: 1px solid #eef2f7;
+        margin: 0.12rem 0 0.04rem;
+        border-radius: 5px;
+        position: sticky;
+        top: 0;
+    }
+    .tamu-dd-menu .dropdown-option {
+        padding: 0.38rem 0.7rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.78rem;
+        color: #334155;
+        transition: all 0.14s ease;
+        border-radius: 6px;
+        margin: 0.02rem 0.15rem;
+    }
+    .tamu-dd-menu .dropdown-option:hover { background: rgba(0,91,156,0.06); }
+    .tamu-dd-menu .dropdown-option.selected { background: rgba(0,91,156,0.09); color: var(--pln-blue); font-weight: 600; }
+    .tamu-dd-menu .dropdown-option::before {
+        content: '';
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #cbd5e1;
+        flex-shrink: 0;
+    }
+    .tamu-dd-menu .dropdown-option.selected::before { background: var(--pln-blue); }
+
+    /* Input tanggal: sembunyikan ikon kalender bawaan browser agar
+       tampil bersih seperti dropdown (kalender tetap terbuka saat
+       field / panah diklik). */
+    .tamu-dd-wrap input[type="date"] {
+        padding-right: 1.7rem;
+        color-scheme: light;
+        cursor: pointer;
+    }
+    .tamu-dd-wrap input[type="date"]::-webkit-calendar-picker-indicator {
+        opacity: 0;
+        cursor: pointer;
+        padding: 0.18rem;
+        border-radius: 5px;
+        transition: background 0.18s ease;
+    }
+    .tamu-dd-wrap input[type="date"]::-webkit-calendar-picker-indicator:hover {
+        background: rgba(0,0,0,0.03);
+    }
+    html.theme-dark .tamu-dd-input[readonly] { background: var(--panel); }
+    html.theme-dark .tamu-dd-menu { background: var(--panel); border-color: var(--line); }
+    html.theme-dark .tamu-dd-menu .dropdown-optgroup { background: rgba(255,255,255,0.03); border-color: var(--line); }
+    html.theme-dark .tamu-dd-menu .dropdown-option { color: var(--ink-body); }
+    html.theme-dark .tamu-dd-menu .dropdown-option:hover { background: rgba(255,255,255,0.05); }
+    html.theme-dark .tamu-dd-menu .dropdown-option.selected { background: rgba(0,91,156,0.35); color: #93c5fd; }
+
+    /* Slot jam kunjungan dalam <select> jam */
+    .tamu-modal select option:disabled { color: #94a3b8 !important; background: #f1f5f9 !important; }
+    .tamu-modal select option.slot-penuh {
+        color: #dc2626 !important;
+        background: #fef2f2 !important;
+        font-weight: 600;
+    }
+
     @media (max-width: 767.98px) {
         .tamu-page-header .header-row { flex-direction: column; align-items: flex-start; }
         .tamu-filter-bar { flex-direction: column; align-items: stretch; }
@@ -739,14 +906,14 @@
     <table class="tamu-table">
         <thead>
             <tr>
-                <th>No / Waktu Masuk</th>
-                <th>Identitas Tamu</th>
-                <th>Instansi</th>
-                <th>Email</th>
-                <th>Tujuan</th>
-                <th>Dokumen</th>
-                <th>Status</th>
-                <th class="text-right">Aksi</th>
+                <th class="col-no">No / Waktu Masuk</th>
+                <th class="col-identitas">Identitas Tamu</th>
+                <th class="col-instansi">Instansi</th>
+                <th class="col-email">Email</th>
+                <th class="col-tujuan">Tujuan Kunjungan</th>
+                <th class="col-doc text-center">Dokumen</th>
+                <th class="col-status text-center">Status</th>
+                <th class="col-aksi text-right">Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -755,10 +922,20 @@
                 <td class="tamu-waktu">
                     <div class="tamu-waktu-row">
                         <span class="tamu-no-badge">{{ ($tamus->currentPage() - 1) * $tamus->perPage() + $loop->iteration }}</span>
-                        <div>
-                            <span class="tgl" title="Waktu pendaftaran"><i class="fas fa-calendar-day"></i>{{ $tamu->created_at->translatedFormat('d M Y') }}</span><br>
-                            <span class="jam" title="Waktu pendaftaran"><i class="fas fa-clock"></i>{{ $tamu->created_at->format('H:i') }}</span><br>
-                            <span class="tgl" title="Jadwal kunjungan yang dipilih tamu"><i class="fas fa-calendar-check" style="color:#15803d;"></i>Kunjungan: {{ $tamu->tanggal_kunjungan?->translatedFormat('d M Y, H:i') }}</span>
+                        <div class="tamu-waktu-meta">
+                            <span class="waktu-pill" title="Waktu pendaftaran">
+                                <i class="fas fa-calendar-day"></i>{{ $tamu->created_at->translatedFormat('d M Y') }}
+                                <span class="pill-sep">·</span>
+                                <span class="pill-jam">{{ $tamu->created_at->format('H:i') }}</span>
+                            </span>
+                            <span class="kunjungan-chip" title="Jadwal kunjungan yang dipilih tamu">
+                                <i class="fas fa-calendar-check"></i>
+                                {{ $tamu->tanggal_kunjungan?->translatedFormat('d M Y') ?? '—' }}
+                                @if ($tamu->tanggal_kunjungan)
+                                    <span class="chip-sep">·</span>
+                                    <span>{{ $tamu->tanggal_kunjungan->format('H:i') }}</span>
+                                @endif
+                            </span>
                         </div>
                     </div>
                 </td>
@@ -787,7 +964,7 @@
                     <span class="tujuan-nama"><i class="fas fa-user-tie" style="color:#9ca3af; margin-right:0.3rem;"></i>{{ $tamu->tujuan_ditemui }}</span>
                     <span class="tujuan-keperluan" title="{{ $tamu->keperluan }}">{{ $tamu->keperluan }}</span>
                 </td>
-                <td>
+                <td class="text-center">
                     @if ($tamu->hasDokumen())
                         {{-- Satu berkas pendukung per tamu — disajikan privat via route ber-auth --}}
                         <a href="{{ $tamu->dokumen_zip_url }}" target="_blank" rel="noopener"
@@ -799,7 +976,7 @@
                         <div class="doc-empty" title="Tidak ada lampiran"><i class="fas fa-paperclip"></i></div>
                     @endif
                 </td>
-                <td>
+                <td class="text-center">
                     {{-- Alur verifikasi: Menunggu -> Disetujui/Ditolak.
                          Setelah disetujui, kunjungan berjalan (Berkunjung/Selesai
                          mengikuti check-in/out). Ditolak = kunjungan batal. --}}
@@ -1032,18 +1209,6 @@
 {{-- ============================================
      MODAL: TAMBAH TAMU MANUAL
      ============================================ --}}
-@php
-    /* Label rentang jam per slot — identik dengan form registrasi publik */
-    $labelJam = [
-        '08:00' => '08:00 – 09:00',
-        '09:00' => '09:00 – 10:00',
-        '10:00' => '10:00 – 11:00',
-        '11:00' => '11:00 – 11:30',
-        '13:00' => '13:00 – 14:00',
-        '14:00' => '14:00 – 15:00',
-        '15:00' => '15:00 – 16:00',
-    ];
-@endphp
 @can('tamu.create')
 <div class="tamu-modal-overlay" id="addModal" onclick="if(event.target===this) closeTamuModal('addModal')">
     <div class="tamu-modal modal-lg">
@@ -1063,9 +1228,13 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">NIK / No. KTP <span class="text-danger">*</span></label>
-                        <input type="text" name="nik" inputmode="numeric" maxlength="16" required autocomplete="off"
+                        <input type="text" name="nik" id="add-nik" inputmode="numeric" maxlength="16" required autocomplete="off"
+                               pattern="[0-9]{1,16}"
+                               title="NIK hanya boleh berisi angka (maksimal 16 digit)"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);"
+                               onpaste="(function(t){ t.value=t.value.replace(/[^0-9]/g,''); if(t.value.length>16) t.value=t.value.slice(0,16); })(this)"
                                class="form-control @error('nik') is-invalid @enderror" value="{{ old('nik') }}"
-                               placeholder="Masukkan 16 digit NIK" style="font-size:0.85rem;">
+                               placeholder="Masukkan 16 digit NIK (angka saja)" style="font-size:0.85rem;">
                         @error('nik')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
@@ -1118,28 +1287,42 @@
                 <div class="row g-3">
                     <div class="col-12">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Orang / Divisi yang Ditemui <span class="text-danger">*</span></label>
-                        <select name="tujuan_ditemui" id="add-tujuan_ditemui" required
-                                class="form-select @error('tujuan_ditemui') is-invalid @enderror" style="font-size:0.85rem;">
-                            @include('admin.tamu._divisi-options')
-                        </select>
+                        {{-- Custom dropdown divisi — pola sama dengan form registrasi publik --}}
+                        <div class="tamu-dd-wrap">
+                            <input type="text" id="add-tujuan_ditemui_display" readonly autocomplete="off"
+                                   placeholder="— Pilih Divisi —"
+                                   class="form-control tamu-dd-input @error('tujuan_ditemui') is-invalid @enderror"
+                                   aria-haspopup="listbox">
+                            <i class="fas fa-chevron-down tamu-dd-arrow"></i>
+                            <div class="tamu-dd-menu" role="listbox">
+                                <div class="tamu-dd-options">@include('admin.tamu._divisi-options')</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="tujuan_ditemui" id="add-tujuan_ditemui" value="{{ old('tujuan_ditemui') }}">
                         @error('tujuan_ditemui')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Tanggal Kunjungan <span class="text-danger">*</span></label>
-                        <input type="date" name="tanggal_kunjungan" id="add-tanggal_kunjungan" required
-                               class="form-control @error('tanggal_kunjungan') is-invalid @enderror"
-                               value="{{ \Illuminate\Support\Str::substr((string) old('tanggal_kunjungan', ''), 0, 10) ?: now()->format('Y-m-d') }}"
-                               style="font-size:0.85rem;">
+                        {{-- Dibatasi hari ini ke depan (min = hari ini), ikon kalender
+                             bawaan disembunyikan & diganti chevron ala dropdown --}}
+                        <div class="tamu-dd-wrap">
+                            <input type="date" name="tanggal_kunjungan" id="add-tanggal_kunjungan" required
+                                   min="{{ now()->format('Y-m-d') }}"
+                                   class="form-control tamu-dd-input @error('tanggal_kunjungan') is-invalid @enderror"
+                                   value="{{ \Illuminate\Support\Str::substr((string) old('tanggal_kunjungan', ''), 0, 10) ?: now()->format('Y-m-d') }}"
+                                   title="Tanggal kunjungan minimal hari ini" style="font-size:0.85rem;">
+                            <i class="fas fa-chevron-down tamu-dd-arrow"></i>
+                        </div>
+                        <small style="font-size:0.7rem; color:#9ca3af; display:block; margin-top:0.25rem;">Minimal hari ini.</small>
                         @error('tanggal_kunjungan')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jam Kunjungan <span class="text-danger">*</span></label>
+                        {{-- Opsi jam dibangun via JS — selaras form registrasi publik:
+                             jam istirahat 11:30–13:00 netral, slot ter-approve merah --}}
                         <select name="jam_kunjungan" id="add-jam_kunjungan" required
                                 class="form-select @error('jam_kunjungan') is-invalid @enderror" style="font-size:0.85rem;">
                             <option value="">— Pilih Jam —</option>
-                            @foreach (\App\Models\Tamu::SLOT_JAM as $jam)
-                                <option value="{{ $jam }}" data-label="{{ $labelJam[$jam] ?? $jam }}" @selected(old('jam_kunjungan') === $jam)>{{ $labelJam[$jam] ?? $jam }}</option>
-                            @endforeach
                         </select>
                         <small id="add-jam-status" class="tamu-jam-status" style="display:none;"></small>
                         @error('jam_kunjungan')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -1256,22 +1439,34 @@
                 <div class="row g-3">
                     <div class="col-12">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Orang / Divisi yang Ditemui <span class="text-danger">*</span></label>
-                        <select name="tujuan_ditemui" id="edit-tujuan_ditemui" required class="form-select" style="font-size:0.85rem;">
-                            @include('admin.tamu._divisi-options')
-                        </select>
+                        {{-- Custom dropdown divisi — pola sama dengan form registrasi publik --}}
+                        <div class="tamu-dd-wrap">
+                            <input type="text" id="edit-tujuan_ditemui_display" readonly autocomplete="off"
+                                   placeholder="— Pilih Divisi —"
+                                   class="form-control tamu-dd-input" aria-haspopup="listbox">
+                            <i class="fas fa-chevron-down tamu-dd-arrow"></i>
+                            <div class="tamu-dd-menu" role="listbox">
+                                <div class="tamu-dd-options">@include('admin.tamu._divisi-options')</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="tujuan_ditemui" id="edit-tujuan_ditemui" value="">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Tanggal Kunjungan <span class="text-danger">*</span></label>
-                        <input type="date" name="tanggal_kunjungan" id="edit-tanggal_kunjungan" required
-                               class="form-control" style="font-size:0.85rem;">
+                        {{-- Sama seperti modal Tambah: min hari ini, ikon kalender
+                             bawaan disembunyikan (data lama boleh tetap di masa lalu
+                             — JS hanya mem-blokir pemilihan baru sebelum hari ini) --}}
+                        <div class="tamu-dd-wrap">
+                            <input type="date" name="tanggal_kunjungan" id="edit-tanggal_kunjungan" required
+                                   class="form-control tamu-dd-input" style="font-size:0.85rem;">
+                            <i class="fas fa-chevron-down tamu-dd-arrow"></i>
+                        </div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jam Kunjungan <span class="text-danger">*</span></label>
+                        {{-- Opsi jam dibangun via JS — selaras form registrasi publik --}}
                         <select name="jam_kunjungan" id="edit-jam_kunjungan" required class="form-select" style="font-size:0.85rem;">
                             <option value="">— Pilih Jam —</option>
-                            @foreach (\App\Models\Tamu::SLOT_JAM as $jam)
-                                <option value="{{ $jam }}" data-label="{{ $labelJam[$jam] ?? $jam }}">{{ $labelJam[$jam] ?? $jam }}</option>
-                            @endforeach
                         </select>
                         <small id="edit-jam-status" class="tamu-jam-status" style="display:none;"></small>
                     </div>
@@ -1489,23 +1684,23 @@
         set('edit-no_hp', t.no_hp);
         set('edit-email', t.email);
         set('edit-tujuan_ditemui', t.tujuan);
+        /* Data lama dengan nama divisi SEBELUM daftar diganti
+           (mis. "Assisten Manajer Prod A") tetap tersedia sebagai opsi
+           sementara supaya rekornya bisa diedit tanpa kehilangan tujuan. */
+        ensureDivisiOption('edit', t.tujuan, ' (data lama)');
         set('edit-tanggal_kunjungan', t.tanggal_input ? t.tanggal_input.slice(0, 10) : '');
         set('edit-jumlah_tamu', t.jumlah || 1);
         set('edit-keperluan', t.keperluan);
 
         /* Jam kunjungan: pakai waktu rekaman. Bila di luar slot
-           operasional (data lama), tetap sediakan sebagai opsi
-           "(waktu lama)" supaya nilainya tidak hilang. */
+           operasional (data lama), buildJamOptions() menyediakannya
+           sebagai opsi "(waktu lama)" supaya nilainya tidak hilang. */
+        const jamLama = t.tanggal_input ? t.tanggal_input.slice(11, 16) : '';
         const jamSel = document.getElementById('edit-jam_kunjungan');
         if (jamSel) {
-            const jamLama = t.tanggal_input ? t.tanggal_input.slice(11, 16) : '';
-            if (jamLama && !jamSel.querySelector('option[value="' + jamLama + '"]')) {
-                const opt = document.createElement('option');
-                opt.value = jamLama;
-                opt.textContent = jamLama + ' (waktu lama)';
-                opt.dataset.label = jamLama + ' (waktu lama)';
-                jamSel.appendChild(opt);
-            }
+            // Jam milik rekaman ini — ditandai merah tapi TIDAK dinonaktifkan
+            // supaya admin tetap bisa mempertahankan / mengubahnya.
+            jamSel.dataset.jamAwal = jamLama || '';
             jamSel.value = jamLama || '';
         }
 
@@ -1566,13 +1761,172 @@
 
         box.innerHTML = '<i class="fas fa-file-lines me-1"></i>' + file.name + ' <small>(' + size + ')</small>';
         box.style.display = 'block';
+    }    /* ============================================================
+       CUSTOM DROPDOWN DIVISI — modal Tambah & Edit
+       Pola & perilaku identik dengan form registrasi publik:
+       input readonly + menu absolut berisi opsi div/divisi.
+       ============================================================ */
+    const SLOT_OPSIONAL = [
+        { jam: '08:00', label: '08:00 – 09:00' },
+        { jam: '09:00', label: '09:00 – 10:00' },
+        { jam: '10:00', label: '10:00 – 11:00' },
+        { jam: '11:00', label: '11:00 – 11:30' },
+        { jam: '13:00', label: '13:00 – 14:00' },
+        { jam: '14:00', label: '14:00 – 15:00' },
+        { jam: '15:00', label: '15:00 – 16:00' },
+    ];
+    const JAM_ISTIRAHAT_AWAL = '11:30';
+    const JAM_ISTIRAHAT_AKHIR = '13:00';
+
+    /* Pastikan sebuah nilai divisi punya opsi di menu dropdown.
+       Dipakai untuk data lama yang divisi-nya sudah tak ada di daftar.
+       Return elemen hidden input yang bersangkutan. */
+    function ensureDivisiOption(prefix, value, suffix) {
+        const hidden = document.getElementById(prefix + '-tujuan_ditemui');
+        const display = document.getElementById(prefix + '-tujuan_ditemui_display');
+        if (!hidden || !display || !value) return;
+
+        const menu = hidden.closest('.tamu-dd-wrap').querySelector('.tamu-dd-options');
+        const ada = menu && Array.prototype.some.call(menu.querySelectorAll('.dropdown-option'), function (o) {
+            return o.getAttribute('data-value') === value;
+        });
+        if (!ada && menu) {
+            const opt = document.createElement('div');
+            opt.className = 'dropdown-option';
+            opt.setAttribute('data-value', value);
+            opt.textContent = value + (suffix || '');
+            menu.appendChild(opt);
+        }
+        display.value = value + (suffix && !ada ? suffix : '');
     }
+
+    function initDivisiDropdown(prefix) {
+        const wrap = document.getElementById(prefix + '-tujuan_ditemui_display');
+        if (!wrap) return;
+        const display = wrap;
+        const hidden = document.getElementById(prefix + '-tujuan_ditemui');
+        const container = display.closest('.tamu-dd-wrap');
+        const menu = container.querySelector('.tamu-dd-menu');
+        const options = container.querySelector('.tamu-dd-options');
+
+        let isOpen = false;
+
+        function openMenu() { isOpen = true; menu.classList.add('open'); container.classList.add('dropdown-open'); }
+        function closeMenu() { isOpen = false; menu.classList.remove('open'); container.classList.remove('dropdown-open'); }
+
+        function select(opt) {
+            options.querySelectorAll('.dropdown-option').forEach(function (o) { o.classList.remove('selected'); });
+            opt.classList.add('selected');
+            display.value = opt.textContent.trim();
+            hidden.value = opt.getAttribute('data-value') || '';
+            closeMenu();
+            hidden.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        display.addEventListener('click', function (e) {
+            e.stopPropagation();
+            // Tutup dropdown divisi lain dulu supaya tidak tumpuk
+            ['add', 'edit'].forEach(function (p) {
+                if (p !== prefix) closeDivisiDropdown(p);
+            });
+            isOpen ? closeMenu() : openMenu();
+        });
+        options.addEventListener('click', function (e) {
+            const opt = e.target.closest('.dropdown-option');
+            if (opt) select(opt);
+        });
+        document.addEventListener('click', function (e) {
+            if (!container.contains(e.target)) closeMenu();
+        });
+        display.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { closeMenu(); display.blur(); }
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); isOpen ? closeMenu() : openMenu(); }
+        });
+
+        container.__close = closeMenu;
+    }
+
+    function closeDivisiDropdown(prefix) {
+        const display = document.getElementById(prefix + '-tujuan_ditemui_display');
+        const container = display && display.closest('.tamu-dd-wrap');
+        if (container && container.__close) container.__close();
+    }
+
+    /* Sinkron tampilan display + opsi terpilih dari nilai hidden
+       (dipakai modal edit & restore old input). */
+    function syncDivisiDisplay(prefix) {
+        const hidden = document.getElementById(prefix + '-tujuan_ditemui');
+        const display = document.getElementById(prefix + '-tujuan_ditemui_display');
+        if (!hidden || !display) return;
+        const val = hidden.value;
+        const container = display.closest('.tamu-dd-wrap');
+        const options = container.querySelector('.tamu-dd-options');
+        options.querySelectorAll('.dropdown-option').forEach(function (o) {
+            o.classList.toggle('selected', o.getAttribute('data-value') === val && val !== '');
+        });
+        const match = options.querySelector('.dropdown-option[data-value="' + val + '"]');
+        display.value = (val && match) ? match.textContent.trim() : val;
+    }
+
+    initDivisiDropdown('add');
+    initDivisiDropdown('edit');
+
+    /* ============================================================
+       TANGGAL KUNJUNGAN — blokir tanggal yang sudah lewat
+       Selaras form registrasi publik: min = hari ini (lokal browser),
+       diperbarui tiap menit; klik field/panah membuka kalender.
+       ============================================================ */
+    (function () {
+        function todayLocal() {
+            const d = new Date();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return d.getFullYear() + '-' + mm + '-' + dd;
+        }
+
+        ['add', 'edit'].forEach(function (prefix) {
+            const tanggal = document.getElementById(prefix + '-tanggal_kunjungan');
+            if (!tanggal) return;
+
+            function batasiTanggal() {
+                const min = todayLocal();
+                // Modal edit: data lama boleh bertanggal lampau — nilai awal
+                // tidak dipaksa berubah; hanya pemilihan BARU yang dibatasi.
+                if (!tanggal.dataset.touched && !tanggal.value) tanggal.value = min;
+                if (prefix === 'add') tanggal.min = min;
+                if (prefix === 'edit') tanggal.min = '';
+            }
+
+            batasiTanggal();
+            setInterval(batasiTanggal, 60000);
+
+            tanggal.addEventListener('click', function () {
+                if (typeof tanggal.showPicker === 'function') {
+                    try { tanggal.showPicker(); } catch (e) { /* dibuka browser via klik biasa */ }
+                }
+            });
+
+            tanggal.addEventListener('change', function () {
+                tanggal.dataset.touched = '1';
+                if (prefix === 'add') {
+                    const min = tanggal.min || todayLocal();
+                    if (tanggal.value && tanggal.value < min) {
+                        tanggal.setCustomValidity('Tanggal kunjungan tidak boleh di masa lalu (minimal hari ini).');
+                        try { tanggal.reportValidity(); } catch (e) {}
+                    } else {
+                        tanggal.setCustomValidity('');
+                    }
+                }
+            });
+        });
+    })();
 
     /* ============================================================
        SLOT JAM KUNJUNGAN — modal Tambah & Edit
-       Selaras form registrasi publik: slot yang sudah DISETUJUI admin
-       untuk divisi + tanggal sama ditandai MERAH dan tidak bisa
-       dipilih (data diambil dari /api/booked-slots).
+       Selaras form registrasi publik: opsi jam dibangun via JS.
+       Slot yang sudah DISETUJUI admin untuk divisi + tanggal sama
+       ditandai MERAH dan tidak bisa dipilih (data dari
+       /api/booked-slots); jam istirahat 11:30–13:00 netral.
        ============================================================ */
     const bookedSlotsUrl = '{{ route('layanan.registrasi-tamu.booked-slots') }}';
 
@@ -1592,52 +1946,129 @@
         };
     }
 
+    /* Bangun ulang opsi <select> jam — struktur & penandaan identik
+       dengan buildJamOptions() di form registrasi publik. */
+    function buildJamOptions(prefix, blocked) {
+        const c = jamContext(prefix);
+        if (!c.jam) return;
+
+        // Pertahankan pilihan user bila masih valid (tidak disabled),
+        // supaya ganti tanggal/divisi tidak menghapus pilihan jamnya.
+        const previous = c.jam.value;
+        const jamAwal = prefix === 'edit' ? (c.jam.dataset.jamAwal || '') : '';
+
+        c.jam.innerHTML = '<option value="">— Pilih Jam —</option>';
+
+        SLOT_OPSIONAL.forEach(function (opt) {
+            const val = opt.jam;
+            let disabled = false;
+            let label = opt.label;
+            let isBlocked = false;
+
+            if (val >= JAM_ISTIRAHAT_AWAL && val < JAM_ISTIRAHAT_AKHIR) {
+                disabled = true;
+                label = opt.label + ' (Jam Istirahat)';
+            }
+
+            if (blocked.indexOf(val) !== -1) {
+                disabled = true;
+                isBlocked = true;
+                label = opt.label + ' (Terblokir)';
+                // Jam milik rekaman yang sedang diedit: merah sebagai
+                // penanda, tapi tetap aktif agar nilainya tidak hilang
+                // (server mengecualikan rekaman ini saat validasi).
+                if (jamAwal && val === jamAwal) disabled = false;
+            }
+
+            const option = document.createElement('option');
+            option.value = val;
+            option.textContent = label;
+            if (isBlocked) {
+                option.classList.add('slot-penuh');
+                option.title = 'Jam ini sudah di-approve admin dan tidak dapat dipilih.';
+            }
+            if (disabled) option.disabled = true;
+
+            c.jam.appendChild(option);
+        });
+
+        // Data lama di luar slot operasional tetap tersedia sebagai opsi
+        // "(waktu lama)" supaya nilainya tidak hilang saat disimpan ulang.
+        const kandidat = previous || jamAwal;
+        let found = kandidat ? c.jam.querySelector('option[value="' + kandidat + '"]') : null;
+        if (!found && kandidat && (previous || jamAwal)) {
+            const opt = document.createElement('option');
+            opt.value = kandidat;
+            opt.textContent = kandidat + ' (waktu lama)';
+            opt.disabled = false;
+            c.jam.appendChild(opt);
+            found = opt;
+        }
+        if (found && !found.disabled) {
+            c.jam.value = kandidat;
+        } else {
+            c.jam.value = '';
+        }
+    }
+
+    const jamLoading = { add: false, edit: false };
+    const jamRefreshDirty = { add: false, edit: false };
+
     function refreshJam(prefix) {
         const c = jamContext(prefix);
         if (!c.jam || !c.tanggal || !c.divisi) return;
-
-        // Lepas dulu penanda terblokir (divisi/tanggal mungkin berubah)
-        Array.prototype.forEach.call(c.jam.options, function (o) {
-            if (!o.value) return;
-            if (o.dataset.label) o.textContent = o.dataset.label;
-            o.classList.remove('slot-penuh');
-            o.disabled = false;
-        });
 
         const tanggal = c.tanggal.value;
         const divisi = c.divisi.value;
 
         if (!tanggal || !divisi) {
+            buildJamOptions(prefix, []);
             setJamStatus(c.status, 'Pilih divisi & tanggal untuk melihat ketersediaan jam');
             return;
         }
 
+        // Ada request lain masih berjalan — jangan dibuang,
+        // tandai saja supaya diulang otomatis setelah selesai.
+        if (jamLoading[prefix]) {
+            jamRefreshDirty[prefix] = true;
+            return;
+        }
+        jamLoading[prefix] = true;
+
         setJamStatus(c.status, 'Memuat ketersediaan jam...');
 
-        fetch(bookedSlotsUrl + '?tanggal=' + encodeURIComponent(tanggal) + '&divisi=' + encodeURIComponent(divisi))
+        /* Modal Edit: blokir hanya SATU jam (jam booking itu sendiri),
+           bukan rentang 3 jam seperti form publik & modal Tambah —
+           supaya admin bebas mengubah jam ke slot lain. */
+        const qs = '?tanggal=' + encodeURIComponent(tanggal)
+                 + '&divisi=' + encodeURIComponent(divisi)
+                 + (prefix === 'edit' ? '&durasi=1' : '');
+
+        fetch(bookedSlotsUrl + qs)
             .then(function (r) { return r.json(); })
             .then(function (data) {
+                jamLoading[prefix] = false;
+                if (jamRefreshDirty[prefix]) {
+                    jamRefreshDirty[prefix] = false;
+                    refreshJam(prefix); // parameternya sudah berubah — muat ulang
+                    return;
+                }
                 const blocked = Array.isArray(data.jam_terblokir) ? data.jam_terblokir : [];
-
-                Array.prototype.forEach.call(c.jam.options, function (o) {
-                    if (o.value && blocked.indexOf(o.value) !== -1) {
-                        if (!o.dataset.label) o.dataset.label = o.textContent;
-                        o.classList.add('slot-penuh');
-                        o.disabled = true;
-                        o.textContent = o.dataset.label + ' (Terblokir)';
-                    }
-                });
-
-                const cur = c.jam.selectedOptions && c.jam.selectedOptions[0];
-                if (cur && cur.disabled) c.jam.value = '';
+                buildJamOptions(prefix, blocked);
 
                 setJamStatus(
                     c.status,
-                    blocked.length ? '⚠ Jam terblokir: ' + blocked.join(', ') : '✓ Semua slot tersedia',
+                    blocked.length ? '\u26A0 Jam terblokir: ' + blocked.join(', ') : '\u2713 Semua slot tersedia',
                     blocked.length ? 'blocked' : 'ok'
                 );
             })
             .catch(function () {
+                jamLoading[prefix] = false;
+                if (jamRefreshDirty[prefix]) {
+                    jamRefreshDirty[prefix] = false;
+                    refreshJam(prefix);
+                    return;
+                }
                 setJamStatus(c.status, 'Gagal memuat ketersediaan jam', 'blocked');
             });
     }
@@ -1649,6 +2080,11 @@
 
             c.tanggal.addEventListener('change', function () { refreshJam(prefix); });
             c.divisi.addEventListener('change', function () { refreshJam(prefix); });
+            c.jam.addEventListener('change', function () {
+                // Guard: slot terblokir/istirahat tidak boleh tersimpan
+                const opt = c.jam.selectedOptions && c.jam.selectedOptions[0];
+                if (opt && opt.disabled) c.jam.value = '';
+            });
         });
     })();
 
@@ -1680,28 +2116,33 @@
             set('edit-no_hp', oldInput.no_hp);
             set('edit-email', oldInput.email);
             set('edit-tujuan_ditemui', oldInput.tujuan_ditemui);
+            ensureDivisiOption('edit', oldInput.tujuan_ditemui, '');
+            syncDivisiDisplay('edit');
             set('edit-tanggal_kunjungan', String(oldInput.tanggal_kunjungan || '').slice(0, 10));
             set('edit-jumlah_tamu', oldInput.jumlah_tamu);
             set('edit-keperluan', oldInput.keperluan);
 
+            /* Jam pilihan user yang ditolak server tetap tersedia —
+               buildJamOptions() menyisipkannya sebagai "(waktu lama)"
+               bila di luar slot operasional. */
             const jamSel = document.getElementById('edit-jam_kunjungan');
             const jamBaru = oldInput.jam_kunjungan || '';
-            if (jamSel && jamBaru) {
-                if (!jamSel.querySelector('option[value="' + jamBaru + '"]')) {
-                    const opt = document.createElement('option');
-                    opt.value = jamBaru;
-                    opt.textContent = jamBaru;
-                    opt.dataset.label = jamBaru;
-                    jamSel.appendChild(opt);
-                }
+            if (jamSel) {
+                jamSel.dataset.jamAwal = jamBaru;
                 jamSel.value = jamBaru;
             }
 
             updateEditCounter();
             refreshJam('edit');
         } else if (document.getElementById('addModal')) {
-            /* Form Tambah Manual — isian sudah terisi old() di markup */
+            /* Form Tambah Manual — isian sudah terisi old() di markup;
+               dropdown divisi & jam disinkronkan dari old input. */
             openAddModal();
+            const addHidden = document.getElementById('add-tujuan_ditemui');
+            if (addHidden && addHidden.value) {
+                ensureDivisiOption('add', addHidden.value, '');
+                syncDivisiDisplay('add');
+            }
         }
     })();
 
