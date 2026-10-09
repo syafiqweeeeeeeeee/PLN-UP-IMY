@@ -122,14 +122,10 @@ class PermissionSeeder extends Seeder
             'logout',
         ];
 
-        $karyawanPermissions = [
-            'dashboard.view',
-            'news.view',
-            'pages.view',
-            'internal.view',
-            'applications.view',
-            'logout',
-        ];
+        // Baseline karyawan — SATU sumber di User::KARYAWAN_BASELINE_PERMISSIONS.
+        // Permission di luar daftar ini = "ekstra" → membuka akses panel admin
+        // (lihat EnsureNotKaryawan).
+        $karyawanPermissions = \App\Models\User::KARYAWAN_BASELINE_PERMISSIONS;
 
         $karyawan->permissions()->syncWithoutDetaching(array_intersect_key($permissionIds, array_flip($karyawanPermissions)));
 

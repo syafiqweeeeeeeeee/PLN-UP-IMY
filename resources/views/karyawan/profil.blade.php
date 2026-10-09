@@ -9,8 +9,7 @@
     </div>
 
     <div class="kry-page-head">
-        <h1>Profil Saya</h1>
-        <p>Perbarui data diri dan kata sandi akun Anda. Email tidak dapat diubah — hubungi administrator bila diperlukan.</p>
+        <h1>Profil Saya</h1>            <p>Perbarui nama, kontak, dan keamanan akun Anda. Email tidak dapat diubah — hubungi administrator bila diperlukan.</p>
     </div>
 
     <div class="kry-profile-grid">
@@ -39,7 +38,7 @@
 
         {{-- Form profil --}}
         <section class="kry-card kry-profile-form">
-            <h3><i class="fas fa-user-pen"></i> Edit Profil Saya</h3>
+            <h3><i class="fas fa-user-pen"></i> Informasi Akun</h3>
 
             <form method="POST" action="{{ route('karyawan.profil.update') }}">
                 @csrf
@@ -60,18 +59,18 @@
                 </div>
 
                 <div class="kry-field">
-                    <label for="no_hp">Nomor HP</label>
+                    <label for="no_hp">Nomor HP <span style="color:#dc2626;">*</span></label>
                     <input type="text" id="no_hp" name="no_hp" class="kry-input"
-                           value="{{ old('no_hp', $user->no_hp) }}" maxlength="20" placeholder="08xx-xxxx-xxxx">
+                           value="{{ old('no_hp', $user->no_hp) }}" maxlength="20" placeholder="08xx-xxxx-xxxx" required>
                     @error('no_hp')
                         <div class="kry-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="kry-field">
-                    <label for="alamat">Alamat</label>
+                    <label for="alamat">Alamat <span style="color:#dc2626;">*</span></label>
                     <textarea id="alamat" name="alamat" class="kry-input" rows="3"
-                              maxlength="500" placeholder="Alamat domisili">{{ old('alamat', $user->alamat) }}</textarea>
+                              maxlength="500" placeholder="Alamat domisili" required>{{ old('alamat', $user->alamat) }}</textarea>
                     @error('alamat')
                         <div class="kry-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</div>
                     @enderror

@@ -15,13 +15,21 @@
     <div class="row g-3 mb-4">
         <div class="col-12">
             <div class="dash-card" style="background: linear-gradient(135deg, var(--pln-blue) 0%, var(--pln-blue-dark) 100%); border: none; color: #fff;">
-                <div class="d-flex align-items-center justify-content-between flex-wrap w-100 gap-3">
-                    <div style="min-width: 200px;">
+                <div class="d-flex align-items-center justify-content-between flex-wrap w-100 gap-3" style="min-height: 80px;">
+                    <div style="min-width: 200px; flex: 1 1 300px;">
                         <h4 style="font-weight: 700; margin-bottom: 0.25rem;">
-                            Selamat Datang, Admin 👋
+                            @if($stats['is_department_admin'])
+                                Selamat Datang, Admin {{ $stats['sub_department_name'] ?? $stats['department_name'] }} 👋
+                            @else
+                                Selamat Datang, Admin 👋
+                            @endif
                         </h4>
                         <p style="opacity: 0.8; font-size: 0.88rem; margin: 0;">
-                            Berikut ringkasan kondisi sistem E-PPID PLN hari ini.
+                            @if($stats['is_department_admin'])
+                                Ringkasan kondisi sistem E-PPID PLN untuk {{ $stats['sub_department_name'] ?? $stats['department_name'] }} hari ini.
+                            @else
+                                Berikut ringkasan kondisi sistem E-PPID PLN hari ini.
+                            @endif
                         </p>
                     </div>
                     <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -29,20 +37,20 @@
                             <input type="text"
                                    id="dashboardSearchInput"
                                    placeholder="Cari berita, pengumuman..."
-                                   style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; padding: 0.55rem 1rem 0.55rem 2.4rem; color: #fff; font-size: 0.85rem; width: 220px; max-width: 100%; transition: all 0.2s ease; outline: none;"
+                                   style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; padding: 0.55rem 1rem 0.55rem 2.4rem; color: #fff; font-size: 0.85rem; width: 200px; max-width: 100%; transition: all 0.2s ease; outline: none; box-sizing: border-box;"
                                    onfocus="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.5)';"
                                    onblur="this.style.background='rgba(255,255,255,0.15)'; this.style.borderColor='rgba(255,255,255,0.25)';">
                             <i class="fas fa-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); opacity: 0.6; font-size: 0.82rem;"></i>
                         </div>
-                        <div class="d-flex gap-3 align-items-center" style="flex-shrink: 0;">
-                            <div class="text-center">
-                                <div style="font-size: 1.5rem; font-weight: 800;">{{ number_format($stats['pending_content']) }}</div>
-                                <div style="font-size: 0.72rem; opacity: 0.7;">Draft</div>
+                        <div class="d-flex gap-3 align-items-center" style="flex-shrink: 0; gap: 0.75rem;">
+                            <div class="text-center" style="min-width: 70px;">
+                                <div style="font-size: 1.5rem; font-weight: 800; line-height: 1.2;">{{ number_format($stats['pending_content']) }}</div>
+                                <div style="font-size: 0.72rem; opacity: 0.7; margin-top: 0.1rem;">Draft</div>
                             </div>
-                            <div style="width:1px; height:30px; background:rgba(255,255,255,0.2);"></div>
-                            <div class="text-center">
-                                <div style="font-size: 1.5rem; font-weight: 800;">{{ number_format($stats['total_news']) }}</div>
-                                <div style="font-size: 0.72rem; opacity: 0.7;">Berita Aktif</div>
+                            <div style="width:1px; height:28px; background:rgba(255,255,255,0.2); flex-shrink: 0;"></div>
+                            <div class="text-center" style="min-width: 70px;">
+                                <div style="font-size: 1.5rem; font-weight: 800; line-height: 1.2;">{{ number_format($stats['total_news']) }}</div>
+                                <div style="font-size: 0.72rem; opacity: 0.7; margin-top: 0.1rem;">Berita Aktif</div>
                             </div>
                         </div>
                     </div>
@@ -54,7 +62,46 @@
     {{-- ============================================
          2. STATISTICS CARDS
          ============================================ --}}
-    <div class="row g-3 mb-4">
+    @if($stats['is_department_admin'])
+        {{-- Admin Bidang: Tampilkan 3 widget khusus bidang --}}
+        <div class="row g-3 mb-4">
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="stat-card h-100" style="min-width: 0;">
+                    <div class="stat-icon" style="background: #dbeafe; color: #1d4ed8;">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div class="stat-value" style="color: #1d4ed8;">{{ number_format($stats['total_news_bidang']) }}</div>
+                        <div class="stat-label">Total Berita Bidang</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="stat-card h-100" style="min-width: 0;">
+                    <div class="stat-icon" style="background: #dcfce7; color: #166534;">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div class="stat-value" style="color: #166534;">{{ number_format($stats['total_announcements_bidang']) }}</div>
+                        <div class="stat-label">Total Pengumuman Bidang</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="stat-card h-100" style="min-width: 0;">
+                    <div class="stat-icon" style="background: #e0f2fe; color: #005B9C;">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div class="stat-value" style="color: #005B9C;">{{ number_format($stats['total_work_links_bidang']) }}</div>
+                        <div class="stat-label">Total Link Kerja Bidang</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
+        {{-- Non Admin Bidang: Tampilkan 4 widget umum --}}
+        <div class="row g-3 mb-4">
         <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
             <div class="stat-card h-100" style="min-width: 0;">
                 <div class="stat-icon" style="background: #dbeafe; color: #1d4ed8;">
@@ -100,6 +147,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     {{-- ============================================
          3. QUICK ACTIONS
