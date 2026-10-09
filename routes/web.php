@@ -136,7 +136,34 @@ Route::middleware(['auth', 'karyawan.access'])->prefix('karyawan')->name('karyaw
 
     // Profil — satu-satunya bagian yang bisa diubah karyawan
     Route::get('/profil', [\App\Http\Controllers\Karyawan\PortalController::class, 'profil'])->name('profil');
-    Route::put('/profil', [\App\Http\Controllers\Karyawan\PortalController::class, 'updateProfil'])->name('profil.update');
+    Route::put('/profil', [\App\Http\Controllers\Karyawan\PortalController::class, 'updateProfil'])->name('profil.update');// --- Berita ---
+    Route::get('/berita', [\App\Http\Controllers\Karyawan\NewsController::class, 'index'])->name('news.index');
+    Route::get('/berita/{news}', [\App\Http\Controllers\Karyawan\NewsController::class, 'show'])->name('news.show');
+    Route::get('/berita/create', [\App\Http\Controllers\Karyawan\NewsController::class, 'create'])->name('news.create');
+    Route::post('/berita', [\App\Http\Controllers\Karyawan\NewsController::class, 'store'])->name('news.store');
+    Route::get('/berita/{news}/edit', [\App\Http\Controllers\Karyawan\NewsController::class, 'edit'])->name('news.edit');
+    Route::put('/berita/{news}', [\App\Http\Controllers\Karyawan\NewsController::class, 'update'])->name('news.update');
+    Route::delete('/berita/{news}', [\App\Http\Controllers\Karyawan\NewsController::class, 'destroy'])->name('news.destroy');
+    Route::post('/berita/{news}/publish', [\App\Http\Controllers\Karyawan\NewsController::class, 'togglePublish'])->name('news.publish');
+
+    // --- Pengumuman ---
+    Route::get('/pengumuman', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('/pengumuman/{announcement}', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'show'])->name('announcements.show');
+    Route::get('/pengumuman/create', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'create'])->name('announcements.create');
+    Route::post('/pengumuman', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::get('/pengumuman/{announcement}/edit', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'edit'])->name('announcements.edit');
+    Route::put('/pengumuman/{announcement}', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'update'])->name('announcements.update');
+    Route::delete('/pengumuman/{announcement}', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+    Route::post('/pengumuman/{announcement}/publish', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'togglePublish'])->name('announcements.publish');
+
+    // --- Galeri ---
+    Route::get('/galeri', [\App\Http\Controllers\Karyawan\GalleryController::class, 'index'])->name('galeri.index');
+    Route::get('/galeri/create', [\App\Http\Controllers\Karyawan\GalleryController::class, 'create'])->name('galeri.create');
+    Route::post('/galeri', [\App\Http\Controllers\Karyawan\GalleryController::class, 'store'])->name('galeri.store');
+    Route::get('/galeri/{galeri}/edit', [\App\Http\Controllers\Karyawan\GalleryController::class, 'edit'])->name('galeri.edit');
+    Route::put('/galeri/{galeri}', [\App\Http\Controllers\Karyawan\GalleryController::class, 'update'])->name('galeri.update');
+    Route::patch('/galeri/{galeri}/toggle-status', [\App\Http\Controllers\Karyawan\GalleryController::class, 'toggleStatus'])->name('galeri.toggle-status');
+    Route::delete('/galeri/{galeri}', [\App\Http\Controllers\Karyawan\GalleryController::class, 'destroy'])->name('galeri.destroy');
 });
 
 // Admin Dashboard

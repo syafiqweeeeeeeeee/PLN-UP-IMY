@@ -468,19 +468,19 @@
                         </div>
                         <div class="kry-dropdown-divider"></div>
                         @can('news.view')
-                            <a href="{{ route('admin.news.index') }}" target="_blank" rel="noopener"
+                            <a href="{{ route('karyawan.news.index') }}"
                                class="kry-dropdown-item" role="menuitem">
                                 <i class="fas fa-newspaper"></i> Kelola Berita
                             </a>
                         @endcan
                         @can('announcements.view')
-                            <a href="{{ route('admin.announcements.index') }}" target="_blank" rel="noopener"
+                            <a href="{{ route('karyawan.announcements.index') }}"
                                class="kry-dropdown-item" role="menuitem">
                                 <i class="fas fa-bullhorn"></i> Kelola Pengumuman
                             </a>
                         @endcan
                         @can('galleries.view')
-                            <a href="{{ route('admin.galeri.index') }}" target="_blank" rel="noopener"
+                            <a href="{{ route('karyawan.galeri.index') }}"
                                class="kry-dropdown-item" role="menuitem">
                                 <i class="fas fa-images"></i> Kelola Galeri
                             </a>
