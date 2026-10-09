@@ -290,7 +290,7 @@
     .user-reset-btn.confirm:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
 
     /* ===== Kepadatan kolom aksi & baris tabel ===== */
-    /* Gap rapat antar tombol aksi (Lihat, Edit, Switch, Reset, Hapus) */
+    /* Gap rapat antar 3 tombol aksi (Lihat, Switch, Hapus) */
     .user-action-group {
         display: flex;
         align-items: center;
@@ -432,22 +432,18 @@
                     @php
                         $isVerified = (bool) $user->email_verified_at;
                         $isSelf = auth()->id() === $user->id;
-                        $au = auth()->user();
-                        $roleRaw = ($au && $au->role) ? trim((string) $au->role) : '';
-                        $roleName = strtolower($roleRaw);
-                        $isSuperAdmin = ($au && ($roleName === 'super admin' || $roleName === 'admin' || ($au->role_id ?? null) == 1));
                     @endphp
                     <td class="td-actions">
                         <div class="user-action-group">
                             <a href="{{ route('admin.users.show', $user) }}" class="news-action-btn edit" style="background: #dbeafe; color: #1d4ed8;" title="Lihat Detail">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            @if($isSuperAdmin || ($au && $au->id == $user->id))
-                                <a href="{{ route('admin.admin.users.edit', $user) }}" class="news-action-btn edit" title="Edit Pengguna & Hak Akses">
-                                    <i class="fas fa-pen"></i>
-                                </a>
-                            @endif
-                            @if (! $isSelf && ($isSuperAdmin || auth()->user()?->can('users.edit')))
+                            @can('users.edit')
+                            <a href="{{ route('admin.users.edit', $user) }}" class="news-action-btn edit" title="Edit Pengguna & Hak Akses">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            @endcan
+                            @if (! $isSelf && auth()->user()?->can('users.edit'))
                                 {{-- Toggle status akun (pengganti Edit): kotak 30×30
                                      berisi mini-switch — hijau = aktif, oranye = nonaktif.
                                      REVISI RBAC: tombol hanya tampil bila punya
@@ -465,20 +461,6 @@
                                         title="{{ $isSelf ? 'Akun Anda sendiri tidak dapat dinonaktifkan' : 'Anda tidak memiliki hak ubah status pengguna' }}">
                                     <span class="track"><span class="knob"></span></span>
                                 </button>
-                            @endif
-                            {{-- Reset password → modal reset (password sementara
-                                 sekali pakai). Dibungkus @can('user.reset-password')
-                                 mengikuti middleware backend pada route
-                                 users.reset-password; akun sendiri disembunyikan
-                                 karena backend menolaknya (pakai Ganti Password). --}}
-                            @if($isSuperAdmin || auth()->user()?->can('user.reset-password'))
-                                @unless ($isSelf)
-                                <button type="button" class="news-action-btn" title="Reset Password"
-                                        style="background: #fef3c7; color: #b45309;"
-                                        onclick="openUserResetModal({{ $user->id }}, '{{ addslashes($user->name) }}')">
-                                    <i class="fas fa-key"></i>
-                                </button>
-                                @endunless
                             @endif
                             <button type="button" class="news-action-btn delete" title="Hapus"
                                     onclick="openUserDeleteModal({{ $user->id }}, '{{ addslashes($user->name) }}')">

@@ -183,6 +183,10 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         // Toggle status akun (Aktif ⇄ Nonaktif) — pengganti fitur Edit Pengguna.
         Route::middleware('permission:users.edit')->group(function () {
             Route::patch('users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
+
+            // Edit Pengguna + Direct Permission (hak akses per akun).
+            Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
+            Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
         });
         // Reset password → password sementara sekali pakai (user wajib
         // ganti password saat login berikutnya). Permission khusus
@@ -193,14 +197,6 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         });
         Route::middleware('permission:users.delete')->group(function () {
             Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
-        });
-        // Edit Pengguna + Direct Permission (hak akses per akun).
-        // Pengecualian: user SELALU boleh mengedit profil milik sendiri
-        // (auth()->id() == $user->id), meskipun role/tidak punya permission
-        // users.edit secara penuh di App\Providers\AuthServiceProvider.
-        Route::middleware('can:users.edit:self')->group(function () {
-            Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('admin.users.edit');
-            Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('admin.users.update');
         });
 
         // ============================================================
@@ -226,11 +222,11 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
                 Route::get('roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('roles.index');
                 Route::get('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');
             });
-            // Pembuatan role baru — dibatasi role yang punya permission roles.create
-            Route::middleware('permission:roles.create')->group(function () {
-                Route::get('roles/create', [\App\Http\Controllers\Admin\RoleController::class, 'create'])->name('roles.create');
-                Route::post('roles', [\App\Http\Controllers\Admin\RoleController::class, 'store'])->name('roles.store');
-            });
+            // REVISI ARSITEKTUR — pembuatan role baru DINONAKTIFKAN:
+            // hak akses menu berbeda-beda diatur langsung per akun
+            // (Direct Permission di menu Pengguna), bukan via role baru.
+            // Route roles.create/roles.store dihapus → 404 (bukan 403)
+            // dan tombolnya dikunci di UI.
             Route::middleware('permission:roles.edit')->group(function () {
                 Route::get('roles/{role}/edit', [\App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('roles.edit');
                 Route::put('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])->name('roles.update');

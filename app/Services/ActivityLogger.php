@@ -281,11 +281,7 @@ class ActivityLogger
             'file'        => $file,
             'event_type'  => $eventType,
             'module'      => $module,
-            // Timestamp disimpan dalam ISO 8601 UTC ("...Z"); konversi ke
-            // zona aplikasi (config app.timezone, mis. Asia/Jakarta) agar
-            // format jam:menit — dipakai pencarian "01:53" dan tampilan
-            // meta — konsisten dengan waktu lokal pengguna.
-            'timestamp'   => Carbon::parse($entry['timestamp'])->setTimezone(config('app.timezone', 'UTC')),
+            'timestamp'   => Carbon::parse($entry['timestamp']),
             'actor'       => $entry['actor'] ?? [],
             'actor_name'  => $entry['actor']['name'] ?? 'Sistem',
             'actor_role'  => $entry['actor']['role'] ?? '',

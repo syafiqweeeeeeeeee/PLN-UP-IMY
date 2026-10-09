@@ -5,11 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\ActivityLogger;
 use App\Models\Announcement;
-use App\Models\Department;
+use App\Models\Gallery;
 use App\Models\News;
 use App\Models\Page;
 use App\Models\User;
-use App\Models\WorkLink;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -25,55 +24,17 @@ class DashboardController extends Controller
            STATISTIK — semua dari database, tanpa placeholder
            ========================================================= */
 
-        $user = auth()->user();
-        $isDepartmentAdmin = $user && $user->isDepartmentAdmin();
-
         // Draft gabungan dari seluruh konten (berita + pengumuman + halaman)
         $totalDraftContent = News::where('is_published', false)->count()
             + Announcement::where('is_published', false)->count()
             + Page::where('status', Page::STATUS_DRAFT)->count();
 
-        // Statistik global untuk Super Admin / Admin tingkat atas
         $stats = [
             'total_users'     => User::count(),
             'total_pages'     => Page::count(),
             'total_news'      => News::where('is_published', true)->count(),
             'pending_content' => $totalDraftContent,
         ];
-
-        // Jika Admin Bidang, tambahkan statistik khusus bidang
-        if ($isDepartmentAdmin) {
-            $departmentCode = $user->bidangCode();
-            $departmentName = $user->isDepartmentAdmin() && $departmentCode
-                ? Department::byCode($departmentCode)?->name
-                : ucfirst($departmentCode ?? 'Bidang');
-
-            // Nama sub-bidang dari konstanta User::SUB_DEPARTMENTS
-            $subDepartmentCode = $user->subBidangId();
-            $subDepartmentName = null;
-            if ($departmentCode && $subDepartmentCode) {
-                $subDepartmentName = User::subDepartmentLabel($departmentCode, $subDepartmentCode) ?? $subDepartmentCode;
-            }
-
-            // Statistik per bidang - hanya berita yang dibuat oleh user di bidang ini
-            $bidangNewsQuery = News::where('is_published', true)
-                ->whereIn('author_user_id', 
-                    User::where('department_id', $user->bidangId())->pluck('id')
-                );
-            $bidangAnnouncementQuery = Announcement::where('is_published', true)
-                ->where('department_id', $user->bidangId());
-            $bidangWorkLinkQuery = WorkLink::where('is_active', true)
-                ->where('department', $departmentCode);
-
-            $stats['department_name'] = $departmentName;
-            $stats['sub_department_name'] = $subDepartmentName;
-            $stats['total_news_bidang'] = $bidangNewsQuery->count();
-            $stats['total_announcements_bidang'] = $bidangAnnouncementQuery->count();
-            $stats['total_work_links_bidang'] = $bidangWorkLinkQuery->count();
-            $stats['is_department_admin'] = true;
-        } else {
-            $stats['is_department_admin'] = false;
-        }
 
         /* =========================================================
            AKTIVITAS TERBARU — dari file log aktivitas (JSONL)

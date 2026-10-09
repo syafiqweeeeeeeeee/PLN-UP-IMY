@@ -169,58 +169,25 @@ class DirectPermissionTest extends TestCase
         $this->assertFalse($user->hasDirectPermission('roles.assign_permission'));
     }
 
-    public function test_store_outside_direct_permission_roles_ignores_permissions(): void
-    {
-        $admin = $this->superAdmin();
-
-        $roleSuper = Role::where('name', 'Super Admin')->value('id');
-
-        $this->actingAs($admin)
-            ->post(route('admin.users.store'), $this->validPayload([
-                'role_id'      => $roleSuper,
-                'email'        => 'super.baru@example.com',
-                'permissions'  => $this->matrixIds(['news.view']),
-            ]))
-            ->assertRedirect(route('admin.users.index'));
-
-        $user = User::where('email', 'super.baru@example.com')->first();
-
-        // Super Admin (di luar cakupan Admin Bidang & Karyawan) →
-        // matriks direct permission dikosongkan.
-        $this->assertCount(0, $user->directPermissionIds());
-    }
-
-    public function test_store_karyawan_direct_permissions_are_saved(): void
+    public function test_store_without_admin_bidang_role_ignores_permissions(): void
     {
         $admin = $this->superAdmin();
 
         $roleKaryawan = Role::where('name', 'Karyawan')->value('id');
 
-        // KARYAWAN kini BOLEH menerima direct permission — jalur membuat
-        // varian tugas per orang (mis. "Karyawan SDM").
         $this->actingAs($admin)
             ->post(route('admin.users.store'), $this->validPayload([
                 'role_id'        => $roleKaryawan,
-                'email'          => 'karyawan.sdm@example.com',
+                'email'          => 'karyawan.baru@example.com',
                 'level_jabatan'  => 'staf',
-                'department'     => 'operasi',
-                'sub_department' => 'asmen_prod_a',
-                'permissions'    => $this->matrixIds([
-                    'news.view', 'news.create',
-                    'announcements.view', 'announcements.create',
-                    'galleries.view', 'galleries.create',
-                ]),
+                'permissions'    => $this->matrixIds(['news.view']),
             ]))
             ->assertRedirect(route('admin.users.index'));
 
-        $user = User::where('email', 'karyawan.sdm@example.com')->first();
+        $user = User::where('email', 'karyawan.baru@example.com')->first();
 
-        $this->assertCount(6, $user->directPermissionIds());
-        $this->assertTrue($user->hasPermission('news.create'));
-        // Permission ekstra → membuka akses panel admin (admin.access).
-        $this->assertTrue($user->hasExtraKaryawanPermission());
-        // ID di luar matriks tetap ditolak.
-        $this->assertFalse($user->hasDirectPermission('roles.assign_permission'));
+        // Role Karyawan → matriks direct permission dikosongkan.
+        $this->assertCount(0, $user->directPermissionIds());
     }
 
     /* =========================================================

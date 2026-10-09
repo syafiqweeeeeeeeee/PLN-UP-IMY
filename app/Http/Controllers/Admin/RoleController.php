@@ -12,30 +12,16 @@ use Illuminate\Support\Facades\Gate;
 class RoleController extends Controller
 {
     /**
-     * 3 Role Dasar (bawaan sistem) — role ini dibuat otomatis oleh
-     * PermissionSeeder dan memiliki perilaku khusus di kode:
-     *   - Super Admin    → akses penuh seluruh fitur
-     *   - Admin Bidang   → akses delegasi per bidang
-     *   - Karyawan       → akses dasar portal karyawan
-     *
-     * Role Dasar TIDAK BOLEH DIHAPUS (struktur sistem), namun NAMA
-     * tetap bisa diubah via edit (mis. penyesuaian penamaan). Role
-     * baru BISA dibuat oleh admin jika diperlukan.
+     * 3 Role Dasar PERMANEN — struktur role DIKUNCI (spec RBAC):
+     * tidak boleh dihapus / diganti namanya. Pembagian hak akses menu
+     * yang berbeda-beda diatur langsung per akun (Direct Permission di
+     * menu Pengguna), bukan via role baru.
      */
     public const BASE_ROLE_NAMES = [
         \App\Models\User::SUPER_ADMIN_ROLE,
         \App\Models\User::DEPARTMENT_ADMIN_ROLE,
         'Karyawan',
     ];
-
-    /**
-     * Daftar nama role yang bersifat khusus/sistem dan tidak boleh
-     * dihapus. Role lain (buatan admin) bisa dibuat & dihapus freely.
-     */
-    private function isBaseRole(Role $role): bool
-    {
-        return in_array($role->name, self::BASE_ROLE_NAMES, true);
-    }
 
     public function index()
     {
@@ -48,55 +34,10 @@ class RoleController extends Controller
         return view('admin.roles.index', compact('roles'));
     }
 
-    /**
-     * Tampilkan form tambah role baru.
-     * Hanya role yang memiliki permission 'roles.create' yang bisa
-     * mengakses halaman ini.
-     */
-    public function create()
-    {
-        Gate::authorize('roles.create');
-
-        return view('admin.roles.create', [
-            'menuMatrix' => MasterMenu::matrixForRoleForm(),
-        ]);
-    }
-
-    /**
-     * Simpan role baru ke database.
-     * Role baru langsung bisa diisi permission via matriks hak akses.
-     */
-    public function store(Request $request)
-    {
-        Gate::authorize('roles.create');
-
-        $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:100', 'unique:roles,name'],
-            'description' => ['nullable', 'string', 'max:255'],
-            'status'      => ['required', 'in:active,inactive'],
-            'permissions' => ['nullable', 'array'],
-            'permissions.*' => ['integer', 'exists:permissions,id'],
-        ]);
-
-        $role = Role::create([
-            'name'        => $validated['name'],
-            'description' => $validated['description'],
-            'status'      => $validated['status'] === 'active',
-        ]);
-
-        ActivityLogger::log('create', null, [
-            'module'      => 'role',
-            'description' => "membuat role baru \"{$role->name}\"",
-            'subject'     => $role,
-        ]);
-
-        // Simpan matriks hak akses (checkbox per ID Menu × CRUD)
-        // ke pivot role_permission.
-        $this->syncMatrixPermissions($role, $request->input('permissions', []));
-
-        return redirect()->route('admin.roles.permissions', $role)
-            ->with('success', "Role \"{$role->name}\" berhasil dibuat. Atur permission untuk role ini.");
-    }
+    // REVISI ARSITEKTUR — create() & store() DIHAPUS: pembuatan role
+    // baru dinonaktifkan (route roles.create/roles.store tidak lagi
+    // terdaftar → 404). Hak akses menu per akun diatur lewat Direct
+    // Permission pada form Tambah/Edit Pengguna.
 
     public function edit(Role $role)
     {
@@ -113,7 +54,7 @@ class RoleController extends Controller
     {
         Gate::authorize('roles.edit');
 
-        $isBaseRole = $this->isBaseRole($role);
+        $isBaseRole = in_array($role->name, self::BASE_ROLE_NAMES, true);
 
         $validated = $request->validate([
             // Role Dasar: nama dikunci (tidak boleh diganti).
@@ -179,11 +120,10 @@ class RoleController extends Controller
     {
         Gate::authorize('roles.delete');
 
-        // Role Dasar (Super Admin, Admin Bidang, Karyawan) tidak
-        // dapat dihapus karena merupakan bagian dari struktur sistem.
-        if ($this->isBaseRole($role)) {
+        // Role Dasar PERMANEN — tidak dapat dihapus (struktur dikunci).
+        if (in_array($role->name, self::BASE_ROLE_NAMES, true)) {
             return back()->with('error',
-                "Role \"{$role->name}\" adalah Role Dasar sistem dan tidak dapat dihapus.");
+                "Role \"{$role->name}\" adalah Role Dasar permanen dan tidak dapat dihapus.");
         }
 
         $name = $role->name;
