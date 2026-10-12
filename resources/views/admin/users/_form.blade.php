@@ -27,6 +27,27 @@
     // hak akses aktif milik user (spec: edit menampilkan kondisi saat ini).
     $checkedPermissionIds = old('permissions', $userPermissionIds ?? []);
 
+    // PETA HAK AKSES BAWAAN (DEFAULT) PER ROLE — di-embed sebagai JSON
+    // lalu dipakai JavaScript untuk auto-centang matriks Direct Permission
+    // begitu Role dipilih di dropdown "Role Pengguna" (tanpa AJAX).
+    // Hanya ID permission yang benar-benar dirender sebagai checkbox di
+    // matriks menu yang disertakan, agar sinkron dengan .perm-check di client.
+    $matrixPermissionIds = collect($menuMatrix ?? [])
+        ->flatMap(fn ($row) => collect($row['permissions'] ?? [])->pluck('id')->all())
+        ->unique()
+        ->values();
+
+    $roleDefaultPermissionIds = \App\Models\Role::query()
+        ->whereIn('id', collect($roles)->pluck('id'))
+        ->with('permissions')
+        ->get()
+        ->mapWithKeys(fn ($role) => [
+            $role->id => array_values(array_intersect(
+                $role->permissions->pluck('id')->all(),
+                $matrixPermissionIds->all()
+            )),
+        ]);
+
     // Tujuan tombol Kembali / Batal
     // - Bagi Super Admin / Admin utama: kembali ke tabel pengguna.
     // - Bagi Admin Bidang / Non-Super Admin yang edit profil sendiri:
@@ -440,6 +461,8 @@
 
         const ROLE_NAMES = @json($roles->pluck('name', 'id'));
         const SUBS = @json(\App\Models\User::SUB_DEPARTMENTS);
+        // Default permission (ID) per Role — kunci = role_id, value = array ID.
+        const ROLE_DEFAULT_PERMS = @json($roleDefaultPermissionIds);
 
         const levelSelect  = document.getElementById('level_jabatan');
         const deptSelect   = document.getElementById('department');
@@ -476,6 +499,22 @@
         function setDirectPermVisible(visible) {
             if (permSection) permSection.style.display = visible ? '' : 'none';
             permChecks.forEach(cb => (cb.disabled = !visible));
+        }
+
+        /* ===== AUTO-CENTANG MENGIKUTI ROLE =====
+           Saat Role dipilih, seluruh checkbox matriks Direct Permission
+           diset ulang sesuai hak akses bawaan (default) Role tersebut:
+           - ikut tercentang → permission bawaan Role;
+           - tidak ada di default → dicopot (kecuali nanti ditick ulang).
+           Hanya berjalan saat user MENGUBAH pilihan role — pada load awal
+           (mode Edit / old input setelah validasi gagal) centang yang sudah
+           ada TIDAK disentuh. Setelah otomatis terisi, Super Admin tetap
+           bebas menambah centang ekstra ATAU mencopot centang bawaan
+           (override manual) sebelum menyimpan. */
+        function applyRoleDefaultPermissions() {
+            const defaults = ROLE_DEFAULT_PERMS[roleSelect.value] ?? [];
+            const wanted = new Set(defaults.map(Number));
+            permChecks.forEach(cb => { cb.checked = wanted.has(Number(cb.value)); });
         }
 
         function fillSubOptions(deptCode) {
@@ -611,6 +650,10 @@
 
         levelSelect.addEventListener('change', applyLevelRules);
         roleSelect.addEventListener('change', applyRoleRules);
+        // Auto-centang hak akses mengikuti Role — didaftarkan SETELAH
+        // applyRoleRules agar visibilitas section Direct Permission sudah
+        // ditentukan lebih dulu.
+        roleSelect.addEventListener('change', applyRoleDefaultPermissions);
 
         // Restore tampilan setelah validasi gagal (old input) atau
         // role pre-selected (mode Edit Pengguna).

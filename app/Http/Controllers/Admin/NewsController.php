@@ -10,11 +10,28 @@ use Illuminate\Support\Facades\Storage;
 
 class NewsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $news = News::latest()->paginate(12);
+        // Parameter ?search= dari pencarian dashboard/topbar — cocokkan
+        // di kolom terindeks `title`; kolom panjang (`content`) hanya
+        // disentuh jika ada karakter di luar wildcard LIKE ('%', '_', '\\').
+        $search = trim((string) $request->query('search', ''));
 
-        return view('admin.news.index', compact('news'));
+        $news = News::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($w) use ($search) {
+                    $w->where('title', 'like', '%' . $search . '%');
+
+                    if (! preg_match('/[\\%_]/u', $search)) {
+                        $w->orWhere('content', 'like', '%' . $search . '%');
+                    }
+                });
+            })
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('admin.news.index', compact('news', 'search'));
     }
 
     public function create()

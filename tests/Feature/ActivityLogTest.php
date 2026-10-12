@@ -228,6 +228,8 @@ class ActivityLogTest extends TestCase
             'level_jabatan' => 'staf',
             'department'    => 'operasi',
             'sub_department' => 'spv_chcb_a',
+            'no_hp'     => '08123456789',
+            'alamat'    => 'Jl. Contoh No. 10, Jakarta',
         ]);
 
         $this->assertTrue(collect($this->allLines())->contains(fn ($l) =>

@@ -77,6 +77,7 @@ class DirectPermissionTest extends TestCase
             'department'     => 'operasi',
             'sub_department' => 'asmen_prod_a',
             'no_hp'          => '081234567890',
+            'alamat'         => 'Jl. Contoh No. 10, Jakarta',
         ], $overrides);
     }
 
@@ -221,6 +222,39 @@ class DirectPermissionTest extends TestCase
         $this->assertTrue($user->hasExtraKaryawanPermission());
         // ID di luar matriks tetap ditolak.
         $this->assertFalse($user->hasDirectPermission('roles.assign_permission'));
+    }
+
+    /* =========================================================
+       2b. STORE → REDIRECT (regresi layar putih)
+       ========================================================= */
+
+    /**
+     * REGRESI: setelah data pengguna tersimpan, store() WAJIB membalas
+     * redirect 302 ke Daftar Pengguna — bukan respons 200 kosong
+     * (layar putih) yang terjadi saat pernyataan return tertelan
+     * komentar. Halaman index juga harus tampil (render normal) dan
+     * menampilkan pesan sukses dari flash session.
+     */
+    public function test_store_redirects_to_index_with_success_message(): void
+    {
+        $admin = $this->superAdmin();
+
+        $response = $this->actingAs($admin)
+            ->post(route('admin.users.store'), $this->validPayload());
+
+        // Bukan 200 kosong — redirect ke Daftar Pengguna.
+        $response->assertStatus(302);
+        $response->assertRedirect(route('admin.users.index'));
+
+        $this->assertNotNull(
+            User::where('email', 'admin.ops.baru@example.com')->first()
+        );
+
+        // Halaman Daftar Pengguna render normal + pesan sukses tampil.
+        $this->get(route('admin.users.index'))
+            ->assertOk()
+            ->assertSee('Pengguna baru berhasil ditambahkan!', false)
+            ->assertSee('Admin Operasi Baru');
     }
 
     /* =========================================================

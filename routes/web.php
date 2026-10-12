@@ -255,6 +255,14 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+        // Global Search dari Dashboard (pencarian lintas modul —
+        // jangan sampai tertangkap wildcard {news}/{user} dsb.,
+        // karena itu didaftarkan langsung setelah /dashboard).
+        // URI sengaja DIBEDA dari AdminSearchController (topbar, /admin/search)
+        // karena dua route dengan URI yang sama tidak bisa hidup berdampingan.
+        Route::get('/cari', [DashboardController::class, 'globalSearch'])
+            ->name('global-search');
+
         // CRUD Pengguna — gate per aksi. `show` sengaja terbuka (profil saya di topbar).
         Route::middleware('permission:users.view')->group(function () {
             Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');

@@ -6,11 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Services\ActivityLogger;
 use App\Models\Announcement;
 use App\Models\Department;
+use App\Models\Menu;
 use App\Models\News;
 use App\Models\Page;
+use App\Models\Tamu;
 use App\Models\User;
 use App\Models\WorkLink;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class DashboardController extends Controller
 {
@@ -146,6 +150,192 @@ class DashboardController extends Controller
         return view('admin.dashboard', compact(
             'stats', 'activities', 'latest_content', 'notifications', 'system_status', 'storage'
         ));
+    }
+
+    /**
+     * =====================================================================
+     * GLOBAL SEARCH — Pencarian lintas modul dari Dashboard.
+     * =====================================================================
+     * GET /admin/search?q=...  (route: admin.global-search)
+     *
+     * Dicari sekaligus di:
+     *  - User        : nama & email
+     *  - News        : judul & isi
+     *  - Announcement: judul & isi
+     *  - Page        : judul
+     *  - Menu        : label
+     *  - Tamu        : nama, instansi, NIK
+     *
+     * Setiap baris hasil membawa URL langsung ke halaman kelola modulnya.
+     * Hak akses tetap dihormati: modul tanpa permission view-nya
+     * dihapuskan dari hasil (Gate::allows), mirip AdminSearchController.
+     * Setiap kategori dibatasi LIMIT 8 baris + hanya kolom kecil yang
+     * dipilih (tanpa fulltext / kolom panjang yang tidak perlu).
+     */
+    public function globalSearch(Request $request)
+    {
+        $request->validate(['q' => 'required|string|min:2|max:100']);
+
+        $q      = trim($request->query('q'));
+        $like   = '%' . $q . '%';
+        $groups = [];
+
+        /* -----------------------------------------------------------
+           Pengguna — name / email
+           ----------------------------------------------------------- */
+        if (Gate::allows('users.view')) {
+            $items = User::query()
+                ->where(function ($w) use ($like) {
+                    $w->where('name', 'like', $like)
+                      ->orWhere('email', 'like', $like);
+                })
+                ->orderBy('name')
+                ->limit(8)
+                ->get(['id', 'name', 'email']);
+
+            $groups['Pengguna'] = $items->map(fn (User $u) => [
+                'title'   => $u->name,
+                'meta'    => $u->email,
+                'icon'    => 'fas fa-user',
+                'color'   => '#dbeafe',
+                'url'     => route('admin.users.show', $u),
+                'cta'     => 'Lihat Pengguna',
+            ])->all();
+        }
+
+        /* -----------------------------------------------------------
+           Berita — judul; kolom `content` panjang hanya LIKE bila
+           query tidak memuat karakter wildcard SQL ('%', '_', '\\').
+           ----------------------------------------------------------- */
+        if (Gate::allows('news.view')) {
+            $items = News::query()
+                ->where(function ($w) use ($like, $q) {
+                    $w->where('title', 'like', $like);
+                    if (! preg_match('/[\\%_]/u', $q)) {
+                        $w->orWhere('content', 'like', $like);
+                    }
+                })
+                ->latest()
+                ->limit(8)
+                ->get(['id', 'title', 'is_published']);
+
+            $groups['Berita'] = $items->map(fn (News $n) => [
+                'title'   => $n->title,
+                'meta'    => $n->is_published ? 'Terbit' : 'Draft',
+                'icon'    => 'fas fa-newspaper',
+                'color'   => '#005B9C',
+                'url'     => route('admin.news.edit', $n),
+                'cta'     => 'Kelola Berita',
+            ])->all();
+        }
+
+        /* -----------------------------------------------------------
+           Pengumuman — judul + isi (dengan pengaman wildcart sama).
+           ----------------------------------------------------------- */
+        if (Gate::allows('announcements.view')) {
+            $items = Announcement::query()
+                ->where(function ($w) use ($like, $q) {
+                    $w->where('title', 'like', $like);
+                    if (! preg_match('/[\\%_]/u', $q)) {
+                        $w->orWhere('content', 'like', $like);
+                    }
+                })
+                ->latest('created_at')
+                ->limit(8)
+                ->get(['id', 'title', 'is_published']);
+
+            $groups['Pengumuman'] = $items->map(fn (Announcement $a) => [
+                'title'   => $a->title,
+                'meta'    => $a->is_published ? 'Terbit' : 'Draft',
+                'icon'    => 'fas fa-bullhorn',
+                'color'   => '#166534',
+                'url'     => route('admin.announcements.edit', $a),
+                'cta'     => 'Kelola Pengumuman',
+            ])->all();
+        }
+
+        /* -----------------------------------------------------------
+           Halaman — judul.
+           ----------------------------------------------------------- */
+        if (Gate::allows('pages.view')) {
+            $items = Page::query()
+                ->where('title', 'like', $like)
+                ->latest('updated_at')
+                ->limit(8)
+                ->get(['id', 'title', 'status']);
+
+            $groups['Halaman'] = $items->map(fn (Page $p) => [
+                'title'   => $p->title,
+                'meta'    => $p->status === Page::STATUS_PUBLISHED ? 'Terbit' : 'Draft',
+                'icon'    => 'fas fa-file-lines',
+                'color'   => '#7c3aed',
+                'url'     => route('admin.pages.edit', $p),
+                'cta'     => 'Kelola Halaman',
+            ])->all();
+        }
+
+        /* -----------------------------------------------------------
+           Menu — label.
+           ----------------------------------------------------------- */
+        if (Gate::allows('menus.view')) {
+            $items = Menu::query()
+                ->where('label', 'like', $like)
+                ->orderBy('sort_order')
+                ->limit(8)
+                ->get(['id', 'label', 'is_active']);
+
+            $groups['Menu'] = $items->map(fn (Menu $m) => [
+                'title'   => $m->label,
+                'meta'    => $m->is_active ? 'Aktif' : 'Nonaktif',
+                'icon'    => 'fas fa-bars',
+                'color'   => '#7c3aed',
+                'url'     => route('admin.menus.edit', $m),
+                'cta'     => 'Kelola Menu',
+            ])->all();
+        }
+
+        /* -----------------------------------------------------------
+           Tamu (Guest Book) — nama, instansi, NIK.
+           ----------------------------------------------------------- */
+        if (Gate::allows('tamu.view')) {
+            $items = Tamu::query()
+                ->where(function ($w) use ($like) {
+                    $w->where('nama', 'like', $like)
+                      ->orWhere('instansi', 'like', $like)
+                      ->orWhere('nik', 'like', $like);
+                })
+                ->orderByDesc('created_at')
+                ->limit(8)
+                // Kolom dipilih hanya yang dipakai (nama/instansi/tanggal).
+                // TANPA status_verifikasi — kolom itu baru ditambahkan di
+                // migration 2026_10_05 dan bisa belum ada di DB lokal,
+                // yang memicu SQLSTATE[42S22] (Unknown column).
+                ->get(['id', 'nama', 'instansi', 'tanggal_kunjungan']);
+
+            $groups['Tamu'] = $items->map(function (Tamu $t) use ($q) {
+                // Kalau yang cocok NIK, tampilkan NIK sebagai meta;
+                // selain itu instansi (atau tanggal kunjungan).
+                $hitInstansi = $t->instansi && str_contains(strtolower($t->instansi), strtolower($q));
+                $hitNama     = $t->nama && str_contains(strtolower($t->nama), strtolower($q));
+
+                return [
+                    'title'   => $t->nama,
+                    'meta'    => ($hitInstansi || ! $hitNama) && $t->instansi ? $t->instansi : ($t->tanggal_kunjungan?->translatedFormat('d M Y') ?? '-'),
+                    'icon'    => 'fas fa-address-book',
+                    'color'   => '#fef3c7',
+                    // Modul tamu tidak punya halaman detail per baris —
+                    // arahkan ke index dengan query pencarian terisi.
+                    'url'     => route('admin.tamu.index', ['q' => $t->nama]),
+                    'cta'     => 'Kelola Tamu',
+                ];
+            })->all();
+        }
+
+        return view('admin.search', [
+            'q'      => $q,
+            'groups' => $groups,
+            'total'  => array_sum(array_map('count', $groups)),
+        ]);
     }
 
     /**

@@ -313,6 +313,22 @@
 
 @section('content')
 {{-- ============================================
+     FLASH MESSAGE — hasil redirect dari Tambah / Edit / Hapus /
+     Toggle Status / Reset Password pengguna (polo form-alert).
+     ============================================ --}}
+@if (session('success'))
+<div class="form-alert success">
+    <i class="fas fa-check-circle"></i> {{ session('success') }}
+</div>
+@endif
+
+@if (session('error'))
+<div class="form-alert danger">
+    <i class="fas fa-circle-exclamation"></i> {{ session('error') }}
+</div>
+@endif
+
+{{-- ============================================
      PAGE HEADER (pola /admin/news)
      ============================================ --}}
 <div class="page-header-card">

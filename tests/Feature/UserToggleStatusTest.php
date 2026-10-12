@@ -30,10 +30,20 @@ class UserToggleStatusTest extends TestCase
     {
         // REVISI ARSITEKTUR — Edit Pengguna aktif kembali: form yang sama
         // dipakai mengatur Direct Permission per akun.
+        //
+        // Kebijakan RBAC saat ini (AuthServiceProvider + UserController):
+        // hanya Super Admin / Admin utama ATAU akun sendiri yang boleh
+        // membuka form edit pengguna lain — role lain → 403.
         $admin  = $this->admin();
         $target = User::factory()->create();
 
         $this->actingAs($admin)
+            ->get(route('admin.users.edit', $target))
+            ->assertForbidden();
+
+        $superAdmin = User::factory()->create(['role' => 'Super Admin']);
+
+        $this->actingAs($superAdmin)
             ->get(route('admin.users.edit', $target))
             ->assertOk()
             ->assertSee('Edit Pengguna');

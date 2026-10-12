@@ -33,15 +33,22 @@
                         </p>
                     </div>
                     <div class="d-flex align-items-center gap-3 flex-wrap">
-                        <div style="position: relative; flex-shrink: 0;">
+                        {{-- Global Search: submit (Enter / klik ikon) membawa
+                             ?q=... ke halaman hasil pencarian lintas modul
+                             (User, Berita, Pengumuman, Halaman, Menu, Tamu). --}}
+                        <form action="{{ route('admin.global-search') }}" method="GET" style="position: relative; flex-shrink: 0; margin: 0;">
                             <input type="text"
                                    id="dashboardSearchInput"
+                                   name="q"
                                    placeholder="Cari berita, pengumuman..."
                                    style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; padding: 0.55rem 1rem 0.55rem 2.4rem; color: #fff; font-size: 0.85rem; width: 200px; max-width: 100%; transition: all 0.2s ease; outline: none; box-sizing: border-box;"
                                    onfocus="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.5)';"
                                    onblur="this.style.background='rgba(255,255,255,0.15)'; this.style.borderColor='rgba(255,255,255,0.25)';">
-                            <i class="fas fa-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); opacity: 0.6; font-size: 0.82rem;"></i>
-                        </div>
+                            <button type="submit" aria-label="Cari"
+                                    style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); opacity: 0.6; font-size: 0.82rem; background: transparent; border: none; padding: 0; color: #fff; cursor: pointer; pointer-events: auto;">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
                         <div class="d-flex gap-3 align-items-center" style="flex-shrink: 0; gap: 0.75rem;">
                             <div class="text-center" style="min-width: 70px;">
                                 <div style="font-size: 1.5rem; font-weight: 800; line-height: 1.2;">{{ number_format($stats['pending_content']) }}</div>
@@ -365,22 +372,6 @@
     </div>
 
 </div>
-    {{-- Script WAJIB di dalam @section('content') (bukan @push('scripts'))
-         karena client-side router (router.js) hanya mengeksekusi ulang
-         <script> di dalam <main> setelah navigasi SPA. --}}
-    <script>
-    (function() {
-        var searchInput = document.getElementById('dashboardSearchInput');
-        if (!searchInput) return;
-        searchInput.addEventListener('input', function() {
-            var q = this.value.toLowerCase().trim();
-            document.querySelectorAll('.content-row, .activity-item').forEach(function(el) {
-                var t = (el.querySelector('.content-title, .activity-text') || {}).textContent || '';
-                el.classList.toggle('search-hidden', q && !t.toLowerCase().includes(q));
-            });
-        });
-    })();
-    </script>
 @endsection
 
 @push('styles')
