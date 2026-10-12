@@ -443,7 +443,7 @@
                                 <i class="fas fa-eye"></i>
                             </a>
                             @if($isSuperAdmin || ($au && $au->id == $user->id))
-                                <a href="{{ route('admin.admin.users.edit', $user) }}" class="news-action-btn edit" title="Edit Pengguna & Hak Akses">
+                                <a href="{{ route('admin.users.edit', $user) }}" class="news-action-btn edit" title="Edit Pengguna & Hak Akses">
                                     <i class="fas fa-pen"></i>
                                 </a>
                             @endif

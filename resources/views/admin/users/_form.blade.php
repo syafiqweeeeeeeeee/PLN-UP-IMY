@@ -98,7 +98,7 @@
 </div>
 @endif
 
-<form action="{{ $isEdit ? route('admin.admin.users.update', $user) : route('admin.users.store') }}"
+<form action="{{ $isEdit ? route('admin.users.update', $user) : route('admin.users.store') }}"
       method="POST" id="userForm">
     @csrf
     @if ($isEdit)

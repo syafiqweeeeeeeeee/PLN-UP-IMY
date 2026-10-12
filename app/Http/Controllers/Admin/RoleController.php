@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MasterMenu;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 

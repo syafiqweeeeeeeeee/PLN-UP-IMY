@@ -100,6 +100,21 @@ class Tamu extends Model
     }
 
     /**
+     * URL unduh dokumen ZIP untuk konteks Portal Karyawan — sama-sama
+     * disajikan privat via route ber-auth (karyawan.tamu.dokumen,
+     * dijaga permission:tamu.view) sehingga tetap tidak bisa diakses
+     * publik via /storage.
+     */
+    public function getDokumenZipUrlKaryawanAttribute(): ?string
+    {
+        if (! $this->dokumen_zip) {
+            return null;
+        }
+
+        return route('karyawan.tamu.dokumen', $this);
+    }
+
+    /**
      * Nomor HP dalam format internasional (awalan 08 -> 62)
      * untuk link click-to-chat WhatsApp.
      */

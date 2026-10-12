@@ -198,7 +198,7 @@
                     @endif
 
                     @if((auth()->user()->role === 'Admin Bidang' || optional(auth()->user()->role)->name === 'Admin Bidang') && auth()->id() == $user->id)
-                        <a href="{{ route('admin.admin.users.edit', $user) }}" class="btn-edit"
+                        <a href="{{ route('admin.users.edit', $user) }}" class="btn-edit"
                            style="background:var(--pln-yellow);color:var(--pln-blue);border:none;border-radius:8px;padding:0.6rem 1.2rem;font-weight:600;font-size:0.85rem;display:inline-flex;align-items:center;gap:0.5rem;text-decoration:none;">
                             <i class="fas fa-edit me-1"></i> Edit Profil
                         </a>

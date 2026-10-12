@@ -1691,3 +1691,106 @@ select optgroup {
     color: #475569;
     background-color: #f1f5f9;
 }
+
+/* ============================================================
+   HALAMAN DATA TAMU — utilitas bersama (selaras panel admin):
+   btn-corp (tombol korporat), page-pagination (navigate halaman)
+   dipakai oleh resources/views/karyawan/tamu/index.blade.php.
+   ============================================================ */
+
+.btn-corp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 700;
+    padding: 0.55rem 1.15rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+
+/* Primer portal: toska (bukan kuning — kuning disarankan hanya
+   teks di atas toska tua, pola .kry-btn-more / .kry-btn-primary) */
+.btn-corp.btn-corp-primary {
+    background: var(--kry-teal);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 143, 168, 0.22);
+}
+
+.btn-corp.btn-corp-primary:hover {
+    background: var(--kry-teal-dark);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 143, 168, 0.32);
+}
+
+.btn-corp.btn-corp-soft {
+    background: var(--kry-card);
+    color: var(--kry-muted);
+    border-color: var(--kry-line);
+}
+
+.btn-corp.btn-corp-soft:hover {
+    color: var(--kry-teal);
+    border-color: var(--kry-teal);
+    background: var(--kry-teal-soft);
+}
+
+/* Pagination manual — pola yang sama dipakai semua halaman
+   portal (news / announcements / galeri) via .portal-news-pagination;
+   di sini berdiri generik tanpa scoping per halaman. */
+.page-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.25rem;
+}
+
+.page-pagination .pagination {
+    display: flex;
+    gap: 0.3rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.page-pagination .page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.5rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--kry-muted);
+    background: var(--kry-card);
+    border: 1px solid var(--kry-line);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+}
+
+.page-pagination .page-btn:hover {
+    border-color: var(--kry-teal);
+    color: var(--kry-teal);
+    background: var(--kry-teal-soft);
+}
+
+.page-pagination .page-btn.active {
+    background: var(--kry-teal);
+    color: #fff;
+    border-color: var(--kry-teal);
+}
+
+.page-pagination .page-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}

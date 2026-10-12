@@ -136,34 +136,91 @@ Route::middleware(['auth', 'karyawan.access'])->prefix('karyawan')->name('karyaw
 
     // Profil — satu-satunya bagian yang bisa diubah karyawan
     Route::get('/profil', [\App\Http\Controllers\Karyawan\PortalController::class, 'profil'])->name('profil');
-    Route::put('/profil', [\App\Http\Controllers\Karyawan\PortalController::class, 'updateProfil'])->name('profil.update');// --- Berita ---
-    Route::get('/berita', [\App\Http\Controllers\Karyawan\NewsController::class, 'index'])->name('news.index');
-    Route::get('/berita/{news}', [\App\Http\Controllers\Karyawan\NewsController::class, 'show'])->name('news.show');
-    Route::get('/berita/create', [\App\Http\Controllers\Karyawan\NewsController::class, 'create'])->name('news.create');
-    Route::post('/berita', [\App\Http\Controllers\Karyawan\NewsController::class, 'store'])->name('news.store');
-    Route::get('/berita/{news}/edit', [\App\Http\Controllers\Karyawan\NewsController::class, 'edit'])->name('news.edit');
-    Route::put('/berita/{news}', [\App\Http\Controllers\Karyawan\NewsController::class, 'update'])->name('news.update');
-    Route::delete('/berita/{news}', [\App\Http\Controllers\Karyawan\NewsController::class, 'destroy'])->name('news.destroy');
-    Route::post('/berita/{news}/publish', [\App\Http\Controllers\Karyawan\NewsController::class, 'togglePublish'])->name('news.publish');
+    Route::put('/profil', [\App\Http\Controllers\Karyawan\PortalController::class, 'updateProfil'])->name('profil.update');    // --- Berita ---
+    // Catatan urutan: route statis (create) WAJIB didaftarkan sebelum
+    // wildcard show (berita/{news}), kalau tidak "create" tertangkap
+    // binding {news} → 404 (pola sama dengan grup admin/news).
+    Route::middleware('permission:news.create')->group(function () {
+        Route::get('/berita/create', [\App\Http\Controllers\Karyawan\NewsController::class, 'create'])->name('news.create');
+        Route::post('/berita', [\App\Http\Controllers\Karyawan\NewsController::class, 'store'])->name('news.store');
+    });
+    Route::middleware('permission:news.view')->group(function () {
+        Route::get('/berita', [\App\Http\Controllers\Karyawan\NewsController::class, 'index'])->name('news.index');
+        Route::get('/berita/{news}', [\App\Http\Controllers\Karyawan\NewsController::class, 'show'])->name('news.show');
+    });
+    Route::middleware('permission:news.edit')->group(function () {
+        Route::get('/berita/{news}/edit', [\App\Http\Controllers\Karyawan\NewsController::class, 'edit'])->name('news.edit');
+        Route::put('/berita/{news}', [\App\Http\Controllers\Karyawan\NewsController::class, 'update'])->name('news.update');
+    });
+    Route::middleware('permission:news.delete')->group(function () {
+        Route::delete('/berita/{news}', [\App\Http\Controllers\Karyawan\NewsController::class, 'destroy'])->name('news.destroy');
+    });
+    Route::middleware('permission:news.publish')->group(function () {
+        Route::post('/berita/{news}/publish', [\App\Http\Controllers\Karyawan\NewsController::class, 'togglePublish'])->name('news.publish');
+    });
 
     // --- Pengumuman ---
-    Route::get('/pengumuman', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'index'])->name('announcements.index');
-    Route::get('/pengumuman/{announcement}', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'show'])->name('announcements.show');
-    Route::get('/pengumuman/create', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'create'])->name('announcements.create');
-    Route::post('/pengumuman', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'store'])->name('announcements.store');
-    Route::get('/pengumuman/{announcement}/edit', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'edit'])->name('announcements.edit');
-    Route::put('/pengumuman/{announcement}', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'update'])->name('announcements.update');
-    Route::delete('/pengumuman/{announcement}', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
-    Route::post('/pengumuman/{announcement}/publish', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'togglePublish'])->name('announcements.publish');
+    // Urutan sama dengan berita: statis (create) sebelum wildcard {announcement}.
+    Route::middleware('permission:announcements.create')->group(function () {
+        Route::get('/pengumuman/create', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'create'])->name('announcements.create');
+        Route::post('/pengumuman', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'store'])->name('announcements.store');
+    });
+    Route::middleware('permission:announcements.view')->group(function () {
+        Route::get('/pengumuman', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'index'])->name('announcements.index');
+        Route::get('/pengumuman/{announcement}', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'show'])->name('announcements.show');
+    });
+    Route::middleware('permission:announcements.edit')->group(function () {
+        Route::get('/pengumuman/{announcement}/edit', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'edit'])->name('announcements.edit');
+        Route::put('/pengumuman/{announcement}', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'update'])->name('announcements.update');
+    });
+    Route::middleware('permission:announcements.delete')->group(function () {
+        Route::delete('/pengumuman/{announcement}', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+    });
+    Route::middleware('permission:announcements.publish')->group(function () {
+        Route::post('/pengumuman/{announcement}/publish', [\App\Http\Controllers\Karyawan\AnnouncementController::class, 'togglePublish'])->name('announcements.publish');
+    });
 
     // --- Galeri ---
-    Route::get('/galeri', [\App\Http\Controllers\Karyawan\GalleryController::class, 'index'])->name('galeri.index');
-    Route::get('/galeri/create', [\App\Http\Controllers\Karyawan\GalleryController::class, 'create'])->name('galeri.create');
-    Route::post('/galeri', [\App\Http\Controllers\Karyawan\GalleryController::class, 'store'])->name('galeri.store');
-    Route::get('/galeri/{galeri}/edit', [\App\Http\Controllers\Karyawan\GalleryController::class, 'edit'])->name('galeri.edit');
-    Route::put('/galeri/{galeri}', [\App\Http\Controllers\Karyawan\GalleryController::class, 'update'])->name('galeri.update');
-    Route::patch('/galeri/{galeri}/toggle-status', [\App\Http\Controllers\Karyawan\GalleryController::class, 'toggleStatus'])->name('galeri.toggle-status');
-    Route::delete('/galeri/{galeri}', [\App\Http\Controllers\Karyawan\GalleryController::class, 'destroy'])->name('galeri.destroy');
+    // Urutan sama: statis (create) sebelum wildcard {galeri}.
+    Route::middleware('permission:galleries.view')->group(function () {
+        Route::get('/galeri', [\App\Http\Controllers\Karyawan\GalleryController::class, 'index'])->name('galeri.index');
+    });
+    Route::middleware('permission:galleries.create')->group(function () {
+        Route::get('/galeri/create', [\App\Http\Controllers\Karyawan\GalleryController::class, 'create'])->name('galeri.create');
+        Route::post('/galeri', [\App\Http\Controllers\Karyawan\GalleryController::class, 'store'])->name('galeri.store');
+    });
+    Route::middleware('permission:galleries.edit')->group(function () {
+        Route::get('/galeri/{galeri}/edit', [\App\Http\Controllers\Karyawan\GalleryController::class, 'edit'])->name('galeri.edit');
+        Route::put('/galeri/{galeri}', [\App\Http\Controllers\Karyawan\GalleryController::class, 'update'])->name('galeri.update');
+        Route::patch('/galeri/{galeri}/toggle-status', [\App\Http\Controllers\Karyawan\GalleryController::class, 'toggleStatus'])->name('galeri.toggle-status');
+    });
+    Route::middleware('permission:galleries.delete')->group(function () {
+        Route::delete('/galeri/{galeri}', [\App\Http\Controllers\Karyawan\GalleryController::class, 'destroy'])->name('galeri.destroy');
+    });
+
+    // --- Data Tamu (Guest Book) ---
+    // Konteks KARYAWAN: controller yang SAMA dengan admin (subclass
+    // App\Http\Controllers\Karyawan\TamuController) — logic/validasi
+    // reuse penuh, hanya layout & route tujuan yang berbeda. Gate per
+    // aksi tetap permission tamu.* (tampilan pakai @can di view).
+    Route::middleware('permission:tamu.view')->group(function () {
+        Route::get('/data-tamu', [\App\Http\Controllers\Karyawan\TamuController::class, 'index'])->name('tamu.index');
+        Route::get('/data-tamu/{tamu}/dokumen', [\App\Http\Controllers\TamuDocumentController::class, 'dokumen'])
+            ->name('tamu.dokumen');
+    });
+    Route::middleware('permission:tamu.create')->group(function () {
+        Route::post('/data-tamu', [\App\Http\Controllers\Karyawan\TamuController::class, 'store'])->name('tamu.store');
+    });
+    Route::middleware('permission:tamu.edit')->group(function () {
+        Route::put('/data-tamu/{tamu}', [\App\Http\Controllers\Karyawan\TamuController::class, 'update'])->name('tamu.update');
+    });
+    Route::middleware('permission:tamu.checkout')->group(function () {
+        Route::patch('/data-tamu/{tamu}/checkout', [\App\Http\Controllers\Karyawan\TamuController::class, 'checkout'])->name('tamu.checkout');
+        Route::post('/data-tamu/{tamu}/verifikasi', [\App\Http\Controllers\Karyawan\TamuController::class, 'verifikasi'])->name('tamu.verifikasi');
+    });
+    Route::middleware('permission:tamu.delete')->group(function () {
+        Route::delete('/data-tamu/{tamu}', [\App\Http\Controllers\Karyawan\TamuController::class, 'destroy'])->name('tamu.destroy');
+    });
 });
 
 // Admin Dashboard
@@ -226,8 +283,8 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         // (auth()->id() == $user->id), meskipun role/tidak punya permission
         // users.edit secara penuh di App\Providers\AuthServiceProvider.
         Route::middleware('can:users.edit:self')->group(function () {
-            Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('admin.users.edit');
-            Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('admin.users.update');
+            Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
+            Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
         });
 
         // ============================================================

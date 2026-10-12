@@ -28,6 +28,33 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class TamuController extends Controller
 {
+    /* =========================================================
+       KONTEKS AKSES — halaman ini dipakai dua konteks:
+       Panel Admin (admin.tamu.*) dan Portal Karyawan
+       (karyawan.tamu.*, via subclass App\Http\Controllers\Karyawan\TamuController
+       yang override tiga method di bawah). Logic CRUD, validasi &
+       scoping TETAP SATU di sini — yang berbeda hanya tujuan
+       redirect, nama view, dan URL unduh dokumen.
+       ========================================================= */
+
+    /** Nama route index sesuai konteks (redirect setelah aksi). */
+    protected function indexRouteName(): string
+    {
+        return 'admin.tamu.index';
+    }
+
+    /** Nama view index sesuai konteks (layout admin / karyawan). */
+    protected function indexView(): string
+    {
+        return 'admin.tamu.index';
+    }
+
+    /** URL unduh dokumen privat sesuai konteks akses. */
+    protected function dokumenUrl(Tamu $tamu): ?string
+    {
+        return $tamu->dokumen_zip_url;
+    }
+
     public function index(Request $request)
     {
         $query = Tamu::query()
@@ -66,7 +93,7 @@ class TamuController extends Controller
             // Nilai mentah utk <input type="datetime-local"> pada modal edit
             'tanggal_input' => $t->tanggal_kunjungan?->format('Y-m-d\\TH:i'),
             // URL unduh dokumen ZIP (null bila tanpa lampiran)
-            'dokumen'   => $t->dokumen_zip_url,
+            'dokumen'   => $this->dokumenUrl($t),
             // Untuk kompatibilitas dengan modal edit (JS mengakses model Carbon)
             'tanggal_kunjungan' => $t->tanggal_kunjungan,
         ])->keyBy('id');
@@ -86,7 +113,7 @@ class TamuController extends Controller
             'dokumen_zip_url' => $t->dokumen_zip_url,
         ])->toArray();
 
-        return view('admin.tamu.index', compact('tamus', 'stats', 'tamuData', 'tamuFullDataForJs'));
+        return view($this->indexView(), compact('tamus', 'stats', 'tamuData', 'tamuFullDataForJs'));
     }
 
     public function store(Request $request)
@@ -143,7 +170,7 @@ class TamuController extends Controller
             'subject' => $tamu,
         ]);
 
-        return redirect()->route('admin.tamu.index')
+        return redirect()->route($this->indexRouteName())
             ->with('success', "Data tamu \"{$tamu->nama}\" berhasil ditambahkan.");
     }
 
@@ -209,7 +236,7 @@ class TamuController extends Controller
             'subject' => $tamu,
         ]);
 
-        return redirect()->route('admin.tamu.index')
+        return redirect()->route($this->indexRouteName())
             ->with('success', "Data tamu \"{$tamu->nama}\" berhasil diperbarui.");
     }
 
@@ -228,7 +255,7 @@ class TamuController extends Controller
      *                               bukan rentang 3 jam seperti form publik.
      * @return array<int, mixed>
      */
-    private function jamRules(Request $request, ?int $kecualiId = null, ?string $jamLama = null, ?int $durasiJam = null): array
+    protected function jamRules(Request $request, ?int $kecualiId = null, ?string $jamLama = null, ?int $durasiJam = null): array
     {
         return [
             'required',
@@ -296,7 +323,7 @@ class TamuController extends Controller
 
         // Flash data untuk pop-up "kirim konfirmasi WA" di halaman index:
         // memuat URL wa.me dengan pesan yang sudah terisi sesuai keputusan.
-        return redirect()->route('admin.tamu.index')->with('wa_konfirmasi', [
+        return redirect()->route($this->indexRouteName())->with('wa_konfirmasi', [
             'nama'   => $tamu->nama,
             'no_wa'  => $tamu->wa_number,
             'status' => $statusLabel,
@@ -307,7 +334,7 @@ class TamuController extends Controller
     public function checkout(Tamu $tamu)
     {
         if ($tamu->checked_out_at !== null) {
-            return redirect()->route('admin.tamu.index')
+            return redirect()->route($this->indexRouteName())
                 ->with('error', "Tamu \"{$tamu->nama}\" sudah check-out sebelumnya.");
         }
 
@@ -319,7 +346,7 @@ class TamuController extends Controller
             'subject' => $tamu,
         ]);
 
-        return redirect()->route('admin.tamu.index')
+        return redirect()->route($this->indexRouteName())
             ->with('success', "Tamu \"{$tamu->nama}\" ditandai selesai berkunjung.");
     }
 
@@ -339,7 +366,7 @@ class TamuController extends Controller
             'description' => "menghapus data tamu \"{$nama}\"",
         ]);
 
-        return redirect()->route('admin.tamu.index')
+        return redirect()->route($this->indexRouteName())
             ->with('success', "Data tamu \"{$nama}\" berhasil dihapus.");
     }
 

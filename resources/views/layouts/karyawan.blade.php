@@ -473,10 +473,22 @@
                                 <i class="fas fa-newspaper"></i> Kelola Berita
                             </a>
                         @endcan
+                        @can('news.create')
+                            <a href="{{ route('karyawan.news.create') }}"
+                               class="kry-dropdown-item" role="menuitem">
+                                <i class="fas fa-plus" style="width:1.25rem;font-size:0.95rem;color:var(--ink-muted, #6b7280);"></i> Buat Berita Baru
+                            </a>
+                        @endcan
                         @can('announcements.view')
                             <a href="{{ route('karyawan.announcements.index') }}"
                                class="kry-dropdown-item" role="menuitem">
                                 <i class="fas fa-bullhorn"></i> Kelola Pengumuman
+                            </a>
+                        @endcan
+                        @can('announcements.create')
+                            <a href="{{ route('karyawan.announcements.create') }}"
+                               class="kry-dropdown-item" role="menuitem">
+                                <i class="fas fa-plus" style="width:1.25rem;font-size:0.95rem;color:var(--ink-muted, #6b7280);"></i> Buat Pengumuman
                             </a>
                         @endcan
                         @can('galleries.view')
@@ -486,8 +498,8 @@
                             </a>
                         @endcan
                         @can('tamu.view')
-                            <a href="{{ route('admin.tamu.index') }}" target="_blank" rel="noopener"
-                               class="kry-dropdown-item" role="menuitem">
+                            <a href="{{ route('karyawan.tamu.index') }}"
+                               class="kry-dropdown-item {{ request()->routeIs('karyawan.tamu.*') ? 'active-route' : '' }}" role="menuitem">
                                 <i class="fas fa-id-card"></i> Data Tamu
                             </a>
                         @endcan
