@@ -168,6 +168,10 @@ class UserController extends Controller
             ->all();
 
         $user->syncPermissions(array_values(array_intersect($submitted, $matrixIds)));
+
+        // REAL-TIME RBAC — perubahan direct permission berlaku detik ini
+        // juga (flush cache registrasi gate permission).
+        \App\Providers\AuthServiceProvider::flushPermissionGateCache();
     }
 
     /**

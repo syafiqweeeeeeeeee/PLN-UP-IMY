@@ -112,6 +112,20 @@ class AuthServiceProvider extends ServiceProvider
         }
     }
 
+    /**
+     * Bersihkan cache registrasi gate permission (PermissionRegistrar
+     * versi sistem ini). Dipanggil RoleController setiap kali pivot
+     * role_permission diperbarui, sehingga perubahan centang Hak Akses
+     * langsung bereffek ke SEMUA akun yang memegang role tersebut tanpa
+     * perlu menunggu cache lama (jalur pengecekan Gate::before →
+     * User::hasPermission memang membaca relasi roles.permissions
+     * real-time per request — flush ini menjaga registrasi gate ikut fresh).
+     */
+    public static function flushPermissionGateCache(): void
+    {
+        app('cache')->store()->forget('permission.gates.registered');
+    }
+
     protected function registerPermissionGate(string $permission): void
     {
         $this->app->make('validator')->extend("permission:{$permission}", function ($attribute, $value, $parameters, $validator) use ($permission) {

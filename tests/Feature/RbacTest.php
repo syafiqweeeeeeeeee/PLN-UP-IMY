@@ -204,7 +204,7 @@ class RbacTest extends TestCase
        Berbasis master ID Menu Sidebar × 4 aksi CRUD.
        ========================================================= */
 
-    public function test_role_update_preserves_non_matrix_permissions(): void
+    public function test_role_update_syncs_matrix_permissions_exactly(): void
     {
         $this->seed(\Database\Seeders\PermissionSeeder::class);
 
@@ -212,13 +212,13 @@ class RbacTest extends TestCase
 
         $role = \App\Models\Role::create(['name' => 'PIC Konten', 'status' => true]);
         $role->permissions()->sync(
-            \App\Models\Permission::whereIn('name', ['news.view', 'news.publish'])->pluck('id')->all()
+            \App\Models\Permission::whereIn('name', ['news.view', 'news.edit'])->pluck('id')->all()
         );
 
         $newsViewId = \App\Models\Permission::where('name', 'news.view')->value('id');
 
-        // Simpan form Edit Role HANYA dengan centang matriks news.view —
-        // news.publish (di luar matriks) tetap dipertahankan.
+        // Simpan form Edit Role dengan HANYA centang matriks news.view —
+        // centang sebelumnya (news.edit) tergantikan oleh isi form baru.
         $this->actingAs($admin)
             ->put(route('admin.roles.update', $role), [
                 'name'        => 'PIC Konten',
@@ -229,8 +229,69 @@ class RbacTest extends TestCase
             ->assertRedirect(route('admin.roles.index'));
 
         $this->assertTrue($role->hasPermission('news.view'));
-        $this->assertTrue($role->hasPermission('news.publish'));
         $this->assertFalse($role->hasPermission('news.create'));
+        $this->assertFalse($role->hasPermission('news.edit'));
+
+        // Aksi publish berita sudah menyatu ke hak akses news.edit
+        // (Permission::ACTION_ALIASES) — tidak ada baris news.publish
+        // lagi di database, dan role tanpa news.edit ikut tak bisa publish.
+        $this->assertFalse($role->hasPermission('news.publish'));
+    }
+
+    /* =========================================================
+       REAL-TIME INHERITANCE — perubahan centang di Kelola Role
+       otomatis berdampak ke SEMUA akun pemegang role tersebut.
+       ========================================================= */
+
+    public function test_role_permission_update_applies_to_role_users_realtime(): void
+    {
+        $this->seed(\Database\Seeders\PermissionSeeder::class);
+
+        $admin = $this->userWithPermissions(['roles.view', 'roles.edit']);
+
+        // Role uji + satu akun yang memegang role tersebut.
+        $role = \App\Models\Role::create(['name' => 'PIC Konten Uji', 'status' => true]);
+        $staff = \App\Models\User::factory()->create();
+        $staff->roles()->attach($role->id);
+
+        // Centang awal: hanya "Lihat Berita".
+        $this->actingAs($admin)
+            ->put(route('admin.roles.update', $role), [
+                'name'        => 'PIC Konten Uji',
+                'description' => null,
+                'status'      => 'active',
+                'permissions' => \App\Models\Permission::whereIn('name', ['news.view'])->pluck('id')->all(),
+            ])
+            ->assertRedirect(route('admin.roles.index'));
+
+        $this->assertTrue($staff->fresh()->can('news.view'));
+        $this->assertFalse($staff->fresh()->can('news.edit'));
+
+        // Tambah centang Edit & Hapus Berita via form Kelola Role →
+        // akun yang sama langsung mewarisi tanpa logout-login ulang.
+        $this->actingAs($admin)
+            ->put(route('admin.roles.update', $role), [
+                'name'        => 'PIC Konten Uji',
+                'description' => null,
+                'status'      => 'active',
+                'permissions' => \App\Models\Permission::whereIn('name', ['news.view', 'news.edit', 'news.delete'])->pluck('id')->all(),
+            ])
+            ->assertRedirect(route('admin.roles.index'));
+
+        $this->assertTrue($staff->fresh()->can('news.edit'));
+        $this->assertTrue($staff->fresh()->can('news.delete'));
+
+        // Kurangi centang (hapus news.delete) → direktiv @can ikut dicabut.
+        $this->actingAs($admin)
+            ->put(route('admin.roles.update', $role), [
+                'name'        => 'PIC Konten Uji',
+                'description' => null,
+                'status'      => 'active',
+                'permissions' => \App\Models\Permission::whereIn('name', ['news.view'])->pluck('id')->all(),
+            ])
+            ->assertRedirect(route('admin.roles.index'));
+
+        $this->assertFalse($staff->fresh()->can('news.delete'));
     }
 
     /* =========================================================

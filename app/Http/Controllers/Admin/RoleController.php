@@ -132,11 +132,17 @@ class RoleController extends Controller
         ]);
 
         // REVISI RBAC — simpan matriks hak akses granular secara dinamis
-        // ke pivot role_permission saat form Edit Role disimpan. Permission
-        // DI LUAR matriks (mis. news.publish, tamu.checkout,
-        // roles.assign_permission, legacy) TETAP dipertahankan — slot
-        // ekstra tersebut dikelola di halaman "Kelola Permission".
+        // ke pivot role_permission saat form Edit Role disimpan. Tabel
+        // permissions kini berisi TEPAT 39 permission matriks per ID Menu,
+        // sehingga sync ini justru memastikan pivot role bebas dari sisa
+        // permission legacy: angka kolom "Hak Akses" di daftar role
+        // selalu akurat dari relasi database ($role->permissions()->count()).
         $this->syncMatrixPermissions($role, $request->input('permissions', []), preserveExtras: true);
+
+        // REAL-TIME RBAC — bersihkan cache registrasi gate permission agar
+        // seluruh akun pemegang role ini langsung mewarisi perubahan centang
+        // (setara Spatie: forgetCachedPermissions()).
+        \App\Providers\AuthServiceProvider::flushPermissionGateCache();
 
         return redirect()->route('admin.roles.index')
             ->with('success', "Role \"{$role->name}\" berhasil diperbarui.");
@@ -190,6 +196,9 @@ class RoleController extends Controller
         $name = $role->name;
         $role->delete();
 
+        // REAL-TIME RBAC — role terhapus: cabut cache gate permission.
+        \App\Providers\AuthServiceProvider::flushPermissionGateCache();
+
         return redirect()->route('admin.roles.index')
             ->with('success', "Role \"{$name}\" berhasil dihapus.");
     }
@@ -218,6 +227,10 @@ class RoleController extends Controller
         $permissionIds = array_unique($validated['permissions']);
 
         $role->permissions()->sync($permissionIds);
+
+        // REAL-TIME RBAC — halaman "Kelola Permission": flush cache gate
+        // agar perubahan langsung diwarisi semua akun dengan role ini.
+        \App\Providers\AuthServiceProvider::flushPermissionGateCache();
 
         return redirect()->route('admin.roles.permissions', $role)
             ->with('success', 'Permission berhasil diperbarui.');

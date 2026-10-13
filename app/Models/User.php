@@ -274,9 +274,6 @@ class User extends Authenticatable
         'dashboard.view',
         'news.view',
         'pages.view',
-        'internal.view',
-        'applications.view',
-        'logout',
     ];
 
     /**
@@ -684,6 +681,29 @@ class User extends Authenticatable
             return false;
         }
 
+        // 0) ALIAS AKSI EKSTRA — aksi non-CRUD yang aktif (news.publish,
+        //    tamu.checkout, dst.) menyatu dengan hak akses matriks induknya
+        //    (lihat Permission::ACTION_ALIASES). Barisnya tidak lagi ada di
+        //    tabel permissions, jadi seluruh pengecekan dilakukan menggunakan
+        //    permission induknya agar @can & middleware permission: tetap
+        //    berjalan tanpa error 403.
+        $base = \App\Models\Permission::resolveAlias($permission);
+
+        if ($base !== $permission) {
+            // Aksi ekstra = kemampuan aksi induk: ALLOW jika user punya
+            // permission induk (direct maupun role). Baris permission
+            // legacy yang masih tersimpan (jika ada) juga tetap dihormati.
+            if ($this->hasDirectPermission($permission) || $this->hasDirectPermission($base)) {
+                return true;
+            }
+
+            if ($this->roleHasPermissionName($permission)) {
+                return true;
+            }
+
+            return $this->hasPermission($base);
+        }
+
         // 1) DIRECT PERMISSION — diatur per akun via form Pengguna.
         //    Jika user secara eksplisit mengikutsertakan permission ini → ALLOW.
         if ($this->hasDirectPermission($permission)) {
@@ -726,6 +746,41 @@ class User extends Authenticatable
             return $role !== null
                 && ! $role->isInactive()
                 && $role->hasPermission($permission);
+        }
+
+        return false;
+    }
+
+    /**
+     * Apakah salah satu role AKTIF milik akun memiliki permission bername
+     * tertentu (baris pivot Role Has Permissions). Dipakai jalur alias aksi
+     * ekstra untuk menghormati baris legacy yang masih tersimpan.
+     */
+    private function roleHasPermissionName(string $permission): bool
+    {
+        if (! $this->exists) {
+            return false;
+        }
+
+        $roles = $this->relationLoaded('roles')
+            ? $this->roles
+            : $this->roles()->with('permissions')->get();
+
+        foreach ($roles as $role) {
+            if ($role->isInactive()) {
+                continue;
+            }
+
+            if ($role->permissions->contains('name', $permission)) {
+                return true;
+            }
+        }
+
+        // Fallback akun legacy via kolom users.role_id.
+        if ($roles->isEmpty() && $this->role_id) {
+            $role = $this->relationLoaded('role') ? $this->role : $this->role()->first();
+
+            return $role !== null && ! $role->isInactive() && $role->hasPermission($permission);
         }
 
         return false;
