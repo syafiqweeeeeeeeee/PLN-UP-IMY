@@ -56,8 +56,9 @@ class UserOrgHierarchyTest extends TestCase
             ->assertSee('name="level_jabatan"', false)
             ->assertSee('name="department"', false)
             ->assertSee('name="sub_department"', false)
-            ->assertSee('Asisten Manager Prod A')
-            ->assertSee('Supervisor CHCB D');
+            // Label Sub-Bidang murni nama bidang (tanpa prefix jabatan).
+            ->assertSee('Prod A')
+            ->assertSee('CHCB D');
     }
 
     public function test_create_form_level_jabatan_has_only_four_levels(): void

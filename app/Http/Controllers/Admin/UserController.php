@@ -141,7 +141,11 @@ class UserController extends Controller
 
     /**
      * Validasi & sinkronisasi DIRECT PERMISSION (matriks ID Menu × CRUD)
-     * ke tabel user_has_permissions. Checkbox di luar matriks diabaikan.
+     * ke tabel user_has_permissions — HANYA untuk role delegasi (Karyawan
+     * & Admin Bidang) sebagai hak ekstra di atas baseline role (semantik
+     * Spatie: direct permission hanya menambah, tidak pernah memblokir
+     * role). Checkbox di luar matriks diabaikan; role lain selalu kosong
+     * agar hak akses 100% mengikuti role secara dinamis.
      */
     private function syncDirectPermissions(User $user, Request $request, string $roleName): void
     {
@@ -173,7 +177,6 @@ class UserController extends Controller
         // juga (flush cache registrasi gate permission).
         \App\Providers\AuthServiceProvider::flushPermissionGateCache();
     }
-
     /**
      * Aturan payload bersama store() & update(). Password opsional
      * pada update (kosong = tidak diganti).
@@ -279,10 +282,6 @@ class UserController extends Controller
         // DIRECT PERMISSION — sinkronkan matriks hak akses per akun
         // (Admin Bidang & Karyawan) ke tabel user_has_permissions.
         $this->syncDirectPermissions($user, $request, $role->name);
-
-        // Note: Jika nanti menginstal spatie/laravel-permission, aktifkan
-        // pembersihan cache di sini agar perubahan Direct Permission langsung
-        // berlaku real-time tanpa logout-login ulang.
 
         ActivityLogger::log('create', null, [
             'module'      => 'pengguna',
@@ -486,10 +485,6 @@ class UserController extends Controller
             // Pastikan tetap sinkron pada hak akses yang sudah ada.
             $this->syncDirectPermissions($user, $request, $user->role);
         }
-
-        // Note: Jika nanti menginstal spatie/laravel-permission, aktifkan
-        // pembersihan cache di sini agar perubahan Direct Permission langsung
-        // berlaku real-time tanpa logout-login ulang.
 
         ActivityLogger::log('update', null, [
             'module'      => 'pengguna',

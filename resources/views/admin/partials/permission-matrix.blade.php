@@ -5,11 +5,16 @@
        - Form Pengguna — Direct Permission (admin/users/_form)
      Parameter:
        $menuMatrix   → MasterMenu::matrixForRoleForm()
-       $checkedIds   → array<int,int> permission ID tercentang
+       $checkedIds   → array<int,int> permission ID tercentang (merged)
+       $lockedIds    → array<int,int> ID bawaan ROLE — tampil tercentang
+                       TAPI terkunci (disabled): read-only, TIDAK dikirim
+                       saat form disimpan (tidak disalin ke user_has_permissions;
+                       izin tetap aktif karena dibaca dinamis dari role)
        $checkboxGroupMode → 'role' (default) | 'direct' — hanya label
      ============================================================ --}}
 @php
     $checkedIds = $checkedIds ?? [];
+    $lockedIds  = $lockedIds ?? [];
 @endphp
 
 @push('styles')
@@ -18,6 +23,12 @@
         .perm-matrix-wrap { overflow-x: auto; }
         .perm-matrix { min-width: 680px; }
         .perm-check { cursor: pointer; }
+        /* Checkbox bawaan Role: read-only (disabled) — ubah lewat Kelola Role. */
+        .perm-role-locked { cursor: not-allowed !important; opacity: 0.75; }
+        .perm-locked-legend {
+            display: flex; align-items: center; gap: 0.5rem;
+            margin-top: 0.25rem; font-size: 0.78rem; color: var(--interactive);
+        }
         .perm-na { color: #9ca3af; }
         .text-muted { color: var(--ink-muted); }
     </style>
@@ -65,16 +76,21 @@
                     @foreach (['view', 'create', 'edit', 'delete'] as $action)
                         @php
                             $perm = $row['permissions']->first(fn ($p) => str_ends_with($p->name, '.' . $action));
+                            $isLocked  = $perm !== null && in_array($perm->id, $lockedIds);
+                            $isChecked = $perm !== null && ($isLocked || in_array($perm->id, $checkedIds));
                         @endphp
                         <td>
                             @if ($perm)
-                                <input type="checkbox" class="perm-check"
+                                <input type="checkbox" class="perm-check{{ $isLocked ? ' perm-role-locked' : '' }}"
                                        name="permissions[]"
                                        value="{{ $perm->id }}"
                                        id="perm-{{ $perm->id }}"
                                        data-menu-id="{{ $menuDef['id'] }}"
                                        data-action="{{ $action }}"
-                                       {{ in_array($perm->id, $checkedIds) ? 'checked' : '' }}>
+                                       data-role-locked="{{ $isLocked ? '1' : '' }}"
+                                       title="{{ $isLocked ? 'Hak akses bawaan Role — dikelola di menu Kelola Role' : '' }}"
+                                       {{ $isLocked ? 'disabled' : '' }}
+                                       {{ $isChecked ? 'checked' : '' }}>
                             @else
                                 <span class="perm-na">—</span>
                             @endif
@@ -88,6 +104,12 @@
         </tbody>
     </table>
 </div>
+@if (count($lockedIds) > 0)
+<div class="perm-locked-legend">
+    <i class="fas fa-lock"></i>
+    Centang yang dilindungi gembok = bawaan Role (akun sudah memilikinya otomatis). Ubah lewat menu Kelola Role — tidak perlu disalin ke akun.
+</div>
+@endif
 <div class="form-hint flex mt-2">
     <i class="far fa-lightbulb"></i> Tanda "—" berarti menu tersebut tidak memiliki aksi tersebut (mis. Dashboard hanya punya hak View).
 </div>
@@ -103,7 +125,8 @@
         if (! wrapper || wrapper.dataset.permMatrixBound) return;
         wrapper.dataset.permMatrixBound = '1';
 
-        const checkboxes = Array.from(wrapper.querySelectorAll('.perm-check'));
+        // Hanya checkbox editable (bukan bawaan Role yang terkunci).
+        const checkboxes = Array.from(wrapper.querySelectorAll('.perm-check:not(:disabled)'));
 
         wrapper.querySelector('.perm-select-all')?.addEventListener('click', function () {
             const allChecked = checkboxes.every(cb => cb.checked);

@@ -2895,6 +2895,195 @@ html.theme-dark .form-input::placeholder { color: var(--ink-faint); }
     box-shadow: 0 0 0 3px rgba(0,91,156,0.08);
     outline: none;
 }
+
+/* ============================================
+   SELECT (DROPDOWN) — FORM INPUT (modern-clean)
+   Tinggi/padding/radius konsisten & sejajar
+   dengan input teks; chevron custom PLN;
+   rounded 14px, border tipis, focus biru lembut.
+   Float label DI DALAM box (.pln-field-float).
+   Panel pilihan tetap dikelola native UNLESS
+   halaman memakai enhancement "EnhancedSelect"
+   (lihat .pln-dd-*).
+   ============================================ */
+select.form-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /* ruang kanan untuk chevron custom */
+    padding-right: 2.75rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.95rem center;
+    background-size: 0.72rem;
+    cursor: pointer;
+    height: 3.35rem;
+    min-height: 3.35rem;
+    /* ruang atas untuk floating label dalam box */
+    padding-top: 1.3rem;
+    border-radius: 14px;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+/* Belum ada nilai terpilih → teks dikosongkan; floating label yang bicara. */
+select.form-input.is-empty { color: transparent; }
+select.form-input.is-empty::placeholder { color: transparent; }
+select.form-input:hover:not(:disabled):not(:focus) {
+    border-color: #c3cfe0;
+}
+/* Fokus ring biru lembut — tetap menyala meski fokus pindah ke
+   kotak pencarian panel (.is-open pada wrapper). */
+select.form-input:focus,
+.pln-select-wrap.is-open select.form-input {
+    border-color: var(--pln-blue);
+    box-shadow: 0 0 0 3px rgba(0, 91, 156, 0.14);
+    outline: none;
+}
+.pln-select-wrap.is-open select.form-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23005B9C' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 15 12 9 18 15'/%3E%3C/svg%3E");
+}
+select.form-input:disabled {
+    cursor: not-allowed;
+    color: var(--ink-faint, #9ca3af);
+    background-color: rgba(148, 163, 184, 0.08);
+}
+select.form-input:disabled + .pln-field-float,
+.pln-select-wrap:has(select.form-input:disabled) .pln-field-float {
+    color: #b6bfcc;
+}
+select.form-input option {
+    padding: 0.5rem 0.65rem;
+    line-height: 1.45;
+}
+
+/* ---- Floating label DI DALAM box (Role/Level/Bidang/Sub-Bidang).
+     Label luar disembunyikan visual (tetap terbaca screen reader). --*/
+.pln-select-wrap { position: relative; }
+.pln-select-wrap .pln-field-float {
+    position: absolute;
+    top: 0.42rem;
+    left: 0.95rem;
+    right: 2.6rem;               /* jangan tumpuk chevron */
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #94a3b8;              /* abu lembut */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;        /* klik tembus ke select */
+    user-select: none;
+    transition: color 0.18s ease;
+}
+.pln-select-wrap.is-open .pln-field-float,
+.pln-select-wrap:focus-within .pln-field-float { color: var(--pln-blue); }
+.pln-select-wrap .pln-field-float .required { font-size: 0.75em; }
+/* Star hanya tampil bila select.required = true (disinkronkan JS). */
+.pln-field-float .required { display: none; }
+.pln-select-wrap.is-required .pln-field-float .required { display: inline; }
+/* Label luar: disembunyikan visual — screen reader tetap membaca. */
+.pln-label-sr {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%);
+    white-space: nowrap; border: 0;
+}
+
+/* ============================================
+   ENHANCED SELECT — PANEL CUSTOM (form Pengguna)
+   Searchable + melayang DI BAWAH input (fixed,
+   di-append ke <body>, immune overflow card);
+   never flips up: bila ruang di bawah sempit,
+   halaman di-scroll otomatis sebelum tampil.
+   Rounded 14px + bayangan lembut; hover/pilihan
+   soft highlight sudut tumpul; padding antar-opsi
+   lega.
+   ============================================ */
+.pln-dd-panel {
+    position: fixed;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.16), 0 2px 8px rgba(15, 23, 42, 0.06);
+    padding: 0.45rem;
+    min-width: var(--dd-width, 240px);
+    animation: pln-dd-in 0.14s ease-out;
+}
+@keyframes pln-dd-in {
+    from { opacity: 0; transform: translateY(-5px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+/* ---- Daftar hasil (langsung tersaji, tanpa kotak pencarian). --*/
+.pln-dd-results {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.pln-dd-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: 9px;
+    padding: 0.65rem 0.9rem;    /* lega: nyaman dibaca & di-klik */
+    font-size: 0.88rem;
+    font-family: inherit;
+    color: #1f2937;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+.pln-dd-item + .pln-dd-item { margin-top: 2px; }  /* spasi antar-opsi */
+.pln-dd-item:hover,
+.pln-dd-item.is-focused {
+    background: rgba(0, 91, 156, 0.08);          /* soft highlight PLN blue */
+    color: var(--pln-blue);
+}
+.pln-dd-item.is-selected {
+    background: rgba(0, 91, 156, 0.10);
+    color: var(--pln-blue);
+    font-weight: 600;
+}
+.pln-dd-item.is-selected:hover,
+.pln-dd-item.is-selected.is-focused { background: rgba(0, 91, 156, 0.16); color: var(--pln-blue-dark); }
+.pln-dd-item.is-placeholder { color: #9ca3af; font-style: italic; }
+.pln-dd-item:not(.is-selected) .pln-dd-check { display: none; }
+.pln-dd-check {
+    font-size: 0.7rem;
+    opacity: 0.9;
+    flex-shrink: 0;
+}
+.pln-dd-empty {
+    padding: 0.85rem;
+    font-size: 0.82rem;
+    color: #9ca3af;
+    text-align: center;
+}
+html.theme-dark .pln-dd-panel {
+    background: var(--panel);
+    border-color: var(--line);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+}
+html.theme-dark .pln-dd-item { color: var(--ink-heading); }
+html.theme-dark .pln-dd-item:hover,
+html.theme-dark .pln-dd-item.is-focused {
+    background: rgba(0, 163, 224, 0.12);
+    color: var(--pln-cyan);
+}
+html.theme-dark .pln-dd-item.is-selected,
+html.theme-dark .pln-dd-item.is-selected:hover {
+    background: rgba(0, 163, 224, 0.14);
+    color: var(--pln-cyan);
+}
 html.theme-dark .form-input:focus {
     border-color: var(--pln-cyan);
     box-shadow: 0 0 0 3px var(--focus-ring);

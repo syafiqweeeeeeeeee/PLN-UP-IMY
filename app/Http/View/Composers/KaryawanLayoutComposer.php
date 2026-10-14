@@ -10,8 +10,9 @@ use Illuminate\View\View;
  * (Hirarki Organisasi), dan inisial avatar (maks 2 huruf) — pola sama
  * dengan TopbarComposer.
  *
- * Contoh tampilan jabatan: "Asisten Manager Prod A (Operasi)" —
- * kombinasi Sub-Bidang + Bidang Utama dari data form Pengguna.
+ * Contoh tampilan jabatan: "Asisten Manager · Prod A (Operasi)" —
+ * Level Jabatan + Sub-Bidang (label murni nama bidang, tanpa prefix
+ * jabatan) + Bidang Utama dari data form Pengguna.
  */
 class KaryawanLayoutComposer
 {
@@ -30,7 +31,8 @@ class KaryawanLayoutComposer
 
     /**
      * Label jabatan dinamis untuk header & profil:
-     * - Sub-bidang terisi → "Asisten Manager Prod A (Operasi)".
+     * - Sub-bidang terisi → "Asisten Manager · Prod A (Operasi)"
+     *   (Level Jabatan + Sub-Bidang label murni nama bidang + Bidang).
      * - Hanya bidang      → "Manager Bidang (Operasi)".
      * - Senior Manager    → "Senior Manager" (akses global).
      * - Tanpa data        → fallback kolom role / "Karyawan".
@@ -41,12 +43,19 @@ class KaryawanLayoutComposer
             return 'Karyawan';
         }
 
-        $levelLabel = User::levelJabatanLabel($user->level_jabatan);
+        // Prefix jabatan hanya untuk 4 level aktif. Level legacy gabungan
+        // ('staf_spv' → "Supervisor / Asisten Manager / Staf") tidak
+        // dijadikan prefix — sub-bidang label pendek sudah cukup jelas.
+        $levelLabel = User::LEVEL_JABATAN[$user->level_jabatan] ?? null;
         $deptLabel  = User::DEPARTMENTS[$user->department] ?? null;
         $subLabel   = User::subDepartmentLabel($user->department, $user->sub_department);
 
         if ($subLabel !== null) {
-            return $deptLabel !== null ? "{$subLabel} ({$deptLabel})" : $subLabel;
+            // Sub label kini murni nama bidang ("Prod A") — konteks jabatan
+            // tetap diberikan lewat Level Jabatan bila terisi.
+            $sub = $levelLabel !== null ? "{$levelLabel} · {$subLabel}" : $subLabel;
+
+            return $deptLabel !== null ? "{$sub} ({$deptLabel})" : $sub;
         }
 
         if ($levelLabel !== null) {

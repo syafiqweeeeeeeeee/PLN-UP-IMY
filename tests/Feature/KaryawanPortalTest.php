@@ -353,7 +353,9 @@ class KaryawanPortalTest extends TestCase
 
     public function test_header_shows_dynamic_jabatan_with_department(): void
     {
-        // Staf/Asmen/Spv: "<Sub-Bidang> (<Bidang>)"
+        // Label Sub-Bidang kini murni nama bidang (tanpa prefix jabatan).
+        // Level legacy gabungan 'staf_spv' tidak dijadikan prefix —
+        // tampil "<Sub-Bidang> (<Bidang>)".
         $user = $this->karyawanUser([
             'level_jabatan' => 'staf_spv',
             'department'    => 'operasi',
@@ -362,7 +364,7 @@ class KaryawanPortalTest extends TestCase
 
         $this->actingAs($user)->get(route('karyawan.dashboard'))
             ->assertOk()
-            ->assertSee('Asisten Manager Prod A (Operasi)');
+            ->assertSee('Prod A (Operasi)');
 
         // Manager Bidang: "Manager Bidang (Operasi)"
         $manager = $this->karyawanUser([

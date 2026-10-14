@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MasterMenu;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -139,6 +140,13 @@ class RoleController extends Controller
         // selalu akurat dari relasi database ($role->permissions()->count()).
         $this->syncMatrixPermissions($role, $request->input('permissions', []), preserveExtras: true);
 
+        // SINKRONISASI ROLE → PENGGUNA — seluruh akun pemegang role ini
+        // otomatis menerima pembaruan permissions yang sama tanpa perlu
+        // diedit satu per satu: (1) baseline role dibaca dinamis dari pivot
+        // role_permission, (2) salinan direct permission lama milik akun
+        // dibersihkan agar tidak menimpa role saat ini.
+        $this->syncRoleUsersDirectPermissions($role);
+
         // REAL-TIME RBAC — bersihkan cache registrasi gate permission agar
         // seluruh akun pemegang role ini langsung mewarisi perubahan centang
         // (setara Spatie: forgetCachedPermissions()).
@@ -182,6 +190,59 @@ class RoleController extends Controller
         $role->permissions()->sync(array_values(array_unique(array_merge($submitted, $nonMatrixCurrentIds))));
     }
 
+    /**
+     * SINKRONISASI ROLE → PENGGUNA (spec: "mengedit centang pada suatu
+     * Role langsung mengubah hak akses seluruh akun pemegang Role").
+     *
+     * Baseline hak akses efektif kini SELALU dibaca dinamis dari pivot
+     * role_permission (semantik Spatie: direct permission hanya MENAMBAH,
+     * tidak pernah memblokir role — lihat User::hasPermission). Langkah
+     * ekstra di sini hanya memurnikan data: salinan direct permission
+     * (user_has_permissions) yang dulu tersimpan saat akun dibuat dibuang,
+     * sehingga perubahan role juga mencabut salinan basi tersebut.
+     *
+     * Pengecualian: role delegasi "Karyawan" & "Admin Bidang" — direct
+     * permission per akun adalah fitur sah (varian tugas per orang), jadi
+     * tetap dipertahankan sebagai tambahan di atas baseline role.
+     */
+    private function syncRoleUsersDirectPermissions(Role $role): void
+    {
+        $delegationRoles = [User::DEPARTMENT_ADMIN_ROLE, 'Karyawan'];
+
+        if (in_array($role->name, $delegationRoles, true)) {
+            return;
+        }
+
+        // Akun pemegang role: pivot role_user + fallback kolom users.role_id.
+        $userIds = \Illuminate\Support\Facades\DB::table('role_user')
+            ->where('role_id', $role->id)
+            ->pluck('user_id')
+            ->merge(User::where('role_id', $role->id)->pluck('id'))
+            ->unique()
+            ->values();
+
+        if ($userIds->isEmpty()) {
+            return;
+        }
+
+        // Abaikan akun yang juga memegang role delegasi (direct permission-
+        // nya adalah hak ekstra yang sah).
+        $delegationRoleIds = Role::whereIn('name', $delegationRoles)->pluck('id');
+
+        $affectedUsers = User::whereIn('id', $userIds)
+            ->whereDoesntHave('roles', fn ($q) => $q->whereIn('roles.id', $delegationRoleIds))
+            ->whereNotIn('role_id', $delegationRoleIds)
+            ->get();
+
+        foreach ($affectedUsers as $user) {
+            $user->syncPermissions([]);
+        }
+
+        if ($affectedUsers->isNotEmpty()) {
+            \App\Providers\AuthServiceProvider::flushPermissionGateCache();
+        }
+    }
+
     public function destroy(Role $role)
     {
         Gate::authorize('roles.delete');
@@ -194,6 +255,12 @@ class RoleController extends Controller
         }
 
         $name = $role->name;
+
+        // SINKRONISASI ROLE → PENGGUNA — role dihapus: buang juga salinan
+        // direct permission basi milik seluruh akun yang pernah memegangnya
+        // agar tidak ada hak akses yang bertahan lewat salinan.
+        $this->syncRoleUsersDirectPermissions($role);
+
         $role->delete();
 
         // REAL-TIME RBAC — role terhapus: cabut cache gate permission.
@@ -227,6 +294,11 @@ class RoleController extends Controller
         $permissionIds = array_unique($validated['permissions']);
 
         $role->permissions()->sync($permissionIds);
+
+        // SINKRONISASI ROLE → PENGGUNA — halaman "Kelola Permission":
+        // sinkronkan juga direct permission salinan lama milik seluruh
+        // akun pemegang role ini.
+        $this->syncRoleUsersDirectPermissions($role);
 
         // REAL-TIME RBAC — halaman "Kelola Permission": flush cache gate
         // agar perubahan langsung diwarisi semua akun dengan role ini.

@@ -53,38 +53,46 @@ class User extends Authenticatable
      * Pengguna, form & modal Link Kerja) dibangun dinamis dari konstanta
      * ini — mengikuti nilai Bidang Utama yang dipilih (dependent dropdown).
      */
+    /**
+     * Master Sub-Bidang / Bagian — LABEL MURNI NAMA BIDANG (tanpa prefix
+     * jabatan "Asisten Manager"/"Supervisor"): dropdown form Pengguna,
+     * dashboard, dan work link menampilkan nama bidang sesungguhnya, mis.
+     * "Prod A", bukan "Asisten Manager Prod A". Kita kunci kode (key)
+     * tidak berubah karena disimpan di kolom users.sub_department,
+     * tamus.sub & work_links.sub_department.
+     */
     public const SUB_DEPARTMENTS = [
         'operasi' => [
-            'asmen_prod_a'    => 'Asisten Manager Prod A',
-            'asmen_prod_b'    => 'Asisten Manager Prod B',
-            'asmen_prod_c'    => 'Asisten Manager Prod C',
-            'asmen_prod_d'    => 'Asisten Manager Prod D',
-            'spv_chcb_a'      => 'Supervisor CHCB A',
-            'spv_chcb_b'      => 'Supervisor CHCB B',
-            'spv_chcb_c'      => 'Supervisor CHCB C',
-            'spv_chcb_d'      => 'Supervisor CHCB D',
-            'asmen_renops'    => 'Asisten Manager RenOps',
-            'asmen_niaga_bb'  => 'Asisten Manager Niaga BB',
-            'asmen_kimia_lab' => 'Asisten Manager Kimia & Lab',
+            'asmen_prod_a'    => 'Prod A',
+            'asmen_prod_b'    => 'Prod B',
+            'asmen_prod_c'    => 'Prod C',
+            'asmen_prod_d'    => 'Prod D',
+            'spv_chcb_a'      => 'CHCB A',
+            'spv_chcb_b'      => 'CHCB B',
+            'spv_chcb_c'      => 'CHCB C',
+            'spv_chcb_d'      => 'CHCB D',
+            'asmen_renops'    => 'RenOps',
+            'asmen_niaga_bb'  => 'Niaga BB',
+            'asmen_kimia_lab' => 'Kimia & Lab',
         ],
         'pemeliharaan' => [
-            'asmen_rendal_har' => 'Asisten Manager Rendal Har',
-            'asmen_mo'         => 'Asisten Manager MO',
-            'asmen_mesin_1'    => 'Asisten Manager Mesin 1',
-            'asmen_mesin_2'    => 'Asisten Manager Mesin 2',
-            'asmen_listrik'    => 'Asisten Manager Listrik',
-            'asmen_konin'      => 'Asisten Manager Konin',
-            'asmen_inventori'  => 'Asisten Manager Inventori Kontrol & Gudang',
+            'asmen_rendal_har' => 'Rendal Har',
+            'asmen_mo'         => 'MO',
+            'asmen_mesin_1'    => 'Mesin 1',
+            'asmen_mesin_2'    => 'Mesin 2',
+            'asmen_listrik'    => 'Listrik',
+            'asmen_konin'      => 'Konin',
+            'asmen_inventori'  => 'Inventori Kontrol & Gudang',
         ],
         'engineering' => [
-            'asmen_so'   => 'Asisten Manager SO',
-            'asmen_cbm'  => 'Asisten Manager CBM',
-            'asmen_mmrk' => 'Asisten Manager MMRK',
+            'asmen_so'   => 'SO',
+            'asmen_cbm'  => 'CBM',
+            'asmen_mmrk' => 'MMRK',
         ],
         'business_support' => [
-            'asmen_pengadaan' => 'Asisten Manager Pengadaan',
-            'asmen_sdm_umum_csr' => 'Asisten Manager SDM Umum CSR',
-            'asmen_keuangan'  => 'Asisten Manager Keuangan',
+            'asmen_pengadaan' => 'Pengadaan',
+            'asmen_sdm_umum_csr' => 'SDM Umum CSR',
+            'asmen_keuangan'  => 'Keuangan',
         ],
         'k3_kam' => [
             'k3_kam'   => 'K3 & KAM',
@@ -158,7 +166,8 @@ class User extends Authenticatable
 
     /**
      * Label Sub-Bidang dari pasangan kode department & sub_department
-     * (mis. "operasi", "spv_chcb_b" → "Supervisor CHCB B"). Statis agar
+     * (mis. "operasi", "spv_chcb_b" → "CHCB B") — murni nama bidang,
+     * tanpa prefix jabatan. Statik agar
      * bisa dipakai dengan maupun tanpa instance model.
      */
     public static function subDepartmentLabel(?string $department, ?string $subDepartment): ?string
@@ -704,26 +713,19 @@ class User extends Authenticatable
             return $this->hasPermission($base);
         }
 
-        // 1) DIRECT PERMISSION — diatur per akun via form Pengguna.
-        //    Jika user secara eksplisit mengikutsertakan permission ini → ALLOW.
+        // 1) DIRECT PERMISSION — hak ekstra per akun (form Pengguna),
+        //    SEMANTIK SPATIE: direct permission HANYA MENAMBAH (union).
+        //    Ia tidak pernah memblokir/meng-override role, sehingga setiap
+        //    perubahan centang di Kelola Role langsung berlaku ke SELURUH
+        //    akun pemegang role tanpa harus edit akun satu per satu.
         if ($this->hasDirectPermission($permission)) {
             return true;
         }
 
-        // 2) Cek apakah user memiliki direct permission untuk MODUL yang sama.
-        //    Jika YA → berarti user pernah mengelola matriks hak akses untuk
-        //    modul ini, dan permission yang tidak dicentang dianggap TIDAK
-        //    DIINGINKAN → BLOCK (override role permission).
-        $module = $this->permissionModule($permission);
-        if ($module !== null && $this->hasAnyDirectPermissionForModule($module)) {
-            // User pernah mengelola matriks modul ini, tapi permission ini
-            // tidak ada di direct permission → BLOCK.
-            return false;
-        }
-
-        // 3) FALLBACK ROLE — permission yang melekat pada role aktif.
-        //    Hanya digunakan jika user TIDAK PUNYA direct permission untuk
-        //    modul ini (belum pernah mengedit matriks hak akses).
+        // 2) BASELINE ROLE — permission yang melekat pada role aktif,
+        //    dibaca DINAMIS dari pivot role_permission setiap pengecekan
+        //    (bukan disalin saat akun dibuat), sehingga edit Role selalu
+        //    ter-propagasi real-time ke seluruh akun pemegangnya.
         $roles = $this->relationLoaded('roles')
             ? $this->roles
             : $this->roles()->with('permissions')->get();
@@ -784,32 +786,5 @@ class User extends Authenticatable
         }
 
         return false;
-    }
-
-    /**
-     * Ekstrak nama modul dari permission string.
-     * Contoh: 'news.edit' → 'news', 'activity_logs.delete' → 'activity_logs'.
-     * Permission yang tidak mengandung titik (mis. permission kustom) → null.
-     */
-    private function permissionModule(string $permission): ?string
-    {
-        $parts = explode('.', $permission);
-        return count($parts) > 1 ? $parts[0] : null;
-    }
-
-    /**
-     * Apakah user memiliki SAMA SALAH SATU direct permission untuk modul tertentu?
-     * Dipakai untuk menentukan apakah user pernah mengelola matriks hak akses
-     * untuk modul ini (sehingga permission yang tidak dicentang berarti ditolak).
-     */
-    private function hasAnyDirectPermissionForModule(string $module): bool
-    {
-        if (! $this->exists) {
-            return false;
-        }
-
-        return $this->permissions()
-            ->where('permissions.name', 'like', $module . '.%')
-            ->exists();
     }
 }

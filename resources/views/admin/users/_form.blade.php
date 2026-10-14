@@ -23,10 +23,6 @@
     $isLockedEdit     = ($isEdit && !$actorIsSuperUser && $user->id === $actor?->id);
     $isCompactSelfEdit = $isLockedEdit;
 
-    // Direct permission tercentang: input lama (validasi gagal) atau
-    // hak akses aktif milik user (spec: edit menampilkan kondisi saat ini).
-    $checkedPermissionIds = old('permissions', $userPermissionIds ?? []);
-
     // PETA HAK AKSES BAWAAN (DEFAULT) PER ROLE — di-embed sebagai JSON
     // lalu dipakai JavaScript untuk auto-centang matriks Direct Permission
     // begitu Role dipilih di dropdown "Role Pengguna" (tanpa AJAX).
@@ -47,6 +43,20 @@
                 $matrixPermissionIds->all()
             )),
         ]);
+
+    // Direct permission tercentang (EDITABLE): input lama (validasi gagal)
+    // atau hak akses ekstra per akun (user_has_permissions).
+    // MERGE DISPLAY (spec Catatan Perbaikan): view Edit Pengguna menampilkan
+    // GABUNGAN = direct permission akun (editable) ∪ hak akses bawaan Role
+    // (tampil tercentang TAPI terkunci/read-only). Yang terkunci TIDAK
+    // dikirim saat form disimpan — tidak ada lagi penyalinan baseline Role
+    // ke user_has_permissions; hak akses tetap aktif karena dibaca
+    // dinamis dari role (User::hasPermission).
+    $lockedPermissionIds = $roleDefaultPermissionIds[$user?->role_id] ?? [];
+    $checkedPermissionIds = array_values(array_unique(array_merge(
+        old('permissions', $userPermissionIds ?? []),
+        $lockedPermissionIds
+    )));
 
     // Tujuan tombol Kembali / Batal
     // - Bagi Super Admin / Admin utama: kembali ke tabel pengguna.
@@ -290,22 +300,27 @@
         <div class="row g-3">
             <div class="col-12">
                 <div class="form-group">
-                    <label class="form-group-label" for="role_id">
+                    {{-- Label utama disembunyikan secara visual (tetap terbaca screen reader)
+                         dan digantikan floating label DI DALAM box. --}}
+                    <label class="form-group-label pln-label-sr" for="role_id">
                         Role Pengguna <span class="required">*</span>
                     </label>
-                    <select id="role_id" name="role_id" class="form-input" required>
-                        <option value="">-- Pilih Role --</option>
-                        @foreach($roles as $role)
-                            <option value="{{ $role->id }}"
-                                {{ old('role_id', $user->role_id ?? '') == $role->id ? 'selected' : '' }}
-                                {{ ($isEditingSuperAdmin && $role->name === User::SUPER_ADMIN_ROLE) ? 'disabled' : '' }}>
-                                {{ $role->name }} {{ $role->status ? '' : '(Nonaktif)' }}
-                                @if ($isEditingSuperAdmin && $role->name === User::SUPER_ADMIN_ROLE)
-                                    (akun sedang dipilih)
-                                @endif
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="pln-select-wrap">
+                        <span class="pln-field-float">Role Pengguna <span class="required">*</span></span>
+                        <select id="role_id" name="role_id" class="form-input" required>
+                            <option value="">-- Pilih Role --</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}"
+                                    {{ old('role_id', $user->role_id ?? '') == $role->id ? 'selected' : '' }}
+                                    {{ ($isEditingSuperAdmin && $role->name === User::SUPER_ADMIN_ROLE) ? 'disabled' : '' }}>
+                                    {{ $role->name }} {{ $role->status ? '' : '(Nonaktif)' }}
+                                    @if ($isEditingSuperAdmin && $role->name === User::SUPER_ADMIN_ROLE)
+                                        (akun sedang dipilih)
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="form-hint flex">
                         <i class="far fa-lightbulb"></i>
                         {{ $isEditingSuperAdmin
@@ -328,15 +343,19 @@
             @if(! $isCompactSelfEdit)
             <div class="col-md-4" id="levelWrapper">
                 <div class="form-group">
-                    <label class="form-group-label" for="level_jabatan">
-                        Level Jabatan (Role Utama) <span class="required">*</span>
+                    <label class="form-group-label pln-label-sr" for="level_jabatan">
+                        Level Jabatan (Role Utama)
+                        <span class="required pln-float-star">*</span>
                     </label>
-                    <select id="level_jabatan" name="level_jabatan" class="form-input" required>
-                        <option value="">-- Pilih Level --</option>
-                        @foreach(\App\Models\User::LEVEL_JABATAN as $code => $label)
-                            <option value="{{ $code }}"{{ old('level_jabatan', $user->level_jabatan ?? '') === $code ? ' selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
+                    <div class="pln-select-wrap">
+                        <span class="pln-field-float">Level Jabatan (Role Utama) <span class="required pln-float-star">*</span></span>
+                        <select id="level_jabatan" name="level_jabatan" class="form-input" required>
+                            <option value="">-- Pilih Level --</option>
+                            @foreach(\App\Models\User::LEVEL_JABATAN as $code => $label)
+                                <option value="{{ $code }}"{{ old('level_jabatan', $user->level_jabatan ?? '') === $code ? ' selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     @error('level_jabatan')
                         <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
                     @enderror
@@ -345,15 +364,20 @@
 
             <div class="col-md-4" id="deptWrapper">
                 <div class="form-group">
-                    <label class="form-group-label" for="department">
-                        Bidang Utama <span class="required required-dept">*</span>
+                    {{-- Required disinkronkan dinamis oleh JS (applyRoleRules) —
+                         float star mengikuti atribut required select (MutationObserver). --}}
+                    <label class="form-group-label pln-label-sr" for="department">
+                        Bidang Utama <span class="required pln-float-star">*</span>
                     </label>
-                    <select id="department" name="department" class="form-input">
-                        <option value="">-- Pilih Bidang --</option>
-                        @foreach(\App\Models\User::DEPARTMENTS as $code => $label)
-                            <option value="{{ $code }}" {{ old('department', $user->department ?? '') === $code ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
+                    <div class="pln-select-wrap">
+                        <span class="pln-field-float">Bidang Utama <span class="required pln-float-star">*</span></span>
+                        <select id="department" name="department" class="form-input">
+                            <option value="">-- Pilih Bidang --</option>
+                            @foreach(\App\Models\User::DEPARTMENTS as $code => $label)
+                                <option value="{{ $code }}" {{ old('department', $user->department ?? '') === $code ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="form-hint flex" id="deptHint" style="display:none;">
                         <i class="far fa-lightbulb"></i> Wajib dipilih untuk Admin Bidang, Manager Bidang, Asisten Manager & Staff.
                     </div>
@@ -365,12 +389,15 @@
 
             <div class="col-md-4" id="subDeptWrapper">
                 <div class="form-group">
-                    <label class="form-group-label" for="sub_department">
-                        Sub-Bidang / Bagian <span class="required required-sub">*</span>
+                    <label class="form-group-label pln-label-sr" for="sub_department">
+                        Sub-Bidang / Bagian <span class="required pln-float-star">*</span>
                     </label>
-                    <select id="sub_department" name="sub_department" class="form-input">
-                        <option value="">-- Pilih Sub-Bidang --</option>
-                    </select>
+                    <div class="pln-select-wrap">
+                        <span class="pln-field-float">Sub-Bidang / Bagian <span class="required pln-float-star">*</span></span>
+                        <select id="sub_department" name="sub_department" class="form-input">
+                            <option value="">-- Pilih Sub-Bidang --</option>
+                        </select>
+                    </div>
                     <div class="form-hint flex" id="subHint" style="display:none;">
                         <i class="far fa-lightbulb"></i> Daftar sub-bidang mengikuti Bidang Utama yang dipilih.
                     </div>
@@ -402,7 +429,7 @@
                 <p class="form-section-desc">
                     {{ $isCompactSelfEdit
                         ? 'Hak Akses Fitur tidak dapat diubah (hanya Super Admin / Admin utama yang boleh ubah).'
-                        : 'Centang menu & aksi yang boleh diakses akun ini — tersimpan langsung ke akun, bukan ke role' }}
+                        : 'Gabungan hak akses: centang bawaan Role tampil terkunci (gembok) & otomatis aktif; centang tambahan tersimpan langsung ke akun, bukan ke role.' }}
                 </p>
             </div>
         </div>
@@ -411,6 +438,7 @@
             @include('admin.partials.permission-matrix', [
                 'menuMatrix' => $menuMatrix ?? [],
                 'checkedIds' => $checkedPermissionIds,
+                'lockedIds'  => $lockedPermissionIds,
             ])
         </div>
     </div>
@@ -494,27 +522,40 @@
         }
 
         /* Direct Permission section: tampil & aktif HANYA untuk role
-           Admin Bidang. Checkbox disabled saat tersembunyi agar nilai
-           lama tidak terkirim ke server. */
+           delegasi (Admin Bidang / Karyawan). Checkbox disabled saat
+           tersembunyi agar nilai lama tidak terkirim ke server.
+           Checkbox ber-tanda bawaan role (role-locked) TETAP disabled
+           meskipun section tampil — mereka read-only. */
         function setDirectPermVisible(visible) {
             if (permSection) permSection.style.display = visible ? '' : 'none';
-            permChecks.forEach(cb => (cb.disabled = !visible));
+            permChecks.forEach(cb => (cb.disabled = !visible || cb.dataset.roleLocked === '1'));
         }
 
-        /* ===== AUTO-CENTANG MENGIKUTI ROLE =====
-           Saat Role dipilih, seluruh checkbox matriks Direct Permission
-           diset ulang sesuai hak akses bawaan (default) Role tersebut:
-           - ikut tercentang → permission bawaan Role;
-           - tidak ada di default → dicopot (kecuali nanti ditick ulang).
+        /* ===== AUTO-CENTANG MENGIKUTI ROLE (MERGE DISPLAY) =====
+           Saat role diganti, matriks di-reset: permission bawaan Role BARU
+           tampil tercentang TAPI TERKUNCI (disabled, tanpa nama input
+           efektif — diabaikan server saat simpan, lihat data-role-locked),
+           sedangkan seluruh centang editable (direct permission) dikosongkan
+           karena hak akses ekstra lama tidak lagi relevan bagi role baru.
+           Dengan ini user_has_permissions tidak pernah berisi salinan
+           baseline role — pengecekan izin murni = role ∪ direct ekstra.
            Hanya berjalan saat user MENGUBAH pilihan role — pada load awal
            (mode Edit / old input setelah validasi gagal) centang yang sudah
-           ada TIDAK disentuh. Setelah otomatis terisi, Super Admin tetap
-           bebas menambah centang ekstra ATAU mencopot centang bawaan
-           (override manual) sebelum menyimpan. */
+           ada TIDAK disentuh. */
         function applyRoleDefaultPermissions() {
-            const defaults = ROLE_DEFAULT_PERMS[roleSelect.value] ?? [];
-            const wanted = new Set(defaults.map(Number));
-            permChecks.forEach(cb => { cb.checked = wanted.has(Number(cb.value)); });
+            const defaults = new Set((ROLE_DEFAULT_PERMS[roleSelect.value] ?? []).map(Number));
+            permChecks.forEach(cb => {
+                const locked = defaults.has(Number(cb.value));
+                cb.checked = locked;
+                cb.disabled = true;                 // sementara, dinormalisasi di bawah
+                cb.dataset.roleLocked = locked ? '1' : '';
+                cb.classList.toggle('perm-role-locked', locked);
+            });
+
+            // Aktifkan kembali checkbox editable (bukan bawaan role).
+            permChecks.forEach(cb => {
+                if (cb.dataset.roleLocked !== '1') cb.disabled = false;
+            });
         }
 
         function fillSubOptions(deptCode) {
@@ -689,4 +730,232 @@
         strengthText.textContent = text;
         strengthText.style.color = color;
     });
+
+    /* ===== ENHANCED SELECT — minimalis + selalu terbuka ke bawah =====
+       Select native (Role Pengguna, Level Jabatan, Bidang Utama,
+       Sub-Bidang) dibungkus panel list custom (.pln-dd-panel):
+         - TANPA kotak pencarian & tanpa opsi placeholder: panel hanya
+           menampilkan daftar opsi data murni ("Prod A", dst.), langsung
+           tersaji begitu dropdown diklik.
+         - Panel SELALU terposisi DI BAWAH kontrol (fixed, di-append ke
+           <body> sehingga immune terhadap overflow/clip card & footer),
+           tidak pernah menutupi/flip menutup input utamanya.
+         - Tidak pernah flip ke atas: bila ruang di bawah viewport < 96px,
+           halaman di-scroll otomatis sebelum panel tampil agar ruang cukup.
+         - List pilihan dibangun fresh SETIAP panel dibuka → selalu sinkron
+           dengan opsi dinamis (dependent dropdown Sub-Bidang dsb.).
+         - Item dipilih men-set nilai pada <select> ASLI lalu men-dispatch
+           event 'input' + 'change' → seluruh logika lama (applyRoleRules,
+           fillSubOptions, server-side) tidak tersentuh dan form tetap
+           mengirim select native.
+         - Floating label: wrapper .pln-select-wrap dipantau — state
+           is-open (ring fokus saat panel open), is-required (bintang
+           wajib mengikuti atribut required), dan is-empty pada select
+           (teks kontrol dikosongkan bila belum memilih).*/
+    (function () {
+        const selects = document.querySelectorAll('#userForm select.form-input');
+        if (!selects.length) return;
+
+        let openPanel = null;      // .pln-dd-panel aktif
+        let ownerSelect = null;    // <select> pemilik panel aktif
+        let ownerWrap = null;      // .pln-select-wrap pemilik panel
+        let resultsBox = null;     // container item panel
+        let emptyNote = null;      // catatan kosong (tanpa opsi sama sekali)
+        let focusIndex = -1;       // index item ter-highlight
+        let items = [];            // elemen .pln-dd-item panel
+
+        const MIN_BELOW = 96;      // px ruang minimum di bawah kontrol
+        const MAX_HEIGHT = 320;    // px tinggi maksimum panel
+        let suppressScrollClose = false;
+
+        function suppressScrollCloseOnce() {
+            suppressScrollClose = true;
+            requestAnimationFrame(() => requestAnimationFrame(() => { suppressScrollClose = false; }));
+        }
+
+        function closePanel() {
+            if (openPanel) { openPanel.remove(); openPanel = null; }
+            if (ownerWrap) ownerWrap.classList.remove('is-open');
+            ownerWrap = null;
+            ownerSelect = null;
+            focusIndex = -1;
+            items = [];
+            resultsBox = null;
+            emptyNote = null;
+        }
+
+        function optionLabel(opt) {
+            const extra = opt.dataset?.ddExtra ?? '';
+            return (opt.textContent.trim() || '') + (extra ? ' ' + extra : '');
+        }
+
+        function setFocus(index) {
+            items.forEach(el => el.classList.remove('is-focused'));
+            focusIndex = index;
+            if (items[focusIndex]) {
+                items[focusIndex].classList.add('is-focused');
+                items[focusIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function buildItems() {
+            items = [];
+            emptyNote = document.createElement('div');
+            emptyNote.className = 'pln-dd-empty';
+
+            // Daftar murni opsi data — opsi placeholder (value kosong,
+            // "-- Pilih ... --") TIDAK ikut ditampilkan di panel.
+            const opts = Array.from(ownerSelect.options).filter(opt => opt.value !== '');
+            if (!opts.length) {
+                emptyNote.textContent = 'Tidak ada pilihan';
+                resultsBox.appendChild(emptyNote);
+                return;
+            }
+            opts.forEach(function (opt) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'pln-dd-item';
+
+                const label = document.createElement('span');
+                label.textContent = optionLabel(opt);
+                btn.appendChild(label);
+
+                const check = document.createElement('span');
+                check.className = 'pln-dd-check';
+                check.innerHTML = '<i class="fas fa-check"></i>';
+                if (opt.selected) btn.appendChild(check);
+
+                if (opt.value === '') btn.classList.add('is-placeholder');
+                if (opt.selected) btn.classList.add('is-selected');
+                if (opt.disabled) btn.disabled = true;
+
+                btn.addEventListener('click', function () {
+                    if (opt.disabled) return;
+                    ownerSelect.value = opt.value;
+                    // Dispatch dua-duanya — konsumen yang listen 'change'
+                    // atau 'input' tetap terpanggil (sama dengan native).
+                    ownerSelect.dispatchEvent(new Event('input', { bubbles: true }));
+                    ownerSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    closePanel();
+                    ownerSelect.focus();
+                });
+
+                resultsBox.appendChild(btn);
+                items.push(btn);
+            });
+        }
+
+        function openPanelFor(select) {
+            closePanel();
+
+            // ARAH SELALU KE BAWAH: bila ruang di bawah kontrol sempit,
+            // scroll halaman otomatis untuk menciptakan ruang — panel
+            // TIDAK PERNAH flip ke atas & tidak pernah menutupi input.
+            // Rect diambil ulang setelah scroll (viewport berubah).
+            let rect = select.getBoundingClientRect();
+            let below = window.innerHeight - rect.bottom;
+            if (below < MIN_BELOW) {
+                suppressScrollCloseOnce();
+                window.scrollBy({ top: (MIN_BELOW + 120) - below, behavior: 'instant' });
+                rect = select.getBoundingClientRect();
+                below = window.innerHeight - rect.bottom;
+            }
+
+            // Panel hanya berisi daftar opsi — tanpa kotak pencarian.
+            const panel = document.createElement('div');
+            panel.className = 'pln-dd-panel';
+            panel.style.left = Math.round(rect.left) + 'px';
+            panel.style.width = Math.max(rect.width, 240) + 'px';
+            panel.style.top = Math.round(rect.bottom + 8) + 'px';
+            panel.style.maxHeight = Math.max(140, Math.min(MAX_HEIGHT, below - 16)) + 'px';
+
+            const results = document.createElement('div');
+            results.className = 'pln-dd-results';
+            resultsBox = results;
+
+            panel.appendChild(results);
+            document.body.appendChild(panel);
+
+            openPanel = panel;
+            ownerSelect = select;
+            ownerWrap = select.closest('.pln-select-wrap');
+            ownerWrap?.classList.add('is-open');
+            buildItems();
+
+            // Pre-highlight item terpilih (atau pertama); fokus tetap pada
+            // select agar navigasi keyboard langsung bekerja.
+            const selectedIdx = items.findIndex(el => el.classList.contains('is-selected'));
+            setFocus(selectedIdx >= 0 ? selectedIdx : 0);
+            select.focus();
+        }
+
+        selects.forEach(function (select) {
+            syncFieldState(select);
+
+            // Atribut required/disabled berubah dinamis (applyRoleRules) —
+            // pantau agar bintang & tampilan float label ikut sinkron.
+            new MutationObserver(function () { syncFieldState(select); })
+                .observe(select, { attributes: true, attributeFilter: ['required', 'disabled'] });
+
+            // Klik kontrol → tampilkan panel custom (native picker dicegah).
+            select.addEventListener('mousedown', function (e) {
+                if (select.disabled) return;          // biarkan disabled apa adanya
+                e.preventDefault();
+                if (openPanel && ownerSelect === select) { closePanel(); return; }
+                if (openPanel) { closePanel(); }
+                openPanelFor(select);
+            });
+
+            select.addEventListener('keydown', function (e) {
+                if (select.disabled) return;
+                const key = e.key;
+                if (openPanel && ownerSelect === select) {
+                    // Terbuka: navigasi & konfirmasi via keyboard.
+                    if (key === 'ArrowDown') { e.preventDefault(); if (items.length) setFocus(Math.min(focusIndex + 1, items.length - 1)); }
+                    else if (key === 'ArrowUp') { e.preventDefault(); if (items.length) setFocus(Math.max(focusIndex - 1, 0)); }
+                    else if (key === 'Enter') { e.preventDefault(); if (items[focusIndex] && !items[focusIndex].disabled) items[focusIndex].click(); }
+                    else if (key === 'Escape') { e.preventDefault(); closePanel(); }
+                    else if (key === 'Tab') { closePanel(); }
+                    return;
+                }
+                // Tertutup: Enter/Space/panah membuka panel (bukan native picker).
+                if (['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(key)) {
+                    e.preventDefault();
+                    openPanelFor(select);
+                }
+            });
+        });
+
+        /* Floating label — sinkron state box:
+           is-empty  → teks kontrol dikosongkan saat belum memilih;
+           is-required → bintang wajib mengikuti atribut required yang
+                         berubah dinamis (applyRoleRules) via MutationObserver. */
+        function syncFieldState(select) {
+            select.classList.toggle('is-empty', select.value === '');
+            const wrap = select.closest('.pln-select-wrap');
+            if (wrap) wrap.classList.toggle('is-required', !!select.required);
+        }
+
+        document.getElementById('userForm')?.addEventListener('change', function () {
+            // sinkron & nilai dinamis: reset sub-bidang saat bidang berubah
+            selects.forEach(syncFieldState);
+        });
+
+        // Klik di luar panel & kontrol → tutup.
+        document.addEventListener('mousedown', function (e) {
+            if (!openPanel) return;
+            if (e.target === ownerSelect || ownerSelect.contains(e.target) || openPanel.contains(e.target)) return;
+            closePanel();
+        }, true);
+
+        // Scroll/resize viewport → tutup (hindari panel melayang lepas posisi).
+        // Scroll yang berasal dari auto-scroll pembuka panel diabaikan.
+        window.addEventListener('scroll', function () {
+            if (!suppressScrollClose) closePanel();
+        }, { passive: true });
+        window.addEventListener('resize', closePanel);
+
+        // SPA router re-render → pastikan tidak ada panel yatim.
+        window.addEventListener('pagehide', closePanel);
+    })();
 </script>
