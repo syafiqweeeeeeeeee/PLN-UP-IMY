@@ -4,6 +4,11 @@ namespace App\Providers;
 
 use App\Http\View\Composers\KaryawanLayoutComposer;
 use App\Http\View\Composers\TopbarComposer;
+use App\Models\Page;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
+use App\Observers\NameMarkerObserver;
 use App\Services\MenuBuilderService;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
@@ -25,6 +30,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Kolom penanda nama (*_name) pada tabel pivot RBAC harus ikut
+        // diperbarui saat nama di tabel sumber di-rename. Insert pivot
+        // baru ditangani BelongsToManyNameMarkers; observer ini hanya
+        // menangani rename (lihat komentar di NameMarkerObserver).
+        Role::observe(NameMarkerObserver::class);
+        Permission::observe(NameMarkerObserver::class);
+        User::observe(NameMarkerObserver::class);
+        Page::observe(NameMarkerObserver::class);
+
         // View paginasi kustom di resources/views/vendor/pagination
         // (markup Bootstrap — layout app & admin memuat Bootstrap 5).
         Paginator::defaultView('pagination::bootstrap-5');

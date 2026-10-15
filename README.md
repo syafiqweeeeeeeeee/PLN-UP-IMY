@@ -65,59 +65,60 @@ Matriks lengkap: `docs/matriks-role.md` · Spesifikasi: `SRD_E-PPID_PLN.md`
 - Laravel 12 (Blade + Bootstrap 5, tanpa SPA framework)
 - MySQL 8, sesi & cache berbasis database
 - Font Awesome 6, Feather Icons, Vite
-- Docker Compose: app **FrankenPHP** + db MySQL 8
+- Web server: **Laragon** (Apache 2.4 + PHP 8.3 + MySQL 8) — Docker
+  (FrankenPHP + MySQL) tersedia sebagai cadangan
 
 ## Instalasi
 
 ### Prasyarat
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) aktif/berjalan
+- [Laragon](https://laragon.org/) — Apache & MySQL 8 bisa dinyalakan dari menu Laragon
+- PHP 8.3 + Composer (bawaan Laragon, sudah di PATH)
 - Git
-- Tidak perlu PHP, Composer, MySQL, maupun Laragon — semuanya ada di dalam container
 
-### Langkah (Docker)
+### Langkah (Laragon — cara utama)
 
 ```bash
 # 0. Tarik kode terbaru dari repositori kelompok
 git pull
 
-# 1. Salin konfigurasi lokal (sudah disetel untuk Docker, tidak perlu diubah)
+# 1. Salin konfigurasi lokal (sudah disetel untuk Laragon, tidak perlu diubah)
 cp .env.example .env           # PowerShell: copy .env.example .env
 
-# 2. Bangun image & jalankan container app (FrankenPHP) + db (MySQL 8)
-docker compose up -d --build
+# 2. Dependensi PHP
+composer install
 
 # 3. Kunci aplikasi + struktur database + akun awal
-docker compose exec app php artisan key:generate
-docker compose exec app php artisan migrate --seed
-docker compose exec app php artisan storage:link
-
-# 4. Buka di browser
-#    http://localhost:8000
-```
-
-Koneksi database dari aplikasi pengelola (HeidiSQL/DBeaver): host `127.0.0.1`,
-port **3307**, user `root`, password `root` (port host sengaja 3307 agar tidak
-tabrakan dengan MySQL Laragon jika masih terpasang).
-
-> Catatan: `php artisan test` di dalam container butuh override koneksi
-> (test suite mengarah ke `127.0.0.1:3306`), misal:
-> `docker compose exec -e DB_HOST=db -e DB_PASSWORD=root app php artisan test`
-
-### Alternatif tanpa Docker (Laragon)
-
-```bash
-composer install
-cp .env.example .env           # sesuaikan DB_DATABASE, DB_USERNAME, DB_PASSWORD
 php artisan key:generate
 php artisan migrate --seed
 php artisan storage:link
-php artisan serve              # http://127.0.0.1:8000
 ```
 
-> Catatan Laragon: karena `.env.example` kini berisi konfigurasi Docker
-> (`DB_HOST=db`), ubah `DB_HOST` menjadi `127.0.0.1` dan sesuaikan nama
-> database/username/password lokal Anda. Data Docker tersimpan di volume
-> `dbdata` dan bertahan walau container dimatikan (`docker compose down`).
+Buka di browser: **http://PLN-UP-IMY.test** — vhost otomatis Laragon
+(`etc/apache2/sites-enabled/auto.PLN-UP-IMY.test.conf`, `DocumentRoot`
+menunjuk ke folder `public/`). Pastikan Apache & MySQL sudah Start All
+dari menu Laragon.
+
+Koneksi database dari aplikasi pengelola (HeidiSQL/DBeaver): host
+`127.0.0.1`, port **3306** (MySQL Laragon), user `root`, password kosong,
+database `pln_up_imy` (testing: `pln_up_imy_testing`).
+
+### Alternatif: Docker (cadangan)
+
+Repo tetap menyimpan `Dockerfile` + `docker-compose.yml` sebagai cadangan:
+
+```bash
+docker compose up -d --build
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan storage:link
+# buka http://localhost:8000
+```
+
+> `docker-compose.yml` menimpa `DB_HOST`, `DB_PORT`, `DB_DATABASE`,
+> `DB_USERNAME`, dan `DB_PASSWORD` lewat blok `environment`, sehingga
+> `.env` yang menunjuk Laragon tidak perlu diubah saat memakai Docker.
+> Untuk test di container:
+> `docker compose exec -e DB_DATABASE=pln_up_imy_testing app php artisan test`.
 
 ### Akun Default
 

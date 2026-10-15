@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Database\Factories\UserFactory;
+use App\Models\Concerns\HasNameMarkerPivots;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, HasNameMarkerPivots, Notifiable;
 
     /**
      * Level Jabatan (Role Utama) — Hirarki Organisasi.
@@ -21,10 +21,10 @@ class User extends Authenticatable
      * 'staf_spv') tetap dikenali via LEGACY_LEVEL_JABATAN.
      */
     public const LEVEL_JABATAN = [
-        'senior_manager'  => 'Senior Manager',
-        'manager_bidang'  => 'Manager Bidang',
+        'senior_manager' => 'Senior Manager',
+        'manager_bidang' => 'Manager Bidang',
         'asisten_manager' => 'Asisten Manager',
-        'staf'            => 'Staff',
+        'staf' => 'Staff',
     ];
 
     /**
@@ -33,17 +33,17 @@ class User extends Authenticatable
      */
     public const LEGACY_LEVEL_JABATAN = [
         'administrator' => 'Administrator',
-        'staf_spv'      => 'Supervisor / Asisten Manager / Staf',
+        'staf_spv' => 'Supervisor / Asisten Manager / Staf',
     ];
 
     /** Bidang Utama (Department) — Hirarki Organisasi. */
     public const DEPARTMENTS = [
-        'operasi'          => 'Operasi',
-        'pemeliharaan'     => 'Pemeliharaan',
-        'engineering'      => 'Engineering',
+        'operasi' => 'Operasi',
+        'pemeliharaan' => 'Pemeliharaan',
+        'engineering' => 'Engineering',
         'business_support' => 'Business Support',
-        'k3_kam'           => 'K3 & KAM',
-        'lingkungan'       => 'Lingkungan',
+        'k3_kam' => 'K3 & KAM',
+        'lingkungan' => 'Lingkungan',
     ];
 
     /**
@@ -63,39 +63,39 @@ class User extends Authenticatable
      */
     public const SUB_DEPARTMENTS = [
         'operasi' => [
-            'asmen_prod_a'    => 'Prod A',
-            'asmen_prod_b'    => 'Prod B',
-            'asmen_prod_c'    => 'Prod C',
-            'asmen_prod_d'    => 'Prod D',
-            'spv_chcb_a'      => 'CHCB A',
-            'spv_chcb_b'      => 'CHCB B',
-            'spv_chcb_c'      => 'CHCB C',
-            'spv_chcb_d'      => 'CHCB D',
-            'asmen_renops'    => 'RenOps',
-            'asmen_niaga_bb'  => 'Niaga BB',
+            'asmen_prod_a' => 'Prod A',
+            'asmen_prod_b' => 'Prod B',
+            'asmen_prod_c' => 'Prod C',
+            'asmen_prod_d' => 'Prod D',
+            'spv_chcb_a' => 'CHCB A',
+            'spv_chcb_b' => 'CHCB B',
+            'spv_chcb_c' => 'CHCB C',
+            'spv_chcb_d' => 'CHCB D',
+            'asmen_renops' => 'RenOps',
+            'asmen_niaga_bb' => 'Niaga BB',
             'asmen_kimia_lab' => 'Kimia & Lab',
         ],
         'pemeliharaan' => [
             'asmen_rendal_har' => 'Rendal Har',
-            'asmen_mo'         => 'MO',
-            'asmen_mesin_1'    => 'Mesin 1',
-            'asmen_mesin_2'    => 'Mesin 2',
-            'asmen_listrik'    => 'Listrik',
-            'asmen_konin'      => 'Konin',
-            'asmen_inventori'  => 'Inventori Kontrol & Gudang',
+            'asmen_mo' => 'MO',
+            'asmen_mesin_1' => 'Mesin 1',
+            'asmen_mesin_2' => 'Mesin 2',
+            'asmen_listrik' => 'Listrik',
+            'asmen_konin' => 'Konin',
+            'asmen_inventori' => 'Inventori Kontrol & Gudang',
         ],
         'engineering' => [
-            'asmen_so'   => 'SO',
-            'asmen_cbm'  => 'CBM',
+            'asmen_so' => 'SO',
+            'asmen_cbm' => 'CBM',
             'asmen_mmrk' => 'MMRK',
         ],
         'business_support' => [
             'asmen_pengadaan' => 'Pengadaan',
             'asmen_sdm_umum_csr' => 'SDM Umum CSR',
-            'asmen_keuangan'  => 'Keuangan',
+            'asmen_keuangan' => 'Keuangan',
         ],
         'k3_kam' => [
-            'k3_kam'   => 'K3 & KAM',
+            'k3_kam' => 'K3 & KAM',
             'security' => 'Security',
         ],
         'lingkungan' => [
@@ -127,7 +127,7 @@ class User extends Authenticatable
     /** Default preferensi notifikasi bila user belum pernah menyimpan. */
     public const DEFAULT_NOTIFICATION_SETTINGS = [
         'desktop' => true,
-        'weekly'  => true,
+        'weekly' => true,
         'pending' => false,
     ];
 
@@ -186,12 +186,12 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password'          => 'hashed',
+        'password' => 'hashed',
         'must_change_password' => 'boolean',
-        'department_id'     => 'integer',
+        'department_id' => 'integer',
         'notification_settings' => 'array',
-        'created_at'        => 'datetime',
-        'updated_at'        => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /* =========================================================
@@ -430,8 +430,6 @@ class User extends Authenticatable
      * - 'bidang'      → akun hanya terikat bidang (legacy Admin Bidang
      *                   tanpa sub, atau Karyawan Manager Bidang yang
      *                   membawahi seluruh sub-bidangnya).
-     *
-     * @return string
      */
     public function dataScopingLevel(): string
     {
@@ -462,7 +460,8 @@ class User extends Authenticatable
 
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, 'role_user')->withTimestamps();
+        return $this->belongsToMany(Role::class, 'role_user')->withTimestamps()
+            ->withNameMarkers(parent: ['user_name' => 'name'], related: ['role_name' => 'name']);
     }
 
     /* =========================================================
@@ -475,7 +474,8 @@ class User extends Authenticatable
 
     public function permissions(): BelongsToMany
     {
-        return $this->belongsToMany(Permission::class, 'user_has_permissions')->withTimestamps();
+        return $this->belongsToMany(Permission::class, 'user_has_permissions')->withTimestamps()
+            ->withNameMarkers(parent: ['user_name' => 'name'], related: ['permission_name' => 'name']);
     }
 
     /**
@@ -520,9 +520,9 @@ class User extends Authenticatable
     /**
      * Nama-nama direct permission akun (dinamis untuk UI).
      *
-     * @return \Illuminate\Support\Collection<int, string>
+     * @return Collection<int, string>
      */
-    public function directPermissionNames(): \Illuminate\Support\Collection
+    public function directPermissionNames(): Collection
     {
         if (! $this->exists) {
             return collect();
@@ -696,7 +696,7 @@ class User extends Authenticatable
         //    tabel permissions, jadi seluruh pengecekan dilakukan menggunakan
         //    permission induknya agar @can & middleware permission: tetap
         //    berjalan tanpa error 403.
-        $base = \App\Models\Permission::resolveAlias($permission);
+        $base = Permission::resolveAlias($permission);
 
         if ($base !== $permission) {
             // Aksi ekstra = kemampuan aksi induk: ALLOW jika user punya

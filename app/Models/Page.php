@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasNameMarkerPivots;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,12 +12,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Page extends Model
 {
-    use HasFactory;
+    use HasFactory, HasNameMarkerPivots;
 
-    public const STATUS_DRAFT     = 'draft';
+    public const STATUS_DRAFT = 'draft';
+
     public const STATUS_PUBLISHED = 'published';
 
-    public const VISIBILITY_PUBLIC    = 'public';
+    public const VISIBILITY_PUBLIC = 'public';
+
     public const VISIBILITY_ROLE_ONLY = 'role_restricted';
 
     protected $fillable = [
@@ -31,13 +34,15 @@ class Page extends Model
 
     protected $casts = [
         'show_in_list' => 'boolean',
-        'created_at'   => 'datetime',
-        'updated_at'   => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, 'page_role');
+        // page_role.page_name diisi dari kolom `title` (pages tidak punya `name`).
+        return $this->belongsToMany(Role::class, 'page_role')
+            ->withNameMarkers(parent: ['page_name' => 'title'], related: ['role_name' => 'name']);
     }
 
     public function sections(): HasMany
@@ -127,8 +132,9 @@ class Page extends Model
         $base = $slug;
         $count = 1;
         while (static::where('slug', $slug)->when($ignoreId, fn (Builder $q) => $q->where('id', '!=', $ignoreId))->exists()) {
-            $slug = $base . '-' . $count++;
+            $slug = $base.'-'.$count++;
         }
+
         return $slug;
     }
 }

@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasNameMarkerPivots;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Role extends Model
 {
-    use HasFactory;
+    use HasFactory, HasNameMarkerPivots;
 
     protected $fillable = [
         'name',
@@ -22,7 +23,8 @@ class Role extends Model
 
     public function permissions(): BelongsToMany
     {
-        return $this->belongsToMany(Permission::class, 'role_permission')->withTimestamps();
+        return $this->belongsToMany(Permission::class, 'role_permission')->withTimestamps()
+            ->withNameMarkers(parent: ['role_name' => 'name'], related: ['permission_name' => 'name']);
     }
 
     public function getPermissionIdsAttribute(): array
@@ -30,10 +32,10 @@ class Role extends Model
         return $this->permissions()->pluck('permissions.id')->toArray();
     }
 
-
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'role_user')->withTimestamps();
+        return $this->belongsToMany(User::class, 'role_user')->withTimestamps()
+            ->withNameMarkers(parent: ['role_name' => 'name'], related: ['user_name' => 'name']);
     }
 
     public function isInactive(): bool

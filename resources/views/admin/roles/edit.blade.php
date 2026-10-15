@@ -328,7 +328,6 @@
         </div>
     </div>
 </form>
-
 {{-- Script WAJIB di dalam @section('content') (bukan @push('scripts'))
      karena client-side router (router.js) hanya mengeksekusi ulang
      <script> di dalam <main> setelah navigasi SPA. --}}

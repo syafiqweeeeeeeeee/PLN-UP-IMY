@@ -49,6 +49,7 @@ class MasterMenu extends Model
         ['id' => 9,  'name' => 'Link Kerja',      'route' => 'admin.work-links.index',    'icon' => 'fa-link',           'permission_key' => 'work_links'],
         ['id' => 10, 'name' => 'Log Aktivitas',   'route' => 'admin.activity-logs.index', 'icon' => 'fa-clipboard-list', 'permission_key' => 'activity_logs'],
         ['id' => 11, 'name' => 'Role / Hak Akses','route' => 'admin.roles.index',         'icon' => 'fa-user-tag',       'permission_key' => 'roles'],
+        ['id' => 12, 'name' => 'contoh',          'route' => 'admin.roles.index',         'icon' => 'fa-user-tag',       'permission_key' => 'roles'],
     ];
 
     /* =========================================================

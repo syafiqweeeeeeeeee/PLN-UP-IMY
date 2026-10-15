@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasNameMarkerPivots;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Permission extends Model
 {
-    use HasFactory;
+    use HasFactory, HasNameMarkerPivots;
 
     public $timestamps = true;
 
@@ -21,7 +22,8 @@ class Permission extends Model
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'role_permission')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->withNameMarkers(parent: ['permission_name' => 'name'], related: ['role_name' => 'name']);
     }
 
     /**
@@ -36,10 +38,10 @@ class Permission extends Model
      * terdaftar terpisah di tabel permissions.
      */
     public const ACTION_ALIASES = [
-        'news.publish'          => 'news.edit',
+        'news.publish' => 'news.edit',
         'announcements.publish' => 'announcements.edit',
-        'tamu.checkout'         => 'tamu.edit',
-        'user.reset-password'   => 'users.edit',
+        'tamu.checkout' => 'tamu.edit',
+        'user.reset-password' => 'users.edit',
         'roles.assign_permission' => 'roles.edit',
     ];
 
