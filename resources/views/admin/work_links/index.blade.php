@@ -430,7 +430,7 @@
     <div class="filter-divider"></div>
     <select id="filterCategory" class="filter-input" style="width:auto;">
         <option value="">Semua Kategori</option>
-        <option value="umum" {{ request('kategori') === 'umum' ? 'selected' : '' }}>Umum</option>
+        <option value="umum" {{ request('kategori') === 'umum' ? 'selected' : '' }}>All</option>
         <option value="khusus" {{ request('kategori') === 'khusus' ? 'selected' : '' }}>Khusus</option>
     </select>
     <select id="filterStatus" class="filter-input" style="width:auto;">
@@ -462,8 +462,10 @@
             <tbody>
                 @forelse ($links as $item)
                 @php
+                    // Kategori 'umum' tampil sebagai "ALL" di seluruh UI —
+                    // nilai DB tetap 'umum' (lihat WorkLink::CATEGORY_UMUM).
                     $wlOwnerLabel = $item->category === \App\Models\WorkLink::CATEGORY_UMUM
-                        ? 'UMUM'
+                        ? 'ALL'
                         : (\App\Models\User::DEPARTMENTS[$item->department] ?? $item->department);
 
                     /* HAK AKSES KELOLA (tulis):
@@ -486,7 +488,11 @@
                     data-can-edit="{{ $wlCanEdit ? 'true' : 'false' }}"
                     data-owner-label="{{ $wlOwnerLabel }}"
                     data-user-department-label="{{ auth()->check() ? (\App\Models\User::DEPARTMENTS[auth()->user()->boundDepartment()] ?? '') : '' }}"
-                    data-link="{{ e(json_encode($item->only(['id', 'title', 'url', 'description', 'icon', 'category', 'department', 'sub_department', 'is_active']))) }}">
+                    {{-- json_encode TANPA e() manual: {{ }} sudah meng-escape
+                         sekali (" → &quot;) — e() ganda membuat atribut
+                         tak ter-parse (JSON.parse gagal) sehingga data link
+                         tidak pernah ter-populate di modal edit. --}}
+                    data-link="{{ json_encode($item->only(['id', 'title', 'url', 'description', 'icon', 'category', 'department', 'sub_department', 'is_active'])) }}">
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <span class="worklink-icon"><i class="{{ $item->icon_class }}"></i></span>
@@ -508,7 +514,9 @@
                         </a>
                     </td>
                     <td>
-                        <span class="worklink-badge {{ $item->category }}">{{ ucfirst($item->category) }}</span>
+                        {{-- Label kategori: 'umum' → ALL, 'khusus' → Khusus.
+                             Class CSS tetap mengikuti nilai DB (umum = hijau). --}}
+                        <span class="worklink-badge {{ $item->category }}">{{ $item->category === \App\Models\WorkLink::CATEGORY_UMUM ? 'All' : 'Khusus' }}</span>
                     </td>
                     <td>
                         <span class="target-cell">
@@ -730,7 +738,7 @@
                         <div class="wl-modal-pill">
                             <input type="radio" name="category" value="umum" id="wlEditCatUmum" checked>
                             <label for="wlEditCatUmum" class="wl-modal-pill-label cat-umum">
-                                <i class="fas fa-users"></i> Umum
+                                <i class="fas fa-users"></i> All
                             </label>
                         </div>
                         <div class="wl-modal-pill">
@@ -748,20 +756,31 @@
                     <div class="row g-2">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-group-label" for="wlEditDepartment">
+                                {{-- Floating label DI DALAM box — label utama
+                                     disembunyikan visual (screen reader tetap baca). --}}
+                                <label class="form-group-label pln-label-sr" for="wlEditDepartment">
                                     Bidang Utama <span class="required">*</span>
                                     @if ($wlBoundDept)
                                         <span class="optional"><i class="fas fa-lock" style="font-size:0.7rem;"></i> terkunci</span>
                                     @endif
                                 </label>
-                                <select id="wlEditDepartment" name="department" class="form-input"
-                                        @if ($wlBoundDept) disabled @endif>
-                                    <option value="">— Pilih Bidang Utama —</option>
-                                    @foreach ($wlDepartments as $wlDeptKey => $wlDeptLabel)
-                                        <option value="{{ $wlDeptKey }}" {{ $wlBoundDept === $wlDeptKey ? 'selected' : '' }}>{{ $wlDeptLabel }}</option>
-                                    @endforeach
-                                </select>
+                                <div class="pln-select-wrap is-required">
+                                    <span class="pln-field-float">Bidang Utama <span class="required">*</span></span>
+                                    <select id="wlEditDepartment" name="department" class="form-input"
+                                            @if ($wlBoundDept) disabled @endif>
+                                        {{-- Opsi value kosong tetap ada secara native
+                                             (pengiriman nilai kosong & validasi) namun
+                                             TIDAK ditampilkan di panel custom. --}}
+                                        <option value=""></option>
+                                        @foreach ($wlDepartments as $wlDeptKey => $wlDeptLabel)
+                                            <option value="{{ $wlDeptKey }}" {{ $wlBoundDept === $wlDeptKey ? 'selected' : '' }}>{{ $wlDeptLabel }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 @if ($wlBoundDept)
+                                    <div class="form-hint flex">
+                                        <i class="fas fa-lock"></i> Terkunci ke bidang Anda
+                                    </div>
                                     {{-- select disabled tidak dikirim browser →
                                          kirim nilai via hidden input. --}}
                                     <input type="hidden" name="department" value="{{ $wlBoundDept }}">
@@ -770,12 +789,18 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-group-label" for="wlEditSubDepartment">
+                                <label class="form-group-label pln-label-sr" for="wlEditSubDepartment">
                                     Sub-Bidang <span class="optional">(opsional)</span>
                                 </label>
-                                <select id="wlEditSubDepartment" name="sub_department" class="form-input">
-                                    <option value="">— Semua Sub-Bidang (level Bidang) —</option>
-                                </select>
+                                <div class="pln-select-wrap">
+                                    <span class="pln-field-float">Sub-Bidang (Opsional)</span>
+                                    <select id="wlEditSubDepartment" name="sub_department" class="form-input">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                                <div class="form-hint flex">
+                                    <i class="far fa-lightbulb"></i> Kosongkan bila link berlaku untuk seluruh bidang
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -849,6 +874,185 @@
         searchInput?.addEventListener('input', applyFilters);
         filterCategory?.addEventListener('change', applyFilters);
         filterStatus?.addEventListener('change', applyFilters);
+    })();
+
+    /* ============================================================
+       CLEAN DROPDOWN (pola EnhancedSelect form Pengguna) — modal
+       edit: dropdown Bidang Utama & Sub-Bidang memakai panel list
+       custom (.pln-dd-panel): floating label DI DALAM box, TANPA
+       kotak pencarian, tanpa opsi placeholder, dan SELALU terbuka
+       ke bawah (auto-scroll bila ruang sempit, tidak pernah flip).
+       Binding per-instance DOM (form.dataset) supaya router.js SPA
+       swap selalu me-rebind pada DOM baru.
+       ============================================================ */
+    (function () {
+        const form = document.getElementById('workLinkEditForm');
+        if (!form || form.dataset.wlEditDdBound) return;
+        form.dataset.wlEditDdBound = '1';
+
+        const selects = Array.prototype.slice.call(form.querySelectorAll('.pln-select-wrap select.form-input'));
+        if (!selects.length) return;
+
+        let openPanel = null, ownerSelect = null, ownerWrap = null;
+        let resultsBox = null, focusIndex = -1, items = [];
+        const MIN_BELOW = 96, MAX_HEIGHT = 320;
+        let suppressScrollClose = false;
+
+        function syncFieldState(select) {
+            select.classList.toggle('is-empty', select.value === '');
+        }
+
+        function syncAll() { selects.forEach(syncFieldState); }
+        syncAll();
+        window.__wlEditDdSync = syncAll;   // dipanggil open()/close() modal
+
+        function closePanel() {
+            if (openPanel) { openPanel.remove(); openPanel = null; }
+            if (ownerWrap) ownerWrap.classList.remove('is-open');
+            ownerWrap = null; ownerSelect = null;
+            focusIndex = -1; items = []; resultsBox = null;
+        }
+
+        function setFocus(index) {
+            items.forEach(el => el.classList.remove('is-focused'));
+            focusIndex = index;
+            if (items[focusIndex]) {
+                items[focusIndex].classList.add('is-focused');
+                items[focusIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function buildItems() {
+            items = [];
+            // Opsi placeholder (value kosong) TIDAK tampil di panel.
+            const opts = Array.from(ownerSelect.options).filter(opt => opt.value !== '');
+            if (!opts.length) {
+                const emptyNote = document.createElement('div');
+                emptyNote.className = 'pln-dd-empty';
+                emptyNote.textContent = 'Tidak ada pilihan';
+                resultsBox.appendChild(emptyNote);
+                return;
+            }
+            opts.forEach(function (opt) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'pln-dd-item';
+
+                const label = document.createElement('span');
+                label.textContent = opt.textContent.trim();
+                btn.appendChild(label);
+
+                if (opt.selected) {
+                    const check = document.createElement('span');
+                    check.className = 'pln-dd-check';
+                    check.innerHTML = '<i class="fas fa-check"></i>';
+                    btn.appendChild(check);
+                    btn.classList.add('is-selected');
+                }
+                if (opt.disabled) btn.disabled = true;
+
+                btn.addEventListener('click', function () {
+                    if (opt.disabled) return;
+                    ownerSelect.value = opt.value;
+                    // Dispatch 'input' + 'change' — toggle Khusus modal,
+                    // fillSubOptions & syncIconPreview ikut terpanggil.
+                    ownerSelect.dispatchEvent(new Event('input', { bubbles: true }));
+                    ownerSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    closePanel();
+                    ownerSelect.focus();
+                });
+
+                resultsBox.appendChild(btn);
+                items.push(btn);
+            });
+        }
+
+        function openPanelFor(select) {
+            closePanel();
+
+            // SELALU ke bawah: bila ruang di bawah sempit, scroll halaman
+            // dulu — panel tidak pernah flip ke atas / menutupi input.
+            let rect = select.getBoundingClientRect();
+            let below = window.innerHeight - rect.bottom;
+            if (below < MIN_BELOW) {
+                suppressScrollClose = true;
+                window.scrollBy({ top: (MIN_BELOW + 120) - below, behavior: 'instant' });
+                requestAnimationFrame(() => requestAnimationFrame(() => { suppressScrollClose = false; }));
+                rect = select.getBoundingClientRect();
+                below = window.innerHeight - rect.bottom;
+            }
+
+            const panel = document.createElement('div');
+            panel.className = 'pln-dd-panel';
+            panel.style.left = Math.round(rect.left) + 'px';
+            // LEBAR 100% kontrol — persis sejajar input box (tanpa min-width).
+            panel.style.width = Math.round(rect.width) + 'px';
+            // Margin-top 6px antara input box & panel melayang.
+            panel.style.top = Math.round(rect.bottom + 6) + 'px';
+            panel.style.maxHeight = Math.max(140, Math.min(MAX_HEIGHT, below - 16)) + 'px';
+
+            resultsBox = document.createElement('div');
+            resultsBox.className = 'pln-dd-results';
+            panel.appendChild(resultsBox);
+            document.body.appendChild(panel);
+
+            openPanel = panel;
+            ownerSelect = select;
+            ownerWrap = select.closest('.pln-select-wrap');
+            ownerWrap?.classList.add('is-open');
+            buildItems();
+
+            const selectedIdx = items.findIndex(el => el.classList.contains('is-selected'));
+            setFocus(selectedIdx >= 0 ? selectedIdx : 0);
+            select.focus();
+        }
+
+        selects.forEach(function (select) {
+            syncFieldState(select);
+
+            select.addEventListener('mousedown', function (e) {
+                if (select.disabled) return;
+                e.preventDefault();
+                if (openPanel && ownerSelect === select) { closePanel(); return; }
+                if (openPanel) closePanel();
+                openPanelFor(select);
+            });
+
+            select.addEventListener('keydown', function (e) {
+                if (select.disabled) return;
+                const key = e.key;
+                if (openPanel && ownerSelect === select) {
+                    if (key === 'ArrowDown') { e.preventDefault(); if (items.length) setFocus(Math.min(focusIndex + 1, items.length - 1)); }
+                    else if (key === 'ArrowUp') { e.preventDefault(); if (items.length) setFocus(Math.max(focusIndex - 1, 0)); }
+                    else if (key === 'Enter') { e.preventDefault(); if (items[focusIndex] && !items[focusIndex].disabled) items[focusIndex].click(); }
+                    else if (key === 'Escape') { e.preventDefault(); e.stopPropagation(); closePanel(); }
+                    else if (key === 'Tab') { closePanel(); }
+                    return;
+                }
+                if (['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(key)) {
+                    e.preventDefault();
+                    openPanelFor(select);
+                } else if (key.length === 1) {
+                    closePanel();
+                }
+            });
+        });
+
+        // Sinkron is-empty saat nilai berubah lewat jalur mana pun
+        // (panel custom, reset form, populate open()).
+        form.addEventListener('change', syncAll);
+
+        document.addEventListener('mousedown', function (e) {
+            if (!openPanel) return;
+            if (e.target === ownerSelect || ownerSelect.contains(e.target) || openPanel.contains(e.target)) return;
+            closePanel();
+        }, true);
+
+        window.addEventListener('scroll', function () {
+            if (!suppressScrollClose) closePanel();
+        }, { passive: true });
+        window.addEventListener('resize', closePanel);
+        window.addEventListener('pagehide', closePanel);
     })();
 
     if (!window.__workLinkDeleteModalBound) {
@@ -999,7 +1203,7 @@
                 const catEl = row.querySelector('.worklink-badge');
                 if (catEl) {
                     catEl.className = 'worklink-badge ' + (link.category === 'umum' ? 'umum' : 'khusus');
-                    catEl.textContent = link.category === 'umum' ? 'Umum' : 'Khusus';
+                    catEl.textContent = link.category === 'umum' ? 'All' : 'Khusus';
                 }
 
                 // Target bidang / sub-bidang
@@ -1037,7 +1241,7 @@
                 const subSel = subSelEl();
                 if (!subSel) return;
                 const subs = refData().subs[department] || {};
-                subSel.innerHTML = '<option value="">— Semua Sub-Bidang (level Bidang) —</option>';
+                subSel.innerHTML = '<option value=""></option>';
                 Object.keys(subs).forEach(function(key) {
                     const opt = document.createElement('option');
                     opt.value = key;
@@ -1118,6 +1322,7 @@
 
                 syncIconPreview();
                 togglePanel();
+                window.__wlEditDdSync?.();   // floating-label ikut nilai populate
                 form.action = '{{ url('admin/work-links') }}/' + currentId;
 
                 overlay.classList.add('show');
@@ -1144,6 +1349,7 @@
                     form.reset();
                     const confirmed = form.querySelector('#wlEditActiveConfirmed');
                     if (confirmed) confirmed.value = '1';
+                    window.__wlEditDdSync?.();   // floating-label kembali "kosong"
                 }
 
                 document.body.style.overflow = '';   // lepaskan lock scroll halaman
@@ -1271,7 +1477,7 @@
                 const form = formEl();
                 if (!form || !form.contains(e.target)) return;
 
-                // Kategori: Umum → sembunyikan target; Khusus → tampilkan
+                // Kategori: All → sembunyikan target; Khusus → tampilkan
                 if (e.target.name === 'category') togglePanel();
 
                 // Bidang Utama berubah → isi ulang dropdown Sub-Bidang

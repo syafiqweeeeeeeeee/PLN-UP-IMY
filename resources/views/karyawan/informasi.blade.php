@@ -1,4 +1,4 @@
-@extends('layouts.karyawan')
+        @extends('layouts.karyawan')
 
 @section('title', 'Informasi Internal — Portal Karyawan')
 

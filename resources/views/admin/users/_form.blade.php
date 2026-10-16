@@ -865,8 +865,10 @@
             const panel = document.createElement('div');
             panel.className = 'pln-dd-panel';
             panel.style.left = Math.round(rect.left) + 'px';
-            panel.style.width = Math.max(rect.width, 240) + 'px';
-            panel.style.top = Math.round(rect.bottom + 8) + 'px';
+            // LEBAR 100% kontrol — persis sejajar input box (tanpa min-width).
+            panel.style.width = Math.round(rect.width) + 'px';
+            // Margin-top 6px antara input box & panel melayang.
+            panel.style.top = Math.round(rect.bottom + 6) + 'px';
             panel.style.maxHeight = Math.max(140, Math.min(MAX_HEIGHT, below - 16)) + 'px';
 
             const results = document.createElement('div');

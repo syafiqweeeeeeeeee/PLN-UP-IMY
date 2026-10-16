@@ -3009,9 +3009,16 @@ select.form-input option {
     background: #fff;
     border: 1px solid var(--border-color);
     border-radius: 14px;
-    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.16), 0 2px 8px rgba(15, 23, 42, 0.06);
+    /* Soft shadow — efek melayang premium & halus. */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+    /* Padding internal — daftar opsi bernapas dari tepi border.
+       HORIZONTAL 0.45rem disengaja: item opsi left 0.5rem → teks opsi
+       mulai tepat 0.95rem (presisi sejajar padding-left teks select
+       box & floating label di atasnya). */
     padding: 0.45rem;
-    min-width: var(--dd-width, 240px);
+    /* LEBAR = 100% kontrol: JS men-set style.width persis lebar input
+       box — min-width tidak boleh menimpanya. */
+    min-width: 0;
     animation: pln-dd-in 0.14s ease-out;
 }
 @keyframes pln-dd-in {
@@ -3024,6 +3031,24 @@ select.form-input option {
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
+    /* CUSTOM SCROLLBAR — halus & tipis (bukan scrollbar default
+       browser yang tebal): track transparan, thumb abu muda rounded. */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+.pln-dd-results::-webkit-scrollbar {
+    width: 5px;                    /* tipis, tidak mencolok */
+}
+.pln-dd-results::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 6px 2px;
+}
+.pln-dd-results::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.4);   /* abu sangat muda / soft */
+    border-radius: 999px;
+}
+.pln-dd-results::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.55);
 }
 .pln-dd-item {
     display: flex;
@@ -3035,7 +3060,10 @@ select.form-input option {
     background: transparent;
     border: 0;
     border-radius: 9px;
-    padding: 0.65rem 0.9rem;    /* lega: nyaman dibaca & di-klik */
+    /* LEFT 0.5rem: + padding panel 0.45rem = 0.95rem — presisi
+       sejajar dengan teks/label DI DALAM select box di atasnya.
+       RIGHT 0.55rem: ruang check-indicator di ujung kanan. */
+    padding: 0.6rem 0.55rem 0.6rem 0.5rem;
     font-size: 0.88rem;
     font-family: inherit;
     color: #1f2937;
@@ -3071,7 +3099,7 @@ select.form-input option {
 html.theme-dark .pln-dd-panel {
     background: var(--panel);
     border-color: var(--line);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
 }
 html.theme-dark .pln-dd-item { color: var(--ink-heading); }
 html.theme-dark .pln-dd-item:hover,

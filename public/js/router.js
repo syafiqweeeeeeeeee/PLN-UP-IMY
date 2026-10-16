@@ -147,25 +147,50 @@
     }
 
     /* Re-eksekusi script inline yang ikut dalam konten halaman baru
-       (innerHTML tidak menjalankan <script> secara otomatis) */
+       (innerHTML tidak menjalankan <script> secara otomatis)
+
+       FIX (script data JSON): script NON-eksekusi — mis.
+       <script type="application/json"> untuk data referensi dropdown —
+       tidak boleh dibuat ulang sebagai <script> polos. Substitusi
+       tanpa atribut `type` membuat browser mem-parse isi JSON-nya
+       sebagai JavaScript saat node dimasukkan ke DOM (SyntaxError
+       "Unexpected token ':'") — exception itu membusuk keluar dari
+       forEach dan MENGHENTIKAN seluruh re-eksekusi script halaman,
+       sehingga script form berikutnya (toggle kategori Khusus form
+       Link Kerja) tidak pernah ter-bind setelah navigasi SPA.
+       Sekarang: (1) atribut `type` dipreservasi dan script
+       non-javascript di-skip sepenuhnya; (2) setiap script
+       dibungkus try/catch agar satu script yang gagal tidak
+       memblokir script lainnya. */
     function reexecuteScripts(container) {
         Array.prototype.forEach.call(container.querySelectorAll('script'), function (old) {
-            var s = document.createElement('script');
-            if (old.src) {
-                s.src = old.src;
-                // Script dengan src tidak di-invoke Manual — biarkan browser handle
-                // tapi beri flag agar handler cls ketik sejarah eksekusi
-                s.setAttribute('data-reexec-src', '1');
-            } else {
-                // Inline script: inject then invoke via IIFE pattern jika berisi saya-executing
-                s.textContent = old.textContent;
-                // Coba jalankan script inline yang mengandung pola IIFE atau function declaration
-                // yang diharapkan dieksekusi segera setelah swap
-                if (old.textContent.trim().startsWith('(') || old.textContent.trim().startsWith('function') || old.textContent.trim().startsWith('!') || old.textContent.trim().startsWith(';')) {
-                    try { eval(s.textContent); } catch (e) { /* log error tapi jangan hentikan navigasi */ }
+            try {
+                var type = (old.getAttribute('type') || '').toLowerCase();
+                // Skip script data/non-JS: bukan kode, tidak dieksekusi ulang.
+                var isJs = type === 'module' || type.indexOf('javascript') !== -1;
+                if (type && !isJs) return;
+
+                var s = document.createElement('script');
+                if (type) s.setAttribute('type', type);   // preservasi type (module, dsb.)
+                if (old.src) {
+                    s.src = old.src;
+                    // Script dengan src tidak di-invoke Manual — biarkan browser handle
+                    // tapi beri flag agar handler cls ketik sejarah eksekusi
+                    s.setAttribute('data-reexec-src', '1');
+                } else {
+                    // Inline script: inject then invoke via IIFE pattern jika berisi saya-executing
+                    s.textContent = old.textContent;
+                    // Coba jalankan script inline yang mengandung pola IIFE atau function declaration
+                    // yang diharapkan dieksekusi segera setelah swap
+                    if (old.textContent.trim().startsWith('(') || old.textContent.trim().startsWith('function') || old.textContent.trim().startsWith('!') || old.textContent.trim().startsWith(';')) {
+                        try { eval(s.textContent); } catch (e) { /* log error tapi jangan hentikan navigasi */ }
+                    }
                 }
+                old.parentNode.replaceChild(s, old);
+            } catch (e) {
+                // Satu script gagal (syntax/runtime) TIDAK boleh menghentikan
+                // eksekusi script halaman lainnya — lanjutkan ke berikutnya.
             }
-            old.parentNode.replaceChild(s, old);
         });
     }
 
