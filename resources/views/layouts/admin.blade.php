@@ -280,6 +280,18 @@
                 </a>
                 @endcan
 
+                {{-- Data Karyawan — master data HR (24 kolom, NID unik).
+                     Permission karyawan_data.* — assign lewat Kelola
+                     Permission / Direct Permission. --}}
+                @can('karyawan_data.view')
+                <a href="{{ route('admin.karyawan_data.index') }}"
+                   class="sidebar-link @if(request()->routeIs('admin.karyawan_data.*')) active @endif"
+                   data-no-router>
+                    <span class="link-icon"><i class="fas fa-users-gear"></i></span>
+                    <span class="link-text">Data Karyawan</span>
+                </a>
+                @endcan
+
                 {{-- ===== LAINNYA ===== --}}
                 @can('activity_logs.view')
                     <div class="sidebar-section-label">Lainnya</div>

@@ -1025,6 +1025,54 @@ Semua halaman view-only KECUALI: profil, dan modul **berita/pengumuman/galeri/ta
 | Kelola Galeri | `/karyawan/galeri/*` | `galleries.*` |
 | Data Tamu | `/karyawan/data-tamu/*` | `tamu.*` — controller `Karyawan\TamuController` **extends** controller Admin `TamuController` (logic reuse penuh, layout beda) |
 
+### 6.4.1 Data Karyawan (master data HR — panel admin)
+
+Modul `karyawan_data.*` di **panel admin** (`/admin/data-karyawan`,
+tombol sidebar "Data Karyawan" di bagian Manajemen). Permission di luar
+matriks admin — assign lewat **Kelola Permission** / Direct Permission;
+Super Admin dapat semua secara bawaan (lihat PermissionSeeder):
+
+- **Tabel** `karyawans` (migrasi `2026_10_15_000001`) — 24 kolom
+  spesifikasi, `nid` unique string (nol di depan aman), tanggal bertipe
+  `date`, tanpa FK ke `users` (data profil ≠ akun login).
+- **Model** `App\Models\Karyawan` — `COLUMNS_LABELS` (urutan kolom →
+  label), scope `search()`/`filtered()` dipakai daftar & ekspor.
+- **Controller** `Admin\DataKaryawanController` — CRUD + `template()`
+  (unduh kerangka CSV), `import()` (validasi per baris di memori →
+  transaksi; duplikat dilewati tanpa menimpa; ringkasan sukses/gagal/
+  duplikat), `export()` (CSV mengikuti filter aktif).
+- **Impor** menerima **CSV/TXT ATAU Excel (.xlsx)** dalam satu endpoint
+  `POST admin/karyawan_data/import` — pemilihan pembaca dari ekstensi
+  file (validasi ekstensi, bukan `mimes:` karena file .xlsx terdeteksi
+  fileinfo sebagai `application/zip`). Header 24 kolom dipetakan oleh
+  `mapHeaderRow()` yang **dipakai bersama** kedua jalur; tiap baris
+  membawa  nomor baris asli untuk laporan error. Jalur XLSX memakai
+  service `App\Services\XlsxReader`.
+- **Toleransi data historis** (berlaku di & impor CSV maupun XLSX):
+  ORGANIK maksimal **100** karakter (dilebarkan lewat migrasi
+  `2026_10_16_000001`, kolom `karyawans.organik`); FTE non-angka
+  (mis. "PJS") diabaikan jadi kosong — bukan gagal; tanggal
+  placeholder sistem lama ("00/00/0000", "0000-00-00") dianggap
+  kosong; STATUS KAWIN menerima teks panjang ("Menikah"/"Belum
+  Menikah" → K/TK).
+- **Service** `App\Services\XlsxReader` — pembaca .xlsx **native tanpa
+  ekstensi `zip`**: parsing ZIP manual (End-Of-Central-Directory →
+  central directory → local file header, metode store/deflate via
+  `gzinflate`) + pembacaan XML (`workbook.xml` → sheet pertama lewat
+  relasi, `sharedStrings.xml`, `styles.xml` untuk deteksi format
+  tanggal). Sel angka bergaya tanggal diubah dari serial Excel ke
+  `Y-m-d`; query XML memakai `local-name()` (bebas namespace) dan
+  DOCTYPE ditolak (anti billion-laughs); batas 64MB per arsip
+  (anti zip-bomb).
+- **View** `admin/data-karyawan/{index,form,show}` — form & detail
+  dikelompokkan 5 bagian (Identitas / Pekerjaan / Riwayat Tanggal /
+  Kontak / Tambahan).
+- Test: `tests/Feature/DataKaryawanTest.php` (35 kasus — CRUD,
+  otorisasi, impor CSV (delimiter/BOM/24 kolom/duplikat), impor XLSX
+  (parser ZIP native via helper `Tests\Support\XlsxWriter` yang
+  menyusun arsip ZIP+XML secara manual), ekspor mengikuti filter).
+  Helper: `tests/Support/XlsxWriter.php`.
+
 ### 6.6 Middleware global (bootstrap/app.php)
 
 - MustChangePassword di-append ke grup `web` — semua halaman ber-auth dijaga.
@@ -1038,6 +1086,7 @@ Semua halaman view-only KECUALI: profil, dan modul **berita/pengumuman/galeri/ta
 | `App\Services\MenuBuilderService` | Navbar publik dinamis dari tabel `menus` |
 | `App\Services\NotificationService` | Isi notifikasi topbar admin (tamu baru/belum dibaca per akun) |
 | `App\Services\PortalContentService` | Seluruh konten portal karyawan: link kerja & layanan internal ter-scope hirarki |
+| `App\Services\XlsxReader` | Baca file .xlsx impor Data Karyawan tanpa ext-zip (parser ZIP native + DOM XML) |
 | `App\Http\Controllers\Concerns\ScopesToDepartment` | Trait filter data per-bidang di controller modul bidang |
 | `App\Models\Scopes\ScopedToUserDepartment` | Global scope data-scoping bidang — dimatikan eksplisit di halaman publik pengumuman |
 | `App\Support\GrantPermission` | Artisan console command (`php artisan permission:grant?`) untuk bantuan debugging permission |

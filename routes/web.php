@@ -466,6 +466,34 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             Route::delete('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'clear'])->name('activity-logs.clear');
         });
 
+        // ============================================================
+        // DATA KARYAWAN (Master Data HR) — 24 kolom spesifikasi, NID
+        // unik, ±300 baris. Otorisasi per aksi lewat permission
+        // karyawan_data.* (terdaftar di PermissionSeeder; di luar
+        // matriks admin — assign via Kelola Permission / Direct
+        // Permission).
+        // Catatan urutan: route statis (create/template/export) WAJIB
+        // sebelum wildcard {karyawan} — pola sama dengan berita/tamu.
+        // ============================================================
+        Route::middleware('permission:karyawan_data.view')->group(function () {
+            Route::get('data-karyawan', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'index'])->name('karyawan_data.index');
+            Route::get('data-karyawan/export', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'export'])->name('karyawan_data.export');
+            Route::get('data-karyawan/{karyawan}', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'show'])->whereNumber('karyawan')->name('karyawan_data.show');
+        });
+        Route::middleware('permission:karyawan_data.create')->group(function () {
+            Route::get('data-karyawan/create', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'create'])->name('karyawan_data.create');
+            Route::post('data-karyawan', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'store'])->name('karyawan_data.store');
+            Route::get('data-karyawan/template', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'template'])->name('karyawan_data.template');
+            Route::post('data-karyawan/import', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'import'])->name('karyawan_data.import');
+        });
+        Route::middleware('permission:karyawan_data.edit')->group(function () {
+            Route::get('data-karyawan/{karyawan}/edit', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'edit'])->whereNumber('karyawan')->name('karyawan_data.edit');
+            Route::put('data-karyawan/{karyawan}', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'update'])->whereNumber('karyawan')->name('karyawan_data.update');
+        });
+        Route::middleware('permission:karyawan_data.delete')->group(function () {
+            Route::delete('data-karyawan/{karyawan}', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'destroy'])->whereNumber('karyawan')->name('karyawan_data.destroy');
+        });
+
         // Pengaturan Panel (tema, preferensi tampilan) — notifikasi &
         // akun tersimpan per user; email read-only, kata sandi via modal.
         Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');

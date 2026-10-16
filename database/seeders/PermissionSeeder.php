@@ -5,15 +5,18 @@ namespace Database\Seeders;
 use App\Models\MasterMenu;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 /**
  * PermissionSeeder — SISTEM HAK AKSES PER ID MENU.
  *
- * Total permission di database = TEPAT 39 baris, murni mengikuti
- * struktur 11 ID Menu Sidebar (lihat MasterMenu::MENUS) × aksi
- * CRUD yang benar-benar AKTIF di kode:
+ * Total permission di database = 43 baris: 39 baris matriks mengikuti
+ * struktur 11 ID Menu Sidebar (lihat MasterMenu::MENUS) × aksi CRUD
+ * yang benar-benar AKTIF di kode, ditambah 4 baris `karyawan_data.*`
+ * (module Data Karyawan di portal karyawan — di luar matriks admin,
+ * diassign lewat halaman Kelola Permission / Direct Permission):
  *
  *      ID Menu | permission_key  | hak akses yang didaftarkan
  *      --------|-----------------|--------------------------------
@@ -29,7 +32,7 @@ use Illuminate\Support\Facades\DB;
  *      10 Log Aktivitas  | activity_logs          | view/delete     (2)
  *      11 Role/Hak Akses | roles                  | view/custom/edit/delete
  *
- *      1 + (8 × 4) + 2 + 4 = 39
+ *      1 + (8 × 4) + 2 + 4 = 39  (+ 4 karyawan_data.* = 43)
  *
  * Aksi spesifik non-CRUD yang dulu terdaftar terpisah (news.publish,
  * announcements.publish, tamu.checkout, user.reset-password,
@@ -52,32 +55,37 @@ class PermissionSeeder extends Seeder
      * @var array<string, array<int, string>>
      */
     private const MENU_ACTIONS = [
-        'dashboard'     => ['view'],
-        'news'          => ['view', 'create', 'edit', 'delete'],
-        'tamu'          => ['view', 'create', 'edit', 'delete'],
+        'dashboard' => ['view'],
+        'news' => ['view', 'create', 'edit', 'delete'],
+        'tamu' => ['view', 'create', 'edit', 'delete'],
         'announcements' => ['view', 'create', 'edit', 'delete'],
-        'pages'         => ['view', 'create', 'edit', 'delete'],
-        'menus'         => ['view', 'create', 'edit', 'delete'],
-        'users'         => ['view', 'create', 'edit', 'delete'],
-        'galleries'     => ['view', 'create', 'edit', 'delete'],
-        'work_links'    => ['view', 'create', 'edit', 'delete'],
+        'pages' => ['view', 'create', 'edit', 'delete'],
+        'menus' => ['view', 'create', 'edit', 'delete'],
+        'users' => ['view', 'create', 'edit', 'delete'],
+        'galleries' => ['view', 'create', 'edit', 'delete'],
+        'work_links' => ['view', 'create', 'edit', 'delete'],
         'activity_logs' => ['view', 'delete'],
-        'roles'         => ['view', 'create', 'edit', 'delete'],
+        'roles' => ['view', 'create', 'edit', 'delete'],
+        // Data Karyawan — master data HR di portal karyawan (bukan menu
+        // matriks admin; dikelola akun karyawan yang diberi permission ini
+        // via Edit Role / Direct Permission).
+        'karyawan_data' => ['view', 'create', 'edit', 'delete'],
     ];
 
     /** Nama modul (untuk pengelompokan halaman "Kelola Permission"). */
     private const MENU_MODULES = [
-        'dashboard'     => 'Dashboard',
-        'news'          => 'News',
-        'tamu'          => 'Guest Book',
+        'dashboard' => 'Dashboard',
+        'news' => 'News',
+        'tamu' => 'Guest Book',
         'announcements' => 'Announcements',
-        'pages'         => 'Page Management',
-        'menus'         => 'Menu Management',
-        'users'         => 'User Management',
-        'galleries'     => 'Gallery',
-        'work_links'    => 'Work Link Management',
+        'pages' => 'Page Management',
+        'menus' => 'Menu Management',
+        'users' => 'User Management',
+        'galleries' => 'Gallery',
+        'work_links' => 'Work Link Management',
         'activity_logs' => 'Activity Log',
-        'roles'         => 'Role Management',
+        'roles' => 'Role Management',
+        'karyawan_data' => 'Data Karyawan',
     ];
 
     public function run(): void
@@ -85,7 +93,7 @@ class PermissionSeeder extends Seeder
         $menuNames = array_column(MasterMenu::MENUS, 'name', 'permission_key');
 
         // ================================================
-        // 1) Pastikan baris permission matriks ada (39).
+        // 1) Pastikan baris permission matriks ada (43).
         // ================================================
         $permissionIds = [];
 
@@ -97,7 +105,7 @@ class PermissionSeeder extends Seeder
                     ['name' => $name],
                     [
                         'display_name' => self::displayName($key, $action),
-                        'module'       => self::MENU_MODULES[$key],
+                        'module' => self::MENU_MODULES[$key],
                     ]
                 )->id;
             }
@@ -125,7 +133,7 @@ class PermissionSeeder extends Seeder
         // ================================================
 
         $superAdmin = Role::firstOrCreate(
-            ['name' => \App\Models\User::SUPER_ADMIN_ROLE],
+            ['name' => User::SUPER_ADMIN_ROLE],
             ['description' => 'Super Admin — Sekretariat/Humas, akses penuh seluruh fitur', 'status' => true]
         );
 
@@ -136,7 +144,7 @@ class PermissionSeeder extends Seeder
         // RBAC — Admin Bidang: akses dibatasi modul bidangnya (Pengumuman
         // Internal & Link Kerja). Menu sensitif TIDAK diberikan.
         $adminBidang = Role::firstOrCreate(
-            ['name' => \App\Models\User::DEPARTMENT_ADMIN_ROLE],
+            ['name' => User::DEPARTMENT_ADMIN_ROLE],
             ['description' => 'Admin Bidang — pengelola konten terbatas satu bidang', 'status' => true]
         );
 
@@ -156,7 +164,7 @@ class PermissionSeeder extends Seeder
 
         $karyawan->permissions()->sync(array_intersect_key(
             $permissionIds,
-            array_flip(\App\Models\User::KARYAWAN_BASELINE_PERMISSIONS)
+            array_flip(User::KARYAWAN_BASELINE_PERMISSIONS)
         ));
     }
 
@@ -169,9 +177,9 @@ class PermissionSeeder extends Seeder
         $menuName = MasterMenu::MENUS[array_search($key, array_column(MasterMenu::MENUS, 'permission_key'))]['name'] ?? $key;
 
         $verb = match ($action) {
-            'view'   => 'Lihat',
+            'view' => 'Lihat',
             'create' => 'Tambah',
-            'edit'   => 'Edit',
+            'edit' => 'Edit',
             'delete' => 'Hapus',
         };
 
@@ -198,6 +206,8 @@ class PermissionSeeder extends Seeder
                 return "{$verb} Galeri";
             case 'work_links':
                 return "{$verb} Link Kerja";
+            case 'karyawan_data':
+                return $action === 'view' ? 'Lihat Data Karyawan' : "{$verb} Data Karyawan";
         }
 
         return "{$verb} {$menuName}";
