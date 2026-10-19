@@ -150,18 +150,27 @@
     .dk-table tbody tr:hover { background: #e6f2fb; }
 
     /* Kolom identitas (NID & NAMA) sticky di kiri agar tetap terlihat
-       saat scroll horizontal 24 kolom. */
+       saat scroll horizontal 24 kolom.
+
+       Penting:
+       - left sticky-2 memakai variabel --dk-sticky-2-left yang diukur
+         dari lebar kolom NID secara nyata (script inline di bawah).
+         Nilai hardcoded menyebabkan kolom NAMA menimpa/menjauh dari
+         kolom BIDANG karena offset tidak sama dengan lebar NID.
+       - Lapisan z-index: konten biasa (auto) < sticky-2 < sticky-1
+         < header tabel, supaya NID tidak pernah tertimpa NAMA dan
+         kedua kolom identitas selalu di atas konten yang bergeser. */
     .dk-table th.sticky-1, .dk-table td.sticky-1 {
-        position: sticky; left: 0; z-index: 2;
+        position: sticky; left: 0; z-index: 3;
         background: var(--bg-card);
         box-shadow: 1px 0 0 var(--border-color);
     }
     .dk-table th.sticky-2, .dk-table td.sticky-2 {
-        position: sticky; left: 120px; z-index: 2;
+        position: sticky; left: var(--dk-sticky-2-left, 120px); z-index: 2;
         background: var(--bg-card);
         box-shadow: 1px 0 0 var(--border-color);
     }
-    .dk-table thead th.sticky-1, .dk-table thead th.sticky-2 { background: #f8fafc; z-index: 3; }
+    .dk-table thead th.sticky-1, .dk-table thead th.sticky-2 { background: #f8fafc; z-index: 4; }
     .dk-table tbody tr:nth-child(even) td.sticky-1,
     .dk-table tbody tr:nth-child(even) td.sticky-2 { background: #fafbfd; }
     .dk-table tbody tr:hover td.sticky-1,
@@ -557,4 +566,49 @@
     </div>
 </div>
 @endcan
+
+{{-- ============================================================
+     Script INLINE offset kolom sticky — WAJIB di dalam content
+     (bukan @push('scripts')) karena router.js hanya mengeksekusi
+     ulang <script> di dalam <main> setelah navigasi SPA.
+
+     Mengukur lebar kolom NID secara nyata lalu menulisnya ke
+     --dk-sticky-2-left, supaya left kolom NAMA selalu persis
+     selesai kolom NID (tanpa jeda yang membocorkan kolom BIDANG
+     dan tanpa menimpa kolom BIDANG saat scroll).
+     ============================================================ --}}
+<script>
+    (function() {
+        function syncDkStickyOffset() {
+            var table = document.querySelector('.dk-table');
+            if (!table) return;
+            var first = table.querySelector('thead th.sticky-1')
+                     || table.querySelector('tbody td.sticky-1');
+            if (!first) return;
+            var w = first.getBoundingClientRect().width;
+            // Bulatkan 2 desimal saja — pembulatan ke atas (ceil) membuat
+            // jeda sub-pixel yang membocorkan garis konten saat scroll.
+            w = Math.round(w * 100) / 100;
+            if (w > 0) table.style.setProperty('--dk-sticky-2-left', w + 'px');
+        }
+
+        // Ukur ulang setelah layout siap (font monospace NID, dll.).
+        syncDkStickyOffset();
+        requestAnimationFrame(syncDkStickyOffset);
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(syncDkStickyOffset);
+        }
+
+        // Guard re-eksekusi: listener resize cukup dipasang sekali,
+        // karena callback selalu mengukur elemen tabel yang terbaru.
+        if (!window.__dkStickyResizeBound) {
+            window.__dkStickyResizeBound = true;
+            var dkStickyTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(dkStickyTimer);
+                dkStickyTimer = setTimeout(syncDkStickyOffset, 120);
+            });
+        }
+    })();
+</script>
 @endsection
