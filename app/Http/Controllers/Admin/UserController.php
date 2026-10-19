@@ -295,7 +295,9 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        $user->load('role');
+        // Data kepegawaian (tabel employee_profiles) ikut dimuat agar
+        /// halaman Detail Pengguna langsung menyajikan profil lengkap.
+        $user->load(['role', 'employeeProfile']);
         return view('admin.users.show', compact('user'));
     }
 

@@ -296,6 +296,29 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         });
 
         // ============================================================
+        // DATA KEPEGAWAIAN AKUN (tabel relasi employee_profiles).
+        // Ditampilkan & diisi dari Detail Pengguna (ikon mata di Kelola
+        // Pengguna):
+        // - PUT users/{user}/kepegawaian → simpan/upsert profil
+        //   kepegawaian milik akun; kebijakan mengikuti Edit Pengguna
+        //   (gate users.edit:self — Super Admin boleh semua akun,
+        //   lainnya hanya milik sendiri).
+        // - GET karyawan-lookup → prefill form "Muat dari NID" dari
+        //   MASTER karyawans (hasil impor Excel); dijaga
+        //   permission karyawan_data.view karena membaca master HR.
+        // SCOPING keamanan: endpoint ini TIDAK PERNAH mengubah master
+        // karyawans — hanya menautkan karyawan_id lewat pencocokan NID.
+        // URI lookup sengaja di luar prefix users/ agar TIDAK tertangkap
+        // wildcard GET users/{user} (pola aman route statis dulu).
+        // ============================================================
+        Route::middleware('can:users.edit:self')->group(function () {
+            Route::put('users/{user}/kepegawaian', [\App\Http\Controllers\Admin\EmployeeProfileController::class, 'update'])->whereNumber('user')->name('users.kepegawaian.update');
+        });
+        Route::middleware('permission:karyawan_data.view')->group(function () {
+            Route::get('karyawan-lookup', [\App\Http\Controllers\Admin\EmployeeProfileController::class, 'karyawanLookup'])->name('users.karyawan-lookup');
+        });
+
+        // ============================================================
         // MANAJEMEN USER & ROLE — HANYA SUPER ADMIN (Sekretariat/Humas).
         // Admin Bidang dilarang mengelola akun/role lain.
         // ============================================================
