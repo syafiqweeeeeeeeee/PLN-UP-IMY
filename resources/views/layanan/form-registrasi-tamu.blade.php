@@ -1131,18 +1131,18 @@
                     {{-- Orang/Divisi yang Ditemui — Select Option statis --}}
                     <div>
                         <label for="tujuan_ditemui" class="pln-label" data-i18n="form.label_tujuan">
-                            Orang / Divisi yang Ditemui <span class="required">*</span>
+                            Bidang yang Ditemui <span class="required">*</span>
                         </label>
                         <div class="pln-input-icon" style="position: relative;">
                             <input type="text" id="tujuan_ditemui_display" readonly
                                    value="{{ old('tujuan_ditemui', '') }}"
-                                   placeholder="— Pilih Divisi —"
+                                   placeholder="— Pilih Bidang —"
                                    class="pln-input custom-dropdown-input @error('tujuan_ditemui') has-error @enderror"
                                    aria-haspopup="listbox">
                             <i class="fas fa-chevron-down dropdown-arrow"></i>
                             <div id="divisi-dropdown" class="custom-dropdown-menu custom-scroll-menu" role="listbox" style="display: none;">
                                 <div class="dropdown-options custom-scroll-content" id="divisi-options">
-                                    <div class="dropdown-option" data-value="" data-selected="true">— Pilih Divisi —</div>
+                                    <div class="dropdown-option" data-value="" data-selected="true">— Pilih Bidang —</div>
 
                                     <div class="dropdown-optgroup">Manager Operasi</div>
                                     <div class="dropdown-option" data-value="Bidang Prod A">Bidang Prod A</div>
@@ -1186,6 +1186,38 @@
                         @error('tujuan_ditemui')
                             <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                         @enderror
+                    </div>
+
+                    {{-- Jabatan yang Ditemui — tampilan saja (namaless: tidak ikut submit) --}}
+                    <div>
+                        <label for="jabatan_ditemui" class="pln-label" data-i18n="form.label_jabatan">
+                            Jabatan yang Ditemui
+                        </label>
+                        <div class="pln-input-icon">
+                            <i class="fas fa-id-badge"></i>
+                            <input type="text" id="jabatan_ditemui"
+                                   value=""
+                                   placeholder="Jabatan orang yang ditemui"
+                                   data-i18n-placeholder="form.ph_jabatan"
+                                   autocomplete="off"
+                                   class="pln-input" />
+                        </div>
+                    </div>
+
+                    {{-- Orang yang Ditemui — tampilan saja (namaless: tidak ikut submit) --}}
+                    <div>
+                        <label for="orang_ditemui" class="pln-label" data-i18n="form.label_orang">
+                            Orang yang Ditemui
+                        </label>
+                        <div class="pln-input-icon">
+                            <i class="fas fa-user-tie"></i>
+                            <input type="text" id="orang_ditemui"
+                                   value=""
+                                   placeholder="Nama orang yang ditemui"
+                                   data-i18n-placeholder="form.ph_orang"
+                                   autocomplete="off"
+                                   class="pln-input" />
+                        </div>
                     </div>
 
                     {{-- Tanggal & Jam Kunjungan + Jumlah Tamu --}}
