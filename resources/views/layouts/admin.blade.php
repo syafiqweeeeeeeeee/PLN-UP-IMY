@@ -46,8 +46,14 @@
         <style>
             @keyframes pt-fade-slide-in {
                 from { opacity: 0; transform: translateX(4px); }
-                to   { opacity: 1; transform: translateX(0); }
+                to   { opacity: 1; transform: none; }
             }
+            /* transform AKHIR harus `none` (bukan translateX(0)): dengan
+               fill-mode `both`, keyframe terakhir diremennan setelah animasi
+               selesai — transform apa pun (termasuk translateX(0)) menciptakan
+               containing block bagi descendant position:fixed, sehingga
+               modal Bootstrap tergeser relatif area konten (di samping
+               sidebar), bukan di tengah viewport. */
             
             .admin-content.pt-animating {
                 animation: pt-fade-slide-in 0.06s ease-out both;
