@@ -292,6 +292,30 @@
                 </a>
                 @endcan
 
+                {{-- Master Bidang & Master Jabatan — master data hierarki
+                     (bidang induk → sub-bidang; jabatan per bidang +
+                     parent). Permission master_bidang.* /
+                     master_jabatan.* — assign lewat Kelola Permission /
+                     Direct Permission, pola sama dengan
+                     karyawan_data.*. --}}
+                @can('master_bidang.view')
+                <a href="{{ route('admin.master_bidang.index') }}"
+                   class="sidebar-link @if(request()->routeIs('admin.master_bidang.*')) active @endif"
+                   data-no-router>
+                    <span class="link-icon"><i class="fas fa-sitemap"></i></span>
+                    <span class="link-text">Master Bidang</span>
+                </a>
+                @endcan
+
+                @can('master_jabatan.view')
+                <a href="{{ route('admin.master_jabatan.index') }}"
+                   class="sidebar-link @if(request()->routeIs('admin.master_jabatan.*')) active @endif"
+                   data-no-router>
+                    <span class="link-icon"><i class="fas fa-user-tie"></i></span>
+                    <span class="link-text">Master Jabatan</span>
+                </a>
+                @endcan
+
                 {{-- ===== LAINNYA ===== --}}
                 @can('activity_logs.view')
                     <div class="sidebar-section-label">Lainnya</div>

@@ -494,6 +494,67 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             Route::delete('data-karyawan/{karyawan}', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'destroy'])->whereNumber('karyawan')->name('karyawan_data.destroy');
         });
 
+        // ==========================================================
+        // MASTER BIDANG & MASTER JABATAN (master data hierarki) —
+        // bersebelahan dengan Data Karyawan di sidebar. Gate per aksi
+        // lewat permission master_bidang.* / master_jabatan.*
+        // (terdaftar di PermissionSeeder, di luar matriks admin —
+        // assign via Kelola Permission / Direct Permission, pola sama
+        // dengan karyawan_data.*). Tabel baru (bidangs/jabatans) —
+        // kolom & data karyawans TIDAK diubah.
+        // Catatan urutan: route statis (create) sebelum wildcard +
+        // whereNumber — pola sama dengan data-karyawan.
+        // ==========================================================
+        Route::middleware('permission:master_bidang.view')->group(function () {
+            Route::get('master-bidang', [\App\Http\Controllers\Admin\MasterBidangController::class, 'index'])
+                ->name('master_bidang.index');
+        });
+        Route::middleware('permission:master_bidang.create')->group(function () {
+            Route::get('master-bidang/create', [\App\Http\Controllers\Admin\MasterBidangController::class, 'create'])
+                ->name('master_bidang.create');
+            Route::post('master-bidang', [\App\Http\Controllers\Admin\MasterBidangController::class, 'store'])
+                ->name('master_bidang.store');
+        });
+        Route::middleware('permission:master_bidang.view')->group(function () {
+            Route::get('master-bidang/{bidang}', [\App\Http\Controllers\Admin\MasterBidangController::class, 'show'])
+                ->whereNumber('bidang')->name('master_bidang.show');
+        });
+        Route::middleware('permission:master_bidang.edit')->group(function () {
+            Route::get('master-bidang/{bidang}/edit', [\App\Http\Controllers\Admin\MasterBidangController::class, 'edit'])
+                ->whereNumber('bidang')->name('master_bidang.edit');
+            Route::put('master-bidang/{bidang}', [\App\Http\Controllers\Admin\MasterBidangController::class, 'update'])
+                ->whereNumber('bidang')->name('master_bidang.update');
+        });
+        Route::middleware('permission:master_bidang.delete')->group(function () {
+            Route::delete('master-bidang/{bidang}', [\App\Http\Controllers\Admin\MasterBidangController::class, 'destroy'])
+                ->whereNumber('bidang')->name('master_bidang.destroy');
+        });
+
+        Route::middleware('permission:master_jabatan.view')->group(function () {
+            Route::get('master-jabatan', [\App\Http\Controllers\Admin\MasterJabatanController::class, 'index'])
+                ->name('master_jabatan.index');
+        });
+        Route::middleware('permission:master_jabatan.create')->group(function () {
+            Route::get('master-jabatan/create', [\App\Http\Controllers\Admin\MasterJabatanController::class, 'create'])
+                ->name('master_jabatan.create');
+            Route::post('master-jabatan', [\App\Http\Controllers\Admin\MasterJabatanController::class, 'store'])
+                ->name('master_jabatan.store');
+        });
+        Route::middleware('permission:master_jabatan.view')->group(function () {
+            Route::get('master-jabatan/{jabatan}', [\App\Http\Controllers\Admin\MasterJabatanController::class, 'show'])
+                ->whereNumber('jabatan')->name('master_jabatan.show');
+        });
+        Route::middleware('permission:master_jabatan.edit')->group(function () {
+            Route::get('master-jabatan/{jabatan}/edit', [\App\Http\Controllers\Admin\MasterJabatanController::class, 'edit'])
+                ->whereNumber('jabatan')->name('master_jabatan.edit');
+            Route::put('master-jabatan/{jabatan}', [\App\Http\Controllers\Admin\MasterJabatanController::class, 'update'])
+                ->whereNumber('jabatan')->name('master_jabatan.update');
+        });
+        Route::middleware('permission:master_jabatan.delete')->group(function () {
+            Route::delete('master-jabatan/{jabatan}', [\App\Http\Controllers\Admin\MasterJabatanController::class, 'destroy'])
+                ->whereNumber('jabatan')->name('master_jabatan.destroy');
+        });
+
         // Pengaturan Panel (tema, preferensi tampilan) — notifikasi &
         // akun tersimpan per user; email read-only, kata sandi via modal.
         Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');

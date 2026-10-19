@@ -487,6 +487,8 @@ class ActivityLogger
             'galeri'      => 'Galeri',
             'tamu'        => 'Data Tamu',
             'link_kerja'  => 'Link Kerja',
+            'master_bidang' => 'Master Bidang',
+            'master_jabatan' => 'Master Jabatan',
             'pengguna'    => 'Pengguna',
             'permohonan'  => 'Permohonan',
             'halaman'     => 'Halaman',

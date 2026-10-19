@@ -12,11 +12,13 @@ use Illuminate\Support\Facades\DB;
 /**
  * PermissionSeeder — SISTEM HAK AKSES PER ID MENU.
  *
- * Total permission di database = 43 baris: 39 baris matriks mengikuti
+ * Total permission di database = 51 baris: 39 baris matriks mengikuti
  * struktur 11 ID Menu Sidebar (lihat MasterMenu::MENUS) × aksi CRUD
  * yang benar-benar AKTIF di kode, ditambah 4 baris `karyawan_data.*`
- * (module Data Karyawan di portal karyawan — di luar matriks admin,
- * diassign lewat halaman Kelola Permission / Direct Permission):
+ * dan 8 baris `master_bidang.*` / `master_jabatan.*` (module Data
+ * Karyawan, Master Bidang & Master Jabatan di panel admin — di
+ * luar matriks admin, diassign lewat halaman Kelola Permission /
+ * Direct Permission):
  *
  *      ID Menu | permission_key  | hak akses yang didaftarkan
  *      --------|-----------------|--------------------------------
@@ -32,7 +34,9 @@ use Illuminate\Support\Facades\DB;
  *      10 Log Aktivitas  | activity_logs          | view/delete     (2)
  *      11 Role/Hak Akses | roles                  | view/custom/edit/delete
  *
- *      1 + (8 × 4) + 2 + 4 = 39  (+ 4 karyawan_data.* = 43)
+ *      1 + (8 × 4) + 2 + 4 = 39  (+ 4 karyawan_data.* = 43,
+ *                                 + 4 master_bidang.*
+ *                                 + 4 master_jabatan.* = 51)
  *
  * Aksi spesifik non-CRUD yang dulu terdaftar terpisah (news.publish,
  * announcements.publish, tamu.checkout, user.reset-password,
@@ -70,6 +74,12 @@ class PermissionSeeder extends Seeder
         // matriks admin; dikelola akun karyawan yang diberi permission ini
         // via Edit Role / Direct Permission).
         'karyawan_data' => ['view', 'create', 'edit', 'delete'],
+        // Master Bidang & Master Jabatan — master data hierarki di
+        // panel admin (di luar matriks admin; dikelola akun yang
+        // diberi permission ini via Kelola Role / Direct Permission —
+        // pola sama dengan karyawan_data).
+        'master_bidang' => ['view', 'create', 'edit', 'delete'],
+        'master_jabatan' => ['view', 'create', 'edit', 'delete'],
     ];
 
     /** Nama modul (untuk pengelompokan halaman "Kelola Permission"). */
@@ -86,6 +96,8 @@ class PermissionSeeder extends Seeder
         'activity_logs' => 'Activity Log',
         'roles' => 'Role Management',
         'karyawan_data' => 'Data Karyawan',
+        'master_bidang' => 'Master Bidang',
+        'master_jabatan' => 'Master Jabatan',
     ];
 
     public function run(): void
@@ -208,6 +220,10 @@ class PermissionSeeder extends Seeder
                 return "{$verb} Link Kerja";
             case 'karyawan_data':
                 return $action === 'view' ? 'Lihat Data Karyawan' : "{$verb} Data Karyawan";
+            case 'master_bidang':
+                return $action === 'view' ? 'Lihat Master Bidang' : "{$verb} Master Bidang";
+            case 'master_jabatan':
+                return $action === 'view' ? 'Lihat Master Jabatan' : "{$verb} Master Jabatan";
         }
 
         return "{$verb} {$menuName}";
