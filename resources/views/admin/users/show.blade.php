@@ -58,21 +58,101 @@
         display: flex; align-items: center; gap: 0.5rem;
     }
     html.theme-dark .alert-show-success { background: rgba(22,163,74,0.15); color: #86efac; border-color: rgba(22,163,74,0.35); }
-    /* btn-back → global di public/css/admin.css */
-    .btn-edit {
-        background: var(--pln-yellow);
-        color: var(--pln-blue);
-        border: none;
+    /* ===== Action Buttons Layout =====
+       Flexible action button group di header card.
+       Gunakan flexbox dengan gap konsisten untuk tampilan rapi. ===== */
+    .news-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
         border-radius: 8px;
-        padding: 0.6rem 1.2rem;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+        flex: 0 0 auto;
+        white-space: nowrap;
     }
-    .btn-edit:hover {
-        background: #fff;
-        box-shadow: 0 4px 12px rgba(255, 230, 0, 0.4);
+    .news-action-btn:hover {
         transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .news-action-btn:focus-visible {
+        outline: 2px solid var(--pln-blue);
+        outline-offset: 2px;
+    }
+    .news-action-btn.edit {
+        background: #dbeafe; color: #1d4ed8;
+    }
+    .news-action-btn.edit:hover {
+        background: #bfdbfe; color: #1e40af;
+    }
+    .news-action-btn.delete {
+        background: #fecaca; color: #b91c1c;
+    }
+    .news-action-btn.delete:hover {
+        background: #f6e05e; color: #991b1b;
+    }
+    .news-action-btn.cancel {
+        background: #e5e7eb; color: #374151;
+    }
+    .news-action-btn.cancel:hover {
+        background: #d1d5db; color: #1f2937;
+    }
+    .news-action-btn.confirm {
+        background: #d97706; color: #fff;
+    }
+    .news-action-btn.confirm:hover {
+        background: #b91c1c; color: #fff;
+    }
+    /* Tombol switch status tetap pakai kelas user-switch */
+    .user-switch {
+        width: 30px;
+        height: 30px;
+        border: none;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background 0.2s ease;
+    }
+    .user-switch .track {
+        position: relative;
+        width: 20px;
+        height: 12px;
+        border-radius: 999px;
+        transition: background 0.25s ease;
+    }
+    .user-switch .knob {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+        transition: transform 0.25s ease;
+    }
+    /* AKTIF: kotak hijau muda + switch hijau, knob di kanan */
+    .user-switch.on { background: #dcfce7; }
+    .user-switch.on:hover { background: #bbf7d0; }
+    .user-switch.on .track { background: #16a34a; }
+    .user-switch.on:hover .track { background: #15803d; }
+    .user-switch.on .knob { transform: translateX(8px); }
+    /* NONAKTIF: kotak oranye muda + switch oranye, knob di kiri */
+    .user-switch.off { background: #fef3c7; }
+    .user-switch.off:hover { background: #fde68a; }
+    .user-switch.off .track { background: #f59e0b; }
+    .user-switch.off:hover { background: #d97706; }
+    .user-switch:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
     }
     /* Toggle switch status (pengganti Edit) — skema warna sama dengan daftar:
        ON hijau = aktif; OFF oranye soft = nonaktif/belum verifikasi. */
@@ -114,6 +194,39 @@
     }
     .btn-delete:hover {
         background: #fecaca;
+    }
+    /* Pastikan gap antar tombol di header card ada dan konsisten */
+    .detail-card-header .d-flex.gap-2,
+    .news-action-btn-group .news-action-btn {
+        gap: 3rem !important;
+    }
+    /* Force nowrap on all action buttons inside this header - FIX FLEXBOX */
+    .detail-card-header .news-action-btn {
+        white-space: nowrap !important;
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+    }
+    /* Reduced gap for smaller screens */
+    @media (max-width: 768px) {
+        .detail-card-header .d-flex.gap-2,
+        .news-action-btn-group .news-action-btn {
+            gap: 1rem !important;
+        }
+    }
+    .avatar-circle {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1rem;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(29, 78, 216, 0.25);
     }
     .role-badge-lg {
         font-size: 0.8rem;
@@ -358,55 +471,67 @@
 @endif
 <div class="row g-3 mb-4">
     <div class="col-12">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <a href="{{ route('admin.users.index') }}" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm">
+                <i class="fas fa-arrow-left me-2"></i> Kembali
+            </a>
+        </div>
         <div class="detail-card">
-            {{-- Header --}}
-            <div class="detail-card-header d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-4">
-                    <div class="detail-avatar">
-                        {{ strtoupper(substr($user->name, 0, 2)) }}
-                    </div>
-                    <div>
-                        <h4 style="font-weight: 700; color: #1f2937; margin: 0;">{{ $user->name }}</h4>
-                        <p style="margin: 0.25rem 0 0 0; color: #6b7280; font-size: 0.9rem;">
-                            <i class="fas fa-user-circle me-1"></i>{{ $user->email }}
-                        </p>
-                    </div>
+            {{-- Header --}}<div class="card-body p-4">
+       <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+            <!-- SISI KIRI: INFORMASI PROFIL -->
+            <div class="d-flex align-items-center gap-3 flex-shrink-0">
+                <div class="avatar-circle">
+                    {{ strtoupper(substr($user->name, 0, 2)) }}
                 </div>
-                <div class="d-flex gap-2">
-                    @if (auth()->id() === $user->id)
-                        <button type="button" class="btn-toggle-status off" disabled title="Akun Anda sendiri tidak dapat dinonaktifkan">
-                            <i class="fas fa-toggle-off me-1"></i> Akun Anda
-                        </button>
-                    @else
-                        <button type="button"
-                                class="btn-toggle-status {{ $user->email_verified_at ? 'on' : 'off' }}"
-                                title="{{ $user->email_verified_at ? 'Akun aktif — klik untuk menonaktifkan' : 'Akun nonaktif — klik untuk mengaktifkan' }}"
-                                onclick="toggleUserStatusFromShow({{ $user->id }}, '{{ addslashes($user->name) }}', {{ $user->email_verified_at ? 'false' : 'true' }})">
-                            <i class="fas fa-toggle-{{ $user->email_verified_at ? 'on' : 'off' }} me-1"></i>
-                            {{ $user->email_verified_at ? 'Aktif' : 'Nonaktif' }}
-                        </button>
-                    @endif
-
-                    @if((auth()->user()->role === 'Admin Bidang' || optional(auth()->user()->role)->name === 'Admin Bidang') && auth()->id() == $user->id)
-                        <a href="{{ route('admin.users.edit', $user) }}" class="btn-edit"
-                           style="background:var(--pln-yellow);color:var(--pln-blue);border:none;border-radius:8px;padding:0.6rem 1.2rem;font-weight:600;font-size:0.85rem;display:inline-flex;align-items:center;gap:0.5rem;text-decoration:none;">
-                            <i class="fas fa-edit me-1"></i> Edit Profil
-                        </a>
-                    @else
-                        @if(auth()->id() == $user->id)
-                            <span class="badge bg-warning">Akun Anda</span>
-                        @else
-                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display: inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-delete" onclick="return confirm('Yakin ingin menghapus pengguna ini?')">
-                                    <i class="fas fa-trash me-1"></i> Hapus
-                                </button>
-                            </form>
-                        @endif
-                    @endif
+                <div class="d-flex flex-column justify-content-center">
+                    <h4 class="mb-0 fw-bold lh-base text-dark">{{ $user->name }}</h4>
+                    <p class="text-muted mb-0 d-flex align-items-center gap-2" style="font-size: 0.875rem;">
+                        <i class="fas fa-user" style="font-size: 0.75rem;"></i>
+                        <span>{{ $user->email }}</span>
+                    </p>
                 </div>
             </div>
+            <!-- SISI KANAN: GROUP TOMBOL AKSI EMONLY (TANPA TEKS) -->
+            <div class="d-flex align-items-center gap-2">
+                {{-- Edit Akun --}}
+                @if(auth()->id() === $user->id || auth()->user()?->can('users.edit'))
+                    <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-light border" style="cursor: pointer;" title="Edit Akun" onclick="event.stopPropagation();">
+                        <i class="fas fa-pen text-primary"></i>
+                    </a>
+                @endif
+                {{-- Aktifkan / Nonaktifkan Akun --}}
+                @if(auth()->user()?->can('users.edit') && auth()->id() !== $user->id)
+                    <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="d-inline mb-0" onclick="event.stopPropagation();">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="btn btn-sm btn-light border" style="cursor: pointer;" title="{{ $user->email_verified_at ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}">
+                            <i class="fas {{ $user->email_verified_at ? 'fa-toggle-on text-success' : 'fa-toggle-off text-secondary' }}"></i>
+                        </button>
+                    </form>
+                @endif
+                {{-- Reset Password --}}
+                @if(auth()->user()?->can('user.reset-password'))
+                    @unless (auth()->id() === $user->id)
+                    {{-- Pemicu popup konfirmasi SweetAlert (data-* dibaca
+                         oleh listener tombol pada script bawah). --}}
+                    <button type="button" class="btn btn-sm btn-light border" style="cursor: pointer;" title="Reset Password"
+                            data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}"
+                            data-action="reset-password" onclick="event.stopPropagation();">
+                        <i class="fas fa-key text-warning"></i>
+                    </button>
+                    @endunless
+                @endif
+                {{-- Hapus --}}
+                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline mb-0">
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-light border" style="cursor: pointer;" title="Hapus Pengguna" onclick="event.stopPropagation(); return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')">
+                            <i class="fas fa-trash text-danger"></i>
+                        </button>
+                    </form>
+            </div>
+       </div>
+   </div>
 
             {{-- Body --}}
             <div class="p-4">
@@ -646,7 +771,7 @@
                     </p>
                 </div>
                 @can('users.edit:self', $user)
-                    <button type="button" class="btn-edit" data-bs-toggle="modal" data-bs-target="#editDetailModal">
+                    <button type="button" class="btn btn-sm btn-primary shadow-sm px-3 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#editDetailModal">
                         <i class="fas fa-user-pen me-1"></i>{{ $ep ? 'Edit Detail' : 'Lengkapi Data' }}
                     </button>
                 @endcan
@@ -915,77 +1040,142 @@
 </div>
 @endcan
 
-{{-- Toggle status dari halaman Detail — pola sama dengan daftar pengguna.
-     WAJIB inline di content agar router.js mengeksekusi ulang setelah SPA. --}}
+{{-- Script EDIT DETAIL KEPEGAWAIAN — aksi header (toggle status, hapus)
+     berupa form submit biasa; reset password memakai SweetAlert. WAJIB
+     inline di content agar router.js mengeksekusi ulang setelah SPA. --}}
 <script>
-    function toggleUserStatusFromShow(userId, userName, activate) {
-        const verb = activate ? 'Aktifkan' : 'Nonaktifkan';
+    /* =========================================================
+       RESET PASSWORD \u2014 SweetAlert 2 langkah (pola halaman daftar):
+       Langkah 1: konfirmasi "Reset Password Pengguna?" (nama user
+       di kotak terpisah) \u2192 fetch PATCH reset-password \u2192
+       Langkah 2: "Password Berhasil Direset" dengan password
+       sementara acak + Copy Password + Selesai. Password dibuat &
+       di-hash di SERVER, tidak pernah plaintext di DB/log/email.
+       ========================================================= */
+    (function () {
+        // Binding sekali saja (aman terhadap re-eksekusi router.js).
+        var root = document.documentElement;
+        if (root.dataset.rpSwalBound) return;
+        root.dataset.rpSwalBound = '1';
 
-        // Popup konfirmasi SweetAlert2 — konsisten dengan design system.
-        Swal.fire({
-            title: activate ? 'Aktifkan Pengguna?' : 'Nonaktifkan Pengguna?',
-            html: 'Akun <strong>"' + userName + '"</strong> akan ' +
-                (activate
-                    ? 'ditandai <strong style="color:#16a34a">Aktif</strong>.'
-                    : 'ditandai <strong style="color:#d97706">Nonaktif</strong>.'),
-            icon: activate ? 'question' : 'warning',
-            showCancelButton: true,
-            confirmButtonText: activate ? 'Ya, Aktifkan' : 'Ya, Nonaktifkan',
-            cancelButtonText: 'Batal',
-            confirmButtonColor: activate ? '#16a34a' : '#d97706',
-            cancelButtonColor: '#6b7280',
-            focusCancel: true
-        }).then(function (result) {
-            if (!result.isConfirmed) return;
+        var KEY_CIRCLE =
+            '<div class="mb-2"><span style="display:inline-flex;width:64px;height:64px;border-radius:50%;background:#fef3c7;align-items:center;justify-content:center;">' +
+            '<i class="fas fa-key" style="color:#d97706;font-size:1.4rem;"></i></span></div>';
+        var NAMEBOX_CSS =
+            '.swal2-namebox{margin-top:1rem;padding:0.7rem 1rem;border:1px solid #e5e7eb;border-radius:8px;font-weight:600;}' +
+            '.swal2-copy-btn{border:1px solid #e5e7eb !important;border-radius:8px !important;background:#f9fafb !important;color:#374151 !important;padding:0.55rem 1rem;font-weight:600;}' +
+            '.swal2-copy-btn:hover{background:#f3f4f6 !important;}' +
+            '.swal2-done-btn{border-radius:8px !important;background:#d97706 !important;color:#fff !important;padding:0.55rem 1.25rem;font-weight:600;box-shadow:0 1px 2px rgba(217,119,6,.35);}';
 
-            fetch('/admin/users/' + userId + '/toggle-status', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'X-Requested-With': 'XMLHttpRequest'
+        document.addEventListener('click', function (ev) {
+            var btn = ev.target.closest('[data-action="reset-password"]');
+            if (!btn || !window.Swal) return;
+            ev.preventDefault();
+
+            var userId   = btn.getAttribute('data-user-id');
+            var userName = btn.getAttribute('data-user-name');
+            if (!userId) return;
+
+            // \u2014\u2014 Langkah 1: konfirmasi \u2014\u2014
+            Swal.fire({
+                title: 'Reset Password Pengguna?',
+                html: '<style>' + NAMEBOX_CSS + '</style>' + KEY_CIRCLE +
+                    'Password lama pengguna akan <strong style="color:#d97706">dinonaktifkan</strong> dan diganti ' +
+                    '<strong>password sementara acak</strong> yang dibuat otomatis oleh sistem. ' +
+                    'Saat login berikutnya, pengguna <strong>wajib mengganti password</strong> sebelum dapat masuk.' +
+                    '<div id="rpSwalNameBox" class="swal2-namebox"></div>',
+                didOpen: function () {
+                    document.getElementById('rpSwalNameBox').textContent = userName;
                 },
-                body: JSON.stringify({ status: activate ? 'active' : 'inactive' })
-            })
-            .then(function (res) {
-                return res.json().catch(function () {
-                    throw new Error('Terjadi kesalahan server (HTTP ' + res.status + ').');
-                });
-            })
-            .then(function (data) {
-                if (data.success) {
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Reset Password',
+                confirmButtonColor: '#d97706',
+                cancelButtonText: 'Batal',
+                cancelButtonColor: '#6b7280',
+                focusCancel: true,
+                allowOutsideClick: false
+            }).then(function (result) {
+                if (!result.isConfirmed) return;
+
+                Swal.showLoading();
+
+                fetch('/admin/users/' + userId + '/reset-password', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(function (res) {
+                    return res.json().then(function (data) {
+                        if (!res.ok) throw new Error(data.message || 'Terjadi kesalahan server (HTTP ' + res.status + ').');
+                        return data;
+                    });
+                })
+                .then(function (data) {
+                    if (!data.success || !data.temporary_password) {
+                        throw new Error(data.message || 'Gagal melakukan reset password.');
+                    }
+
+                    // \u2014\u2014 Langkah 2: password sementara ditampilkan SEKALI \u2014\u2014
                     Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: data.message || 'Status pengguna berhasil diperbarui.',
-                        showConfirmButton: false,
-                        timer: 2500,
-                        timerProgressBar: true
-                    }).then(function () { window.location.reload(); });
-                } else {
+                        title: 'Password Berhasil Direset',
+                        html: KEY_CIRCLE +
+                            'Password sementara untuk <strong id="rpSwalResultName"></strong>. Salin dan sampaikan ' +
+                            'via WhatsApp/lisan \u2014 <strong>tidak dikirim email</strong> dan <strong>hanya ditampilkan sekali ini</strong>.' +
+                            '<div class="text-start mt-3">' +
+                            '<label class="form-label fw-semibold mb-1" for="rpSwalPassword">Password Sementara</label>' +
+                            '<input id="rpSwalPassword" class="form-control" readonly value="" onclick="this.select()">' +
+                            '<p class="text-muted mt-2 mb-0" style="font-size:0.85rem;">Pengguna wajib mengganti password ini saat login berikutnya.</p>' +
+                            '</div>',
+                        didOpen: function () {
+                            document.getElementById('rpSwalResultName').textContent = userName;
+                            document.getElementById('rpSwalPassword').value = data.temporary_password;
+                        },
+                        showDenyButton: true,
+                        showConfirmButton: true,
+                        denyButtonText: 'Copy Password',
+                        denyButtonColor: '#f9fafb',
+                        confirmButtonText: 'Selesai',
+                        confirmButtonColor: '#d97706',
+                        allowOutsideClick: false,
+                        // Copy Password: salin dan BIARKAN popup tetap terbuka.
+                        preDeny: function () {
+                            var input = document.getElementById('rpSwalPassword');
+                            var done = function () {
+                                var b = Swal.getDenyButton();
+                                b.innerHTML = '<i class="fas fa-check" style="color:#16a34a"></i> Tersalin!';
+                                setTimeout(function () {
+                                    b.innerHTML = '<i class="fas fa-copy"></i> Copy Password';
+                                }, 2000);
+                            };
+                            if (navigator.clipboard && navigator.clipboard.writeText) {
+                                navigator.clipboard.writeText(input.value).then(done);
+                            } else {
+                                input.select();
+                                document.execCommand('copy');
+                                done();
+                            }
+                            return false;
+                        }
+                    });
+                })
+                .catch(function (err) {
+                    Swal.hideLoading();
                     Swal.fire({
                         icon: 'error',
-                        title: 'Gagal memperbarui status',
-                        text: data.message || 'Silakan coba lagi.',
+                        title: 'Gagal melakukan reset password',
+                        text: (err && err.message) ? err.message : 'Terjadi kesalahan jaringan.',
                         confirmButtonText: 'Mengerti',
                         confirmButtonColor: '#dc2626'
                     });
-                }
-            })
-            .catch(function (err) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal memperbarui status',
-                    text: (err && err.message) ? err.message : 'Terjadi kesalahan jaringan.',
-                    confirmButtonText: 'Mengerti',
-                    confirmButtonColor: '#dc2626'
                 });
             });
         });
-    }
-
+    })();
     /* =========================================================
        EDIT DETAIL KEPEGAWAIAN (modal)
        1. epLoadFromNid — prefill seluruh field form dari MASTER
@@ -1081,21 +1271,80 @@
             });
     }
 
-    @if (isset($errors) && $errors->any())
-        // Validasi data kepegawaian gagal → buka ulang modal agar
-        // error list & isian lama (old()) terlihat langsung.
-        function epReopenModal() {
-            var modalEl = document.getElementById('editDetailModal');
-            if (modalEl && window.bootstrap) {
-                new bootstrap.Modal(modalEl).show();
-            }
+@if (isset($errors) && $errors->any())
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modalEl = document.getElementById('editDetailModal');
+        if (modalEl && window.bootstrap) {
+            new bootstrap.Modal(modalEl).show();
+        }
+    });
+</script>
+@endif
+
+{{-- ============================================================
+     Modal "Password Berhasil Direset" (#successResetModal):
+     dipicu session flash temporaryPassword yang dibawa redirect
+     dari controller setelah submit form "Ya, Reset Password"
+     (tanpa JS). Password hanya tampil SEKALI; session flash
+     otomatis hilang setelah request ini.
+     ============================================================ --}}
+@if (session('temporaryPassword'))
+<div class="modal fade" id="successResetModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center" style="padding: 1.75rem 1.5rem;">
+            {{-- Ikon kunci emas di tengah atas --}}
+            <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 64px; height: 64px; border-radius: 50%; background: #fef3c7;">
+                <i class="fas fa-key" style="color: #d97706; font-size: 1.4rem;"></i>
+            </div>
+            <h5 class="mt-3 mb-1 fw-bold">Password Berhasil Direset</h5>
+            <p class="text-muted mb-3" style="font-size: 0.85rem;">
+                Password sementara untuk <strong>{{ session('temporaryPasswordUserName', '') }}</strong>.
+                Salin dan sampaikan via WhatsApp/lisan — <strong>tidak dikirim email</strong> dan <strong>hanya ditampilkan sekali ini</strong>.
+            </p>
+            {{-- Kotak password sementara --}}
+            <input type="text" id="successResetPassword" class="form-control text-center fw-bold mb-3" readonly value="{{ session('temporaryPassword') }}" onclick="this.select()">
+            <div class="d-flex justify-content-center gap-2">
+                <button type="button" class="btn btn-primary" id="successResetCopyBtn">
+                    <i class="fas fa-copy me-1"></i>Copy Password
+                </button>
+                <button type="button" class="btn px-4" style="background: #f59e0b; color: #fff;" data-bs-dismiss="modal">
+                    Selesai
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Auto-open modal hasil reset begitu halaman dimuat
+    // (dipicu session temporaryPassword dari redirect).
+    document.addEventListener('DOMContentLoaded', function () {
+        var modalEl = document.getElementById('successResetModal');
+        if (modalEl && window.bootstrap) {
+            new bootstrap.Modal(modalEl).show();
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', epReopenModal);
-        } else {
-            epReopenModal();
+        // Fungsi Copy Password → clipboard (dengan fallback).
+        var copyBtn = document.getElementById('successResetCopyBtn');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', function () {
+                var input = document.getElementById('successResetPassword');
+                var done = function () {
+                    copyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Tersalin!';
+                    setTimeout(function () {
+                        copyBtn.innerHTML = '<i class="fas fa-copy me-1"></i>Copy Password';
+                    }, 2000);
+                };
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(input.value).then(done);
+                } else {
+                    input.select();
+                    document.execCommand('copy');
+                    done();
+                }
+            });
         }
-    @endif
+    });
 </script>
+@endif
 @endsection

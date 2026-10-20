@@ -590,9 +590,9 @@ class UserController extends Controller
         }
 
         // Password sementara dibuat SISTEM — acak & aman (Str::random
-        // memakai CSPRNG, alfabet A-Z a-z 0-9), 12 karakter: cukup kuat
+        // memakai CSPRNG, alfabet A-Z a-z 0-9), 10 karakter: cukup kuat
         // namun tetap praktis disampaikan via WhatsApp/lisan.
-        $temporaryPassword = \Illuminate\Support\Str::random(12);
+        $temporaryPassword = \Illuminate\Support\Str::random(10);
 
         // Cast 'hashed' pada model User otomatis meng-hash nilai ini.
         $user->forceFill([
@@ -628,7 +628,14 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.users.index')->with('success', $message);
+        // Submit form biasa (tanpa JS): kembali ke halaman Detail Pengguna
+        // dan bawa password sementara via session flash — view akan
+        // membuka modal "Password Berhasil Direset" otomatis dari
+        // data session ini.
+        return redirect()->back()
+            ->with('success_reset', 'Password berhasil direset')
+            ->with('temporaryPassword', $temporaryPassword)
+            ->with('temporaryPasswordUserName', $user->name);
     }
 
     public function destroy(User $user)
