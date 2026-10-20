@@ -3,14 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bidang;
+use App\Models\Jabatan;
 use App\Models\Karyawan;
 use App\Services\ActivityLogger;
+use App\Services\MasterOrgMatcher;
 use App\Services\XlsxReader;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -29,6 +34,14 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * BERSAMA kedua jalur. Ekspor tetap CSV (Excel membukanya langsung).
  * Seluruh kolom mengikuti 24 kolom spesifikasi di
  * Karyawan::COLUMNS_LABELS.
+ *
+ * RELASI MASTER BIDANG/JABATAN (opsional): kolom teks `BIDANG` dan
+ * `JABATAN` tetap menjadi format impor/ekspor & sumber tampilan. Saat
+ * impor, nama dicocokkan ke `bidangs`/`jabatans` lewat
+ * MasterOrgMatcher dan hasilnya mengisi `bidang_id`/`jabatan_id` bila
+ * AMAN (tepat satu kandidat, jabatan berada di bidang yang sama). Nama
+ * yang tidak ditemukan/ambigu dibiarkan NULL tanpa membuat master baru
+ * dan dilaporkan di ringkasan impor.
  */
 class DataKaryawanController extends Controller
 {
@@ -61,6 +74,7 @@ class DataKaryawanController extends Controller
             'karyawans' => $karyawans,
             'filters' => $filters,
             'filterOptions' => Karyawan::filterOptions(),
+            'master' => $this->masterOptions(),
             'totalAll' => Karyawan::query()->count(),
             'perPage' => $perPage,
             'perPageOptions' => self::PER_PAGE_OPTIONS,
@@ -104,6 +118,7 @@ class DataKaryawanController extends Controller
             'genders' => Karyawan::GENDERS,
             'statusesKawin' => Karyawan::STATUSES_KAWIN,
             'filterOptions' => Karyawan::filterOptions(),
+            'master' => $this->masterOptions(),
         ]);
     }
 
@@ -132,6 +147,7 @@ class DataKaryawanController extends Controller
             'genders' => Karyawan::GENDERS,
             'statusesKawin' => Karyawan::STATUSES_KAWIN,
             'filterOptions' => Karyawan::filterOptions(),
+            'master' => $this->masterOptions(),
         ]);
     }
 
@@ -171,6 +187,17 @@ class DataKaryawanController extends Controller
      * Validasi form tambah/edit — server-side. Hanya NID (unik) &
      * NAMA yang wajib; tanggal divalidasi format tanggal; EMAIL format
      * email; FTE numerik desimal; GENDER/STATUS KAWIN dari daftar.
+     *
+     * Bidang/jabatan memakai dua masukan:
+     * - `bidang_id` / `jabatan_id`: nilai select — id master numerik,
+     *   `legacy` (pertahankan teks lama), `clear` (kosongkan), atau ''.
+     * - `bidang_text` / `jabatan_text`: teks lama yang dibawa form agar
+     *   data yang belum terpetakan tidak hilang saat diedit.
+     *
+     * Teks kolom `bidang`/`jabatan` SELALU diturunkan dari master saat
+     * id dipilih (tidak pernah mempercayai teks kiriman), sehingga
+     * pasangan id ↔ nama tidak bisa bertentangan. Jabatan master wajib
+     * berada di bawah bidang master yang dipilih.
      */
     private function validated(Request $request, ?Karyawan $karyawan = null): array
     {
@@ -178,12 +205,15 @@ class DataKaryawanController extends Controller
             ->mapWithKeys(fn ($column) => [$column => ['nullable', 'date']])
             ->all();
 
-        return $request->validate(array_merge([
+        $validator = Validator::make($request->all(), array_merge([
             'nid' => ['required', 'string', 'max:30', Rule::unique('karyawans', 'nid')->ignore($karyawan?->id)],
             'nama' => ['required', 'string', 'max:150'],
 
-            'bidang' => ['nullable', 'string', 'max:100'],
-            'jabatan' => ['nullable', 'string', 'max:100'],
+            'bidang_id' => ['nullable', 'string', 'max:20'],
+            'jabatan_id' => ['nullable', 'string', 'max:20'],
+            'bidang_text' => ['nullable', 'string', 'max:100'],
+            'jabatan_text' => ['nullable', 'string', 'max:100'],
+
             'jenjang_jabatan' => ['nullable', 'string', 'max:50'],
             'grade' => ['nullable', 'string', 'max:30'],
             'institusi' => ['nullable', 'string', 'max:100'],
@@ -203,6 +233,149 @@ class DataKaryawanController extends Controller
             'nid' => 'NID',
             'nama' => 'NAMA',
         ]);
+
+        // Relasi master: keberadaan id & konsistensi bidang ↔ jabatan.
+        $validator->after(function ($validator) use ($request): void {
+            $bidangId = $this->numericChoice($request->input('bidang_id'));
+
+            if ($bidangId !== null && ! Bidang::query()->whereKey($bidangId)->exists()) {
+                $validator->errors()->add('bidang_id', 'Bidang yang dipilih tidak ditemukan di master.');
+
+                return;
+            }
+
+            $jabatanId = $this->numericChoice($request->input('jabatan_id'));
+
+            if ($jabatanId === null) {
+                return;
+            }
+
+            $jabatan = Jabatan::query()->find($jabatanId);
+
+            if ($jabatan === null) {
+                $validator->errors()->add('jabatan_id', 'Jabatan yang dipilih tidak ditemukan di master.');
+
+                return;
+            }
+
+            if ($bidangId === null) {
+                $validator->errors()->add('jabatan_id', 'Pilih bidang master terlebih dahulu sebelum memilih jabatan master.');
+
+                return;
+            }
+
+            if ((int) $jabatan->bidang_id !== $bidangId) {
+                $validator->errors()->add(
+                    'jabatan_id',
+                    "Jabatan \"{$jabatan->nama}\" bukan bagian dari bidang yang dipilih. Pilih jabatan dari bidang tersebut."
+                );
+            }
+        });
+
+        $validated = $validator->validate();
+
+        [$validated['bidang_id'], $validated['bidang']] = $this->resolveMasterChoice(
+            $validated['bidang_id'] ?? null,
+            $validated['bidang_text'] ?? null,
+            Bidang::class,
+        );
+
+        [$validated['jabatan_id'], $validated['jabatan']] = $this->resolveMasterChoice(
+            $validated['jabatan_id'] ?? null,
+            $validated['jabatan_text'] ?? null,
+            Jabatan::class,
+        );
+
+        unset($validated['bidang_text'], $validated['jabatan_text']);
+
+        return $validated;
+    }
+
+    /**
+     * Terjemahkan pilihan select master menjadi pasangan (id, teks).
+     *
+     * - id numerik → id master + nama master (teks lama ditimpa nama
+     *   master supaya nama tidak bertentangan dengan relasi).
+     * - `legacy` → id NULL + teks lama yang dikirim form (dipertahankan).
+     * - `clear` / kosong → id NULL + teks NULL.
+     *
+     * @param  class-string<Bidang|Jabatan>  $modelClass
+     * @return array{0: int|null, 1: string|null}
+     */
+    private function resolveMasterChoice(mixed $choice, mixed $legacyText, string $modelClass): array
+    {
+        $choice = is_string($choice) ? trim($choice) : '';
+        $legacyText = trim((string) $legacyText);
+
+        if ($choice === 'legacy') {
+            return [null, $legacyText === '' ? null : $legacyText];
+        }
+
+        if ($choice === '' || $choice === 'clear') {
+            return [null, null];
+        }
+
+        $id = (int) $choice;
+        $nama = $modelClass::query()->whereKey($id)->value('nama');
+
+        if ($nama === null) {
+            return [null, $legacyText === '' ? null : $legacyText];
+        }
+
+        return [$id, $nama];
+    }
+
+    /** Nilai select menjadi id numerik; `null` untuk legacy/clear/kosong. */
+    private function numericChoice(mixed $value): ?int
+    {
+        $value = trim((string) $value);
+
+        return ctype_digit($value) ? (int) $value : null;
+    }
+
+    /* =========================================================
+       OPSI MASTER & NILAI LAMA — dipakai form & filter
+       ========================================================= */
+
+    /**
+     * Opsi master untuk form & halaman daftar, plus nilai teks lama yang
+     * BELUM punya padanan di master (tetap bisa dipilih/difilter).
+     *
+     * @return array{bidangRows: Collection, jabatans: Collection, legacyBidang: array<int, string>, legacyJabatan: array<int, string>}
+     */
+    private function masterOptions(): array
+    {
+        return [
+            'bidangRows' => Bidang::treeOrdered(),
+            'jabatans' => Jabatan::query()->orderBy('nama')->get(['id', 'nama', 'bidang_id']),
+            'legacyBidang' => $this->legacyValues('bidang', Bidang::query()->pluck('nama')->all()),
+            'legacyJabatan' => $this->legacyValues('jabatan', Jabatan::query()->pluck('nama')->all()),
+        ];
+    }
+
+    /**
+     * Nilai teks unik pada kolom karyawans yang tidak ada padanannya di
+     * master (dinormalisasi sama seperti impor).
+     *
+     * @param  array<int, string>  $masterNames
+     * @return array<int, string>
+     */
+    private function legacyValues(string $column, array $masterNames): array
+    {
+        $masterKeys = array_flip(array_map(
+            fn (string $nama) => MasterOrgMatcher::normalize($nama),
+            $masterNames,
+        ));
+
+        return Karyawan::query()
+            ->whereNotNull($column)
+            ->where($column, '!=', '')
+            ->distinct()
+            ->orderBy($column)
+            ->pluck($column)
+            ->reject(fn ($value) => isset($masterKeys[MasterOrgMatcher::normalize((string) $value)]))
+            ->values()
+            ->all();
     }
 
     /* =========================================================
@@ -293,6 +466,25 @@ class DataKaryawanController extends Controller
         $seenNids = [];
         $existingNids = Karyawan::query()->pluck('nid')->flip();
 
+        // Pemetaan nama BIDANG/JABATAN → master. Katalog dimuat sekali
+        // untuk seluruh file; status per kolom dihitung agar ringkasan
+        // impor bisa melaporkan mana yang aman, belum terpetakan, atau
+        // perlu diperiksa. Tidak ada master yang dibuat otomatis.
+        $matcher = new MasterOrgMatcher;
+        $mapping = [
+            'bidang' => [
+                MasterOrgMatcher::MATCHED => 0,
+                MasterOrgMatcher::UNMAPPED => 0,
+                MasterOrgMatcher::AMBIGUOUS => 0,
+            ],
+            'jabatan' => [
+                MasterOrgMatcher::MATCHED => 0,
+                MasterOrgMatcher::UNMAPPED => 0,
+                MasterOrgMatcher::AMBIGUOUS => 0,
+            ],
+        ];
+        $mappingNotes = [];
+
         foreach ($rows as $entry) {
             $lineNumber = $entry['line']; // nomor baris asli di file (1 = header)
 
@@ -333,6 +525,24 @@ class DataKaryawanController extends Controller
                     $seenNids[$nid] = $lineNumber;
                 }
 
+                // Petakan ke master secara konservatif (tidak pernah
+                // menebak saat nama tidak ada / ambigu).
+                $match = $matcher->match($data['bidang'] ?? null, $data['jabatan'] ?? null);
+                $data['bidang_id'] = $match['bidang_id'];
+                $data['jabatan_id'] = $match['jabatan_id'];
+
+                foreach (['bidang', 'jabatan'] as $field) {
+                    $status = $match[$field.'_status'];
+
+                    if (isset($mapping[$field][$status])) {
+                        $mapping[$field][$status]++;
+                    }
+                }
+
+                if ($match['notes'] !== []) {
+                    $mappingNotes[] = ['line' => $lineNumber, 'notes' => $match['notes']];
+                }
+
                 $validRows[] = $data;
 
                 continue;
@@ -365,10 +575,19 @@ class DataKaryawanController extends Controller
 
         $skipped = count($duplicateRows);
 
+        $perluDiperiksa = $mapping['bidang'][MasterOrgMatcher::AMBIGUOUS]
+            + $mapping['jabatan'][MasterOrgMatcher::AMBIGUOUS];
+        $belumTerpetakan = $mapping['bidang'][MasterOrgMatcher::UNMAPPED]
+            + $mapping['jabatan'][MasterOrgMatcher::UNMAPPED];
+
         $message = "Impor selesai: {$inserted} baris berhasil disimpan"
             .($skipped > 0 ? ", {$skipped} baris duplikat dilewati" : '')
             .($failedRows !== [] ? ', '.count($failedRows).' baris gagal validasi' : '')
             .'.';
+
+        if ($belumTerpetakan > 0 || $perluDiperiksa > 0) {
+            $message .= ' Sebagian nama bidang/jabatan belum terpetakan ke master — lihat ringkasan pemetaan di bawah.';
+        }
 
         return redirect()->route('admin.karyawan_data.index')
             ->with('success', $message)
@@ -379,6 +598,8 @@ class DataKaryawanController extends Controller
                 'failed' => count($failedRows),
                 'errors' => array_slice($failedRows, 0, 50), // tampilkan maks 50 baris error
                 'duplicates' => array_slice($duplicateRows, 0, 50),
+                'mapping' => $mapping,
+                'mapping_notes' => array_slice($mappingNotes, 0, 50),
             ]);
     }
 

@@ -32,11 +32,16 @@ class Bidang extends Model
     }
 
     /**
-     * Jumlah data karyawan (master HR) yang memakai nama bidang ini —
-     * pembacaan saja, tidak ada perubahan pada tabel karyawans.
+     * Jumlah data karyawan (master HR) yang memakai bidang ini — baik
+     * lewat relasi `bidang_id` maupun lewat kolom teks lama `bidang`
+     * (data yang belum terpetakan). Pembacaan saja, tidak ada perubahan
+     * pada tabel karyawans.
      */
     public function karyawanUsage(): int
     {
-        return Karyawan::where('bidang', $this->nama)->count();
+        return Karyawan::query()
+            ->where('bidang_id', $this->id)
+            ->orWhere('bidang', $this->nama)
+            ->count();
     }
 }

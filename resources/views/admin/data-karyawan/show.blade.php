@@ -67,8 +67,8 @@
             <h5><i class="fas fa-id-badge" style="color: var(--pln-blue); margin-right: 0.5rem;"></i>{{ $karyawan->nama }}</h5>
             <p>
                 NID {{ $karyawan->nid }}
-                @if($karyawan->jabatan) · {{ $karyawan->jabatan }} @endif
-                @if($karyawan->bidang) · {{ $karyawan->bidang }} @endif
+                @if($karyawan->jabatanLabel()) · {{ $karyawan->jabatanLabel() }} @endif
+                @if($karyawan->bidangLabel()) · {{ $karyawan->bidangLabel() }} @endif
             </p>
         </div>
         <div class="dk-header-actions">
@@ -98,8 +98,8 @@
                 'STATUS KAWIN' => $karyawan->statusKawinLabel(),
             ]],
             ['2. Informasi Pekerjaan', 'fa-briefcase', [
-                'BIDANG' => $karyawan->bidang,
-                'JABATAN' => $karyawan->jabatan,
+                'BIDANG' => $karyawan->bidangLabel(),
+                'JABATAN' => $karyawan->jabatanLabel(),
                 'JENJAB' => $karyawan->jenjang_jabatan,
                 'GRADE' => $karyawan->grade,
                 'INSTITUSI' => $karyawan->institusi,

@@ -1073,6 +1073,37 @@ Super Admin dapat semua secara bawaan (lihat PermissionSeeder):
   menyusun arsip ZIP+XML secara manual), ekspor mengikuti filter).
   Helper: `tests/Support/XlsxWriter.php`.
 
+**Integrasi master Bidang/Jabatan** (migrasi
+`2026_10_20_000002_add_org_master_refs_to_karyawans_table`):
+
+- Kolom baru `karyawans.bidang_id` & `jabatan_id` (nullable, FK
+  `restrictOnDelete`). Kolom teks `bidang`/`jabatan` **tetap** ada dan
+  tetap jadi format impor/ekspor — jangan dihapus.
+- Relasi model: `Karyawan::bidangMaster()` / `jabatanMaster()` (sengaja
+  tidak dinamai `bidang`/`jabatan` karena atribut teks sudah memakai
+  nama itu). Tampilan memakai `bidangLabel()`/`jabatanLabel()` (teks
+  lama diutamakan, master jadi cadangan).
+- Form memakai select `bidang_id`/`jabatan_id` + hidden `bidang_text`/
+  `jabatan_text`. Nilai select: id master, `legacy` (pertahankan teks
+  lama), `clear` (kosongkan). Server menurunkan teks dari nama master
+  saat id dipilih, dan menolak jabatan yang bukan milik bidang terpilih.
+- Filter daftar: nilai `#<id>` memfilter lewat relasi master, nilai teks
+  memfilter kolom lama (data belum terpetakan tetap bisa dicari/ekspor).
+- Impor: nama dinormalisasi & dicocokkan lewat
+  `App\Services\MasterOrgMatcher` — hanya dipetakan bila tepat satu
+  kandidat dan jabatan berada di bidang yang sama; ambigu/tidak ada
+  dibiarkan `NULL`, teks asli dipertahankan, dan dilaporkan di ringkasan
+  impor. Tidak pernah membuat master baru.
+- Backfill data lama: `php artisan karyawan:backfill-master` (default
+  simulasi) lalu `--apply`. Hanya mengisi kolom id yang masih `NULL`,
+  tidak mengubah teks, aman dijalankan ulang.
+- Seeder master: `MasterBidangJabatanSeeder` (38 bidang, 5 jabatan —
+  data aktual UP Indramayu; idempoten, parent hanya diisi bila kosong).
+  Sudah dipanggil dari `DatabaseSeeder`.
+- Test integrasi: `tests/Feature/DataKaryawanMasterIntegrationTest.php`
+  (20 kasus — validasi silang bidang/jabatan, nilai lama tidak hilang,
+  filter master & legacy, pemetaan impor, backfill idempoten, seeder).
+
 ### 6.6 Middleware global (bootstrap/app.php)
 
 - MustChangePassword di-append ke grup `web` — semua halaman ber-auth dijaga.

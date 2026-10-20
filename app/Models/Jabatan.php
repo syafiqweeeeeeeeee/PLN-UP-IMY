@@ -32,11 +32,16 @@ class Jabatan extends Model
     }
 
     /**
-     * Jumlah data karyawan (master HR) yang memakai nama jabatan ini —
-     * pembacaan saja, tidak ada perubahan pada tabel karyawans.
+     * Jumlah data karyawan (master HR) yang memakai jabatan ini — baik
+     * lewat relasi `jabatan_id` maupun lewat kolom teks lama `jabatan`
+     * (data yang belum terpetakan). Pembacaan saja, tidak ada perubahan
+     * pada tabel karyawans.
      */
     public function karyawanUsage(): int
     {
-        return Karyawan::where('jabatan', $this->nama)->count();
+        return Karyawan::query()
+            ->where('jabatan_id', $this->id)
+            ->orWhere('jabatan', $this->nama)
+            ->count();
     }
 }

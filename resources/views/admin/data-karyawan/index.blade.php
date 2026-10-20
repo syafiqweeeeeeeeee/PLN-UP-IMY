@@ -296,8 +296,8 @@
         <div class="dk-stat-card">
             <div class="stat-icon"><i class="fas fa-building"></i></div>
             <div>
-                <div class="stat-label">Jumlah Bidang</div>
-                <div class="stat-value">{{ count($filterOptions['bidang'] ?? []) }}</div>
+                <div class="stat-label">Jumlah Bidang (Master)</div>
+                <div class="stat-value">{{ ($master['bidangRows'] ?? collect())->count() }}</div>
             </div>
         </div>
     </div>
@@ -360,6 +360,32 @@
                 @endforeach
             </ol>
         @endif
+
+        @if (!empty($summary['mapping']))
+            @php
+                $mapMatched = ($summary['mapping']['bidang']['matched'] ?? 0) + ($summary['mapping']['jabatan']['matched'] ?? 0);
+                $mapUnmapped = ($summary['mapping']['bidang']['unmapped'] ?? 0) + ($summary['mapping']['jabatan']['unmapped'] ?? 0);
+                $mapAmbiguous = ($summary['mapping']['bidang']['ambiguous'] ?? 0) + ($summary['mapping']['jabatan']['ambiguous'] ?? 0);
+            @endphp
+            <p style="font-size:0.78rem; font-weight:700; color:var(--pln-text); margin:0.6rem 0 0;">
+                <i class="fas fa-sitemap me-1"></i>Pemetaan Bidang &amp; Jabatan ke Master:
+            </p>
+            <div class="dk-summary-grid" style="max-width:520px;">
+                <div class="dk-summary-item"><b style="color:#15803d;">{{ $mapMatched }}</b><small>Terpetakan</small></div>
+                <div class="dk-summary-item"><b style="color:#b45309;">{{ $mapUnmapped }}</b><small>Belum Ada di Master</small></div>
+                <div class="dk-summary-item"><b style="color:#dc2626;">{{ $mapAmbiguous }}</b><small>Perlu Diperiksa</small></div>
+            </div>
+            <p style="font-size:0.75rem; color:#6b7280; margin:0.35rem 0 0;">
+                Nama yang belum terpetakan tetap disimpan sebagai teks seperti semula (tidak ada master baru yang dibuat otomatis).
+            </p>
+            @if (!empty($summary['mapping_notes']))
+                <ol class="dk-error-list" style="color:#b45309;">
+                    @foreach ($summary['mapping_notes'] as $note)
+                        <li>Baris {{ $note['line'] }}: {{ implode(' ', $note['notes']) }}</li>
+                    @endforeach
+                </ol>
+            @endif
+        @endif
     </div>
 @endif
 
@@ -370,16 +396,30 @@
         <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari NID atau NAMA...">
     </div>
 
+    {{-- Nilai `#id` = filter lewat relasi master; nilai teks = data lama
+         yang belum terpetakan (tetap bisa difilter & diekspor). --}}
     <select name="bidang" title="Filter BIDANG">
         <option value="">Semua Bidang</option>
-        @foreach (($filterOptions['bidang'] ?? []) as $value)
-            <option value="{{ $value }}" @selected(request('bidang') === $value)>{{ $value }}</option>
+        @foreach (($master['bidangRows'] ?? []) as $row)
+            @php $value = '#'.$row['node']->id; @endphp
+            <option value="{{ $value }}" @selected(request('bidang') === $value)>
+                {{ str_repeat('— ', $row['depth']) }}{{ $row['node']->nama }}
+            </option>
+        @endforeach
+        @foreach (($master['legacyBidang'] ?? []) as $value)
+            <option value="{{ $value }}" @selected(request('bidang') === $value)>{{ $value }} (teks lama)</option>
         @endforeach
     </select>
     <select name="jabatan" title="Filter JABATAN">
         <option value="">Semua Jabatan</option>
-        @foreach (($filterOptions['jabatan'] ?? []) as $value)
-            <option value="{{ $value }}" @selected(request('jabatan') === $value)>{{ $value }}</option>
+        @foreach (($master['jabatans'] ?? []) as $jabatan)
+            @php $value = '#'.$jabatan->id; @endphp
+            <option value="{{ $value }}" data-bidang="{{ $jabatan->bidang_id }}" @selected(request('jabatan') === $value)>
+                {{ $jabatan->nama }}
+            </option>
+        @endforeach
+        @foreach (($master['legacyJabatan'] ?? []) as $value)
+            <option value="{{ $value }}" @selected(request('jabatan') === $value)>{{ $value }} (teks lama)</option>
         @endforeach
     </select>
     <select name="grade" title="Filter GRADE">
@@ -440,8 +480,8 @@
             <tr>
                 <td class="sticky-1"><span class="dk-nid">{{ $karyawan->nid }}</span></td>
                 <td class="sticky-2"><span class="dk-nama">{{ $karyawan->nama }}</span></td>
-                <td>{{ $karyawan->bidang ?? '—' }}</td>
-                <td>{{ $karyawan->jabatan ?? '—' }}</td>
+                <td>{{ $karyawan->bidangLabel() ?? '—' }}</td>
+                <td>{{ $karyawan->jabatanLabel() ?? '—' }}</td>
                 <td>{{ $karyawan->jenjang_jabatan ?? '—' }}</td>
                 <td>{{ $karyawan->grade ?? '—' }}</td>
                 <td>{{ $karyawan->institusi ?? '—' }}</td>
@@ -609,6 +649,37 @@
                 dkStickyTimer = setTimeout(syncDkStickyOffset, 120);
             });
         }
+    })();
+
+    // Filter JABATAN mengikuti BIDANG master yang sedang dipilih
+    // (opsi teks lama tetap tampil agar data belum terpetakan bisa dicari).
+    (function () {
+        var bidangFilter = document.querySelector('.dk-filter-bar select[name="bidang"]');
+        var jabatanFilter = document.querySelector('.dk-filter-bar select[name="jabatan"]');
+
+        if (!bidangFilter || !jabatanFilter) return;
+
+        function syncJabatanFilter() {
+            var value = bidangFilter.value;
+            var bidangId = /^#[0-9]+$/.test(value) ? value.slice(1) : null;
+
+            Array.prototype.forEach.call(jabatanFilter.options, function (option) {
+                if (!option.dataset.bidang) return;
+
+                var match = bidangId === null || option.dataset.bidang === bidangId;
+                option.hidden = !match;
+                option.disabled = !match;
+            });
+
+            var selected = jabatanFilter.options[jabatanFilter.selectedIndex];
+
+            if (selected && selected.disabled) {
+                jabatanFilter.value = '';
+            }
+        }
+
+        bidangFilter.addEventListener('change', syncJabatanFilter);
+        syncJabatanFilter();
     })();
 </script>
 @endsection

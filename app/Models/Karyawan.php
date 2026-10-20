@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * DATA KARYAWAN — master data ±300 karyawan UP Indramayu.
@@ -15,6 +16,11 @@ use Illuminate\Database\Eloquent\Model;
  *
  * Kolom yang wajib diisi hanya `nid` (unik) dan `nama` — sisanya
  * nullable agar impor data historis yang lengkap sebagian tidak gagal.
+ *
+ * Kolom teks `bidang`/`jabatan` tetap menjadi sumber tampilan & ekspor
+ * (kompatibel dengan data lama). Kolom `bidang_id`/`jabatan_id` adalah
+ * referensi opsional ke master Bidang/Jabatan — boleh NULL bila nama
+ * lama belum dapat dipetakan dengan aman.
  */
 class Karyawan extends Model
 {
@@ -23,7 +29,8 @@ class Karyawan extends Model
     protected $table = 'karyawans';
 
     protected $fillable = [
-        'nid', 'nama', 'bidang', 'jabatan', 'jenjang_jabatan', 'grade',
+        'nid', 'nama', 'bidang_id', 'jabatan_id',
+        'bidang', 'jabatan', 'jenjang_jabatan', 'grade',
         'institusi', 'organik', 'tanggal_lahir', 'service_date', 'hire_date',
         'retire_date', 'grade_date', 'tgl_jab', 'telp', 'hp', 'email',
         'fte', 'mims', 'tempat_lahir', 'agama', 'gender', 'status_kawin',
@@ -78,6 +85,14 @@ class Karyawan extends Model
         'grade_date', 'tgl_jab',
     ];
 
+    /**
+     * Filter dropdown yang nilainya boleh berasal dari master memakai
+     * prefiks `#` + id (mis. `#12`), sedangkan nilai tanpa prefiks tetap
+     * diartikan sebagai teks lama — sehingga data yang belum terpetakan
+     * masih bisa difilter dan diekspor.
+     */
+    public const FILTER_ID_PREFIX = '#';
+
     /** Filter dropdown halaman daftar (kolom => label). */
     public const FILTERS = [
         'bidang' => 'BIDANG',
@@ -119,18 +134,65 @@ class Karyawan extends Model
         });
     }
 
-    /** Terapkan filter dropdown (BIDANG, JABATAN, GRADE, dst.). */
+    /**
+     * Terapkan filter dropdown (BIDANG, JABATAN, GRADE, dst.).
+     *
+     * BIDANG & JABATAN menerima dua bentuk nilai:
+     * - `#<id>`  → filter lewat relasi master (khusus data yang sudah
+     *   terpetakan; nama jabatan bisa sama di beberapa bidang).
+     * - teks     → filter lewat kolom teks lama (data yang belum
+     *   terpetakan tetap bisa dicari).
+     */
     public function scopeFiltered(Builder $query, array $filters): Builder
     {
         foreach (self::FILTERS as $column => $label) {
             $value = trim((string) ($filters[$column] ?? ''));
 
-            if ($value !== '') {
-                $query->where($column, $value);
+            if ($value === '') {
+                continue;
             }
+
+            $idColumn = $this->masterIdColumn($column);
+
+            if ($idColumn !== null && str_starts_with($value, self::FILTER_ID_PREFIX)) {
+                $query->where($idColumn, (int) substr($value, strlen(self::FILTER_ID_PREFIX)));
+
+                continue;
+            }
+
+            $query->where($column, $value);
         }
 
         return $query;
+    }
+
+    /** Kolom FK master untuk filter teks (`bidang` → `bidang_id`). */
+    private function masterIdColumn(string $column): ?string
+    {
+        return match ($column) {
+            'bidang' => 'bidang_id',
+            'jabatan' => 'jabatan_id',
+            default => null,
+        };
+    }
+
+    /* =========================================================
+       RELASI MASTER (opsional — boleh NULL untuk data lama)
+       ========================================================= */
+
+    /**
+     * Bidang master. Sengaja TIDAK dinamai `bidang` karena atribut teks
+     * `bidang` sudah ada dan akan menutupi relasi saat diakses.
+     */
+    public function bidangMaster(): BelongsTo
+    {
+        return $this->belongsTo(Bidang::class, 'bidang_id');
+    }
+
+    /** Jabatan master (bidang induknya bisa diambil lewat `jabatanMaster->bidang`). */
+    public function jabatanMaster(): BelongsTo
+    {
+        return $this->belongsTo(Jabatan::class, 'jabatan_id');
     }
 
     /** Daftar nilai unik per kolom filter (untuk mengisi dropdown). */
@@ -154,6 +216,26 @@ class Karyawan extends Model
     /* =========================================================
        HELPER TAMPILAN
        ========================================================= */
+
+    /**
+     * Nama bidang untuk tampilan: kolom teks lama diutamakan (sumber
+     * kebenaran data HR); relasi master dipakai sebagai cadangan bila
+     * kolom teks kosong. Null bila keduanya kosong.
+     */
+    public function bidangLabel(): ?string
+    {
+        $teks = trim((string) $this->bidang);
+
+        return $teks !== '' ? $this->bidang : ($this->bidangMaster?->nama);
+    }
+
+    /** Nama jabatan untuk tampilan (aturan sama dengan bidangLabel()). */
+    public function jabatanLabel(): ?string
+    {
+        $teks = trim((string) $this->jabatan);
+
+        return $teks !== '' ? $this->jabatan : ($this->jabatanMaster?->nama);
+    }
 
     public function genderLabel(): ?string
     {

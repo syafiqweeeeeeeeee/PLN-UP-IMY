@@ -59,6 +59,31 @@
 @endpush
 
 @section('content')
+@php
+    /*
+     * Pilihan master bidang/jabatan + teks lama.
+     *
+     * Nilai select: id master (numerik), `legacy` = pertahankan teks lama
+     * yang belum terpetakan, `clear` = kosongkan. Teks lama dibawa lewat
+     * hidden input agar tidak hilang saat form diedit; server tetap
+     * memvalidasi ulang (JS hanya kenyamanan).
+     */
+    $bidangText = trim((string) old('bidang_text', $karyawan?->bidang));
+    $bidangChoice = old('bidang_id');
+    if ($bidangChoice === null) {
+        $bidangChoice = $karyawan?->bidang_id !== null
+            ? (string) $karyawan->bidang_id
+            : ($bidangText !== '' ? 'legacy' : '');
+    }
+
+    $jabatanText = trim((string) old('jabatan_text', $karyawan?->jabatan));
+    $jabatanChoice = old('jabatan_id');
+    if ($jabatanChoice === null) {
+        $jabatanChoice = $karyawan?->jabatan_id !== null
+            ? (string) $karyawan->jabatan_id
+            : ($jabatanText !== '' ? 'legacy' : '');
+    }
+@endphp
 <div class="dk-form-card">
     <h5>
         <i class="fas fa-{{ $karyawan ? 'pen' : 'user-plus' }}" style="color: var(--pln-blue); margin-right: 0.5rem;"></i>
@@ -163,22 +188,46 @@
         <div class="row g-3">
             <div class="col-md-4">
                 <label class="form-label">BIDANG</label>
-                <input type="text" name="bidang" maxlength="100" list="bidang-list"
-                       class="form-control @error('bidang') is-invalid @enderror"
-                       value="{{ old('bidang', $karyawan?->bidang) }}" placeholder="mis. Operasi">
-                <datalist id="bidang-list">
-                    @foreach (($filterOptions['bidang'] ?? []) as $value)
-                        <option value="{{ $value }}">
+                <select name="bidang_id" id="dk-bidang-id"
+                        class="form-select @error('bidang_id') is-invalid @enderror">
+                    @if ($bidangChoice === 'legacy' && $bidangText !== '')
+                        <option value="legacy" @selected($bidangChoice === 'legacy')>
+                            {{ $bidangText }} (teks lama — belum dipetakan)
+                        </option>
+                    @elseif ($bidangChoice === '')
+                        <option value="" @selected($bidangChoice === '')>— Tidak dipilih —</option>
+                    @endif
+                    <option value="clear">— Kosongkan —</option>
+                    @foreach (($master['bidangRows'] ?? []) as $row)
+                        <option value="{{ $row['node']->id }}" @selected((string) $bidangChoice === (string) $row['node']->id)>
+                            {{ str_repeat('— ', $row['depth']) }}{{ $row['node']->nama }}
+                        </option>
                     @endforeach
-                </datalist>
-                @error('bidang')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </select>
+                <input type="hidden" name="bidang_text" value="{{ $bidangText }}">
+                @error('bidang_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-4">
                 <label class="form-label">JABATAN</label>
-                <input type="text" name="jabatan" maxlength="100"
-                       class="form-control @error('jabatan') is-invalid @enderror"
-                       value="{{ old('jabatan', $karyawan?->jabatan) }}">
-                @error('jabatan')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                <select name="jabatan_id" id="dk-jabatan-id"
+                        class="form-select @error('jabatan_id') is-invalid @enderror">
+                    @if ($jabatanChoice === 'legacy' && $jabatanText !== '')
+                        <option value="legacy" @selected($jabatanChoice === 'legacy')>
+                            {{ $jabatanText }} (teks lama — belum dipetakan)
+                        </option>
+                    @elseif ($jabatanChoice === '')
+                        <option value="" @selected($jabatanChoice === '')>— Tidak dipilih —</option>
+                    @endif
+                    <option value="clear">— Kosongkan —</option>
+                    @foreach (($master['jabatans'] ?? []) as $jabatan)
+                        <option value="{{ $jabatan->id }}" data-bidang="{{ $jabatan->bidang_id }}"
+                                @selected((string) $jabatanChoice === (string) $jabatan->id)>
+                            {{ $jabatan->nama }}
+                        </option>
+                    @endforeach
+                </select>
+                <input type="hidden" name="jabatan_text" value="{{ $jabatanText }}">
+                @error('jabatan_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-4">
                 <label class="form-label">JENJAB <small class="text-muted">(jenjang jabatan)</small></label>
@@ -326,4 +375,40 @@
         </div>
     </form>
 </div>
+
+{{-- Jabatan hanya boleh dipilih dari bidang induknya. Penyaringan ini
+     kenyamanan UI saja; validasi sebenarnya ada di server. --}}
+<script>
+    (function () {
+        var bidangSelect = document.getElementById('dk-bidang-id');
+        var jabatanSelect = document.getElementById('dk-jabatan-id');
+
+        if (!bidangSelect || !jabatanSelect) return;
+
+        function syncJabatanOptions() {
+            var bidangId = bidangSelect.value;
+            var isMaster = /^[0-9]+$/.test(bidangId);
+
+            Array.prototype.forEach.call(jabatanSelect.options, function (option) {
+                if (!option.dataset.bidang) return; // placeholder/legacy/clear selalu tampil
+
+                // Tanpa bidang master, semua jabatan tetap tampil — supaya
+                // pilihan yang sudah tersimpan tidak hilang; server tetap
+                // menolak kombinasi yang tidak valid.
+                var match = !isMaster || option.dataset.bidang === bidangId;
+                option.hidden = !match;
+                option.disabled = !match;
+            });
+
+            var selected = jabatanSelect.options[jabatanSelect.selectedIndex];
+
+            if (selected && selected.disabled) {
+                jabatanSelect.value = '';
+            }
+        }
+
+        bidangSelect.addEventListener('change', syncJabatanOptions);
+        syncJabatanOptions();
+    })();
+</script>
 @endsection

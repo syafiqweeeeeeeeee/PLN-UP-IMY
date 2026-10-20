@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             MasterMenuSeeder::class,
             KaryawanUserSeeder::class,
             WorkLinkSeeder::class,
+            MasterBidangJabatanSeeder::class,
         ]);
 
         // firstOrCreate agar seeder aman dijalankan berulang (tidak error duplicate)
