@@ -471,6 +471,26 @@
 
     .custom-scroll-content { padding: 0.05rem 0; }
 
+    /* Indentasi hierarki opsi bidang: root tanpa indent, child agak
+       masuk, grandchild lebih masuk — via padding, konsep "sepatah"
+       per tingkat agar terbaca sebagai pohon. */
+    .dropdown-option.dd-depth-1 { padding-left: 1.35rem; }
+    .dropdown-option.dd-depth-2 { padding-left: 1.95rem; }
+
+    /* Placeholder di garis pertama: tanpa titik & selalu netral,
+       tidak pernah ikut ter-highlight sebagai "pilihan". */
+    .dropdown-option[data-value=""]:not(.dropdown-jabatan-placeholder)::before {
+        display: none;
+    }
+    .dropdown-option[data-value=""]:not(.dropdown-jabatan-placeholder):hover {
+        background: transparent;
+        color: #94a3b8;
+    }
+    .dropdown-option[data-value=""].selected::before { display: none; }
+
+    /* Teks placeholder jabatan & label tak ergis tetap netral abu-abu */
+    .dropdown-jabatan-placeholder { color: #94a3b8; font-style: italic; }
+
     .dropdown-option {
         padding: 0.35rem 0.65rem;
         cursor: pointer;
@@ -1141,44 +1161,11 @@
                                    aria-haspopup="listbox">
                             <i class="fas fa-chevron-down dropdown-arrow"></i>
                             <div id="divisi-dropdown" class="custom-dropdown-menu custom-scroll-menu" role="listbox" style="display: none;">
+                                {{-- Opsi bidang dinamis dari MASTER bidangs —
+                                     partial juga dipakai modal Tambah/Edit admin
+                                     & portal karyawan agar nilainya selalu sinkron. --}}
                                 <div class="dropdown-options custom-scroll-content" id="divisi-options">
-                                    <div class="dropdown-option" data-value="" data-selected="true">— Pilih Bidang —</div>
-
-                                    <div class="dropdown-optgroup">Manager Operasi</div>
-                                    <div class="dropdown-option" data-value="Bidang Prod A">Bidang Prod A</div>
-                                    <div class="dropdown-option" data-value="Bidang Prod B">Bidang Prod B</div>
-                                    <div class="dropdown-option" data-value="Bidang Prod C">Bidang Prod C</div>
-                                    <div class="dropdown-option" data-value="Bidang Prod D">Bidang Prod D</div>
-                                    <div class="dropdown-option" data-value="Supervisor CHCB A">Supervisor CHCB A</div>
-                                    <div class="dropdown-option" data-value="Supervisor CHCB B">Supervisor CHCB B</div>
-                                    <div class="dropdown-option" data-value="Supervisor CHCB C">Supervisor CHCB C</div>
-                                    <div class="dropdown-option" data-value="Supervisor CHCB D">Supervisor CHCB D</div>
-                                    <div class="dropdown-option" data-value="Bidang RenOps">Bidang RenOps</div>
-                                    <div class="dropdown-option" data-value="Bidang Niaga BB">Bidang Niaga BB</div>
-                                    <div class="dropdown-option" data-value="Bidang Kimia &amp; Lab">Bidang Kimia &amp; Lab</div>
-
-                                    <div class="dropdown-optgroup">Manager Pemeliharaan</div>
-                                    <div class="dropdown-option" data-value="Bidang Rendal Har">Bidang Rendal Har</div>
-                                    <div class="dropdown-option" data-value="Bidang MO">Bidang MO</div>
-                                    <div class="dropdown-option" data-value="Bidang Mesin 1">Bidang Mesin 1</div>
-                                    <div class="dropdown-option" data-value="Bidang Mesin 2">Bidang Mesin 2</div>
-                                    <div class="dropdown-option" data-value="Bidang Listrik">Bidang Listrik</div>
-                                    <div class="dropdown-option" data-value="Bidang Konin">Bidang Konin</div>
-                                    <div class="dropdown-option" data-value="Bidang Inventori Kontrol &amp; Gudang">Bidang Inventori Kontrol &amp; Gudang</div>
-
-                                    <div class="dropdown-optgroup">Manager Engineering</div>
-                                    <div class="dropdown-option" data-value="Bidang SO">Bidang SO</div>
-                                    <div class="dropdown-option" data-value="Bidang CBM">Bidang CBM</div>
-                                    <div class="dropdown-option" data-value="Bidang MMRK">Bidang MMRK</div>
-
-                                    <div class="dropdown-optgroup">Manager Business Support</div>
-                                    <div class="dropdown-option" data-value="Bidang Pengadaan">Bidang Pengadaan</div>
-                                    <div class="dropdown-option" data-value="Bidang SDM Umum CSR">Bidang SDM Umum CSR</div>
-                                    <div class="dropdown-option" data-value="Bidang Keuangan">Bidang Keuangan</div>
-
-                                    <div class="dropdown-optgroup">Divisi / Jabatan Lainnya</div>
-                                    <div class="dropdown-option" data-value="Bidang K3 &amp; KAM">Bidang K3 &amp; KAM</div>
-                                    <div class="dropdown-option" data-value="Bidang Lingkungan">Bidang Lingkungan</div>
+                                    @include('admin.tamu._divisi-options')
                                 </div>
                             </div>
                         </div>
@@ -1188,35 +1175,47 @@
                         @enderror
                     </div>
 
-                    {{-- Jabatan yang Ditemui — tampilan saja (namaless: tidak ikut submit) --}}
+                    {{-- Jabatan yang Ditemui — dropdown BERTINGKAT dari
+                         MASTER jabatans: opsi mengikuti bidang yang dipilih
+                         di atas. Opsional (tidak wajib diisi). --}}
                     <div>
-                        <label for="jabatan_ditemui" class="pln-label" data-i18n="form.label_jabatan">
+                        <label for="jabatan_ditemui_display" class="pln-label" data-i18n="form.label_jabatan">
                             Jabatan yang Ditemui
                         </label>
-                        <div class="pln-input-icon">
-                            <i class="fas fa-id-badge"></i>
-                            <input type="text" id="jabatan_ditemui"
-                                   value=""
-                                   placeholder="Jabatan orang yang ditemui"
+                        <div class="pln-input-icon" style="position: relative;">
+                            <input type="text" id="jabatan_ditemui_display" readonly
+                                   value="{{ old('jabatan_ditemui', '') }}"
+                                   placeholder="— Pilih Jabatan —"
                                    data-i18n-placeholder="form.ph_jabatan"
-                                   autocomplete="off"
-                                   class="pln-input" />
+                                   class="pln-input custom-dropdown-input @error('jabatan_ditemui') has-error @enderror"
+                                   aria-haspopup="listbox">
+                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            <div id="jabatan-dropdown" class="custom-dropdown-menu custom-scroll-menu" role="listbox" style="display: none;">
+                                <div class="dropdown-options custom-scroll-content" id="jabatan-options">
+                                    @include('admin.tamu._jabatan-options')
+                                </div>
+                            </div>
                         </div>
+                        <input type="hidden" name="jabatan_ditemui" id="jabatan_ditemui" value="{{ old('jabatan_ditemui', '') }}">
+                        @error('jabatan_ditemui')
+                            <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
+                        @enderror
                     </div>
 
-                    {{-- Orang yang Ditemui — tampilan saja (namaless: tidak ikut submit) --}}
+                    {{-- Orang yang Ditemui — teks bebas, OPSIONAL, ikut dikirim
+                         (nama orang yang ditemui di bidang tujuan). --}}
                     <div>
                         <label for="orang_ditemui" class="pln-label" data-i18n="form.label_orang">
                             Orang yang Ditemui
                         </label>
                         <div class="pln-input-icon">
                             <i class="fas fa-user-tie"></i>
-                            <input type="text" id="orang_ditemui"
-                                   value=""
+                            <input type="text" id="orang_ditemui" name="orang_ditemui"
+                                   value="{{ old('orang_ditemui', '') }}"
                                    placeholder="Nama orang yang ditemui"
                                    data-i18n-placeholder="form.ph_orang"
                                    autocomplete="off"
-                                   class="pln-input" />
+                                   class="pln-input @error('orang_ditemui') has-error @enderror" />
                         </div>
                     </div>
 
@@ -1673,10 +1672,154 @@
             var initVal = inputHidden.value;
             if (initVal) {
                 var match = optionsContainer.querySelector('.dropdown-option[data-value="' + initVal + '"]');
+                if (!match) {
+                    /* Data lama dari partial rentan bisa menyimpan
+                       entitas &nbsp;/spasi pantas sebagai nama —
+                       normaalkan lalu cocokkan ulang ke opsi bersih. */
+                    var bersih = initVal.replace(/&nbsp;|\u00A0/g, '').replace(/\s+/g, ' ').trim();
+                    if (bersih && bersih !== initVal) {
+                        match = optionsContainer.querySelector('.dropdown-option[data-value="' + bersih + '"]');
+                        if (match) {
+                            inputHidden.value = bersih;
+                            initVal = bersih;
+                        }
+                    }
+                }
                 if (match) select(match);
             }
 
             console.log('[Divisi] Inisialisasi selesai');
+        })();
+
+        /* ===== DROPDOWN JABATAN (BERTINGKAT) =====
+           Opsi jabatan diambil dari MASTER jabatans dan difilter
+           mengikuti bidang yang dipilih pada dropdown "Bidang yang
+           Ditemui" (tiap opsi membawa data-bidang). Mengganti bidang
+           akan memfilter ulang opsi & mengosongkan jabatan jika opsi
+           lama tak lagi cocok. */
+        (function () {
+            var jabatanDisplay = document.getElementById('jabatan_ditemui_display');
+            var jabatanHidden = document.getElementById('jabatan_ditemui');
+            var divisiHidden = document.getElementById('tujuan_ditemui');
+            var jWrapper = jabatanDisplay && jabatanDisplay.closest ? jabatanDisplay.closest('.pln-input-icon') : null;
+            var jabatanMenu = jWrapper && jWrapper.querySelector ? jWrapper.querySelector('#jabatan-dropdown') : null;
+            var jabatanOptionsContainer = jWrapper && jWrapper.querySelector ? jWrapper.querySelector('#jabatan-options') : null;
+
+            if (!jabatanDisplay || !jabatanHidden || !divisiHidden || !jabatanMenu || !jabatanOptionsContainer) {
+                console.error('[Jabatan] Elemen tidak ditemukan');
+                return;
+            }
+
+            var jIsOpen = false;
+
+            function jToggle() {
+                jIsOpen = !jIsOpen;
+                jabatanMenu.style.display = jIsOpen ? 'block' : 'none';
+                jabatanDisplay.setAttribute('aria-expanded', jIsOpen ? 'true' : 'false');
+                if (jabatanDisplay.parentElement) jabatanDisplay.parentElement.classList.toggle('dropdown-open', jIsOpen);
+            }
+
+            function jClose() {
+                jIsOpen = false;
+                jabatanMenu.style.display = 'none';
+                jabatanDisplay.setAttribute('aria-expanded', 'false');
+            }
+
+            function jSelect(opt) {
+                jabatanOptionsContainer.querySelectorAll('.dropdown-option').forEach(function (o) { o.classList.remove('selected'); });
+                opt.classList.add('selected');
+                jabatanDisplay.value = opt.textContent.trim();
+                jabatanHidden.value = opt.getAttribute('data-value');
+                jClose();
+            }
+
+            jabatanDisplay.addEventListener('click', function (e) {
+                e.stopPropagation(); jToggle();
+            });
+            jabatanOptionsContainer.addEventListener('click', function (e) {
+                var opt = e.target.closest('.dropdown-option');
+                if (opt && opt.getAttribute('data-value')) jSelect(opt);
+            });
+            document.addEventListener('click', function (e) { if (!jWrapper.contains(e.target)) jClose(); });
+            jabatanDisplay.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') { jClose(); jabatanDisplay.blur(); }
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); jToggle(); }
+            });
+
+            /* Filter opsi jabatan sesuai bidang terpilih (string,
+               bukan id, agar data lama & partial admin tetap serasi). */
+            function filterJabatanOpsi(divisiNama) {
+                var adaCocok = false;
+
+                jabatanOptionsContainer.querySelectorAll('.dropdown-option').forEach(function (o) {
+                    if (o.classList.contains('dropdown-jabatan-placeholder')) return;
+
+                    var cocok = divisiNama !== '' && o.getAttribute('data-bidang') === divisiNama;
+                    o.style.display = cocok ? '' : 'none';
+                    if (cocok) adaCocok = true;
+                });
+
+                var placeholder = jabatanOptionsContainer.querySelector('.dropdown-jabatan-placeholder');
+                if (placeholder) {
+                    placeholder.style.display = adaCocok ? 'none' : '';
+                    placeholder.textContent = divisiNama === ''
+                        ? '— Pilih bidang terlebih dahulu —'
+                        : 'Belum ada jabatan pada bidang ini';
+                }
+            }
+
+            /* Bersihkan pilihan jabatan yang tidak cocok dengan bidang baru. */
+            function syncJabatanKeDivisi(divisiNama) {
+                filterJabatanOpsi(divisiNama);
+
+                var current = jabatanHidden.value;
+                if (!current) return;
+
+                var masihCocok = false;
+                jabatanOptionsContainer.querySelectorAll('.dropdown-option').forEach(function (o) {
+                    if (o.classList.contains('dropdown-jabatan-placeholder')) return;
+                    if (o.getAttribute('data-value') === current
+                        && o.getAttribute('data-bidang') === divisiNama
+                        && o.style.display !== 'none') {
+                        masihCocok = true;
+                    }
+                });
+
+                if (!masihCocok) {
+                    jabatanHidden.value = '';
+                    jabatanDisplay.value = '';
+                    jabatanOptionsContainer.querySelectorAll('.dropdown-option').forEach(function (o) {
+                        o.classList.remove('selected');
+                    });
+                }
+            }
+
+            /* Cascade: dropdown divisi men-dispatch event 'change' pada
+               hidden input-nya setiap opsi dipilih (lihat IIFE divisi). */
+            divisiHidden.addEventListener('change', function () {
+                syncJabatanKeDivisi(divisiHidden.value.trim());
+            });
+
+            /* Restore old() input: filter dulu sesuai bidang lama,
+               lalu tandai opsi jabatan lama (jika masih cocok). */
+            (function restoreJabatanAwal() {
+                var divisiAwal = divisiHidden.value.trim();
+                filterJabatanOpsi(divisiAwal);
+
+                var jabatanAwal = jabatanHidden.value;
+                if (!jabatanAwal || !divisiAwal) return;
+
+                jabatanOptionsContainer.querySelectorAll('.dropdown-option').forEach(function (o) {
+                    if (o.classList.contains('dropdown-jabatan-placeholder')) return;
+                    if (o.getAttribute('data-value') === jabatanAwal
+                        && o.getAttribute('data-bidang') === divisiAwal) {
+                        o.classList.add('selected');
+                        jabatanDisplay.value = o.textContent.trim();
+                    }
+                });
+            })();
+
+            console.log('[Jabatan] Inisialisasi selesai');
         })();
 
         /* ===== TANGGAL KUNJUNGAN: blokir tanggal yang sudah lewat ===== */

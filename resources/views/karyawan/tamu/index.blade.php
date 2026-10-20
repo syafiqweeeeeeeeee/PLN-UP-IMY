@@ -294,12 +294,39 @@
     .mailto-link i { color: var(--kry-muted); font-size: 0.75rem; }
 
     .email-empty { color: var(--kry-line); font-size: 0.8rem; }
-    .tamu-tujuan .tujuan-nama { font-weight: 600; }
+
+    /* Baris tujuan terstruktur: Bidang (utama) -> Jabatan -> Orang,
+        selaras dengan panel admin. */
+    .tamu-tujuan .tujuan-line {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        max-width: 240px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .tamu-tujuan .tujuan-line i {
+        font-size: 0.72rem;
+        flex-shrink: 0;
+        width: 1rem;
+        text-align: center;
+        color: var(--kry-teal);
+    }
+    .tamu-tujuan .tujuan-line span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .tamu-tujuan .tujuan-bidang  { font-weight: 600; font-size: 0.82rem; color: inherit; }
+    .tamu-tujuan .tujuan-jabatan  { font-size: 0.76rem; color: var(--kry-muted); }
+    .tamu-tujuan .tujuan-orang    { font-size: 0.76rem; color: var(--kry-muted); }
     .tamu-tujuan .tujuan-keperluan {
-        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        padding-left: 1.45rem;
+        font-size: 0.72rem;
         color: var(--kry-muted);
         display: block;
-        max-width: 260px;
+        max-width: 240px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -602,6 +629,21 @@
         position: sticky;
         top: 0;
     }
+    /* Indentasi hierarki opsi bidang: root tanpa indent, child agak
+       masuk, grandchild lebih masuk — via padding (klik & teks tersimpan
+       tetap bersih, tanpa entitas &nbsp; yang bisa bocor ke input). */
+    .tamu-dd-menu .dropdown-option.dd-depth-1 { padding-left: 1.6rem; }
+    .tamu-dd-menu .dropdown-option.dd-depth-2 { padding-left: 2.2rem; }
+
+    /* Placeholder di baris pertama: tanpa titik, selalu netral. */
+    .tamu-dd-menu .dropdown-option[data-value=""] { color: #94a3b8; font-style: italic; }
+    .tamu-dd-menu .dropdown-option[data-value=""]::before { display: none; }
+    .tamu-dd-menu .dropdown-option[data-value=""]::after { content: none; }
+    .tamu-dd-menu .dropdown-option[data-value=""]:hover { background: transparent; }
+
+    /* Placeholder dropdown jabatan (tanpa pilihan bidang) */
+    .tamu-dd-menu .dropdown-jabatan-placeholder { cursor: default; }
+
     .tamu-dd-menu .dropdown-option {
         padding: 0.38rem 0.7rem;
         cursor: pointer;
@@ -869,7 +911,7 @@
                 <th class="col-identitas">Identitas Tamu</th>
                 <th class="col-instansi">Instansi</th>
                 <th class="col-email">Email</th>
-                <th class="col-tujuan">Tujuan Kunjungan</th>
+                <th class="col-tujuan">Bidang / Jabatan / Orang yang Ditemui</th>
                 <th class="col-doc text-center">Dokumen</th>
                 <th class="col-status text-center">Status</th>
                 <th class="col-aksi text-right">Aksi</th>
@@ -920,7 +962,20 @@
                     @endif
                 </td>
                 <td class="tamu-tujuan">
-                    <span class="tujuan-nama"><i class="fas fa-user-tie" style="color:var(--kry-muted); margin-right:0.3rem;"></i>{{ $tamu->tujuan_ditemui }}</span>
+                    {{-- Tujuan kunjungan terstruktur: Bidang -> Jabatan -> Orang --}}
+                    <div class="tujuan-line tujuan-bidang" title="Bidang yang ditemui">
+                        <i class="fas fa-sitemap"></i><span>{{ $tamu->tujuan_ditemui }}</span>
+                    </div>
+                    @if ($tamu->jabatan_ditemui)
+                        <div class="tujuan-line tujuan-jabatan" title="Jabatan yang ditemui">
+                            <i class="fas fa-id-badge"></i><span>{{ $tamu->jabatan_ditemui }}</span>
+                        </div>
+                    @endif
+                    @if ($tamu->orang_ditemui)
+                        <div class="tujuan-line tujuan-orang" title="Orang yang ditemui">
+                            <i class="fas fa-user-tie"></i><span>{{ $tamu->orang_ditemui }}</span>
+                        </div>
+                    @endif
                     <span class="tujuan-keperluan" title="{{ $tamu->keperluan }}">{{ $tamu->keperluan }}</span>
                 </td>
                 <td class="text-center">
@@ -1276,6 +1331,35 @@
                                style="font-size:0.85rem;">
                         @error('jumlah_tamu')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jabatan yang Ditemui <small class="text-muted" style="text-transform:none;">(opsional — mengikuti bidang)</small></label>
+                        {{-- Custom dropdown jabatan BERTINGKAT — opsi dari master jabatans
+                             dengan data-bidang, difilter JS mengikuti tujuan_ditemui. --}}
+                        <div class="tamu-dd-wrap">
+                            <input type="text" id="add-jabatan_ditemui_display" readonly autocomplete="off"
+                                   placeholder="— Pilih Jabatan —"
+                                   class="form-control tamu-dd-input @error('jabatan_ditemui') is-invalid @enderror"
+                                   aria-haspopup="listbox">
+                            <i class="fas fa-chevron-down tamu-dd-arrow"></i>
+                            <div class="tamu-dd-menu" role="listbox">
+                                <div class="tamu-dd-options">@include('admin.tamu._jabatan-options')</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="jabatan_ditemui" id="add-jabatan_ditemui" value="{{ old('jabatan_ditemui') }}">
+                        @error('jabatan_ditemui')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Orang yang Ditemui <small class="text-muted" style="text-transform:none;">(opsional)</small></label>
+                        <div class="tamu-dd-wrap" style="position:relative;">
+                            <input type="text" name="orang_ditemui" id="add-orang_ditemui"
+                                   value="{{ old('orang_ditemui') }}" autocomplete="off"
+                                   placeholder="Nama orang yang ditemui"
+                                   class="form-control tamu-dd-input @error('orang_ditemui') is-invalid @enderror"
+                                   style="padding-left:2.1rem;">
+                            <i class="fas fa-user-tie" style="position:absolute; left:0.7rem; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:0.75rem; pointer-events:none;"></i>
+                        </div>
+                        @error('orang_ditemui')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
                     <div class="col-12">
                         <div class="d-flex justify-content-between align-items-center">
                             <label class="form-label" style="font-size:0.78rem; font-weight:600; margin-bottom:0;">Maksud &amp; Keperluan Kunjungan <span class="text-danger">*</span></label>
@@ -1409,6 +1493,31 @@
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jumlah Tamu <span class="text-danger">*</span></label>
                         <input type="number" name="jumlah_tamu" id="edit-jumlah_tamu" min="1" max="100" required
                                class="form-control" style="font-size:0.85rem;">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jabatan yang Ditemui <small class="text-muted" style="text-transform:none;">(opsional — mengikuti bidang)</small></label>
+                        {{-- Custom dropdown jabatan BERTINGKAT — nilai diisi JS saat modal edit dibuka --}}
+                        <div class="tamu-dd-wrap">
+                            <input type="text" id="edit-jabatan_ditemui_display" readonly autocomplete="off"
+                                   placeholder="— Pilih Jabatan —"
+                                   class="form-control tamu-dd-input" aria-haspopup="listbox">
+                            <i class="fas fa-chevron-down tamu-dd-arrow"></i>
+                            <div class="tamu-dd-menu" role="listbox">
+                                <div class="tamu-dd-options">@include('admin.tamu._jabatan-options')</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="jabatan_ditemui" id="edit-jabatan_ditemui" value="">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" style="font-size:0.78rem; font-weight:600;">Orang yang Ditemui <small class="text-muted" style="text-transform:none;">(opsional)</small></label>
+                        <div class="tamu-dd-wrap" style="position:relative;">
+                            <input type="text" name="orang_ditemui" id="edit-orang_ditemui"
+                                   value="" autocomplete="off"
+                                   placeholder="Nama orang yang ditemui"
+                                   class="form-control tamu-dd-input"
+                                   style="padding-left:2.1rem;">
+                            <i class="fas fa-user-tie" style="position:absolute; left:0.7rem; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:0.75rem; pointer-events:none;"></i>
+                        </div>
                     </div>
                     <div class="col-12">
                         <div class="d-flex justify-content-between align-items-center">
@@ -1600,6 +1709,15 @@
         set('edit-email', t.email);
         set('edit-tujuan_ditemui', t.tujuan);
         ensureDivisiOption('edit', t.tujuan, ' (data lama)');
+        /* Jabatan yang ditemui (master jabatans) — data lama dipertahankan;
+           opsi difilter mengikuti divisi di atas. */
+        set('edit-jabatan_ditemui', t.jabatan);
+        if (t.jabatan) {
+            ensureJabatanOption('edit', t.jabatan, t.tujuan, '');
+        }
+        filterJabatanOpsi('edit', t.tujuan);
+        /* Nama orang yang ditemui (teks bebas). */
+        set('edit-orang_ditemui', t.orang);
         set('edit-tanggal_kunjungan', t.tanggal_input ? t.tanggal_input.slice(0, 10) : '');
         set('edit-jumlah_tamu', t.jumlah || 1);
         set('edit-keperluan', t.keperluan);
@@ -1686,6 +1804,13 @@
         const display = document.getElementById(prefix + '-tujuan_ditemui_display');
         if (!hidden || !display || !value) return;
 
+        /* Data lama bisa menyimpan entitas &nbsp;/spasi pantas sebagai
+           bagian nama (partial lama ter-escape) — normaalkan dulu
+           supaya teks yang tampil & tersimpan bersih. */
+        value = String(value).replace(/&nbsp;|\u00A0/g, '').replace(/\s+/g, ' ').trim();
+        if (!value) return;
+        hidden.value = value;
+
         const menu = hidden.closest('.tamu-dd-wrap').querySelector('.tamu-dd-options');
         const ada = menu && Array.prototype.some.call(menu.querySelectorAll('.dropdown-option'), function (o) {
             return o.getAttribute('data-value') === value;
@@ -1766,6 +1891,145 @@
 
     initDivisiDropdown('add');
     initDivisiDropdown('edit');
+
+    /* ============================================================
+       CUSTOM DROPDOWN JABATAN — BERTINGKAT (integrasi master
+       jabatans). Opsi membawa data-bidang = nama bidang induk;
+       JS hanya menampilkan jabatan yang cocok dengan DIVISI
+       (tujuan_ditemui) yang dipilih. Mengganti divisi memfilter
+       ulang opsi & mengosongkan pilihan yang tak lagi cocok.
+       Pola & perilaku identik dengan dropdown divisi di atas.
+       ============================================================ */
+    function jabatanContext(prefix) {
+        const display = document.getElementById(prefix + '-jabatan_ditemui_display');
+        const hidden = document.getElementById(prefix + '-jabatan_ditemui');
+        const container = display && display.closest('.tamu-dd-wrap');
+        const menu = container && container.querySelector('.tamu-dd-menu');
+        const options = container && container.querySelector('.tamu-dd-options');
+        return { display, hidden, container, menu, options };
+    }
+
+    /* Pastikan nilai jabatan lama tetap tersedia sebagai opsi
+       (mis. jabatannya sudah dihapus dari master) supaya rekornya
+       bisa diedit tanpa kehilangan data. */
+    function ensureJabatanOption(prefix, value, bidang, suffix) {
+        const c = jabatanContext(prefix);
+        if (!c.display || !c.hidden || !c.options || !value) return;
+
+        /* Normalkan entitas &nbsp;/spasi berlebih bila ada di data lama. */
+        value = String(value).replace(/&nbsp;|\u00A0/g, '').replace(/\s+/g, ' ').trim();
+        bidang = String(bidang || '').replace(/&nbsp;|\u00A0/g, '').replace(/\s+/g, ' ').trim();
+        if (!value) return;
+        c.hidden.value = value;
+
+        const ada = Array.prototype.some.call(c.options.querySelectorAll('.dropdown-option'), function (o) {
+            return o.getAttribute('data-value') === value;
+        });
+        if (!ada) {
+            const opt = document.createElement('div');
+            opt.className = 'dropdown-option dropdown-jabatan-option';
+            opt.setAttribute('data-value', value);
+            opt.setAttribute('data-bidang', bidang || '');
+            opt.textContent = value + (suffix || '');
+            c.options.appendChild(opt);
+        }
+        c.display.value = value + (suffix && !ada ? suffix : '');
+        c.hidden.value = value;
+    }
+
+    /* Tampilkan hanya opsi jabatan yang bidangnya cocok; tandai &
+       sinkronkan teks display dengan nilai hidden. */
+    function filterJabatanOpsi(prefix, divisi) {
+        const c = jabatanContext(prefix);
+        if (!c.options || !c.hidden) return;
+
+        const divisiNama = String(divisi || '').trim();
+        const pilihan = c.hidden.value;
+        let adaCocok = false;
+
+        c.options.querySelectorAll('.dropdown-option').forEach(function (o) {
+            if (o.classList.contains('dropdown-jabatan-placeholder')) {
+                o.textContent = divisiNama ? 'Belum ada jabatan pada bidang ini' : '— Pilih bidang terlebih dahulu —';
+                return;
+            }
+
+            const cocok = divisiNama !== '' && o.getAttribute('data-bidang') === divisiNama;
+            o.style.display = cocok ? '' : 'none';
+            if (cocok) adaCocok = true;
+            o.classList.toggle('selected', cocok && o.getAttribute('data-value') === pilihan);
+        });
+
+        const placeholder = c.options.querySelector('.dropdown-jabatan-placeholder');
+        if (placeholder) placeholder.style.display = adaCocok ? 'none' : '';
+
+        if (pilihan) syncJabatanDisplay(prefix);
+    }
+
+    /* Sinkronkan teks display + status terpilih dari nilai hidden. */
+    function syncJabatanDisplay(prefix) {
+        const c = jabatanContext(prefix);
+        if (!c.display || !c.hidden) return;
+
+        const val = c.hidden.value;
+        const cocok = Array.prototype.find.call(
+            c.options.querySelectorAll('.dropdown-option'),
+            function (o) { return o.getAttribute('data-value') === val && o.style.display !== 'none'; }
+        );
+
+        c.display.value = cocok ? cocok.textContent.trim() : val;
+    }
+
+    function initJabatanDropdown(prefix) {
+        const c = jabatanContext(prefix);
+        if (!c.display || !c.menu || !c.options) return;
+
+        let isOpen = false;
+
+        function openMenu() { isOpen = true; c.menu.classList.add('open'); c.container.classList.add('dropdown-open'); }
+        function closeMenu() { isOpen = false; c.menu.classList.remove('open'); c.container.classList.remove('dropdown-open'); }
+
+        function select(opt) {
+            c.options.querySelectorAll('.dropdown-option').forEach(function (o) { o.classList.remove('selected'); });
+            opt.classList.add('selected');
+            c.display.value = opt.textContent.trim();
+            c.hidden.value = opt.getAttribute('data-value') || '';
+            closeMenu();
+        }
+
+        c.display.addEventListener('click', function (e) {
+            e.stopPropagation();
+            // Tutup dropdown divisi & jabatan lain supaya tidak tumpuk
+            ['add', 'edit'].forEach(function (p) {
+                if (p !== prefix) closeDivisiDropdown(p);
+                const jc = jabatanContext(p);
+                if (jc.container && jc.container.__closeJabatan) jc.container.__closeJabatan();
+            });
+            isOpen ? closeMenu() : openMenu();
+        });
+        c.options.addEventListener('click', function (e) {
+            const opt = e.target.closest('.dropdown-option');
+            if (opt && opt.getAttribute('data-value')) select(opt);
+        });
+        document.addEventListener('click', function (e) {
+            if (!c.container.contains(e.target)) closeMenu();
+        });
+        c.display.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { closeMenu(); c.display.blur(); }
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); isOpen ? closeMenu() : openMenu(); }
+        });
+
+        c.container.__closeJabatan = closeMenu;
+    }
+
+    ['add', 'edit'].forEach(function (p) {
+        initJabatanDropdown(p);
+        const divisiHidden = document.getElementById(p + '-tujuan_ditemui');
+        if (divisiHidden) {
+            divisiHidden.addEventListener('change', function () {
+                filterJabatanOpsi(p, divisiHidden.value.trim());
+            });
+        }
+    });
 
     /* ============================================================
        TANGGAL KUNJUNGAN — blokir tanggal yang sudah lewat
@@ -1986,6 +2250,14 @@
             set('edit-tujuan_ditemui', oldInput.tujuan_ditemui);
             ensureDivisiOption('edit', oldInput.tujuan_ditemui, '');
             syncDivisiDisplay('edit');
+            /* Jabatan yang ditemui — restore old + filter opsi mengikuti divisi. */
+            set('edit-jabatan_ditemui', oldInput.jabatan_ditemui);
+            if (oldInput.jabatan_ditemui) {
+                ensureJabatanOption('edit', oldInput.jabatan_ditemui, oldInput.tujuan_ditemui, '');
+            }
+            filterJabatanOpsi('edit', oldInput.tujuan_ditemui);
+            /* Nama orang yang ditemui — restore old. */
+            set('edit-orang_ditemui', oldInput.orang_ditemui);
             set('edit-tanggal_kunjungan', String(oldInput.tanggal_kunjungan || '').slice(0, 10));
             set('edit-jumlah_tamu', oldInput.jumlah_tamu);
             set('edit-keperluan', oldInput.keperluan);
@@ -2005,6 +2277,15 @@
             if (addHidden && addHidden.value) {
                 ensureDivisiOption('add', addHidden.value, '');
                 syncDivisiDisplay('add');
+            }
+            /* Jabatan — sinkronkan opsi bertingkat dari old divisi, lalu
+               pertahankan pilihan old jabatan (jika masih cocok). */
+            const addDivisiValue = addHidden ? addHidden.value.trim() : '';
+            filterJabatanOpsi('add', addDivisiValue);
+            const addJabatanHidden = document.getElementById('add-jabatan_ditemui');
+            if (addJabatanHidden && addJabatanHidden.value) {
+                ensureJabatanOption('add', addJabatanHidden.value, addDivisiValue, '');
+                syncJabatanDisplay('add');
             }
         }
     })();

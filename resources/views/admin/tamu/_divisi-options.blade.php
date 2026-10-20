@@ -1,59 +1,55 @@
 {{--
-    Opsi "Orang / Divisi yang Ditemui" untuk custom dropdown divisi
-    pada modal Tambah & Edit tamu (admin).
+    Opsi "Orang / Divisi yang Ditemui" (Bidang yang Ditemui) untuk
+    custom dropdown divisi pada modal Tambah & Edit tamu (admin,
+    portal karyawan) dan form registrasi publik
+    /layanan/form-registrasi-tamu.
+
+    SEBELUMNYA: daftar statis hardcoded — tidak ikut pembaruan master.
+    SEKARANG  : dibangun dari MASTER BIDANGS (tabel bidangs yang dipakai
+    juga Master Bidang & master jabatan) supaya daftar selalu sinkron
+    dengan data yang dikelola admin.
 
     Konten-only: elemen <div> dengan data-value — dirancang untuk
-    dimuat di dalam .tamu-dd-options milik custom dropdown (pola yang
-    sama dengan form registrasi publik /layanan/form-registrasi-tamu).
-    Daftar & nilai identik agar data selalu cocok dengan pemblokiran
-    slot per divisi.
+    dimuat di dalam .tamu-dd-options / #divisi-options milik custom
+    dropdown. Nilai yang dikirim tetap berupa NAMA bidang
+    (data-value = bidangs.nama) — identik dengan kolom string
+    `tamus.tujuan_ditemui`, sehingga pemblokiran slot per divisi pada
+    Tamu::jamTerblokir() dan seluruh data lama tetap cocok.
+
+    Pengelompokan mengikuti hierarki master: tiap bidang tingkat
+    teratas (parent_id NULL) menjadi judul optgroup, beserta semua
+    keturunannya (Bidang::treeOrdered()). Akar "PLTU INDRAMAYU"
+    dibuka lewat judul optgroup tersebut.
 --}}
 @php
-    $divisiGroups = [
-        'Manager Operasi' => [
-            'Bidang Prod A',
-            'Bidang Prod B',
-            'Bidang Prod C',
-            'Bidang Prod D',
-            'Supervisor CHCB A',
-            'Supervisor CHCB B',
-            'Supervisor CHCB C',
-            'Supervisor CHCB D',
-            'Bidang RenOps',
-            'Bidang Niaga BB',
-            'Bidang Kimia & Lab',
-        ],
-        'Manager Pemeliharaan' => [
-            'Bidang Rendal Har',
-            'Bidang MO',
-            'Bidang Mesin 1',
-            'Bidang Mesin 2',
-            'Bidang Listrik',
-            'Bidang Konin',
-            'Bidang Inventori Kontrol & Gudang',
-        ],
-        'Manager Engineering' => [
-            'Bidang SO',
-            'Bidang CBM',
-            'Bidang MMRK',
-        ],
-        'Manager Business Support' => [
-            'Bidang Pengadaan',
-            'Bidang SDM Umum CSR',
-            'Bidang Keuangan',
-        ],
-        'Divisi / Jabatan Lainnya' => [
-            'Bidang K3 & KAM',
-            'Bidang Lingkungan',
-        ],
-    ];
+    $bidangRows = \App\Models\Bidang::treeOrdered();
 @endphp
 
-<div class="dropdown-option" data-value="">— Pilih Divisi —</div>
+<div class="dropdown-option" data-value="" data-selected="true">— Pilih Bidang —</div>
 
-@foreach ($divisiGroups as $group => $items)
-    <div class="dropdown-optgroup">{{ $group }}</div>
-    @foreach ($items as $item)
-        <div class="dropdown-option" data-value="{{ $item }}">{{ $item }}</div>
-    @endforeach
+@php $currentGroup = null; @endphp
+
+@foreach ($bidangRows as $row)
+    @php
+        $node  = $row['node'];
+        $depth = $row['depth'];
+    @endphp
+
+    @if ($depth === 0)
+        {{-- Bidang tingkat teratas: buka optgroup baru berdasar namanya --}}
+        <div class="dropdown-optgroup">{{ $node->nama }}</div>
+        @php $currentGroup = $node->nama; @endphp
+    @endif
+
+    {{-- Indentasi hierarki via class dd-depth-* (CSS) — BUKAN entitas
+         &nbsp; supaya teks yang tampil / tersimpan tetap bersih. --}}
+    <div class="dropdown-option dd-depth-{{ min($depth, 2) }}"
+         data-value="{{ $node->nama }}"
+         @if ($depth > 0) title="{{ $currentGroup }}" @endif>
+        {{ $node->nama }}
+    </div>
 @endforeach
+
+@if ($bidangRows->isEmpty())
+    <div class="dropdown-placeholder">Belum ada bidang terdaftar</div>
+@endif

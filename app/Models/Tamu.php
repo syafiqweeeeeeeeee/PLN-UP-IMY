@@ -45,6 +45,8 @@ class Tamu extends Model
         'email',
         'dokumen_zip',
         'tujuan_ditemui',
+        'jabatan_ditemui',
+        'orang_ditemui',
         'jumlah_tamu',
         'tanggal_kunjungan',
         'keperluan',

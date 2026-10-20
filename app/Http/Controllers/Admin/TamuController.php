@@ -80,6 +80,11 @@ class TamuController extends Controller
             'email'     => $t->email,
             'instansi'  => $t->instansi,
             'tujuan'    => $t->tujuan_ditemui,
+            // Jabatan orang yang ditemui (integarsi master jabatans;
+            // NULL untuk data lama sebelum integrasi)
+            'jabatan'   => $t->jabatan_ditemui,
+            // Nama orang yang ditemui (teks bebas)
+            'orang'     => $t->orang_ditemui,
             'keperluan' => $t->keperluan,
             'jumlah'    => $t->jumlah_tamu,
             'tanggal'   => $t->tanggal_kunjungan?->format('d M Y, H:i'),
@@ -107,6 +112,8 @@ class TamuController extends Controller
             'no_hp' => $t->no_hp,
             'email' => $t->email,
             'tujuan_ditemui' => $t->tujuan_ditemui,
+            'jabatan_ditemui' => $t->jabatan_ditemui,
+            'orang_ditemui' => $t->orang_ditemui,
             'jumlah_tamu' => $t->jumlah_tamu,
             'keperluan' => $t->keperluan,
             'tanggal_input' => $t->tanggal_kunjungan ? $t->tanggal_kunjungan->format('Y-m-d\\TH:i') : null,
@@ -129,6 +136,11 @@ class TamuController extends Controller
             // format gabungan — selaras form registrasi publik
             'dokumen' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,zip,rar,jpg,jpeg,png', 'max:10240'],
             'tujuan_ditemui' => ['required', 'string', 'max:150'],
+            // Jabatan orang yang ditemui — opsional (master jabatans);
+            // validasi retak selaras kolom tujuan_ditemui (string)
+            'jabatan_ditemui' => ['nullable', 'string', 'max:150'],
+            // Nama orang yang ditemui — opsional (teks bebas)
+            'orang_ditemui' => ['nullable', 'string', 'max:150'],
             'jumlah_tamu' => ['required', 'integer', 'min:1', 'max:100'],
             'tanggal_kunjungan' => ['required', 'date'],
             // Slot jam operasional + blokir double-booking divisi sama
@@ -190,6 +202,10 @@ class TamuController extends Controller
             'email' => ['required', 'email', 'max:150'],
             'dokumen' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,zip,rar,jpg,jpeg,png', 'max:10240'],
             'tujuan_ditemui' => ['required', 'string', 'max:150'],
+            // Jabatan orang yang ditemui — opsional (master jabatans)
+            'jabatan_ditemui' => ['nullable', 'string', 'max:150'],
+            // Nama orang yang ditemui — opsional (teks bebas)
+            'orang_ditemui' => ['nullable', 'string', 'max:150'],
             'jumlah_tamu' => ['required', 'integer', 'min:1', 'max:100'],
             'tanggal_kunjungan' => ['required', 'date'],
             // Blokir slot divisi sama — kunjungan INI sendiri dikecualikan,

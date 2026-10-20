@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Jabatan;
 use App\Models\Tamu;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -87,7 +88,38 @@ class TamuController extends Controller
             ],
 
             'tujuan_ditemui' => ['required', 'string', 'max:150'],
+
+            // Jabatan orang yang ditemui — OPSIONAL, dipilih dari master
+            // jabatans (dropdown bertingkat mengikuti bidang tujuan).
+            // Nilai dikirim sebagai NAMA jabatan; dicocokkan ke master
+            // untuk mencegah isian bebas (relasi bidang ⇄ jabatan).
+            'jabatan_ditemui' => [
+                'nullable',
+                'string',
+                'max:150',
+                function (string $attribute, mixed $value, \Closure $fail) use ($request) {
+                    $divisi = trim((string) $request->input('tujuan_ditemui'));
+
+                    if ($divisi === '') {
+                        return; // biarkan rule required tujuan_ditemui yang menolak
+                    }
+
+                    $cocok = Jabatan::query()
+                        ->where('nama', $value)
+                        ->whereHas('bidang', fn ($q) => $q->where('nama', $divisi))
+                        ->exists();
+
+                    if (! $cocok) {
+                        $fail("Jabatan \"{$value}\" bukan jabatan pada bidang \"{$divisi}\". "
+                            . 'Silakan pilih ulang bidang dan jabatan yang ditemui.');
+                    }
+                },
+            ],
             'jumlah_tamu'    => ['required', 'integer', 'min:1', 'max:100'],
+
+            // Nama orang yang ditemui — OPSIONAL (teks bebas, pelengkap
+            // bidang & jabatan yang ditemui).
+            'orang_ditemui' => ['nullable', 'string', 'max:150'],
 
             // Penjadwalan: tanggal & jam dikirim terpisah dari form.
             // Jam harus salah satu slot operasional (sesi pagi/siang),
@@ -143,6 +175,8 @@ class TamuController extends Controller
             'jam_kunjungan.required'    => 'Jam kunjungan wajib dipilih.',
             'jam_kunjungan.in'          => 'Jam kunjungan harus di luar jam istirahat & sesuai jam operasional.',
             'keperluan.required'        => 'Maksud & keperluan kunjungan wajib diisi.',
+            'jabatan_ditemui.max'       => 'Jabatan yang ditemui maksimal :max karakter.',
+            'orang_ditemui.max'         => 'Nama orang yang ditemui maksimal :max karakter.',
         ]);
 
         /* =========================================================
@@ -185,6 +219,8 @@ class TamuController extends Controller
             'email'          => $validated['email'],
             'dokumen_zip'    => $dokumen_zip,
             'tujuan_ditemui' => $validated['tujuan_ditemui'],
+            'jabatan_ditemui' => $validated['jabatan_ditemui'] ?? null,
+            'orang_ditemui'  => $validated['orang_ditemui'] ?? null,
             'jumlah_tamu'    => $validated['jumlah_tamu'],
             'tanggal_kunjungan' => $validated['tanggal_kunjungan'] . ' ' . $validated['jam_kunjungan'],
             'keperluan'      => $validated['keperluan'],

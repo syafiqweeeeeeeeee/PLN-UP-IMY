@@ -164,6 +164,7 @@ class PermissionSeeder extends Seeder
             'dashboard.view',
             'announcements.view', 'announcements.create', 'announcements.edit', 'announcements.delete',
             'work_links.view', 'work_links.create', 'work_links.edit', 'work_links.delete',
+            'master_bidang.view', 'master_jabatan.view',
         ])));
 
         // Karyawan: baseline portal — SATU sumber di
