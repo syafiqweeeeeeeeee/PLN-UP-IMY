@@ -65,14 +65,36 @@ class AdminResetPasswordTest extends TestCase
         $target->refresh();
 
         // Sistem (bukan admin) yang membuat password sementara: dikembalikan
-        // di response, 12 karakter alfanumerik, ter-hash di database, dan
+        // di response, 10 karakter alfanumerik (Str::random(10) — lihat
+        // UserController::resetPassword), ter-hash di database, dan
         // akun ditandai wajib ganti password.
         $temporary = $response->json('temporary_password');
 
         $this->assertNotEmpty($temporary);
-        $this->assertSame(12, strlen($temporary));
-        $this->assertMatchesRegularExpression('/^[A-Za-z0-9]{12}$/', $temporary);
+        $this->assertSame(10, strlen($temporary));
+        $this->assertMatchesRegularExpression('/^[A-Za-z0-9]{10}$/', $temporary);
         $this->assertTrue(Hash::check($temporary, $target->password));
+        $this->assertTrue($target->must_change_password);
+    }
+
+    /** @test submit form biasa (tanpa AJAX) → redirect back + flash temporaryPassword. */
+    public function reset_password_via_form_redirects_back_with_flash(): void
+    {
+        $admin  = $this->makeAdmin();
+        $target = $this->makeTarget();
+
+        $response = $this->actingAs($admin)
+            ->from(route('admin.users.show', $target))
+            ->patch(route('admin.users.reset-password', $target));
+
+        $response->assertRedirect(route('admin.users.show', $target))
+            ->assertSessionHas('success_reset', 'Password berhasil direset')
+            ->assertSessionHas('temporaryPassword');
+
+        // Nilai flash = password yang TERSIMPAN TERHASH di database
+        // (Hash::make) — plaintext tidak pernah masuk tabel users.
+        $target->refresh();
+        $this->assertTrue(Hash::check(session('temporaryPassword'), $target->password));
         $this->assertTrue($target->must_change_password);
     }
 

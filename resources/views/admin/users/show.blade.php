@@ -510,22 +510,24 @@
                         </button>
                     </form>
                 @endif
-                {{-- Reset Password --}}
+                {{-- Reset Password — tombol kunci MEMBUKA MODAL KONFIRMASI
+                     pertama (#resetPasswordModal) via data-bs-toggle/
+                     data-bs-target; di dalam modal itu tombol "Ya, Reset
+                     Password" disubmit sebagai form POST + @csrf +
+                     @method('PATCH') — tanpa AJAX. --}}
                 @if(auth()->user()?->can('user.reset-password'))
                     @unless (auth()->id() === $user->id)
-                    {{-- Pemicu popup konfirmasi SweetAlert (data-* dibaca
-                         oleh listener tombol pada script bawah). --}}
                     <button type="button" class="btn btn-sm btn-light border" style="cursor: pointer;" title="Reset Password"
-                            data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}"
-                            data-action="reset-password" onclick="event.stopPropagation();">
+                            data-bs-toggle="modal" data-bs-target="#resetPasswordModal" onclick="event.stopPropagation();">
                         <i class="fas fa-key text-warning"></i>
                     </button>
                     @endunless
                 @endif
                 {{-- Hapus --}}
-                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline mb-0">
+                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?');">
+                        @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-light border" style="cursor: pointer;" title="Hapus Pengguna" onclick="event.stopPropagation(); return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')">
+                        <button type="submit" class="btn btn-sm btn-light border" title="Hapus Pengguna">
                             <i class="fas fa-trash text-danger"></i>
                         </button>
                     </form>
@@ -1040,142 +1042,11 @@
 </div>
 @endcan
 
-{{-- Script EDIT DETAIL KEPEGAWAIAN — aksi header (toggle status, hapus)
-     berupa form submit biasa; reset password memakai SweetAlert. WAJIB
-     inline di content agar router.js mengeksekusi ulang setelah SPA. --}}
+{{-- Script halaman Detail Pengguna — aksi header (toggle status, hapus,
+     reset password) SEMUANYA berupa form submit biasa + @csrf/@method;
+     tidak ada fetch mutasi data di halaman ini (epLoadFromNid hanya GET).
+     WAJIB inline di content agar router.js mengeksekusi ulang setelah SPA. --}}
 <script>
-    /* =========================================================
-       RESET PASSWORD \u2014 SweetAlert 2 langkah (pola halaman daftar):
-       Langkah 1: konfirmasi "Reset Password Pengguna?" (nama user
-       di kotak terpisah) \u2192 fetch PATCH reset-password \u2192
-       Langkah 2: "Password Berhasil Direset" dengan password
-       sementara acak + Copy Password + Selesai. Password dibuat &
-       di-hash di SERVER, tidak pernah plaintext di DB/log/email.
-       ========================================================= */
-    (function () {
-        // Binding sekali saja (aman terhadap re-eksekusi router.js).
-        var root = document.documentElement;
-        if (root.dataset.rpSwalBound) return;
-        root.dataset.rpSwalBound = '1';
-
-        var KEY_CIRCLE =
-            '<div class="mb-2"><span style="display:inline-flex;width:64px;height:64px;border-radius:50%;background:#fef3c7;align-items:center;justify-content:center;">' +
-            '<i class="fas fa-key" style="color:#d97706;font-size:1.4rem;"></i></span></div>';
-        var NAMEBOX_CSS =
-            '.swal2-namebox{margin-top:1rem;padding:0.7rem 1rem;border:1px solid #e5e7eb;border-radius:8px;font-weight:600;}' +
-            '.swal2-copy-btn{border:1px solid #e5e7eb !important;border-radius:8px !important;background:#f9fafb !important;color:#374151 !important;padding:0.55rem 1rem;font-weight:600;}' +
-            '.swal2-copy-btn:hover{background:#f3f4f6 !important;}' +
-            '.swal2-done-btn{border-radius:8px !important;background:#d97706 !important;color:#fff !important;padding:0.55rem 1.25rem;font-weight:600;box-shadow:0 1px 2px rgba(217,119,6,.35);}';
-
-        document.addEventListener('click', function (ev) {
-            var btn = ev.target.closest('[data-action="reset-password"]');
-            if (!btn || !window.Swal) return;
-            ev.preventDefault();
-
-            var userId   = btn.getAttribute('data-user-id');
-            var userName = btn.getAttribute('data-user-name');
-            if (!userId) return;
-
-            // \u2014\u2014 Langkah 1: konfirmasi \u2014\u2014
-            Swal.fire({
-                title: 'Reset Password Pengguna?',
-                html: '<style>' + NAMEBOX_CSS + '</style>' + KEY_CIRCLE +
-                    'Password lama pengguna akan <strong style="color:#d97706">dinonaktifkan</strong> dan diganti ' +
-                    '<strong>password sementara acak</strong> yang dibuat otomatis oleh sistem. ' +
-                    'Saat login berikutnya, pengguna <strong>wajib mengganti password</strong> sebelum dapat masuk.' +
-                    '<div id="rpSwalNameBox" class="swal2-namebox"></div>',
-                didOpen: function () {
-                    document.getElementById('rpSwalNameBox').textContent = userName;
-                },
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Reset Password',
-                confirmButtonColor: '#d97706',
-                cancelButtonText: 'Batal',
-                cancelButtonColor: '#6b7280',
-                focusCancel: true,
-                allowOutsideClick: false
-            }).then(function (result) {
-                if (!result.isConfirmed) return;
-
-                Swal.showLoading();
-
-                fetch('/admin/users/' + userId + '/reset-password', {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({})
-                })
-                .then(function (res) {
-                    return res.json().then(function (data) {
-                        if (!res.ok) throw new Error(data.message || 'Terjadi kesalahan server (HTTP ' + res.status + ').');
-                        return data;
-                    });
-                })
-                .then(function (data) {
-                    if (!data.success || !data.temporary_password) {
-                        throw new Error(data.message || 'Gagal melakukan reset password.');
-                    }
-
-                    // \u2014\u2014 Langkah 2: password sementara ditampilkan SEKALI \u2014\u2014
-                    Swal.fire({
-                        title: 'Password Berhasil Direset',
-                        html: KEY_CIRCLE +
-                            'Password sementara untuk <strong id="rpSwalResultName"></strong>. Salin dan sampaikan ' +
-                            'via WhatsApp/lisan \u2014 <strong>tidak dikirim email</strong> dan <strong>hanya ditampilkan sekali ini</strong>.' +
-                            '<div class="text-start mt-3">' +
-                            '<label class="form-label fw-semibold mb-1" for="rpSwalPassword">Password Sementara</label>' +
-                            '<input id="rpSwalPassword" class="form-control" readonly value="" onclick="this.select()">' +
-                            '<p class="text-muted mt-2 mb-0" style="font-size:0.85rem;">Pengguna wajib mengganti password ini saat login berikutnya.</p>' +
-                            '</div>',
-                        didOpen: function () {
-                            document.getElementById('rpSwalResultName').textContent = userName;
-                            document.getElementById('rpSwalPassword').value = data.temporary_password;
-                        },
-                        showDenyButton: true,
-                        showConfirmButton: true,
-                        denyButtonText: 'Copy Password',
-                        denyButtonColor: '#f9fafb',
-                        confirmButtonText: 'Selesai',
-                        confirmButtonColor: '#d97706',
-                        allowOutsideClick: false,
-                        // Copy Password: salin dan BIARKAN popup tetap terbuka.
-                        preDeny: function () {
-                            var input = document.getElementById('rpSwalPassword');
-                            var done = function () {
-                                var b = Swal.getDenyButton();
-                                b.innerHTML = '<i class="fas fa-check" style="color:#16a34a"></i> Tersalin!';
-                                setTimeout(function () {
-                                    b.innerHTML = '<i class="fas fa-copy"></i> Copy Password';
-                                }, 2000);
-                            };
-                            if (navigator.clipboard && navigator.clipboard.writeText) {
-                                navigator.clipboard.writeText(input.value).then(done);
-                            } else {
-                                input.select();
-                                document.execCommand('copy');
-                                done();
-                            }
-                            return false;
-                        }
-                    });
-                })
-                .catch(function (err) {
-                    Swal.hideLoading();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal melakukan reset password',
-                        text: (err && err.message) ? err.message : 'Terjadi kesalahan jaringan.',
-                        confirmButtonText: 'Mengerti',
-                        confirmButtonColor: '#dc2626'
-                    });
-                });
-            });
-        });
-    })();
     /* =========================================================
        EDIT DETAIL KEPEGAWAIAN (modal)
        1. epLoadFromNid — prefill seluruh field form dari MASTER
@@ -1270,81 +1141,160 @@
                 });
             });
     }
-
-@if (isset($errors) && $errors->any())
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var modalEl = document.getElementById('editDetailModal');
-        if (modalEl && window.bootstrap) {
-            new bootstrap.Modal(modalEl).show();
-        }
-    });
 </script>
-@endif
 
 {{-- ============================================================
-     Modal "Password Berhasil Direset" (#successResetModal):
-     dipicu session flash temporaryPassword yang dibawa redirect
-     dari controller setelah submit form "Ya, Reset Password"
-     (tanpa JS). Password hanya tampil SEKALI; session flash
-     otomatis hilang setelah request ini.
+     INISIALISASI MODAL EDIT DETAIL (#editDetailModal)
+     ------------------------------------------------------------
+     Vanilla Bootstrap JS yang bersih — tanpa duplikasi ID atau
+     listener yang menumpuk:
+     - Instance modal dibuat SEKALI (getInstance || new) sehingga
+       aman terhadap re-eksekusi script oleh router.js setelah
+       swap konten SPA (tidak pernah ada dua instance untuk satu
+       elemen).
+     - Berjalan pada event DOMContentLoaded (full load) dan juga
+       langsung dieksekusi ulang saat router.js menaruh konten
+       baru (readyState bukan 'loading') — tombol "Lengkapi Data"
+       / "Edit Detail" SELALU bisa diklik tanpa refresh halaman.
+     - Modal dibuka otomatis HANYA saat validasi server gagal
+       (daftar error dirender ulang di dalam modal).
      ============================================================ --}}
-@if (session('temporaryPassword'))
-<div class="modal fade" id="successResetModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+<script>
+    (function () {
+        function initEditDetailModal() {
+            var modalEl = document.getElementById('editDetailModal');
+            if (!modalEl || !window.bootstrap) return;
+
+            var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
+        @if (isset($errors) && $errors->any())
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initEditDetailModal);
+        } else {
+            // Konten baru hasil swap router.js — langsung inisialisasi.
+            initEditDetailModal();
+        }
+        @endif
+    })();
+</script>
+
+{{-- ============================================================
+     MODAL KONFIRMASI RESET PASSWORD (#resetPasswordModal)
+     ---------------------------------------------------------
+     Dibuka oleh tombol kunci (ikon 🔑) di header kartu melalui
+     data-bs-toggle="modal" data-bs-target="#resetPasswordModal".
+     Tombol "Ya, Reset Password" adalah submit form POST biasa
+     dengan @csrf + @method('PATCH') ke route reset password —
+     tanpa AJAX, sehingga token CSRF selalu ikut terkirim dan
+     tidak berujung "419 Page Expired".
+     ============================================================ --}}
+@if(auth()->user()?->can('user.reset-password') && auth()->id() !== $user->id)
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content text-center" style="padding: 1.75rem 1.5rem;">
-            {{-- Ikon kunci emas di tengah atas --}}
-            <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 64px; height: 64px; border-radius: 50%; background: #fef3c7;">
-                <i class="fas fa-key" style="color: #d97706; font-size: 1.4rem;"></i>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="resetPasswordModalLabel">
+                    <i class="fas fa-key me-2" style="color: #d97706;"></i>Reset Password Pengguna?
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
-            <h5 class="mt-3 mb-1 fw-bold">Password Berhasil Direset</h5>
-            <p class="text-muted mb-3" style="font-size: 0.85rem;">
-                Password sementara untuk <strong>{{ session('temporaryPasswordUserName', '') }}</strong>.
-                Salin dan sampaikan via WhatsApp/lisan — <strong>tidak dikirim email</strong> dan <strong>hanya ditampilkan sekali ini</strong>.
-            </p>
-            {{-- Kotak password sementara --}}
-            <input type="text" id="successResetPassword" class="form-control text-center fw-bold mb-3" readonly value="{{ session('temporaryPassword') }}" onclick="this.select()">
-            <div class="d-flex justify-content-center gap-2">
-                <button type="button" class="btn btn-primary" id="successResetCopyBtn">
-                    <i class="fas fa-copy me-1"></i>Copy Password
-                </button>
-                <button type="button" class="btn px-4" style="background: #f59e0b; color: #fff;" data-bs-dismiss="modal">
-                    Selesai
-                </button>
+            <div class="modal-body text-center">
+                <span class="p-3 bg-warning-subtle rounded-circle text-warning fs-3 d-inline-block mb-3">🔑</span>
+                <p class="text-muted small mb-2">
+                    Password lama <b>{{ $user->name }}</b> (<b>{{ $user->email }}</b>) akan dinonaktifkan
+                    dan diganti <b>password sementara acak</b> yang dibuat sistem. Saat login berikutnya,
+                    pengguna <b>wajib mengganti password</b> tersebut sebelum dapat masuk.
+                </p>
+                <div class="alert alert-light border mb-0 small">
+                    Password sementara hanya ditampilkan <b>sekali</b> setelah reset —
+                    sampaikan via WhatsApp/lisan, <b>tidak dikirim email</b>.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Batal</button>
+                {{-- Form POST biasa: @csrf mencegah 419 Page Expired; @method('PATCH')
+                     dipakai karena route admin.users.reset-password didefinisikan PATCH. --}}
+                <form action="{{ route('admin.users.reset-password', $user) }}" method="POST" class="d-inline mb-0">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="btn btn-warning text-white">
+                        <i class="fas fa-key me-1"></i>Ya, Reset Password
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-<script>
-    // Auto-open modal hasil reset begitu halaman dimuat
-    // (dipicu session temporaryPassword dari redirect).
-    document.addEventListener('DOMContentLoaded', function () {
-        var modalEl = document.getElementById('successResetModal');
-        if (modalEl && window.bootstrap) {
-            new bootstrap.Modal(modalEl).show();
-        }
+@endif
 
-        // Fungsi Copy Password → clipboard (dengan fallback).
-        var copyBtn = document.getElementById('successResetCopyBtn');
-        if (copyBtn) {
-            copyBtn.addEventListener('click', function () {
-                var input = document.getElementById('successResetPassword');
-                var done = function () {
-                    copyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Tersalin!';
-                    setTimeout(function () {
-                        copyBtn.innerHTML = '<i class="fas fa-copy me-1"></i>Copy Password';
-                    }, 2000);
-                };
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(input.value).then(done);
-                } else {
-                    input.select();
-                    document.execCommand('copy');
-                    done();
+{{-- ============================================================
+     MODAL HASIL RESET (#successResetModal) — modal KEDUA
+     ---------------------------------------------------------
+     Muncul OTOMATIS saat session flash temporaryPassword ada
+     (dibawa redirect dari controller setelah submit form
+     "Ya, Reset Password"). Dirender langsung dengan
+     style="display: block" sehingga tampil tanpa perlu JavaScript.
+     Password hanya tampil SEKALI; session flash hilang setelah
+     request ini.
+     ============================================================ --}}
+@if(session('temporaryPassword'))
+<div class="modal fade show" id="successResetModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4 text-center">
+            <div class="mb-3">
+                <span class="p-3 bg-warning-subtle rounded-circle text-warning fs-3">🔑</span>
+            </div>
+            <h4 class="fw-bold mb-2">Password Berhasil Direset</h4>
+            <p class="text-muted small mb-3">
+                Password sementara untuk <b>{{ $user->name }}</b>. Salin dan sampaikan via WhatsApp/lisan — tidak dikirim email dan hanya ditampilkan sekali ini.
+            </p>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control text-center fw-bold text-dark bg-light" id="tempPasswordInput" value="{{ session('temporaryPassword') }}" readonly>
+                <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('tempPasswordInput').value); alert('Password disalin!');">Copy</button>
+            </div>
+            <button type="button" class="btn btn-warning text-white w-100" onclick="document.getElementById('successResetModal').style.display='none'">Selesai</button>
+        </div>
+    </div>
+</div>
+<script>
+    /* Fallback tombol Copy — navigator.clipboard hanya tersedia pada
+       konteks secure (https / localhost). Pada http murni properti ini
+       tidak ada sehingga onclick tombol Copy melempar TypeError; sediakan
+       implementasi setara berbasis document.execCommand('copy') agar
+       tetap berfungsi. Idempoten — aman dijalankan ulang oleh router.js. */
+    (function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) return;
+
+        try {
+            Object.defineProperty(navigator, 'clipboard', {
+                configurable: true,
+                value: {
+                    writeText: function (text) {
+                        return new Promise(function (resolve, reject) {
+                            var input = document.getElementById('tempPasswordInput');
+                            if (!input) {
+                                reject(new Error('Kolom password sementara tidak ditemukan.'));
+                                return;
+                            }
+
+                            input.focus();
+                            input.select();
+
+                            try {
+                                document.execCommand('copy') ? resolve(text) : reject(new Error('Browser menolak perintah salin.'));
+                            } catch (e) {
+                                reject(e);
+                            }
+                        });
+                    }
                 }
             });
+        } catch (e) {
+            /* Browser menolak penambahan properti — biarkan perilaku bawaan. */
         }
-    });
+    })();
 </script>
 @endif
 @endsection

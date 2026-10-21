@@ -809,13 +809,18 @@
                 }, 2000);
             };
 
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(input.value).then(done);
-            } else {
-                // Fallback browser lama / konteks non-secure.
+            var legacyCopy = function () {
+                // Fallback browser lama / konteks non-secure (http).
                 input.select();
                 document.execCommand('copy');
                 done();
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                // .catch(): permission ditolak / konteks non-secure →
+                // jatuh ke fallback legacy, tanpa error tak tertangani.
+                navigator.clipboard.writeText(input.value).then(done).catch(legacyCopy);
+            } else {
+                legacyCopy();
             }
         };
 

@@ -592,11 +592,13 @@ class UserController extends Controller
         // Password sementara dibuat SISTEM — acak & aman (Str::random
         // memakai CSPRNG, alfabet A-Z a-z 0-9), 10 karakter: cukup kuat
         // namun tetap praktis disampaikan via WhatsApp/lisan.
-        $temporaryPassword = \Illuminate\Support\Str::random(10);
+        $plainPassword = \Illuminate\Support\Str::random(10);
 
-        // Cast 'hashed' pada model User otomatis meng-hash nilai ini.
+        // Simpan TERENKRIPSI (bcrypt via Hash::make) — plaintext tidak
+        // pernah masuk database. Cast 'hashed' pada model User
+        // mempertahankan hash ini (tidak di-hash dua kali).
         $user->forceFill([
-            'password'             => $temporaryPassword,
+            'password'             => \Illuminate\Support\Facades\Hash::make($plainPassword),
             'must_change_password' => true,
             'remember_token'       => \Illuminate\Support\Str::random(60),
         ])->save();
@@ -624,18 +626,17 @@ class UserController extends Controller
             return response()->json([
                 'success'            => true,
                 'message'            => $message,
-                'temporary_password' => $temporaryPassword,
+                'temporary_password' => $plainPassword,
             ]);
         }
 
         // Submit form biasa (tanpa JS): kembali ke halaman Detail Pengguna
-        // dan bawa password sementara via session flash — view akan
-        // membuka modal "Password Berhasil Direset" otomatis dari
-        // data session ini.
+        // dan bawa password sementara (PLAINTEXT — hanya untuk ditampilkan
+        // SEKALI di modal hasil reset) lewat session flash; view langsung
+        // membuka modal #successResetModal otomatis dari data flash ini.
         return redirect()->back()
             ->with('success_reset', 'Password berhasil direset')
-            ->with('temporaryPassword', $temporaryPassword)
-            ->with('temporaryPasswordUserName', $user->name);
+            ->with('temporaryPassword', $plainPassword);
     }
 
     public function destroy(User $user)
