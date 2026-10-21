@@ -537,6 +537,44 @@
         margin: 0.02rem 0.08rem;
     }
 
+    /* ---- KOTAK PENCARIAN DI DALAM DROPDOWN (Divisi & Jabatan) ----
+       Sticky di atas daftar opsi; mengetik memfilter opsi secara
+       live tanpa menutup dropdown. */
+    .dd-search-wrap {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: #fff;
+        padding: 0.3rem 0.5rem;
+        border-bottom: 1px solid var(--pg-line);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .dd-search-wrap > i {
+        color: #94a3b8;
+        font-size: 0.7rem;
+        flex-shrink: 0;
+    }
+    .dd-search-input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        outline: none;
+        background: transparent;
+        font: inherit;
+        font-size: 0.78rem;
+        color: #1e293b;
+        padding: 0.15rem 0;
+    }
+    .dd-search-input::placeholder { color: #94a3b8; }
+    .dd-search-empty {
+        padding: 0.4rem 0.65rem;
+        color: #94a3b8;
+        font-style: italic;
+        font-size: 0.75rem;
+    }
+
     /* Opsi non-aktif (mis. jam istirahat) — netral, bukan merah */
     select.pln-input option:disabled {
         color: #94a3b8 !important;
@@ -1161,12 +1199,20 @@
                                    aria-haspopup="listbox">
                             <i class="fas fa-chevron-down dropdown-arrow"></i>
                             <div id="divisi-dropdown" class="custom-dropdown-menu custom-scroll-menu" role="listbox" style="display: none;">
+                                {{-- Kotak pencarian — memfilter opsi bidang secara live. --}}
+                                <div class="dd-search-wrap">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" class="dd-search-input" id="divisi-search"
+                                           placeholder="Ketik untuk mencari bidang..."
+                                           autocomplete="off" aria-label="Cari bidang">
+                                </div>
                                 {{-- Opsi bidang dinamis dari MASTER bidangs —
                                      partial juga dipakai modal Tambah/Edit admin
                                      & portal karyawan agar nilainya selalu sinkron. --}}
                                 <div class="dropdown-options custom-scroll-content" id="divisi-options">
                                     @include('admin.tamu._divisi-options')
                                 </div>
+                                <div class="dd-search-empty" id="divisi-search-empty" style="display: none;">Tidak ada bidang yang cocok.</div>
                             </div>
                         </div>
                         <input type="hidden" name="tujuan_ditemui" id="tujuan_ditemui" value="{{ old('tujuan_ditemui', '') }}">
@@ -1191,6 +1237,14 @@
                                    aria-haspopup="listbox">
                             <i class="fas fa-chevron-down dropdown-arrow"></i>
                             <div id="jabatan-dropdown" class="custom-dropdown-menu custom-scroll-menu" role="listbox" style="display: none;">
+                                {{-- Kotak pencarian — memfilter opsi jabatan live,
+                                     dikombinasikan dengan filter bidang terpilih. --}}
+                                <div class="dd-search-wrap">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" class="dd-search-input" id="jabatan-search"
+                                           placeholder="Ketik untuk mencari jabatan..."
+                                           autocomplete="off" aria-label="Cari jabatan">
+                                </div>
                                 <div class="dropdown-options custom-scroll-content" id="jabatan-options">
                                     @include('admin.tamu._jabatan-options')
                                 </div>
@@ -1202,21 +1256,57 @@
                         @enderror
                     </div>
 
-                    {{-- Orang yang Ditemui — teks bebas, OPSIONAL, ikut dikirim
-                         (nama orang yang ditemui di bidang tujuan). --}}
+                    {{-- Orang yang Ditemui — CUSTOM DROPDOWN dengan pencarian
+                         (pola sama dengan dropdown Divisi & Jabatan di atas).
+                         Daftar opsi diambil dari TABEL USERS (akun terverifikasi).
+                         Input TIDAK readonly: mengetik = memfilter opsi (search)
+                         dan isian bebas di luar daftar tetap diperbolehkan
+                         (field opsional, teks bebas). --}}
                     <div>
                         <label for="orang_ditemui" class="pln-label" data-i18n="form.label_orang">
                             Orang yang Ditemui
                         </label>
-                        <div class="pln-input-icon">
+                        <div class="pln-input-icon" style="position: relative;">
                             <i class="fas fa-user-tie"></i>
                             <input type="text" id="orang_ditemui" name="orang_ditemui"
                                    value="{{ old('orang_ditemui', '') }}"
-                                   placeholder="Nama orang yang ditemui"
-                                   data-i18n-placeholder="form.ph_orang"
+                                   placeholder="— Pilih Pengguna / Ketik untuk mencari —"
                                    autocomplete="off"
-                                   class="pln-input @error('orang_ditemui') has-error @enderror" />
+                                   aria-haspopup="listbox"
+                                   aria-expanded="false"
+                                   class="pln-input custom-dropdown-input @error('orang_ditemui') has-error @enderror" />
+                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            <div id="orang-dropdown" class="custom-dropdown-menu custom-scroll-menu" role="listbox" style="display: none;">
+                                <div class="dropdown-options custom-scroll-content" id="orang-options">
+                                    @php
+                                        $orangUsers = App\Models\User::whereNotNull('email_verified_at')
+                                            ->orderBy('name')
+                                            ->take(30)
+                                            ->get();
+                                    @endphp
+                                    @foreach ($orangUsers as $orangUser)
+                                    <div class="dropdown-option orang-option"
+                                         data-value="{{ $orangUser->name }}"
+                                         data-search="{{ strtolower($orangUser->name . ' ' . $orangUser->email) }}">
+                                        <div style="min-width: 0;">
+                                            <div style="font-weight: 600;">{{ $orangUser->name }}</div>
+                                            <div style="font-size: 0.66rem; color: #94a3b8;">{{ $orangUser->email }}</div>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                    <div class="dropdown-placeholder orang-empty" style="display: none;">
+                                        Tidak ada nama yang cocok — teks yang Anda ketik tetap akan digunakan.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        <p class="pln-hint" style="margin: 0.25rem 0 0;">
+                            Ketik untuk mencari nama pengguna, atau klik untuk memilih dari daftar.
+                            Boleh juga mengetik nama lain di luar daftar.
+                        </p>
+                        @error('orang_ditemui')
+                            <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
+                        @enderror
                     </div>
 
                     {{-- Tanggal & Jam Kunjungan + Jumlah Tamu --}}
@@ -1691,6 +1781,74 @@
             console.log('[Divisi] Inisialisasi selesai');
         })();
 
+        /* ===== PENCARIAN DI DROPDOWN DIVISI =====
+           Kotak pencarian (#divisi-search) memfilter opsi bidang
+           secara live. Judul grup (optgroup) ikut disembunyikan
+           bila semua opsi di bawahnya tersaring. Pencarian di-reset
+           setiap dropdown dibuka. */
+        (function () {
+            var searchInput = document.getElementById('divisi-search');
+            var displayInput = document.getElementById('tujuan_ditemui_display');
+            var menu = document.getElementById('divisi-dropdown');
+            var optionsContainer = document.getElementById('divisi-options');
+            var emptyState = document.getElementById('divisi-search-empty');
+
+            if (!searchInput || !menu || !optionsContainer) {
+                console.error('[DivisiSearch] Elemen tidak ditemukan');
+                return;
+            }
+
+            function applyDivisiFilter() {
+                var q = searchInput.value.trim().toLowerCase();
+                var visible = 0;
+
+                optionsContainer.querySelectorAll('.dropdown-option').forEach(function (opt) {
+                    /* Placeholder "— Pilih Bidang —" (data-value="") ikut
+                       disembunyikan saat pencarian aktif. */
+                    var teks = (opt.getAttribute('data-value') || opt.textContent || '').toLowerCase();
+                    var show = q === '' || teks.indexOf(q) !== -1;
+                    opt.style.display = show ? '' : 'none';
+                    if (show && opt.getAttribute('data-value') !== '') visible++;
+                });
+
+                /* Sembunyikan judul grup yang tidak punya opsi tampil. */
+                optionsContainer.querySelectorAll('.dropdown-optgroup').forEach(function (grp) {
+                    var el = grp.nextElementSibling;
+                    var adaTampil = false;
+                    while (el && !el.classList.contains('dropdown-optgroup')) {
+                        if (el.classList.contains('dropdown-option') && el.style.display !== 'none') {
+                            adaTampil = true;
+                            break;
+                        }
+                        el = el.nextElementSibling;
+                    }
+                    grp.style.display = adaTampil ? '' : 'none';
+                });
+
+                if (emptyState) emptyState.style.display = visible === 0 ? '' : 'none';
+            }
+
+            function resetDivisiSearch() {
+                searchInput.value = '';
+                applyDivisiFilter();
+            }
+
+            searchInput.addEventListener('click', function (e) { e.stopPropagation(); });
+            searchInput.addEventListener('input', applyDivisiFilter);
+            searchInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    e.stopPropagation();
+                    if (searchInput.value !== '') resetDivisiSearch();
+                    else { menu.style.display = 'none'; if (displayInput) displayInput.blur(); }
+                }
+            });
+
+            /* Reset pencarian setiap dropdown dibuka. */
+            if (displayInput) displayInput.addEventListener('click', function () { resetDivisiSearch(); });
+
+            console.log('[DivisiSearch] Inisialisasi selesai');
+        })();
+
         /* ===== DROPDOWN JABATAN (BERTINGKAT) =====
            Opsi jabatan diambil dari MASTER jabatans dan difilter
            mengikuti bidang yang dipilih pada dropdown "Bidang yang
@@ -1701,6 +1859,7 @@
             var jabatanDisplay = document.getElementById('jabatan_ditemui_display');
             var jabatanHidden = document.getElementById('jabatan_ditemui');
             var divisiHidden = document.getElementById('tujuan_ditemui');
+            var jabatanSearch = document.getElementById('jabatan-search');
             var jWrapper = jabatanDisplay && jabatanDisplay.closest ? jabatanDisplay.closest('.pln-input-icon') : null;
             var jabatanMenu = jWrapper && jWrapper.querySelector ? jWrapper.querySelector('#jabatan-dropdown') : null;
             var jabatanOptionsContainer = jWrapper && jWrapper.querySelector ? jWrapper.querySelector('#jabatan-options') : null;
@@ -1747,25 +1906,66 @@
             });
 
             /* Filter opsi jabatan sesuai bidang terpilih (string,
-               bukan id, agar data lama & partial admin tetap serasi). */
+               bukan id, agar data lama & partial admin tetap serasi).
+               PENCARIAN (#jabatan-search) digabungkan: opsi tampil
+               bila cocok bidang DAN cocok dengan teks pencarian. */
             function filterJabatanOpsi(divisiNama) {
+                var q = jabatanSearch ? jabatanSearch.value.trim().toLowerCase() : '';
                 var adaCocok = false;
 
                 jabatanOptionsContainer.querySelectorAll('.dropdown-option').forEach(function (o) {
                     if (o.classList.contains('dropdown-jabatan-placeholder')) return;
 
-                    var cocok = divisiNama !== '' && o.getAttribute('data-bidang') === divisiNama;
-                    o.style.display = cocok ? '' : 'none';
-                    if (cocok) adaCocok = true;
+                    var cocokBidang = divisiNama !== '' && o.getAttribute('data-bidang') === divisiNama;
+                    var teks = (o.getAttribute('data-value') || o.textContent || '').toLowerCase();
+                    var cocokCari = q === '' || teks.indexOf(q) !== -1;
+                    var tampil = cocokBidang && cocokCari;
+
+                    o.style.display = tampil ? '' : 'none';
+                    if (tampil) adaCocok = true;
                 });
 
                 var placeholder = jabatanOptionsContainer.querySelector('.dropdown-jabatan-placeholder');
                 if (placeholder) {
-                    placeholder.style.display = adaCocok ? 'none' : '';
-                    placeholder.textContent = divisiNama === ''
-                        ? '— Pilih bidang terlebih dahulu —'
-                        : 'Belum ada jabatan pada bidang ini';
+                    if (divisiNama === '') {
+                        placeholder.style.display = '';
+                        placeholder.textContent = '— Pilih bidang terlebih dahulu —';
+                    } else if (!adaCocok) {
+                        placeholder.style.display = '';
+                        placeholder.textContent = q !== ''
+                            ? 'Tidak ada jabatan yang cocok dengan pencarian'
+                            : 'Belum ada jabatan pada bidang ini';
+                    } else {
+                        placeholder.style.display = 'none';
+                    }
                 }
+            }
+
+            /* ===== PENCARIAN JABATAN (LIVE) ===== */
+            if (jabatanSearch) {
+                jabatanSearch.addEventListener('click', function (e) { e.stopPropagation(); });
+
+                jabatanSearch.addEventListener('input', function () {
+                    filterJabatanOpsi(divisiHidden.value.trim());
+                });
+
+                jabatanSearch.addEventListener('keydown', function (e) {
+                    if (e.key !== 'Escape') return;
+                    e.stopPropagation();
+                    if (jabatanSearch.value !== '') {
+                        jabatanSearch.value = '';
+                        filterJabatanOpsi(divisiHidden.value.trim());
+                    } else {
+                        jClose();
+                        jabatanDisplay.blur();
+                    }
+                });
+
+                /* Reset pencarian setiap dropdown jabatan dibuka. */
+                jabatanDisplay.addEventListener('click', function () {
+                    jabatanSearch.value = '';
+                    filterJabatanOpsi(divisiHidden.value.trim());
+                });
             }
 
             /* Bersihkan pilihan jabatan yang tidak cocok dengan bidang baru. */
@@ -1820,6 +2020,101 @@
             })();
 
             console.log('[Jabatan] Inisialisasi selesai');
+        })();
+
+        /* ===== DROPDOWN ORANG DITEMUI (DENGAN PENCARIAN) =====
+           Pola sama dengan dropdown Divisi/Jabatan, tetapi input
+           TIDAK readonly sehingga FITUR SEARCH tetap berfungsi:
+           - mengetik  → memfilter opsi nama pengguna secara live;
+           - klik opsi → mengisi input dengan nama terpilih;
+           - mengetik di luar daftar → tetap diperbolehkan (field
+             opsional, teks bebas).
+           Opsi diambil dari TABEL USERS (akun terverifikasi). */
+        (function () {
+            var orangInput = document.getElementById('orang_ditemui');
+            var oWrapper = orangInput && orangInput.closest ? orangInput.closest('.pln-input-icon') : null;
+            var orangMenu = oWrapper && oWrapper.querySelector ? oWrapper.querySelector('#orang-dropdown') : null;
+            var orangOptionsContainer = oWrapper && oWrapper.querySelector ? oWrapper.querySelector('#orang-options') : null;
+
+            if (!orangInput || !orangMenu || !orangOptionsContainer) {
+                console.error('[OrangDitemui] Elemen tidak ditemukan');
+                return;
+            }
+
+            var oIsOpen = false;
+            var orangOptionList = Array.prototype.slice.call(
+                orangOptionsContainer.querySelectorAll('.dropdown-option')
+            );
+            var orangEmptyState = orangOptionsContainer.querySelector('.orang-empty');
+
+            function oToggle() {
+                oIsOpen = !oIsOpen;
+                orangMenu.style.display = oIsOpen ? 'block' : 'none';
+                orangInput.setAttribute('aria-expanded', oIsOpen ? 'true' : 'false');
+                if (orangInput.parentElement) orangInput.parentElement.classList.toggle('dropdown-open', oIsOpen);
+                if (oIsOpen) oFilter();
+            }
+
+            function oClose() {
+                oIsOpen = false;
+                orangMenu.style.display = 'none';
+                orangInput.setAttribute('aria-expanded', 'false');
+                if (orangInput.parentElement) orangInput.parentElement.classList.remove('dropdown-open');
+            }
+
+            function oSelect(opt) {
+                orangOptionList.forEach(function (o) { o.classList.remove('selected'); });
+                opt.classList.add('selected');
+                orangInput.value = opt.getAttribute('data-value') || opt.textContent.trim();
+                oClose();
+                orangInput.focus();
+            }
+
+            /* FITUR SEARCH — filter opsi berdasarkan nama ATAU email. */
+            function oFilter() {
+                var q = orangInput.value.trim().toLowerCase();
+                var visible = 0;
+
+                orangOptionList.forEach(function (opt) {
+                    var hay = opt.getAttribute('data-search') || opt.textContent.toLowerCase();
+                    var show = !q || hay.indexOf(q) !== -1;
+                    opt.style.display = show ? '' : 'none';
+                    if (show) visible++;
+                });
+
+                if (orangEmptyState) {
+                    orangEmptyState.style.display = visible === 0 ? '' : 'none';
+                }
+            }
+
+            /* Buka dropdown saat fokus/klik, filter saat mengetik. */
+            orangInput.addEventListener('focus', function () { if (!oIsOpen) oToggle(); });
+            orangInput.addEventListener('click', function (e) { e.stopPropagation(); if (!oIsOpen) oToggle(); });
+            orangInput.addEventListener('input', function () {
+                if (!oIsOpen) oToggle();
+                else oFilter();
+            });
+
+            orangOptionsContainer.addEventListener('click', function (e) {
+                var opt = e.target.closest('.dropdown-option');
+                if (opt) oSelect(opt);
+            });
+
+            document.addEventListener('click', function (e) { if (!oWrapper.contains(e.target)) oClose(); });
+            orangInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') { oClose(); orangInput.blur(); }
+            });
+
+            /* Restore nilai lama (old()/edit): tandai opsi yang cocok. */
+            var orangInitVal = orangInput.value.trim();
+            if (orangInitVal) {
+                var orangMatch = orangOptionList.filter(function (o) {
+                    return o.getAttribute('data-value') === orangInitVal;
+                })[0];
+                if (orangMatch) orangMatch.classList.add('selected');
+            }
+
+            console.log('[OrangDitemui] Inisialisasi selesai');
         })();
 
         /* ===== TANGGAL KUNJUNGAN: blokir tanggal yang sudah lewat ===== */
