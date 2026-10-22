@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\EmployeeProfile;
 use App\Models\Karyawan;
 use App\Models\User;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 /**
  * DATA KEPEGAWAIAN AKUN PENGGUNA (tabel employee_profiles).
@@ -34,7 +36,18 @@ class EmployeeProfileController extends Controller
     {
         Gate::authorize('users.edit:self', $user);
 
-        $validated = $this->validated($request);
+        $validated = $this->validated($request, $user->employeeProfile?->id);
+
+        // =========================================================
+        // SINKRON NAMA AKUN UTAMA — name di tabel users ikut diperbarui
+        // dari NAMA yang diisi/ditarik dari master Data Karyawan, agar
+        // identitas akun tampil konsisten di seluruh aplikasi.
+        // NAMA kosong di form → fallback nama akun tetap (lihat di
+        // bawah), jadi baris ini hanya berlaku bila NAMA terisi.
+        // =========================================================
+        if (! empty($validated['nama'])) {
+            $user->update(['name' => $validated['nama']]);
+        }
 
         // NAMA kosong → sementara fallback ke nama akun, agar kartu
         // data kepegawaian tidak pernah tanpa nama.
@@ -80,7 +93,29 @@ class EmployeeProfileController extends Controller
 
         $validated = $request->validate([
             'nid' => ['required', 'string', 'max:30'],
+            'user_id' => ['nullable', 'integer', 'min:1'],
         ]);
+
+        // =========================================================
+        // VALIDASI NID UNIK — 1 NID hanya boleh terikat ke 1 akun
+        // pengguna. Bila NID ini sudah tersimpan di employee_profiles
+        // milik akun LAIN, tolak penarikan data master dengan 422 agar
+        // form tidak terisi otomatis oleh data milik akun lain.
+        // Target akun dikirim dari modal sebagai parameter user_id;
+        // tanpa parameter bermakna itu, fallback ke akun yang sedang
+        // login (pemilik profil yang sedang diedit).
+        // =========================================================
+        $targetUserId = (int) ($validated['user_id'] ?? auth()->id()) ?: auth()->id();
+        $isNidTaken = EmployeeProfile::where('nid', $validated['nid'])
+            ->when($targetUserId, fn ($query) => $query->where('user_id', '!=', $targetUserId))
+            ->exists();
+
+        if ($isNidTaken) {
+            return response()->json([
+                'success' => false,
+                'message' => 'NID (' . $validated['nid'] . ') sudah digunakan oleh akun pengguna lain!',
+            ], 422);
+        }
 
         $karyawan = Karyawan::where('nid', $validated['nid'])->first();
 
@@ -125,15 +160,23 @@ class EmployeeProfileController extends Controller
     /**
      * Rules validasi — tipe & lebar mengikuti kolom tabel karyawans;
      * semuanya nullable agar data kepegawaian boleh diisi bertahap.
+     * NID wajib UNIK antar akun (1 NID untuk 1 akun pengguna): bila
+     * profil kepegawaian sudah ada (mode update), baris itu sendiri
+     * dikecualikan lewat ignore($profileId).
      */
-    private static function rules(): array
+    private static function rules(?int $profileId = null): array
     {
         $dates = collect(Karyawan::DATE_COLUMNS)
             ->mapWithKeys(fn ($column) => [$column => ['nullable', 'date']])
             ->all();
 
         return array_merge([
-            'nid' => ['nullable', 'string', 'max:30'],
+            'nid' => [
+                'nullable',
+                'string',
+                'max:30',
+                Rule::unique('employee_profiles', 'nid')->ignore($profileId),
+            ],
             'nama' => ['nullable', 'string', 'max:150'],
 
             'unit' => ['nullable', 'string', 'max:100'],
@@ -163,8 +206,10 @@ class EmployeeProfileController extends Controller
         return Karyawan::COLUMNS_LABELS;
     }
 
-    private function validated(Request $request): array
+    private function validated(Request $request, ?int $profileId = null): array
     {
-        return $request->validate(static::rules(), [], static::attributes());
+        return $request->validate(static::rules($profileId), [
+            'nid.unique' => 'NID ini sudah terhubung dengan akun lain dan tidak bisa digunakan kembali.',
+        ], static::attributes());
     }
 }

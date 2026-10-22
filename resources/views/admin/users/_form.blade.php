@@ -59,13 +59,18 @@
     )));
 
     // Tujuan tombol Kembali / Batal
-    // - Bagi Super Admin / Admin utama: kembali ke tabel pengguna.
-    // - Bagi Admin Bidang / Non-Super Admin yang edit profil sendiri:
+    // - Edit akun yang ada: kembali ke DETAIL pengguna yang bersangkutan
+    //   (admin.users.show) — halaman Edit dibuka dari halaman detail.
+    // - Super Admin / Admin utama pada mode Tambah Akun: kembali ke daftar.
+    // - Admin Bidang / Non-Super Admin yang edit profil sendiri:
     //   kembali ke profil mereka (admin.users.show).
-    if ($actorIsSuperUser) {
+    if ($isEdit && $user?->id) {
+        $backUrl   = route('admin.users.show', $user);
+        $cancelUrl = $backUrl;
+    } elseif ($actorIsSuperUser) {
         $backUrl   = route('admin.users.index');
         $cancelUrl = $backUrl;
-    } elseif ($isEdit && $user?->id === $actor?->id) {
+    } elseif ($user?->id === $actor?->id) {
         $backUrl   = route('admin.users.show', $user);
         $cancelUrl = $backUrl;
     } else {

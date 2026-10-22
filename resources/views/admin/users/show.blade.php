@@ -460,6 +460,164 @@
     html.theme-dark .ep-btn-cancel { background: var(--panel-2, #25303e); color: var(--ink-muted, #cbd5e1); border-color: var(--line, #374151); }
     html.theme-dark .ep-btn-cancel:hover { background: var(--panel, #31404f); color: var(--ink-heading, #f8fafc); }
     html.theme-dark .ep-modal-dialog .modal-content { background: var(--bg-card, #1e293b); }
+
+    /* =========================================================
+       MODAL RESET PASSWORD (#resetPasswordModal & #successResetModal)
+       ---------------------------------------------------------
+       Prefiks rp- : sudut membulat 16px, bayangan lembut agar
+       terasa melayang, header/footer BORDERLESS (tanpa garis
+       pembatas kaku), spacing longgar, ikon kunci dalam
+       lingkaran kuning lunak, tombol pill dengan hover halus,
+       dan kotak password sementara yang menyatu rapi dengan
+       tombol Copy.
+       ========================================================= */
+    .rp-modal-content {
+        border: none;                /* borderless — tanpa garis kaku */
+        border-radius: 16px;         /* sudut membulat & halus */
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18); /* melayang elegan */
+        overflow: hidden;            /* rapi memotong sudut konten */
+    }
+    .rp-header {
+        border-bottom: 1px solid transparent;   /* garis tipis transparan */
+        padding: 1.25rem 1.75rem 0.5rem;
+    }
+    .rp-title {
+        font-weight: 700;
+        font-size: 1.02rem;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .rp-body {
+        padding: 0.75rem 1.9rem 1.35rem;   /* padding longgar, tidak sesak */
+        text-align: center;
+    }
+    .rp-footer {
+        border-top: 1px solid transparent;   /* borderless — tanpa garis pembatas kaku */
+        padding: 0.35rem 1.5rem 1.1rem;
+        gap: 0.6rem;
+        flex-wrap: nowrap;
+    }
+    .rp-text {
+        line-height: 1.75;              /* kerapatan teks nyaman dibaca */
+        font-size: 0.87rem;
+        color: #6b7280;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 42ch;
+    }
+    .rp-icon-circle {
+        width: 66px;
+        height: 66px;
+        border-radius: 50%;
+        background: rgba(245, 158, 11, 0.12);   /* lingkaran kuning lunak */
+        color: #d97706;
+        font-size: 1.45rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 18px rgba(245, 158, 11, 0.18);
+        margin-bottom: 1rem;
+    }
+    .rp-note {
+        font-size: 0.82rem;
+        color: #78716c;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 10px;
+        padding: 0.6rem 0.8rem;
+        line-height: 1.7;
+        text-align: left;
+    }
+    /* Tombol pill dengan hover lembut */
+    .rp-btn {
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 0.55rem 1.3rem;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        transition: all 0.18s ease;
+    }
+    .rp-btn:active { transform: translateY(1px); }
+    .rp-btn-cancel {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+    .rp-btn-cancel:hover {
+        background: #e2e8f0;
+        color: #334155;
+    }
+    .rp-btn-confirm {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(217, 119, 6, 0.28);
+    }
+    .rp-btn-confirm:hover {
+        filter: brightness(1.06);
+        box-shadow: 0 10px 22px rgba(217, 119, 6, 0.34);
+    }
+    /* Kotak password sementara + tombol Copy menyatu (input-group rapi) */
+    .rp-pass-group {
+        max-width: 320px;
+    }
+    .rp-pass-group .form-control {
+        border-radius: 12px 0 0 12px;
+        border: 1px solid #e2e8f0;
+        border-right: 0;
+        background: #f8fafc;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        font-size: 0.95rem;
+        color: #1f2937;
+    }
+    .rp-pass-group .form-control:focus {
+        background: #f8fafc;
+    }
+    .rp-copy-btn {
+        background: #f59e0b;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 0 12px 12px 0;
+        padding-inline: 1.1rem;
+        transition: all 0.18s ease;
+    }
+    .rp-copy-btn:hover,
+    .rp-copy-btn:focus {
+        filter: brightness(1.06);
+        color: #fff;
+    }
+
+    /* Varian gelap mengikuti tema panel admin */
+    html.theme-dark .rp-modal-content { background: var(--bg-card, #1e293b); }
+    html.theme-dark .rp-title { color: var(--ink-heading, #f9fafb); }
+    html.theme-dark .rp-icon-circle { background: rgba(245, 158, 11, 0.16); }
+    html.theme-dark .rp-text { color: var(--ink-muted, #9ca3af); }
+    html.theme-dark .rp-note {
+        background: rgba(245, 158, 11, 0.08);
+        border-color: rgba(245, 158, 11, 0.3);
+        color: var(--ink-muted, #cbd5e1);
+    }
+    html.theme-dark .rp-btn-cancel {
+        background: var(--panel-2, #25303e);
+        color: var(--ink-muted, #cbd5e1);
+        border-color: var(--line, #374151);
+    }
+    html.theme-dark .rp-btn-cancel:hover {
+        background: var(--panel, #31404f);
+        color: var(--ink-heading, #f8fafc);
+    }
+    html.theme-dark .rp-pass-group .form-control {
+        background: var(--panel-2, #25303e);
+        border-color: var(--line, #374151);
+        color: var(--ink-heading, #f9fafb);
+    }
 </style>
 @endpush
 
@@ -674,8 +832,8 @@
     // FALLBACK CERDAS DARI DATA AKUN — saat profil kepegawaian belum
     // diisi, modal tetap terisi otomatis dari data akun (users):
     // NAMA <- users.name, HP <- users.no_hp, EMAIL <- users.email.
-    // Data akun TIDAK pernah diubah oleh form ini ( hanya tabel
-    // employee_profiles yang disimpan).
+    // Catatan: saat form DISIMPAN, nama akun utama (users.name) ikut
+    // disinkronkan dengan NAMA di data kepegawaian (lihat controller).
     $epPrefill['nama'] = $epPrefill['nama'] ?: $user->name;
     $epPrefill['hp'] = $epPrefill['hp'] ?: $user->no_hp;
     $epPrefill['email'] = $epPrefill['email'] ?: $user->email;
@@ -869,6 +1027,10 @@
                 <form action="{{ route('admin.users.kepegawaian.update', $user) }}" method="POST" id="epForm">
                     @csrf
                     @method('PUT')
+                    {{-- Alert error AJAX "Muat Data dari NID" (mis. NID sudah
+                         dipakai akun lain) — tersembunyi secara default dan
+                         diisi/tampilkan oleh epShowModalError(). --}}
+                    <div id="epModalAlert" class="ep-modal-alert" style="display: none;" role="alert"></div>
                     @if (isset($errors) && $errors->any())
                         <div class="ep-modal-alert">
                             <i class="fas fa-circle-exclamation me-1"></i>Periksa kembali isian berikut:
@@ -901,7 +1063,7 @@
                             <div class="col-md-8">
                                 <label class="ep-form-label" for="ep_nama">NAMA</label>
                                 <input type="text" id="ep_nama" name="nama" value="{{ old('nama', $epPrefill['nama'] ?? '') }}" class="form-control form-control-sm" maxlength="150">
-                                <small style="font-size: 0.7rem; color: #9ca3af;">Awal otomatis dari nama akun — perubahan di sini hanya menyimpan ke data kepegawaian, bukan nama akun.</small>
+                                <small style="font-size: 0.7rem; color: #9ca3af;">Nama di sini ikut memperbarui nama akun utama ({{ $user->name }}) saat disimpan.</small>
                             </div>
                         </div>
                     </fieldset>
@@ -1054,6 +1216,52 @@
        2. Modal otomatis dibuka kembali saat validasi server gagal
           (error list dirender ulang di dalam modal).
        ========================================================= */
+    /* Tampilkan alert merah DI DALAM modal (id=epModalAlert) — dipakai
+       saat "Muat Data dari NID" gagal (mis. NID sudah dipakai akun lain). */
+    function epShowModalError(message) {
+        var box = document.getElementById('epModalAlert');
+        if (!box) return;
+
+        box.textContent = '';
+        var icon = document.createElement('i');
+        icon.className = 'fas fa-circle-exclamation me-1';
+        box.appendChild(icon);
+        box.appendChild(document.createTextNode(message));
+        box.style.display = '';
+    }
+
+    /* Sembunyikan kembali alert dalam modal (saat muat ulang berhasil). */
+    function epHideModalError() {
+        var box = document.getElementById('epModalAlert');
+        if (box) box.style.display = 'none';
+    }
+
+    /* Kosongkan seluruh field pendukung form kepegawaian (Jabatan, Unit,
+       Bidang, tanggal, kontak, dll.) tapi KEEP kolom NID — dipakai saat
+       NID dinyatakan telah bertuan agar data milik akun lain tidak
+       tersisa di form. */
+    function epClearFormFields(keepNid) {
+        var form = document.getElementById('epForm');
+        if (!form) return;
+
+        Array.prototype.forEach.call(form.querySelectorAll('input, select'), function (el) {
+            if (el.disabled) return;
+            if (el.id === 'ep_nid') { // NID tetap karena sumber rujukan perbaikan
+                if (keepNid !== undefined) el.value = keepNid;
+                return;
+            }
+            if (el.type === 'checkbox' || el.type === 'radio') {
+                el.checked = false;
+                return;
+            }
+            if (el.tagName === 'SELECT') {
+                el.selectedIndex = 0; // kembali ke opsi default “— Pilih —”
+                return;
+            }
+            el.value = '';
+        });
+    }
+
     function epLoadFromNid() {
         var nid = (document.getElementById('ep_nid')?.value || '').trim();
 
@@ -1068,7 +1276,9 @@
             return;
         }
 
-        fetch('{{ route('admin.users.karyawan-lookup') }}?nid=' + encodeURIComponent(nid), {
+        // user_id = pemilik profil yang sedang diedit — dipakai server untuk
+        // menolak NID yang SUDAH terikat ke akun pengguna lain (422).
+        fetch('{{ route('admin.users.karyawan-lookup') }}?nid=' + encodeURIComponent(nid) + '&user_id=' + {{ $user->id }}, {
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
@@ -1077,20 +1287,40 @@
             .then(function (res) {
                 return res.json().then(function (data) {
                     data.httpOk = res.ok;
+                    data.httpStatus = res.status;
                     return data;
                 });
             })
             .then(function (data) {
                 if (!data.httpOk || !data.success) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'NID tidak ditemukan',
-                        text: data.message || 'Periksa kembali NID pada master Data Karyawan.',
-                        confirmButtonText: 'Mengerti',
-                        confirmButtonColor: '#dc2626'
-                    });
+                    // 1) Alert merah DI DALAM modal dengan pesan dari server
+                    //    (mis. "NID (...) sudah digunakan oleh akun pengguna
+                    //    lain!").
+                    epShowModalError(data.message || 'Periksa kembali NID pada master Data Karyawan.');
+
+                    // 2) Kosongkan seluruh field pendukung (Jabatan, Unit,
+                    //    Bidang, tanggal, kontak, dll.) — dan tetapkan NID
+                    //    ke nilai yang ada di input — agar data milik akun
+                    //    lain TIDAK otomatis terisi ke form.
+                    epClearFormFields(nid);
+
+                    // 3) Popup tambahan hanya jika memang NID tidak ada di
+                    //    master; 422 (NID bertuan) sudah cukup terlihat dari
+                    //    alert merah dalam modal.
+                    if (data.httpStatus === 404) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'NID tidak ditemukan',
+                            text: data.message || 'Periksa kembali NID pada master Data Karyawan.',
+                            confirmButtonText: 'Mengerti',
+                            confirmButtonColor: '#dc2626'
+                        });
+                    }
                     return;
                 }
+
+                // Muat berhasil — pastikan alert error sebelumnya menghilang.
+                epHideModalError();
 
                 // Isi seluruh field form dari master (nilai kosong
                 // master → dikosongkan juga di form, agar tampilan
@@ -1193,33 +1423,33 @@
 @if(auth()->user()?->can('user.reset-password') && auth()->id() !== $user->id)
 <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="resetPasswordModalLabel">
-                    <i class="fas fa-key me-2" style="color: #d97706;"></i>Reset Password Pengguna?
+        <div class="modal-content rp-modal-content">
+            <div class="modal-header rp-header">
+                <h5 class="modal-title rp-title" id="resetPasswordModalLabel">
+                    <i class="fas fa-key" style="color: #d97706;"></i> Reset Password Pengguna?
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
-            <div class="modal-body text-center">
-                <span class="p-3 bg-warning-subtle rounded-circle text-warning fs-3 d-inline-block mb-3">🔑</span>
-                <p class="text-muted small mb-2">
+            <div class="modal-body rp-body">
+                <span class="rp-icon-circle"><i class="fas fa-key"></i></span>
+                <p class="rp-text mb-2">
                     Password lama <b>{{ $user->name }}</b> (<b>{{ $user->email }}</b>) akan dinonaktifkan
                     dan diganti <b>password sementara acak</b> yang dibuat sistem. Saat login berikutnya,
                     pengguna <b>wajib mengganti password</b> tersebut sebelum dapat masuk.
                 </p>
-                <div class="alert alert-light border mb-0 small">
+                <div class="rp-note mb-0">
                     Password sementara hanya ditampilkan <b>sekali</b> setelah reset —
                     sampaikan via WhatsApp/lisan, <b>tidak dikirim email</b>.
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Batal</button>
+            <div class="modal-footer rp-footer">
+                <button type="button" class="btn rp-btn rp-btn-cancel" data-bs-dismiss="modal">Batal</button>
                 {{-- Form POST biasa: @csrf mencegah 419 Page Expired; @method('PATCH')
                      dipakai karena route admin.users.reset-password didefinisikan PATCH. --}}
                 <form action="{{ route('admin.users.reset-password', $user) }}" method="POST" class="d-inline mb-0">
                     @csrf
                     @method('PATCH')
-                    <button type="submit" class="btn btn-warning text-white">
+                    <button type="submit" class="btn rp-btn rp-btn-confirm">
                         <i class="fas fa-key me-1"></i>Ya, Reset Password
                     </button>
                 </form>
@@ -1242,19 +1472,19 @@
 @if(session('temporaryPassword'))
 <div class="modal fade show" id="successResetModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content p-4 text-center">
-            <div class="mb-3">
-                <span class="p-3 bg-warning-subtle rounded-circle text-warning fs-3">🔑</span>
+        <div class="modal-content rp-modal-content p-4 text-center">
+            <div>
+                <span class="rp-icon-circle"><i class="fas fa-key"></i></span>
             </div>
-            <h4 class="fw-bold mb-2">Password Berhasil Direset</h4>
-            <p class="text-muted small mb-3">
+            <h4 class="rp-title justify-content-center mb-2" style="font-size: 1.15rem;">Password Berhasil Direset</h4>
+            <p class="rp-text mb-3">
                 Password sementara untuk <b>{{ $user->name }}</b>. Salin dan sampaikan via WhatsApp/lisan — tidak dikirim email dan hanya ditampilkan sekali ini.
             </p>
-            <div class="input-group mb-3">
-                <input type="text" class="form-control text-center fw-bold text-dark bg-light" id="tempPasswordInput" value="{{ session('temporaryPassword') }}" readonly>
-                <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('tempPasswordInput').value); alert('Password disalin!');">Copy</button>
+            <div class="input-group rp-pass-group mx-auto mb-3">
+                <input type="text" class="form-control text-center" id="tempPasswordInput" value="{{ session('temporaryPassword') }}" readonly>
+                <button class="btn rp-copy-btn" type="button" onclick="navigator.clipboard.writeText(document.getElementById('tempPasswordInput').value); alert('Password disalin!');">Copy</button>
             </div>
-            <button type="button" class="btn btn-warning text-white w-100" onclick="document.getElementById('successResetModal').style.display='none'">Selesai</button>
+            <button type="button" class="btn rp-btn rp-btn-confirm w-100" onclick="document.getElementById('successResetModal').style.display='none'">Selesai</button>
         </div>
     </div>
 </div>

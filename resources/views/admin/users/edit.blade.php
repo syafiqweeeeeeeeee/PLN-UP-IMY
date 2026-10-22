@@ -15,13 +15,19 @@
     $isEditingSuperAdmin = ($isEdit && ($targetRoleRaw === 'Super Admin' || $targetRoleRaw === 'Admin' || ($user->role_id ?? null) == 1));
 
     // Tujuan tombol Kembali / Batal
-    // - Super Admin / Admin utama: kembali ke tabel pengguna.
+    // - Edit akun yang ada: kembali ke DETAIL pengguna yang bersangkutan
+    //   (halaman Edit dibuka dari ikon mata di halaman detail — Kembali
+    //   bawa pengguna kembali ke sana).
+    // - Super Admin / Admin utama pada mode Tambah Akun: kembali ke daftar.
     // - Admin Bidang / Non-Super Admin (self-edit): kembali ke profil sendiri.
     // - Sisa kasus: kembali ke halaman sebelumnya.
-    if ($actorIsSuperUser) {
+    if ($isEdit && $user?->id) {
+        $backUrl   = route('admin.users.show', $user);
+        $cancelUrl = $backUrl;
+    } elseif ($actorIsSuperUser) {
         $backUrl   = route('admin.users.index');
         $cancelUrl = $backUrl;
-    } elseif ($isEdit && $user?->id === $actor?->id) {
+    } elseif ($user?->id === $actor?->id) {
         $backUrl   = route('admin.users.show', $user);
         $cancelUrl = $backUrl;
     } else {
