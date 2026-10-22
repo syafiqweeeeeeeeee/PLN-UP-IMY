@@ -33,6 +33,8 @@
             'roles'             => $roles,
             'menuMatrix'        => $menuMatrix ?? [],
             'userPermissionIds' => [],
+            'bidangs'           => $bidangs ?? collect(),
+            'jabatans'          => $jabatans ?? collect(),
         ])
     </div>
 @endsection

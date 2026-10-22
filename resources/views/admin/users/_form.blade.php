@@ -100,6 +100,35 @@
         .field-locked .form-group-label {
             color: var(--ink-muted) !important;
         }
+        /* Kelompok visual di dalam section tunggal "Bidang & Jabatan"
+           (Akses Sistem / Organisasi / Jabatan) — SATU card, tiga blok
+           berbingkai tipis agar bidang/jabatan tidak terlihat duplikat. */
+        .bj-group {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 0.8rem 1rem 1rem;
+            margin-bottom: 0.85rem;
+        }
+        .bj-group:last-of-type { margin-bottom: 0; }
+        .bj-group-title {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--pln-blue);
+            margin-bottom: 0.8rem;
+        }
+        .bj-group-title .bj-group-note {
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0;
+            font-size: 0.72rem;
+            color: var(--ink-muted);
+        }
     </style>
 @endpush
 
@@ -276,34 +305,46 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>        {{-- ==========================================================
+         SECTION: BIDANG & JABATAN
+         Hanya TIGA field (2 kolom): Role Pengguna, Master Bidang,
+         Master Jabatan.
 
-    {{-- ============================================
-         SECTION: Role & Hak Akses Fitur
-         Hanya tampil jika:
-         - Super Admin / Admin utama yang membuka form, ATAU
-         - Form tambah pengguna baru.
-         Bagi Admin Bidang / Karyawan self-edit, seluruh bagian ini
-         SEMBUNYI total agar form tetap rapi (hanya Informasi Akun).
+         - role_id     → hak akses sistem (permission).
+         - bidang_id   → unit kerja; server menurunkan sendiri
+                         department/department_id/sub_department
+                         (jembatan ke filter data lama).
+         - jabatan_id  → posisi pekerjaan; server menurunkan
+                         level_jabatan (Senior/Manager/Asisten/Staff).
+
+         Level Jabatan, Bidang Utama, dan Sub-Bidang TIDAK lagi dipilih
+         manual — semuanya mengikuti baris Master yang dipilih.
+         Sembunyikan total bagi self-edit compact (perilaku lama).
          ============================================ --}}
     @if(! $isCompactSelfEdit)
-    <div class="form-section">
+    <div class="form-section" id="unitSection">
         <div class="form-section-header">
             <div class="form-section-icon cyan">
-                <i class="fas fa-user-tag"></i>
+                <i class="fas fa-sitemap"></i>
             </div>
             <div>
-                <h6 class="form-section-title">Role</h6>
+                <h6 class="form-section-title">Bidang & Jabatan</h6>
                 <p class="form-section-desc">
                     {{ $isSuperAdminEdit
-                        ? 'Tetapkan Role serta Hak Akses Fitur (Direct Permission) untuk akun ini'
-                        : 'Pengaturan hak akses dan peran pengguna' }}
+                        ? 'Role akun ini diproteksi — unit kerja & jabatan mengikuti data master'
+                        : 'Role menentukan hak akses; Master Bidang & Master Jabatan menentukan unit kerja dan posisi pengguna' }}
                 </p>
             </div>
         </div>
 
-        <div class="row g-3">
-            <div class="col-12">
+        {{-- ===== KELOMPOK: Akses & Unit Kerja (Role + Master) ===== --}}
+        <div class="bj-group" id="groupAkses">
+            <div class="bj-group-title">
+                <i class="fas fa-key"></i> Akses & Unit Kerja
+                <span class="bj-group-note">Role menentukan hak akses sistem; Master Bidang & Master Jabatan menentukan unit kerja dan posisi</span>
+            </div>
+            <div class="row g-3">
+            <div class="col-md-6">
                 <div class="form-group">
                     {{-- Label utama disembunyikan secara visual (tetap terbaca screen reader)
                          dan digantikan floating label DI DALAM box. --}}
@@ -338,82 +379,82 @@
                 </div>
             </div>
 
-            {{-- =====================================================
-                 Hierarki Organisasi (Hanya tampil & boleh diubah jika:
-                 - Super Admin / Admin utama mengedit akun non-Super Admin, ATAU
-                 - Form tambah pengguna.
-                 Untuk self-edit oleh Admin Bidang/Karyawan, bagian ini
-                 sudah disembunyikan total di atas (form compact).
-                 ===================================================== --}}
-            @if(! $isCompactSelfEdit)
-            <div class="col-md-4" id="levelWrapper">
+            </div>{{-- /row g-3 --}}
+        </div>{{-- /bj-group: Akses & Unit Kerja --}}
+
+        {{-- ===== KELOMPOK: Master Bidang & Jabatan =====
+             Dua field terakhir form: pilihan unit kerja & posisi dari
+             tabel bidangs / jabatans. Server menurunkan department,
+             department_id, sub_department, dan level_jabatan dari pilihan
+             ini (lihat UserController::applyOrgScoping), sehingga filter
+             data lama tetap bekerja tanpa field manual tambahan.
+
+             Jabatan bersifat dependent: opsi mengikuti Master Bidang
+             yang dipilih. Jabatan BUKAN role — hak akses tetap role_id.
+             ===== --}}
+        <div class="bj-group" id="masterUnitSection">
+            <div class="bj-group-title">
+                <i class="fas fa-sitemap"></i> Master Bidang & Jabatan
+                <span class="bj-group-note">Pilih unit kerja pada Master Bidang (induk atau sub-bidang), lalu jabatan di dalamnya</span>
+            </div>
+
+            <div class="row g-3">
+            <div class="col-md-6" id="masterBidangWrapper">
                 <div class="form-group">
-                    <label class="form-group-label pln-label-sr" for="level_jabatan">
-                        Level Jabatan (Role Utama)
+                    <label class="form-group-label pln-label-sr" for="bidang_id">
+                        Master Bidang
                         <span class="required pln-float-star">*</span>
                     </label>
                     <div class="pln-select-wrap">
-                        <span class="pln-field-float">Level Jabatan (Role Utama) <span class="required pln-float-star">*</span></span>
-                        <select id="level_jabatan" name="level_jabatan" class="form-input" required>
-                            <option value="">-- Pilih Level --</option>
-                            @foreach(\App\Models\User::LEVEL_JABATAN as $code => $label)
-                                <option value="{{ $code }}"{{ old('level_jabatan', $user->level_jabatan ?? '') === $code ? ' selected' : '' }}>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @error('level_jabatan')
-                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-            <div class="col-md-4" id="deptWrapper">
-                <div class="form-group">
-                    {{-- Required disinkronkan dinamis oleh JS (applyRoleRules) —
-                         float star mengikuti atribut required select (MutationObserver). --}}
-                    <label class="form-group-label pln-label-sr" for="department">
-                        Bidang Utama <span class="required pln-float-star">*</span>
-                    </label>
-                    <div class="pln-select-wrap">
-                        <span class="pln-field-float">Bidang Utama <span class="required pln-float-star">*</span></span>
-                        <select id="department" name="department" class="form-input">
+                        <span class="pln-field-float">Master Bidang <span class="required pln-float-star">*</span></span>
+                        <select id="bidang_id" name="bidang_id" class="form-input">
                             <option value="">-- Pilih Bidang --</option>
-                            @foreach(\App\Models\User::DEPARTMENTS as $code => $label)
-                                <option value="{{ $code }}" {{ old('department', $user->department ?? '') === $code ? 'selected' : '' }}>{{ $label }}</option>
+                            @foreach ($bidangs ?? [] as $bidang)
+                                <option value="{{ $bidang->id }}"
+                                    {{ old('bidang_id', $user->bidang_id ?? '') == $bidang->id ? 'selected' : '' }}>
+                                    {{ $bidang->nama }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-hint flex" id="deptHint" style="display:none;">
-                        <i class="far fa-lightbulb"></i> Wajib dipilih untuk Admin Bidang, Manager Bidang, Asisten Manager & Staff.
+                    <div class="form-hint flex" id="masterBidangHint" style="display:none;">
+                        <i class="far fa-lightbulb"></i> Wajib untuk Admin Bidang & Karyawan. Pilih sub-bidang bila akun terkunci di bagian tertentu.
                     </div>
-                    @error('department')
+                    @error('bidang_id')
                         <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
                     @enderror
                 </div>
             </div>
 
-            <div class="col-md-4" id="subDeptWrapper">
+            <div class="col-md-6" id="masterJabatanWrapper">
                 <div class="form-group">
-                    <label class="form-group-label pln-label-sr" for="sub_department">
-                        Sub-Bidang / Bagian <span class="required pln-float-star">*</span>
+                    <label class="form-group-label pln-label-sr" for="jabatan_id">
+                        Jabatan
                     </label>
                     <div class="pln-select-wrap">
-                        <span class="pln-field-float">Sub-Bidang / Bagian <span class="required pln-float-star">*</span></span>
-                        <select id="sub_department" name="sub_department" class="form-input">
-                            <option value="">-- Pilih Sub-Bidang --</option>
+                        <span class="pln-field-float">Jabatan <span class="required pln-float-star">*</span></span>
+                        <select id="jabatan_id" name="jabatan_id" class="form-input">
+                            <option value="">-- Pilih Jabatan --</option>
+                            @foreach ($jabatans ?? [] as $jabatan)
+                                <option value="{{ $jabatan->id }}"
+                                    data-bidang="{{ $jabatan->bidang_id }}"
+                                    {{ old('jabatan_id', $user->jabatan_id ?? '') == $jabatan->id ? 'selected' : '' }}>
+                                    {{ $jabatan->nama }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
-                    <div class="form-hint flex" id="subHint" style="display:none;">
-                        <i class="far fa-lightbulb"></i> Daftar sub-bidang mengikuti Bidang Utama yang dipilih.
+                    <div class="form-hint flex" id="masterJabatanHint" style="display:none;">
+                        <i class="far fa-lightbulb"></i> Daftar jabatan mengikuti Bidang yang dipilih. Jabatan adalah posisi pekerjaan — hak akses sistem tetap ditentukan Role.
                     </div>
-                    @error('sub_department')
+                    @error('jabatan_id')
                         <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
                     @enderror
                 </div>
             </div>
-            @endif
-        </div>
-    </div>
+            </div>{{-- /row g-3 --}}
+        </div>{{-- /bj-group: Jabatan --}}
+    </div>{{-- /form-section: Bidang & Jabatan --}}
 
     {{-- ============================================
          SECTION: Hak Akses Fitur (DIRECT PERMISSION)
@@ -493,38 +534,20 @@
         roleSelect.dataset.roleRulesBound = '1';
 
         const ROLE_NAMES = @json($roles->pluck('name', 'id'));
-        const SUBS = @json(\App\Models\User::SUB_DEPARTMENTS);
+        // MASTER Jabatan (tabel jabatans) — untuk dependent dropdown:
+        // opsi Jabatan mengikuti Master Bidang terpilih.
+        // NOTE: jabatan ≠ role — ini data posisi pekerjaan murni.
+        const MASTER_JABATANS = @json($jabatans ?? collect());
         // Default permission (ID) per Role — kunci = role_id, value = array ID.
         const ROLE_DEFAULT_PERMS = @json($roleDefaultPermissionIds);
 
-        const levelSelect  = document.getElementById('level_jabatan');
-        const deptSelect   = document.getElementById('department');
-        const subSelect    = document.getElementById('sub_department');
-        const levelWrapper = document.getElementById('levelWrapper');
-        const deptWrapper  = document.getElementById('deptWrapper');
-        const subWrapper   = document.getElementById('subDeptWrapper');
-        const deptHint     = document.getElementById('deptHint');
-        const subHint      = document.getElementById('subHint');
-        const deptReqStar  = document.querySelector('.required-dept');
-        const subReqStar   = document.querySelector('.required-sub');
         const permSection  = document.getElementById('directPermSection');
         const permChecks   = Array.from((document.getElementById('directPermMatrix') ?? document).querySelectorAll('.perm-check'));
 
-        function setHidden(wrapper, select, star, hint) {
-            wrapper.style.display = 'none';
-            select.disabled = true;      // disabled → tidak dikirim ke server
-            select.required = false;
-            if (star) star.style.display = 'none';
-            if (hint) hint.style.display = 'none';
-        }
-
-        function setVisible(wrapper, select, star, hint, required) {
-            wrapper.style.display = '';
-            select.disabled = false;
-            select.required = required;
-            if (star) star.style.display = required ? '' : 'none';
-            if (hint) hint.style.display = '';
-        }
+        // MASTER Bidang & Jabatan — satu-satunya input organisasi pada form.
+        const masterUnitSection = document.getElementById('masterUnitSection');
+        const masterBidangSel   = document.getElementById('bidang_id');
+        const masterJabatanSel  = document.getElementById('jabatan_id');
 
         /* Direct Permission section: tampil & aktif HANYA untuk role
            delegasi (Admin Bidang / Karyawan). Checkbox disabled saat
@@ -538,12 +561,9 @@
 
         /* ===== AUTO-CENTANG MENGIKUTI ROLE (MERGE DISPLAY) =====
            Saat role diganti, matriks di-reset: permission bawaan Role BARU
-           tampil tercentang TAPI TERKUNCI (disabled, tanpa nama input
-           efektif — diabaikan server saat simpan, lihat data-role-locked),
-           sedangkan seluruh centang editable (direct permission) dikosongkan
-           karena hak akses ekstra lama tidak lagi relevan bagi role baru.
-           Dengan ini user_has_permissions tidak pernah berisi salinan
-           baseline role — pengecekan izin murni = role ∪ direct ekstra.
+           tampil tercentang TAPI TERKUNCI (disabled), sedangkan seluruh
+           centang editable (direct permission) dikosongkan karena hak
+           akses ekstra lama tidak lagi relevan bagi role baru.
            Hanya berjalan saat user MENGUBAH pilihan role — pada load awal
            (mode Edit / old input setelah validasi gagal) centang yang sudah
            ada TIDAK disentuh. */
@@ -563,138 +583,106 @@
             });
         }
 
-        function fillSubOptions(deptCode) {
-            // Reset: sisakan placeholder lalu isi opsi sesuai dept terpilih.
-            subSelect.innerHTML = '<option value="">-- Pilih Sub-Bidang --</option>';
-            const subs = SUBS[deptCode] || {};
-            Object.keys(subs).forEach(function (code) {
+        /* ===== MASTER BIDANG & JABATAN (dependent dropdown) =====
+           Jabatan hanya menampilkan opsi milik Master Bidang terpilih.
+           Bila bidang berubah, jabatan yang tidak lagi relevan di-reset.
+           Required Jabatan aktif hanya bila bidang terpilih punya minimal
+           satu jabatan (sinkron dengan aturan server). */
+        function fillMasterJabatanOptions(bidangId, keepValue) {
+            masterJabatanSel.innerHTML = '<option value="">-- Pilih Jabatan --</option>';
+
+            const rows = MASTER_JABATANS.filter(j => String(j.bidang_id) === String(bidangId));
+            rows.forEach(function (j) {
                 const opt = document.createElement('option');
-                opt.value = code;
-                opt.textContent = subs[code];
-                subSelect.appendChild(opt);
+                opt.value = j.id;
+                opt.textContent = j.nama;
+                masterJabatanSel.appendChild(opt);
             });
-        }
 
-        /* Rapikan placeholder dropdown Bidang Utama (bersihkan opsi spesial
-           lama & pastikan placeholder standar tampil). */
-        function setDeptPlaceholder(placeholder) {
-            deptSelect.querySelector('option[value="semua"]')?.remove();
-            const empty = deptSelect.querySelector('option[value=""]');
-            if (empty) {
-                empty.disabled = false;
-                empty.textContent = placeholder;
+            // Pertahankan nilai lama (old input / data user saat edit)
+            // HANYA bila masih relevan dengan bidang terpilih.
+            if (keepValue && rows.some(j => String(j.id) === String(keepValue))) {
+                masterJabatanSel.value = String(keepValue);
             }
+
+            masterJabatanSel.required = rows.length > 0;
         }
 
-        /* Aturan per Level Jabatan (4 tingkat) — hanya berlaku untuk role
-           Karyawan:
-           - Senior Manager          → dept & sub DISEMBUNYIKAN TOTAL dari
-                                       form; backend mengisi NULL/ALL
-                                       otomatis (max 3 akun, akses
-                                       view-only seluruh bidang).
-           - Manager Bidang          → dept WAJIB; sub DISEMBUNYIKAN
-                                       (membawahi seluruh sub-bidang
-                                       bidangnya).
-           - Asisten Manager / Staff → dept & sub WAJIB; opsi sub dependent
-                                       mengikuti dept terpilih. */
-        function applyLevelRules() {
-            const level = levelSelect.value;
+        /* Tampil & required-nya Master Bidang mengikuti role: wajib untuk
+           Admin Bidang & Karyawan, opsional untuk role lain (role buatan
+           admin). Level Jabatan / Sub-Bidang tidak lagi dipilih manual —
+           server menurunkannya dari Master Bidang & Jabatan. */
+        function applyMasterUnitRules(roleName) {
+            if (! masterUnitSection) return;   // form compact self-edit
 
-            if (level === 'senior_manager') {
-                // Akses global view-only semua bidang → dept & sub
-                // disembunyikan total (backend set NULL/ALL otomatis).
-                setHidden(deptWrapper, deptSelect, deptReqStar, deptHint);
-                setHidden(subWrapper, subSelect, subReqStar, subHint);
-                setDeptPlaceholder('-- Pilih Bidang --');
-            } else if (level === 'manager_bidang') {
-                // Cakupan bidang → dept wajib; sub disembunyikan (membawahi
-                // seluruh sub-bidang di bidang tersebut).
-                setHidden(subWrapper, subSelect, subReqStar, subHint);
-                setVisible(deptWrapper, deptSelect, deptReqStar, deptHint, true);
-                deptHint.style.display = 'none';
-                setDeptPlaceholder('-- Pilih Bidang --');
-                fillSubOptions(deptSelect.value);
-            } else if (level === 'asisten_manager' || level === 'staf') {
-                // Terkunci sub-bidang → dept & sub wajib (dependent).
-                setVisible(deptWrapper, deptSelect, deptReqStar, deptHint, true);
-                deptHint.style.display = 'none';
-                setVisible(subWrapper, subSelect, subReqStar, subHint, true);
-                setDeptPlaceholder('-- Pilih Bidang --');
-                fillSubOptions(deptSelect.value);
-            } else {
-                // Level belum dipilih: dept opsional, sub disembunyikan.
-                setVisible(deptWrapper, deptSelect, deptReqStar, deptHint, false);
-                deptHint.style.display = '';
-                setHidden(subWrapper, subSelect, subReqStar, subHint);
-                setDeptPlaceholder('-- Pilih Bidang --');
-                fillSubOptions(deptSelect.value);
-            }
+            // Kewajiban Bidang hanya bila master bidangs TERISI — opsi
+            // kosong (install baru belum di-seed) tidak memblokir akun.
+            const hasBidangOptions = Array.from(masterBidangSel.options)
+                .some(opt => opt.value !== '');
+            const required = ['Admin Bidang', 'Karyawan'].includes(roleName) && hasBidangOptions;
+
+            masterUnitSection.style.display = '';
+            masterBidangSel.disabled = false;
+            masterBidangSel.required = required;
+            masterJabatanSel.disabled = false;
+
+            const masterBidangHint = document.getElementById('masterBidangHint');
+            const masterJabatanHint = document.getElementById('masterJabatanHint');
+            if (masterBidangHint) masterBidangHint.style.display = required ? '' : 'none';
+            if (masterJabatanHint) masterJabatanHint.style.display = '';
+
+            // Isi ulang opsi jabatan sesuai bidang terpilih (old input /
+            // data user saat edit), sekaligus menyetel required-nya.
+            fillMasterJabatanOptions(masterBidangSel.value, masterJabatanSel.value);
         }
 
-        /* Aturan utama: conditional fields mengikuti ROLE terpilih. */
         function applyRoleRules() {
             const roleName = ROLE_NAMES[roleSelect.value] || '';
 
             if (roleName === 'Super Admin') {
-                // Semua field hirarki disembunyikan + disabled.
-                setHidden(levelWrapper, levelSelect, null, null);
-                setHidden(deptWrapper, deptSelect, deptReqStar, deptHint);
-                setHidden(subWrapper, subSelect, subReqStar, subHint);
+                // Super Admin tanpa unit kerja: field disembunyikan &
+                // disabled (server juga memaksa bidang/jabatan null).
+                if (masterUnitSection) {
+                    masterUnitSection.style.display = 'none';
+                    masterBidangSel.disabled = true;
+                    masterBidangSel.required = false;
+                    masterJabatanSel.disabled = true;
+                    masterJabatanSel.required = false;
+                }
                 setDirectPermVisible(false);
-            } else if (roleName === 'Admin Bidang') {
-                // Level disembunyikan; Bidang Utama & Sub-Bidang wajib
-                // (dependent dropdown) + Direct Permission tampil.
-                setHidden(levelWrapper, levelSelect, null, null);
-                setVisible(deptWrapper, deptSelect, deptReqStar, deptHint, true);
-                deptHint.style.display = 'none';
-                setVisible(subWrapper, subSelect, subReqStar, subHint, true);
-                setDeptPlaceholder('-- Pilih Bidang --');
-                fillSubOptions(deptSelect.value);
-                setDirectPermVisible(true);
-            } else if (roleName === 'Karyawan') {
-                setVisible(levelWrapper, levelSelect, null, null, true);
-                applyLevelRules();
-                // Direct permission TAMPIL untuk karyawan — hak akses
-                // fitur per orang (varian tugas) diatur di sini.
-                setDirectPermVisible(true);
             } else {
-                // Role belum dipilih → sembunyikan seluruh field hirarki.
-                setHidden(levelWrapper, levelSelect, null, null);
-                setHidden(deptWrapper, deptSelect, deptReqStar, deptHint);
-                setHidden(subWrapper, subSelect, subReqStar, subHint);
-                setDirectPermVisible(false);
+                // Admin Bidang / Karyawan / role buatan admin: Master
+                // Bidang & Jabatan tampil (wajib untuk dua role pertama,
+                // opsional untuk role lain).
+                setDirectPermVisible(['Admin Bidang', 'Karyawan'].includes(roleName));
+                applyMasterUnitRules(roleName);
             }
         }
 
         /* ===== SUPER ADMIN EDIT MODE =====
-           Saat mengedit akun Super Admin, seluruh field data diri
-           sudah dikunci (readonly) dari sisi HTML. Hirarki OTOMATIS
-           disembunyikan karena Super Admin tidak punya hirarki.
-           Direct Permission TIDAK ditampilkan karena Super Admin
-           memiliki akses penuh ke semua menu. */
+           Saat mengedit akun Super Admin, data diri sudah dikunci
+           (readonly) dari sisi HTML. Master Bidang & Jabatan serta Direct
+           Permission disembunyikan karena Super Admin tidak punya unit
+           kerja dan sudah memiliki akses penuh. */
         function applySuperAdminEditMode() {
             if (! {{ $isSuperAdminEdit ? 'true' : 'false' }}) return;
 
-            // Sembunyikan seluruh field hirarki
-            setHidden(levelWrapper, levelSelect, null, null);
-            setHidden(deptWrapper, deptSelect, deptReqStar, deptHint);
-            setHidden(subWrapper, subSelect, subReqStar, subHint);
-            // Sembunyikan section Direct Permission (Super Admin punya akses penuh)
             setDirectPermVisible(false);
 
-            // Lock role dropdown merujuk ke role saat ini
-            if (roleSelect) {
-                roleSelect.querySelector('option[value="' + {{ $user?->role_id ?? '0' }} + '"]');
+            if (masterUnitSection) {
+                masterUnitSection.style.display = 'none';
+                masterBidangSel.disabled = true;
+                masterBidangSel.required = false;
+                masterJabatanSel.disabled = true;
+                masterJabatanSel.required = false;
             }
         }
 
-        // Ganti dept → opsi sub di-reset sesuai dept baru (dependent dropdown).
-        deptSelect.addEventListener('change', function () {
-            fillSubOptions(this.value);
-            if (!this.value) subSelect.value = '';
+        // Ganti Master Bidang → opsi Jabatan difilter (dependent dropdown).
+        masterBidangSel?.addEventListener('change', function () {
+            fillMasterJabatanOptions(this.value, '');
         });
 
-        levelSelect.addEventListener('change', applyLevelRules);
         roleSelect.addEventListener('change', applyRoleRules);
         // Auto-centang hak akses mengikuti Role — didaftarkan SETELAH
         // applyRoleRules agar visibilitas section Direct Permission sudah
@@ -705,17 +693,6 @@
         // role pre-selected (mode Edit Pengguna).
         applyRoleRules();
         applySuperAdminEditMode();
-        const currentRoleName = ROLE_NAMES[roleSelect.value] || '';
-        if (currentRoleName === 'Karyawan' || currentRoleName === 'Admin Bidang') {
-            // Isi opsi sub sesuai bidang terpilih (old input ATAU data user
-            // saat edit), lalu pulihkan nilai sub-nya.
-            const currentDept = deptSelect.value;
-            if (currentDept) {
-                fillSubOptions(currentDept);
-                const subValue = @json(old('sub_department', $user->sub_department ?? ''));
-                if (subValue) subSelect.value = subValue;
-            }
-        }
     })();
     const passwordInput = document.getElementById('password');
     const strengthBar = document.getElementById('passwordStrength');
@@ -737,8 +714,8 @@
     });
 
     /* ===== ENHANCED SELECT — minimalis + selalu terbuka ke bawah =====
-       Select native (Role Pengguna, Level Jabatan, Bidang Utama,
-       Sub-Bidang) dibungkus panel list custom (.pln-dd-panel):
+       Select native (Role Pengguna, Master Bidang, Master Jabatan)
+       dibungkus panel list custom (.pln-dd-panel):
          - TANPA kotak pencarian & tanpa opsi placeholder: panel hanya
            menampilkan daftar opsi data murni ("Prod A", dst.), langsung
            tersaji begitu dropdown diklik.
@@ -748,10 +725,10 @@
          - Tidak pernah flip ke atas: bila ruang di bawah viewport < 96px,
            halaman di-scroll otomatis sebelum panel tampil agar ruang cukup.
          - List pilihan dibangun fresh SETIAP panel dibuka → selalu sinkron
-           dengan opsi dinamis (dependent dropdown Sub-Bidang dsb.).
+           dengan opsi dinamis (dependent dropdown Master Jabatan dsb.).
          - Item dipilih men-set nilai pada <select> ASLI lalu men-dispatch
            event 'input' + 'change' → seluruh logika lama (applyRoleRules,
-           fillSubOptions, server-side) tidak tersentuh dan form tetap
+           dependent jabatan, server-side) tidak tersentuh dan form tetap
            mengirim select native.
          - Floating label: wrapper .pln-select-wrap dipantau — state
            is-open (ring fokus saat panel open), is-required (bintang

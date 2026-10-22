@@ -115,6 +115,8 @@ class User extends Authenticatable
         'department',
         'department_id',
         'sub_department',
+        'bidang_id',
+        'jabatan_id',
         'email_verified_at',
         'no_hp',
         'alamat',
@@ -155,6 +157,43 @@ class User extends Authenticatable
     }
 
     /**
+     * Turunkan Level Jabatan dari nama Master Jabatan — pengganti field
+     * "Level Jabatan" yang kini tidak lagi dipilih manual di form
+     * Pengguna. Aturan (urutan penting, dicek dari atas):
+     *
+     * - nama diawali "SENIOR MANAGER"      → senior_manager (akses global)
+     * - diawali "ASMAN" / "ASISTEN"        → asisten_manager (terikat sub)
+     * - mengandung "MANAGER"               → manager_bidang (membawahi bidang)
+     * - selain itu (atau jabatan kosong)   → staf
+     *
+     * Hasil ini yang dipakai User::bypassesDataScoping() dan
+     * User::dataScopingLevel(), jadi kuota Senior Manager & bypass data
+     * global tetap bekerja tanpa field manual.
+     */
+    public static function levelJabatanFromJabatanName(?string $nama): string
+    {
+        $nama = strtoupper(trim((string) $nama));
+
+        if ($nama === '') {
+            return 'staf';
+        }
+
+        if (str_starts_with($nama, 'SENIOR MANAGER')) {
+            return 'senior_manager';
+        }
+
+        if (str_starts_with($nama, 'ASMAN') || str_starts_with($nama, 'ASISTEN')) {
+            return 'asisten_manager';
+        }
+
+        if (str_contains($nama, 'MANAGER')) {
+            return 'manager_bidang';
+        }
+
+        return 'staf';
+    }
+
+    /**
      * Label Level Jabatan (legacy-safe): cek daftar aktif dulu, lalu
      * daftar legacy. Null bila nilai tidak dikenal.
      */
@@ -190,6 +229,8 @@ class User extends Authenticatable
         'password' => 'hashed',
         'must_change_password' => 'boolean',
         'department_id' => 'integer',
+        'bidang_id' => 'integer',
+        'jabatan_id' => 'integer',
         'notification_settings' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -255,6 +296,13 @@ class User extends Authenticatable
         self::DEPARTMENT_ADMIN_ROLE,  // 2) Admin Bidang
         'Karyawan',                   // 3) Karyawan
     ];
+
+    /**
+     * Nama role legacy yang TIDAK boleh dipilih/diberikan lagi pada form
+     * Pengguna (akun lama tetap dikenali, tapi tidak bisa dibuat baru
+     * atau dipindahkan ke role ini).
+     */
+    public const LEGACY_ROLE_NAMES = ['Administrator'];
 
     /**
      * Batas maksimal akun dengan Role "Super Admin" di dalam database.
@@ -444,6 +492,28 @@ class User extends Authenticatable
     public function departmentRef(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department_id');
+    }
+
+    /* =========================================================
+       MASTER BIDANG & JABATAN (tabel bidangs & jabatans)
+       ------------------------------------------------------------
+       Data organisasi murni (unit kerja & posisi pekerjaan akun),
+       TERPISAH dari kolom RBAC lama (department/sub_department →
+       tabel departments untuk scoping data) dan dari role_id
+       (hak akses sistem). Jabatan BUKAN role: role tetap satu-satunya
+       penentu hak akses, jabatan hanya menunjukkan posisi kerja.
+       ========================================================= */
+
+    /** Bidang master tempat akun ini berada (opsional). */
+    public function bidangRef(): BelongsTo
+    {
+        return $this->belongsTo(Bidang::class, 'bidang_id');
+    }
+
+    /** Jabatan master (posisi pekerjaan) milik akun ini (opsional). */
+    public function jabatanRef(): BelongsTo
+    {
+        return $this->belongsTo(Jabatan::class, 'jabatan_id');
     }
 
     /**

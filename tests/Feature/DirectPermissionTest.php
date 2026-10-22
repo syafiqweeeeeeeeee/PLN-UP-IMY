@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Bidang;
 use App\Models\Department;
 use App\Models\Role;
 use App\Models\User;
@@ -64,6 +65,27 @@ class DirectPermissionTest extends TestCase
         return $user;
     }
 
+    /**
+     * Master Bidang induk + sub-bidang bawaan pengujian:
+     * operasi / asmen_prod_a (dan opsional prod_b).
+     */
+    private function operasiUnit(string $subCode = 'asmen_prod_a', string $subNama = 'SUB BIDANG PRODUKSI A'): Bidang
+    {
+        $induk = Bidang::firstOrCreate(
+            ['nama' => 'BIDANG OPERASI'],
+            ['department_code' => 'operasi']
+        );
+
+        return Bidang::firstOrCreate(
+            ['nama' => $subNama],
+            [
+                'parent_id' => $induk->id,
+                'department_code' => 'operasi',
+                'sub_department_code' => $subCode,
+            ]
+        );
+    }
+
     private function validPayload(array $overrides = []): array
     {
         $roleBidang = Role::where('name', 'Admin Bidang')->value('id');
@@ -74,8 +96,9 @@ class DirectPermissionTest extends TestCase
             'password'       => 'rahasia123',
             'password_confirmation' => 'rahasia123',
             'role_id'        => $roleBidang,
-            'department'     => 'operasi',
-            'sub_department' => 'asmen_prod_a',
+            // Form hanya mengirim Master Bidang; department & sub-bidang
+            // diturunkan server dari baris master ini.
+            'bidang_id'      => $this->operasiUnit()->id,
             'no_hp'          => '081234567890',
             'alamat'         => 'Jl. Contoh No. 10, Jakarta',
         ], $overrides);
@@ -203,9 +226,6 @@ class DirectPermissionTest extends TestCase
             ->post(route('admin.users.store'), $this->validPayload([
                 'role_id'        => $roleKaryawan,
                 'email'          => 'karyawan.sdm@example.com',
-                'level_jabatan'  => 'staf',
-                'department'     => 'operasi',
-                'sub_department' => 'asmen_prod_a',
                 'permissions'    => $this->matrixIds([
                     'news.view', 'news.create',
                     'announcements.view', 'announcements.create',
@@ -275,8 +295,8 @@ class DirectPermissionTest extends TestCase
                 'email'          => $user->email,
                 'password'       => '',
                 'password_confirmation' => '',
-                'department'     => 'operasi',
-                'sub_department' => 'asmen_prod_b', // pindah unit kerja
+                // Pindah unit kerja lewat Master Bidang (sub-bidang lain).
+                'bidang_id'      => $this->operasiUnit('asmen_prod_b', 'SUB BIDANG PRODUKSI B')->id,
                 'permissions'    => $this->matrixIds(['news.view', 'tamu.view', 'galleries.view']),
             ]))
             ->assertRedirect(route('admin.users.index'));
@@ -307,8 +327,6 @@ class DirectPermissionTest extends TestCase
                 'email' => $user->email,
                 'password' => '',
                 'password_confirmation' => '',
-                'department' => 'operasi',
-                'sub_department' => 'asmen_prod_a',
                 'permissions' => [],
             ]))
             ->assertRedirect(route('admin.users.index'));
@@ -316,7 +334,7 @@ class DirectPermissionTest extends TestCase
         $this->assertSame($oldHash, $user->fresh()->password);
     }
 
-    public function test_update_admin_bidang_requires_department_and_sub(): void
+    public function test_update_admin_bidang_requires_master_bidang(): void
     {
         $admin = $this->superAdmin();
 
@@ -325,18 +343,17 @@ class DirectPermissionTest extends TestCase
         ]);
         $user->roles()->sync([Role::where('name', 'Admin Bidang')->value('id')]);
 
-        // Sub-bidang kosong → ditolak (wajib).
+        // Master Bidang kosong (dan akun belum punya bidang) → ditolak.
         $this->actingAs($admin)
             ->put(route('admin.users.update', $user), $this->validPayload([
-                'name' => 'Tanpa Sub',
+                'name' => 'Tanpa Bidang',
                 'email' => $user->email,
                 'password' => '',
                 'password_confirmation' => '',
-                'department' => 'operasi',
-                'sub_department' => '',
+                'bidang_id' => '',
                 'permissions' => [],
             ]))
-            ->assertSessionHasErrors(['sub_department']);
+            ->assertSessionHasErrors(['bidang_id']);
     }
 
     /* =========================================================

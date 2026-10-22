@@ -127,6 +127,18 @@ class MasterJabatanController extends Controller
             ]);
         }
 
+        // Akun pengguna (tabel users) yang terikat jabatan ini lewat
+        // users.jabatan_id (form Tambah/Edit Pengguna) — relasi FK
+        // restrictOnDelete juga melindungi di level database.
+        $userUsage = $jabatan->userUsage();
+
+        if ($userUsage > 0) {
+            return redirect()->route('admin.master_jabatan.index')->withErrors([
+                'delete' => "Jabatan \"{$jabatan->nama}\" tidak dapat dihapus karena masih digunakan oleh {$userUsage} akun pengguna. "
+                    . 'Data akun tidak diubah otomatis — pindahkan atau longgarkan terikatan akun tersebut terlebih dahulu.',
+            ]);
+        }
+
         $nama = $jabatan->nama;
         $jabatan->delete();
 

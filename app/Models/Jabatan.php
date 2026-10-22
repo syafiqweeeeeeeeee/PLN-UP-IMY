@@ -44,4 +44,14 @@ class Jabatan extends Model
             ->orWhere('jabatan', $this->nama)
             ->count();
     }
+
+    /**
+     * Jumlah akun pengguna (tabel users) yang terikat pada jabatan ini
+     * lewat `users.jabatan_id` (integrasi form Tambah/Edit Pengguna).
+     * Pembacaan saja — dipakai proteksi penghapusan di controller.
+     */
+    public function userUsage(): int
+    {
+        return User::query()->where('jabatan_id', $this->id)->count();
+    }
 }

@@ -135,6 +135,18 @@ class MasterBidangController extends Controller
             ]);
         }
 
+        // Akun pengguna (tabel users) yang terikat bidang ini lewat
+        // users.bidang_id (form Tambah/Edit Pengguna) — relasi FK
+        // restrictOnDelete juga melindungi di level database.
+        $userUsage = $bidang->userUsage();
+
+        if ($userUsage > 0) {
+            return redirect()->route('admin.master_bidang.index')->withErrors([
+                'delete' => "Bidang \"{$bidang->nama}\" tidak dapat dihapus karena masih digunakan oleh {$userUsage} akun pengguna. "
+                    . 'Data akun tidak diubah otomatis — pindahkan atau longgarkan terikatan akun tersebut terlebih dahulu.',
+            ]);
+        }
+
         $nama = $bidang->nama;
         $bidang->delete();
 

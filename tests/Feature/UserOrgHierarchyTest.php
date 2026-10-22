@@ -2,172 +2,178 @@
 
 namespace Tests\Feature;
 
+use App\Models\Bidang;
+use App\Models\Jabatan;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Hirarki Organisasi & aturan Role pada form Tambah Pengguna:
- * - level_jabatan, department, sub_department tersimpan di tabel users.
- * - Dropdown Role Pengguna HANYA berisi 3 aktor: Super Admin, Admin
- *   Bidang, Karyawan (role "Administrator" dihapus dari opsi).
- * - Kuota Super Admin: maksimal 3 akun di database.
- * - Field kondisional mengikuti ROLE terpilih:
- *   * Super Admin → seluruh field hirarki dikosongkan.
- *   * Admin Bidang → Level Jabatan disembunyikan/dikosongkan; Bidang
- *     Utama & Sub-Bidang wajib (dependent dropdown).
- *   * Karyawan → ketiga field tampil; Level Jabatan HANYA 4 tingkat
- *     (Senior Manager, Manager Bidang, Asisten Manager, Staff):
- *     - Senior Manager → department & sub_department DISEMBUNYIKAN total;
- *       backend memaksa keduanya null (ALL) otomatis. Kuota: maksimal 3
- *       akun Senior Manager AKTIF di database.
- *     - Manager Bidang → department wajib; sub_department DISEMBUNYIKAN
- *       (membawahi seluruh sub-bidang) → nilai terkirim dipaksa null.
- *     - Asisten Manager / Staff → department & sub_department wajib.
+ * Aturan organisasi pada form Tambah Pengguna (revisi 22 Okt 2026).
+ *
+ * Form hanya meminta Role Pengguna + Master Bidang + Master Jabatan.
+ * Kolom legacy yang dipakai filter data diturunkan otomatis:
+ *
+ * - department (+ department_id) & sub_department ← Master Bidang
+ *   (kolom department_code / sub_department_code).
+ * - level_jabatan ← nama Master Jabatan (role Karyawan saja):
+ *   Senior Manager / Manager Bidang / Asisten Manager / Staff.
+ *
+ * Aturan yang TETAP berlaku: kuota Super Admin (3), kuota Senior Manager
+ * aktif (3), pembersihan unit untuk Super Admin, dan role "Administrator"
+ * legacy yang tidak bisa dipilih.
  */
 class UserOrgHierarchyTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** Admin dengan permission users.create (edit fitur dihapus, hanya toggle). */
+    /** Admin dengan permission users.create. */
     private function admin(): User
     {
         return $this->userWithPermissions(['users.view', 'users.create', 'users.edit']);
     }
 
-    /**
-     * Role "Karyawan" — satu-satunya role yang membawa data hirarki
-     * (level_jabatan/department/sub_department) pada form pengguna.
-     */
-    private function role(): Role
+    private function role(string $name = 'Karyawan'): Role
     {
         return Role::firstOrCreate(
-            ['name' => 'Karyawan'],
-            ['description' => 'Pengguna internal / karyawan', 'status' => true]
+            ['name' => $name],
+            ['description' => $name, 'status' => true]
         );
     }
 
-    public function test_create_form_renders_three_hierarchy_dropdowns(): void
+    /** Bidang induk dengan kode legacy. */
+    private function bidangInduk(string $nama, string $departmentCode): Bidang
+    {
+        return Bidang::create([
+            'nama' => $nama,
+            'department_code' => $departmentCode,
+        ]);
+    }
+
+    /** Sub-bidang dengan kode legacy sendiri. */
+    private function subBidang(Bidang $parent, string $nama, string $departmentCode, string $subCode): Bidang
+    {
+        return Bidang::create([
+            'nama' => $nama,
+            'parent_id' => $parent->id,
+            'department_code' => $departmentCode,
+            'sub_department_code' => $subCode,
+        ]);
+    }
+
+    private function payload(array $overrides = []): array
+    {
+        return array_merge([
+            'name'                  => 'Budi Test',
+            'email'                 => 'budi.hierarki@example.com',
+            'password'              => 'password123',
+            'password_confirmation' => 'password123',
+            'role_id'               => $this->role()->id,
+            'no_hp'                 => '081234567890',
+            'alamat'                => 'Indramayu',
+        ], $overrides);
+    }
+
+    /* =========================================================
+       1. FORM — field manual lama sudah tidak ada
+       ========================================================= */
+
+    public function test_create_form_does_not_render_legacy_hierarchy_dropdowns(): void
     {
         $this->actingAs($this->admin())
             ->get(route('admin.users.create'))
             ->assertOk()
-            ->assertSee('name="level_jabatan"', false)
-            ->assertSee('name="department"', false)
-            ->assertSee('name="sub_department"', false)
-            // Label Sub-Bidang murni nama bidang (tanpa prefix jabatan).
-            ->assertSee('Prod A')
-            ->assertSee('CHCB D');
+            ->assertDontSee('name="level_jabatan"', false)
+            ->assertDontSee('name="department"', false)
+            ->assertDontSee('name="sub_department"', false)
+            ->assertSee('name="role_id"', false)
+            ->assertSee('name="bidang_id"', false)
+            ->assertSee('name="jabatan_id"', false);
     }
 
-    public function test_create_form_level_jabatan_has_only_four_levels(): void
+    /* =========================================================
+       2. LEVEL JABATAN — diturunkan dari nama Master Jabatan
+       ========================================================= */
+
+    public function test_level_is_derived_from_master_jabatan_name(): void
     {
+        $this->assertSame('senior_manager', User::levelJabatanFromJabatanName('SENIOR MANAGER UP INDRAMAYU'));
+        $this->assertSame('manager_bidang', User::levelJabatanFromJabatanName('MANAGER ENJINIRING & QA'));
+        $this->assertSame('asisten_manager', User::levelJabatanFromJabatanName('ASMAN  SYSTEM OWNER COMMON AUX'));
+        $this->assertSame('asisten_manager', User::levelJabatanFromJabatanName('ASISTEN ANALIS SO TURBIN'));
+        $this->assertSame('staf', User::levelJabatanFromJabatanName('STAF TEKNIK'));
+        $this->assertSame('staf', User::levelJabatanFromJabatanName(null));
+    }
+
+    public function test_store_saves_hierarchy_derived_from_master_unit(): void
+    {
+        $induk = $this->bidangInduk('BIDANG OPERASI', 'operasi');
+        $sub = $this->subBidang($induk, 'SUB BIDANG CHCB A', 'operasi', 'spv_chcb_a');
+        $jabatan = Jabatan::create(['nama' => 'STAF TEKNIK', 'bidang_id' => $sub->id]);
+
         $this->actingAs($this->admin())
-            ->get(route('admin.users.create'))
-            ->assertOk()
-            // 4 tingkat baru wajib tersedia sebagai opsi dropdown.
-            ->assertSee('<option value="senior_manager">', false)
-            ->assertSee('<option value="manager_bidang">', false)
-            ->assertSee('<option value="asisten_manager">', false)
-            ->assertSee('<option value="staf">Staff</option>', false)
-            // Opsi lama tidak lagi tersedia di dropdown.
-            ->assertDontSee('<option value="administrator">', false)
-            ->assertDontSee('<option value="staf_spv">', false);
-    }
-
-    public function test_store_saves_hierarchy_for_staf(): void
-    {
-        $response = $this->actingAs($this->admin())
-            ->post(route('admin.users.store'), [
-                'name'           => 'Budi Staf',
-                'email'          => 'budi.staf@example.com',
-                'password'       => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'        => $this->role()->id,
-                'level_jabatan'  => 'staf',
-                'department'     => 'operasi',
-                'sub_department' => 'spv_chcb_a',
-            ]);
-
-        $response->assertRedirect(route('admin.users.index'));
+            ->post(route('admin.users.store'), $this->payload([
+                'bidang_id' => $sub->id,
+                'jabatan_id' => $jabatan->id,
+            ]))
+            ->assertRedirect(route('admin.users.index'));
 
         $this->assertDatabaseHas('users', [
-            'email'          => 'budi.staf@example.com',
+            'email'          => 'budi.hierarki@example.com',
             'level_jabatan'  => 'staf',
             'department'     => 'operasi',
             'sub_department' => 'spv_chcb_a',
         ]);
     }
 
-    public function test_store_manager_bidang_requires_department_and_sub_hidden(): void
+    public function test_store_manager_bidang_clears_sub_department(): void
     {
-        // Department wajib → tanpa department validasi gagal.
-        $this->actingAs($this->admin())
-            ->from(route('admin.users.create'))
-            ->post(route('admin.users.store'), [
-                'name'          => 'Rina Manager',
-                'email'         => 'rina.manager@example.com',
-                'password'      => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'       => $this->role()->id,
-                'level_jabatan' => 'manager_bidang',
-                'sub_department' => 'spv_chcb_a',
-            ])
-            ->assertSessionHasErrors('department');
+        $induk = $this->bidangInduk('BIDANG OPERASI', 'operasi');
+        $sub = $this->subBidang($induk, 'SUB BIDANG CHCB A', 'operasi', 'spv_chcb_a');
+        $jabatan = Jabatan::create(['nama' => 'MANAGER OPERASI', 'bidang_id' => $sub->id]);
 
-        // Dengan department (sub disembunyikan) → sukses; sub_department
-        // dipaksa NULL walau dikirim via API — Manager membawahi seluruh
-        // sub-bidang bidangnya.
         $this->actingAs($this->admin())
-            ->post(route('admin.users.store'), [
-                'name'          => 'Rina Manager',
-                'email'         => 'rina.manager@example.com',
-                'password'      => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'       => $this->role()->id,
-                'level_jabatan' => 'manager_bidang',
-                'department'    => 'operasi',
-                'sub_department' => 'spv_chcb_a',
-            ]);
+            ->post(route('admin.users.store'), $this->payload([
+                'bidang_id' => $sub->id,
+                'jabatan_id' => $jabatan->id,
+            ]))
+            ->assertRedirect(route('admin.users.index'));
 
+        // Manager membawahi seluruh sub-bidang → sub dikosongkan server.
         $this->assertDatabaseHas('users', [
-            'email'         => 'rina.manager@example.com',
-            'level_jabatan' => 'manager_bidang',
-            'department'    => 'operasi',
+            'email'          => 'budi.hierarki@example.com',
+            'level_jabatan'  => 'manager_bidang',
+            'department'     => 'operasi',
             'sub_department' => null,
         ]);
     }
 
-    public function test_store_senior_manager_forces_null_department_and_sub(): void
+    public function test_store_senior_manager_has_global_access(): void
     {
-        // Senior Manager (akses global view-only semua bidang): Bidang
-        // Utama & Sub-Bidang disembunyikan total dari form → keduanya
-        // dipaksa NULL (ALL) otomatis walau dikirim via API.
+        $induk = $this->bidangInduk('BIDANG OPERASI', 'operasi');
+        $jabatan = Jabatan::create(['nama' => 'SENIOR MANAGER UP INDRAMAYU', 'bidang_id' => $induk->id]);
+
         $this->actingAs($this->admin())
-            ->post(route('admin.users.store'), [
-                'name'           => 'Pak Senio',
-                'email'          => 'senior.manager@example.com',
-                'password'       => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'        => $this->role()->id,
-                'level_jabatan'  => 'senior_manager',
-                'department'     => 'operasi',
-                'sub_department' => 'spv_chcb_a',
-            ])
+            ->post(route('admin.users.store'), $this->payload([
+                'bidang_id' => $induk->id,
+                'jabatan_id' => $jabatan->id,
+            ]))
             ->assertRedirect(route('admin.users.index'));
 
-        $this->assertDatabaseHas('users', [
-            'email'          => 'senior.manager@example.com',
-            'level_jabatan'  => 'senior_manager',
-            'department'     => null,
-            'sub_department' => null,
-        ]);
+        $user = User::where('email', 'budi.hierarki@example.com')->firstOrFail();
+
+        $this->assertSame('senior_manager', $user->level_jabatan);
+        $this->assertNull($user->sub_department);
+        $this->assertTrue($user->bypassesDataScoping());
+        $this->assertSame('bypass', $user->dataScopingLevel());
     }
 
     public function test_store_senior_manager_blocked_after_quota_reached(): void
     {
-        // Isi kuota: 3 akun Senior Manager AKTIF sudah ada di database.
+        $induk = $this->bidangInduk('BIDANG OPERASI', 'operasi');
+        $jabatan = Jabatan::create(['nama' => 'SENIOR MANAGER UP INDRAMAYU', 'bidang_id' => $induk->id]);
+
         User::factory()->count(3)->create([
             'role'           => 'Karyawan',
             'role_id'        => $this->role()->id,
@@ -178,23 +184,22 @@ class UserOrgHierarchyTest extends TestCase
 
         $this->actingAs($this->admin())
             ->from(route('admin.users.create'))
-            ->post(route('admin.users.store'), [
-                'name'           => 'Senior Keempat',
-                'email'          => 'senior.keempat@example.com',
-                'password'       => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'        => $this->role()->id,
-                'level_jabatan'  => 'senior_manager',
-            ])
-            ->assertSessionHasErrors('level_jabatan');
+            ->post(route('admin.users.store'), $this->payload([
+                'email' => 'senior.keempat@example.com',
+                'bidang_id' => $induk->id,
+                'jabatan_id' => $jabatan->id,
+            ]))
+            ->assertSessionHasErrors('jabatan_id');
 
         $this->assertDatabaseMissing('users', ['email' => 'senior.keempat@example.com']);
     }
 
     public function test_senior_manager_quota_ignores_inactive_accounts(): void
     {
-        // Akun Senior Manager NONAKTIF (email belum terverifikasi) tidak
-        // memakan slot kuota — hanya akun AKTIF yang dihitung.
+        $induk = $this->bidangInduk('BIDANG OPERASI', 'operasi');
+        $jabatan = Jabatan::create(['nama' => 'SENIOR MANAGER UP INDRAMAYU', 'bidang_id' => $induk->id]);
+
+        // Akun Senior Manager NONAKTIF tidak memakan slot kuota.
         User::factory()->count(3)->create([
             'role'              => 'Karyawan',
             'role_id'           => $this->role()->id,
@@ -205,53 +210,47 @@ class UserOrgHierarchyTest extends TestCase
         $this->assertSame(0, User::seniorManagerAccountCount());
 
         $this->actingAs($this->admin())
-            ->post(route('admin.users.store'), [
-                'name'           => 'Senior Aktif',
-                'email'          => 'senior.aktif@example.com',
-                'password'       => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'        => $this->role()->id,
-                'level_jabatan'  => 'senior_manager',
-            ])
+            ->post(route('admin.users.store'), $this->payload([
+                'email' => 'senior.aktif@example.com',
+                'bidang_id' => $induk->id,
+                'jabatan_id' => $jabatan->id,
+            ]))
             ->assertRedirect(route('admin.users.index'));
 
         $this->assertDatabaseHas('users', ['email' => 'senior.aktif@example.com']);
     }
 
-    public function test_store_staf_requires_sub_department(): void
+    /* =========================================================
+       3. INPUT LEGACY DIABAIKAN — anti manipulasi
+       ========================================================= */
+
+    public function test_manually_posted_legacy_fields_are_ignored(): void
     {
+        $induk = $this->bidangInduk('BIDANG OPERASI', 'operasi');
+
+        // Payload mengirim level/department/sub manual + bidang master.
+        // Server WAJIB memakai turunan Master Bidang/Jabatan, bukan kiriman.
         $this->actingAs($this->admin())
-            ->from(route('admin.users.create'))
-            ->post(route('admin.users.store'), [
-                'name'          => 'Sinta Staf',
-                'email'         => 'sinta.staf@example.com',
-                'password'      => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'       => $this->role()->id,
-                'level_jabatan' => 'staf',
-                'department'    => 'operasi',
-                // sub_department tidak diisi → wajib, gagal.
-            ])
-            ->assertSessionHasErrors('sub_department');
+            ->post(route('admin.users.store'), $this->payload([
+                'bidang_id'      => $induk->id,
+                'level_jabatan'  => 'senior_manager',
+                'department'     => 'engineering',
+                'sub_department' => 'asmen_so',
+            ]))
+            ->assertRedirect(route('admin.users.index'));
+
+        $user = User::where('email', 'budi.hierarki@example.com')->firstOrFail();
+
+        $this->assertSame('operasi', $user->department);
+        $this->assertNull($user->sub_department);
+        // Tanpa jabatan → level default staff, BUKAN senior_manager.
+        $this->assertSame('staf', $user->level_jabatan);
+        $this->assertFalse($user->bypassesDataScoping());
     }
 
-    public function test_store_rejects_legacy_level_jabatan_value(): void
-    {
-        // Level lama ('administrator' / 'staf_spv') tidak lagi valid di form.
-        $this->actingAs($this->admin())
-            ->from(route('admin.users.create'))
-            ->post(route('admin.users.store'), [
-                'name'          => 'Akun Level Lama',
-                'email'         => 'level.lama@example.com',
-                'password'      => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'       => $this->role()->id,
-                'level_jabatan' => 'staf_spv',
-                'department'    => 'operasi',
-                'sub_department' => 'spv_chcb_a',
-            ])
-            ->assertSessionHasErrors('level_jabatan');
-    }
+    /* =========================================================
+       4. ROLE & KUOTA
+       ========================================================= */
 
     /** Role "Administrator" (legacy) — tidak lagi dapat dipilih. */
     private function administratorRole(): Role
@@ -264,7 +263,7 @@ class UserOrgHierarchyTest extends TestCase
 
     public function test_create_form_offers_only_three_assignable_roles(): void
     {
-        $this->administratorRole(); // role legacy harus TIDAK muncul di dropdown.
+        $this->administratorRole();
 
         $this->actingAs($this->admin())
             ->get(route('admin.users.create'))
@@ -272,8 +271,6 @@ class UserOrgHierarchyTest extends TestCase
             ->assertSee('Super Admin', false)
             ->assertSee('Admin Bidang', false)
             ->assertSee('Karyawan', false)
-            // Opsi role "Administrator" tidak ikut ter-render (id role
-            // legacy tidak ada sebagai value option mana pun).
             ->assertDontSee('<option value="' . $this->administratorRole()->id . '"', false);
     }
 
@@ -281,14 +278,10 @@ class UserOrgHierarchyTest extends TestCase
     {
         $this->actingAs($this->admin())
             ->from(route('admin.users.create'))
-            ->post(route('admin.users.store'), [
-                'name'          => 'Akun Legacy',
-                'email'         => 'legacy.admin@example.com',
-                'password'      => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'       => $this->administratorRole()->id,
-                'level_jabatan' => 'administrator',
-            ])
+            ->post(route('admin.users.store'), $this->payload([
+                'email' => 'legacy.admin@example.com',
+                'role_id' => $this->administratorRole()->id,
+            ]))
             ->assertSessionHasErrors('role_id');
 
         $this->assertDatabaseMissing('users', ['email' => 'legacy.admin@example.com']);
@@ -296,24 +289,22 @@ class UserOrgHierarchyTest extends TestCase
 
     public function test_store_super_admin_clears_all_hierarchy_fields(): void
     {
-        $superAdmin = Role::firstOrCreate(
-            ['name' => 'Super Admin'],
-            ['description' => 'Super Admin', 'status' => true]
-        );
+        $superAdmin = $this->role('Super Admin');
+        $induk = $this->bidangInduk('BIDANG OPERASI', 'operasi');
+        $jabatan = Jabatan::create(['nama' => 'SENIOR MANAGER UP INDRAMAYU', 'bidang_id' => $induk->id]);
 
-        // Field hirarki tersembunyi di UI, tetapi nilai terkirim via API
-        // tetap harus dibersihkan server.
+        // Field unit tersembunyi untuk Super Admin; nilai kiriman via API
+        // tetap dibersihkan server.
         $this->actingAs($this->admin())
-            ->post(route('admin.users.store'), [
-                'name'           => 'Pak Super',
+            ->post(route('admin.users.store'), $this->payload([
                 'email'          => 'pak.super@example.com',
-                'password'       => 'password123',
-                'password_confirmation' => 'password123',
                 'role_id'        => $superAdmin->id,
                 'level_jabatan'  => 'senior_manager',
                 'department'     => 'operasi',
                 'sub_department' => 'spv_chcb_a',
-            ])
+                'bidang_id'      => $induk->id,
+                'jabatan_id'     => $jabatan->id,
+            ]))
             ->assertRedirect(route('admin.users.index'));
 
         $this->assertDatabaseHas('users', [
@@ -321,58 +312,52 @@ class UserOrgHierarchyTest extends TestCase
             'level_jabatan'  => null,
             'department'     => null,
             'sub_department' => null,
+            'bidang_id'      => null,
+            'jabatan_id'     => null,
         ]);
     }
 
-    public function test_store_admin_bidang_requires_department_and_sub_department(): void
+    public function test_store_admin_bidang_requires_master_bidang(): void
     {
-        $adminBidang = Role::firstOrCreate(
-            ['name' => 'Admin Bidang'],
-            ['description' => 'Admin Bidang', 'status' => true]
-        );
+        $adminBidang = $this->role('Admin Bidang');
 
-        // Bidang Utama & Sub-Bidang wajib → tanpa keduanya validasi gagal.
+        // Master bidangs terisi → bidang wajib untuk Admin Bidang.
+        $this->bidangInduk('BIDANG ENJINIRING', 'engineering');
+
         $this->actingAs($this->admin())
             ->from(route('admin.users.create'))
-            ->post(route('admin.users.store'), [
-                'name'           => 'Dewi Admin Bidang',
-                'email'          => 'dewi.admin.bidang@example.com',
-                'password'       => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'        => $adminBidang->id,
-            ])
-            ->assertSessionHasErrors(['department', 'sub_department']);
+            ->post(route('admin.users.store'), $this->payload([
+                'email' => 'dewi.admin.bidang@example.com',
+                'role_id' => $adminBidang->id,
+            ]))
+            ->assertSessionHasErrors('bidang_id');
 
-        // Dengan department + sub → sukses; level dipaksa null walau dikirim.
+        // Dengan Master Bidang → sukses; level tetap null (bukan dari
+        // jabatan) agar tidak ada eskalasi bypass global.
+        $induk = $this->bidangInduk('BIDANG PEMELIHARAAN', 'pemeliharaan');
+        $sub = $this->subBidang($induk, 'SUB BIDANG OUTAGE MANAGEMENT', 'pemeliharaan', 'asmen_mo');
+
         $this->actingAs($this->admin())
-            ->post(route('admin.users.store'), [
-                'name'           => 'Dewi Admin Bidang',
-                'email'          => 'dewi.admin.bidang@example.com',
-                'password'       => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'        => $adminBidang->id,
-                'level_jabatan'  => 'senior_manager',
-                'department'     => 'engineering',
-                'sub_department' => 'asmen_so',
-            ])
+            ->post(route('admin.users.store'), $this->payload([
+                'email' => 'dewi.admin.bidang@example.com',
+                'role_id' => $adminBidang->id,
+                'level_jabatan' => 'senior_manager', // diabaikan
+                'bidang_id' => $sub->id,
+            ]))
             ->assertRedirect(route('admin.users.index'));
 
         $user = User::where('email', 'dewi.admin.bidang@example.com')->firstOrFail();
 
         $this->assertNull($user->level_jabatan);
-        $this->assertSame('engineering', $user->department);
-        $this->assertSame('asmen_so', $user->sub_department);
+        $this->assertSame('pemeliharaan', $user->department);
+        $this->assertSame('asmen_mo', $user->sub_department);
         $this->assertNotNull($user->department_id);
     }
 
     public function test_store_super_admin_blocked_after_quota_reached(): void
     {
-        $superAdmin = Role::firstOrCreate(
-            ['name' => 'Super Admin'],
-            ['description' => 'Super Admin', 'status' => true]
-        );
+        $superAdmin = $this->role('Super Admin');
 
-        // Isi kuota: 3 akun Super Admin sudah ada di database.
         User::factory()->count(3)->create([
             'role'    => 'Super Admin',
             'role_id' => $superAdmin->id,
@@ -380,13 +365,10 @@ class UserOrgHierarchyTest extends TestCase
 
         $this->actingAs($this->admin())
             ->from(route('admin.users.create'))
-            ->post(route('admin.users.store'), [
-                'name'           => 'Super Keempat',
-                'email'          => 'super.keempat@example.com',
-                'password'       => 'password123',
-                'password_confirmation' => 'password123',
-                'role_id'        => $superAdmin->id,
-            ])
+            ->post(route('admin.users.store'), $this->payload([
+                'email' => 'super.keempat@example.com',
+                'role_id' => $superAdmin->id,
+            ]))
             ->assertSessionHasErrors('role_id');
 
         $this->assertSame(3, User::superAdminAccountCount());
@@ -397,7 +379,6 @@ class UserOrgHierarchyTest extends TestCase
     {
         $administrator = $this->administratorRole();
 
-        // Akun legacy "Administrator" diperlakukan setara Super Admin.
         User::factory()->count(3)->create([
             'role'    => 'Administrator',
             'role_id' => $administrator->id,
@@ -405,5 +386,4 @@ class UserOrgHierarchyTest extends TestCase
 
         $this->assertSame(3, User::superAdminAccountCount());
     }
-
 }

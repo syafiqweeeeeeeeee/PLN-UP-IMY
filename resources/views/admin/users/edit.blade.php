@@ -52,6 +52,8 @@
             'roles'                 => $roles,
             'menuMatrix'            => $menuMatrix ?? [],
             'userPermissionIds'     => $userPermissionIds ?? [],
+            'bidangs'               => $bidangs ?? collect(),
+            'jabatans'              => $jabatans ?? collect(),
             'isEditingSuperAdmin'   => $isEditingSuperAdmin,
             'backUrl'               => $backUrl,
             'cancelUrl'             => $cancelUrl,

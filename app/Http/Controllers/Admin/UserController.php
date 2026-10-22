@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bidang;
 use App\Models\Department;
+use App\Models\Jabatan;
 use App\Models\MasterMenu;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -22,121 +25,50 @@ class UserController extends Controller
     }
 
     /**
-     * Aturan validasi Hirarki Organisasi (level_jabatan, department,
-     * sub_department) — dipakai oleh store() & update(). Digerakkan
-     * oleh ROLE yang dipilih (conditional fields):
+     * Terapkan SCOPING ORGANISASI dari MASTER Bidang & Jabatan.
      *
-     * - Super Admin → seluruh field hirarki disembunyikan: level_jabatan,
-     *   department & sub_department dipaksa null (nilai tersembunyi
-     *   dari form diabaikan).
-     * - Admin Bidang → Level Jabatan disembunyikan; Bidang Utama &
-     *   Sub-Bidang / Bagian tampil & wajib (dependent dropdown) — unit
-     *   kerja = bidang + sub-bidang (data scoping terkunci sub).
-     * - Karyawan → ketiga field selalu tampil; Level Jabatan HANYA 4
-     *   tingkat (Senior Manager, Manager Bidang, Asisten Manager, Staff).
-     *   Kewajiban department/sub_department mengikuti tingkat akses level:
-     *   * Senior Manager → akses global view-only semua bidang: Bidang
-     *     Utama & Sub-Bidang DISEMBUNYIKAN total dari form → keduanya
-     *     dipaksa null (ALL) otomatis di backend tanpa dipilih manual.
-     *   * Manager Bidang → department wajib; Sub-Bidang disembunyikan
-     *     (membawahi seluruh sub-bidang bidangnya) → nilai dikirim pun
-     *     diabaikan (dipaksa null di normalizeOrgHierarchy()).
-     *   * Asisten Manager / Staff → department & sub_department wajib
-     *     (akses portal terkunci di sub-bidangnya).
+     * Form Pengguna hanya menyimpan role_id + bidang_id + jabatan_id.
+     * Filter data lama tetap membaca users.department / department_id /
+     * sub_department / level_jabatan, jadi keempat nilai itu diturunkan
+     * otomatis di sini:
      *
-     * @return array{0: array<string, string>, 1: array<string, string>} [rules, attributes]
+     * - department (+ department_id) → Bidang::departmentCode() (kode
+     *   legacy bidang induk; sub-bidang mewarisi induknya).
+     * - sub_department → Bidang::subDepartmentCode() (NULL bila baris
+     *   yang dipilih adalah bidang induk / belum dipetakan).
+     * - level_jabatan → User::levelJabatanFromJabatanName() untuk role
+     *   Karyawan. Role lain (Admin Bidang, Super Admin, role buatan
+     *   admin) TIDAK memperoleh level dari jabatan — mencegah eskalasi
+     *   akses global (bypass data) lewat pemilihan jabatan.
+     *
+     * Senior Manager & Manager Bidang membawahi seluruh sub-bidang,
+     * jadi sub_department dikosongkan agar scope memakai level bidang.
      */
-    private static function orgHierarchyRules(string $roleName, string $levelJabatan): array
+    private static function applyOrgScoping(array &$data, string $roleName): void
     {
-        $levels      = implode(',', array_keys(User::LEVEL_JABATAN));
-        $departments = array_keys(User::DEPARTMENTS);
-        $subCodes    = array_merge(...array_map('array_keys', array_values(User::SUB_DEPARTMENTS)));
+        $bidangId  = self::normalizeIdInput($data['bidang_id'] ?? null);
+        $jabatanId = self::normalizeIdInput($data['jabatan_id'] ?? null);
 
-        $rules = [
-            'level_jabatan'  => 'nullable|in:' . $levels,
-            'department'     => 'nullable|in:' . implode(',', $departments),
-            'sub_department' => 'nullable|in:' . implode(',', array_merge($subCodes, [''])),
-        ];
+        $bidang  = $bidangId !== null ? Bidang::find($bidangId) : null;
+        $jabatan = $jabatanId !== null ? Jabatan::find($jabatanId) : null;
 
-        if ($roleName === User::SUPER_ADMIN_ROLE) {
-            // Super Admin: hirarki tidak relevan → field disembunyikan,
-            // nilai apa pun yang dikirim (mis. via API) diabaikan.
-            $rules['level_jabatan']  = 'nullable';
-            $rules['department']     = 'nullable';
-            $rules['sub_department'] = 'nullable';
-        } elseif ($roleName === User::DEPARTMENT_ADMIN_ROLE) {
-            // Admin Bidang: Level disembunyikan; Bidang Utama & Sub-Bidang
-            // wajib dipilih (pemetaan per unit kerja spesifik).
-            $rules['level_jabatan']  = 'nullable';
-            $rules['department']     = 'required|in:' . implode(',', $departments);
-            $rules['sub_department'] = 'required|in:' . implode(',', $subCodes);
-        } elseif ($roleName === 'Karyawan') {
-            // Karyawan: Level Jabatan (4 tingkat) wajib; kewajiban bidang
-            // & sub mengikuti tingkat akses level terpilih.
-            $rules['level_jabatan'] = 'required|in:' . $levels;
+        $departmentCode = $bidang?->departmentCode();
+        $subCode        = $bidang?->subDepartmentCode();
 
-            if (! User::isGlobalLevel($levelJabatan)) {
-                $rules['department'] = 'required|in:' . implode(',', $departments);
-            }
+        $level = $roleName === 'Karyawan'
+            ? User::levelJabatanFromJabatanName($jabatan?->nama)
+            : null;
 
-            if (User::subDepartmentRequired($levelJabatan)) {
-                $rules['sub_department'] = 'required|in:' . implode(',', $subCodes);
-            }
-        } else {
-            // Role tidak dikenal / tidak assignable — field tidak divalidasi
-            // (plain nullable) agar penolakan terjadi pada validasi role_id
-            // dengan pesan "Role yang dipilih tidak valid.".
-            $rules['level_jabatan']  = 'nullable';
-            $rules['department']     = 'nullable';
-            $rules['sub_department'] = 'nullable';
+        if (in_array($level, ['senior_manager', 'manager_bidang'], true)) {
+            $subCode = null;
         }
 
-        return [
-            $rules,
-            [
-                'level_jabatan' => 'Level Jabatan',
-                'department' => 'Bidang Utama',
-                'sub_department' => 'Sub-Bidang / Bagian',
-            ],
-        ];
-    }
-
-    /**
-     * Rapikan nilai hierarki sebelum disimpan, sesuai ROLE terpilih:
-     * Super Admin → seluruh hirarki dikosongkan; Admin Bidang → Level
-     * Jabatan dikosongkan (field disembunyikan). Karyawan level Senior
-     * Manager → bidang & sub dikosongkan (akses global); level Manager
-     * Bidang → Sub-Bidang dikosongkan (membawahi seluruh sub-bidang).
-     * Ketiga key dijamin selalu ada (field opsional boleh absen).
-     */
-    private static function normalizeOrgHierarchy(array &$data, string $roleName): void
-    {
-        if ($roleName === User::SUPER_ADMIN_ROLE) {
-            $data['level_jabatan']  = null;
-            $data['department']     = null;
-            $data['sub_department'] = null;
-        } elseif ($roleName === User::DEPARTMENT_ADMIN_ROLE) {
-            $data['level_jabatan'] = null;
-        } elseif ($roleName === 'Karyawan') {
-            // Senior Manager: Bidang Utama & Sub-Bidang disembunyikan total
-            // → keduanya dipaksa null (ALL / akses global view-only) walau
-            // nilai dikirim via API.
-            if (($data['level_jabatan'] ?? null) === 'senior_manager') {
-                $data['department']     = null;
-                $data['sub_department'] = null;
-            }
-
-            // Manager Bidang membawahi seluruh sub-bidang → field
-            // Sub-Bidang disembunyikan; nilai terkirim (mis. via API)
-            // diabaikan.
-            if (($data['level_jabatan'] ?? null) === 'manager_bidang') {
-                $data['sub_department'] = null;
-            }
-        }
-
-        $data['level_jabatan']  = $data['level_jabatan'] ?? null;
-        $data['department']     = $data['department'] ?? null;
-        $data['sub_department'] = $data['sub_department'] ?? null;
+        $data['department']     = $departmentCode;
+        $data['department_id']  = $departmentCode !== null
+            ? Department::byCode($departmentCode)?->id
+            : null;
+        $data['sub_department'] = $subCode;
+        $data['level_jabatan']  = $level;
     }
 
     /**
@@ -178,6 +110,190 @@ class UserController extends Controller
         \App\Providers\AuthServiceProvider::flushPermissionGateCache();
     }
     /**
+     * Daftar MASTER Bidang untuk dropdown form Pengguna — urut nama
+     * (pilihan murni dari tabel bidangs, bukan dari konstanta RBAC
+     * User::DEPARTMENTS yang tetap dipakai untuk scoping data).
+     */
+    private static function masterBidangsForForm(): \Illuminate\Support\Collection
+    {
+        // Hanya bidang yang punya kode legacy (hasil pemetaan migrasi) yang
+        // bisa dipakai sebagai unit kerja akun — baris unit induk (mis.
+        // "PLTU INDRAMAYU") tanpa kode tidak boleh menghasilkan akun tanpa
+        // pengikatan bidang (yang berarti melihat seluruh data).
+        return Bidang::query()
+            ->with('parent')
+            ->orderBy('nama')
+            ->get(['id', 'nama', 'parent_id', 'department_code', 'sub_department_code'])
+            ->filter(fn (Bidang $bidang) => $bidang->hasLegacyScope())
+            ->values();
+    }
+
+    /**
+     * Daftar MASTER Jabatan untuk dropdown form Pengguna — mengembalikan
+     * [{id, nama, bidang_id}] urut nama. Field `bidang_id` dipakai JS
+     * di form untuk dependent dropdown (jabatan mengikuti bidang yang
+     * dipilih).
+     */
+    private static function masterJabatansForForm(): \Illuminate\Support\Collection
+    {
+        return Jabatan::query()->orderBy('nama')->get(['id', 'nama', 'bidang_id']);
+    }
+
+    /**
+     * Role yang form-nya menampilkan (dan mewajibkan) dropdown MASTER
+     * Bidang & Jabatan (tabel bidangs & jabatans).
+     *
+     * Catatan penting: Jabatan di sini adalah POSISI PEKERJAAN dari
+     * master data organisasi — BUKAN role. Hak akses sistem tetap
+     * sepenuhnya ditentukan oleh role_id (+ direct permission), tidak
+     * pernah oleh jabatan maupun bidang.
+     *
+     * @return array<int, string>
+     */
+    private static function masterUnitRequiredRoles(): array
+    {
+        return [User::DEPARTMENT_ADMIN_ROLE, 'Karyawan'];
+    }
+
+    /**
+     * Aturan validasi MASTER Bidang & Jabatan (fitur Tambah/Edit
+     * Pengguna) — satu-satunya input organisasi pada form; level
+     * jabatan, department, dan sub_department diturunkan otomatis
+     * oleh applyOrgScoping():
+     *
+     * - bidang_id  → bila diisi harus merujuk baris di `bidangs`.
+     * - jabatan_id → bila diisi WAJIB merujuk baris di `jabatans` DAN
+     *                milik bidang yang dipilih (Rule exists dengan where
+     *                bidang_id).
+     *
+     * Sifat WAJIB (role Karyawan & Admin Bidang wajib memilih bidang;
+     * jabatan wajib bila bidangnya punya daftar jabatan) ditegakkan
+     * terpisah oleh assertMasterUnitComplete() SETELAH nilai dinormalisasi
+     * (fallback nilai tersimpan saat field tidak dikirim pada update) —
+     * bukan lewat rule 'required', agar update tanpa kedua field tidak
+     * salah-gagal validasi.
+     *
+     * @return array{0: array<string, mixed>, 1: array<string, string>}
+     */
+    private static function masterUnitRules(?int $bidangId): array
+    {
+        $rules = [
+            'bidang_id' => ['nullable', 'integer', 'exists:bidangs,id'],
+            'jabatan_id' => [
+                'nullable',
+                'integer',
+                // Jabatan harus berada di bawah bidang terpilih; tanpa
+                // bidang (null) mustahil cocok → otomatis ditolak.
+                Rule::exists('jabatans', 'id')->where('bidang_id', $bidangId),
+            ],
+        ];
+
+        return [
+            $rules,
+            [
+                'bidang_id.integer'   => 'Bidang (master) tidak valid.',
+                'bidang_id.exists'    => 'Bidang (master) tidak ditemukan — pilih dari daftar bidang yang tersedia.',
+                'jabatan_id.integer'  => 'Jabatan tidak valid.',
+                'jabatan_id.exists'   => 'Jabatan tidak valid — pilih jabatan yang berada di bidang yang dipilih.',
+            ],
+        ];
+    }
+
+    /**
+     * Pengecekan KEWAJIBAN master bidang/jabatan — dijalankan SETELAH
+     * nilai dinormalisasi (jadi field yang tidak dikirim sudah jatuh ke
+     * nilai tersimpan / null yang konsisten):
+     *
+     * - Role Karyawan & Admin Bidang → bidang_id wajib diisi HANYA bila
+     *   tabel master bidangs sudah terisi — lingkungan tanpa master data
+     *   (install baru / belum di-seed) tetap bisa membuat akun.
+     * - Bidang terpilih yang punya daftar jabatan di master →
+     *   jabatan_id wajib terisi (bidang tanpa jabatan tidak memaksa).
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    private static function assertMasterUnitComplete(array $data, string $roleName): void
+    {
+        $bidangId  = self::normalizeIdInput($data['bidang_id'] ?? null);
+        $jabatanId = self::normalizeIdInput($data['jabatan_id'] ?? null);
+
+        if (in_array($roleName, self::masterUnitRequiredRoles(), true)
+            && $bidangId === null
+            && Bidang::query()->exists()) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'bidang_id' => 'Bidang (master) wajib dipilih untuk role ini.',
+            ]);
+        }
+
+        if ($bidangId !== null
+            && $jabatanId === null
+            && Jabatan::query()->where('bidang_id', $bidangId)->exists()) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'jabatan_id' => 'Jabatan wajib dipilih — bidang yang dipilih memiliki daftar jabatan.',
+            ]);
+        }
+    }
+
+    /**
+     * Rapikan input ID (string form / integer / null) menjadi ?int untuk
+     * dipakai dalam Rule exists (null bila kosong/tidak valid).
+     */
+    private static function normalizeIdInput(mixed $value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return is_numeric($value) ? (int) $value : null;
+    }
+
+    /**
+     * Rapikan nilai MASTER Bidang & Jabatan sebelum disimpan:
+     * - Super Admin → keduanya dipaksa null (field disembunyikan di form,
+     *   nilai kiriman via API diabaikan) — sama seperti hirarki RBAC.
+     * - Update dengan field TIDAK dikirim → nilai tersimpan dipertahankan
+     *   (kecuali bidang berubah tanpa jabatan ikut dikirim → jabatan
+     *   dikosongkan agar tidak menyimpan pasangan tidak konsisten).
+     * - Bidang kosong → jabatan ikut dikosongkan (jabatan selalu terikat
+     *   satu bidang; konsistensi referensi dijaga server-side).
+     * Kedua key dijamin selalu ada (field nullable boleh absen).
+     */
+    private static function normalizeMasterUnit(array &$data, string $roleName, ?User $current = null): void
+    {
+        if ($roleName === User::SUPER_ADMIN_ROLE) {
+            $data['bidang_id']  = null;
+            $data['jabatan_id'] = null;
+
+            return;
+        }
+
+        if ($current !== null) {
+            $bidangProvided = array_key_exists('bidang_id', $data);
+
+            if (! $bidangProvided) {
+                $data['bidang_id'] = $current->bidang_id;
+            }
+
+            if (! array_key_exists('jabatan_id', $data)) {
+                // Jabatan lama hanya dipertahankan bila bidangnya ikut
+                // dipertahankan — kalau bidang berubah, pasangan lama
+                // tidak lagi valid.
+                $data['jabatan_id'] = ($bidangProvided
+                    && (int) $data['bidang_id'] !== (int) $current->bidang_id)
+                    ? null
+                    : $current->jabatan_id;
+            }
+        }
+
+        $data['bidang_id']  = $data['bidang_id'] ?? null;
+        $data['jabatan_id'] = $data['jabatan_id'] ?? null;
+
+        if ($data['bidang_id'] === null) {
+            $data['jabatan_id'] = null;
+        }
+    }
+
+    /**
      * Aturan payload bersama store() & update(). Password opsional
      * pada update (kosong = tidak diganti).
      */
@@ -207,8 +323,10 @@ class UserController extends Controller
             ->sortBy(fn (Role $role) => array_search($role->name, User::ASSIGNABLE_ROLE_NAMES))
             ->values();
 
+        // Role legacy ("Administrator") tidak ditawarkan lagi — akun lama
+        // tetap dikenali sistem, tetapi tidak dapat dipilih/diberikan.
         $otherRoles = Role::where('status', true)
-            ->whereNotIn('name', User::ASSIGNABLE_ROLE_NAMES)
+            ->whereNotIn('name', array_merge(User::ASSIGNABLE_ROLE_NAMES, User::LEGACY_ROLE_NAMES))
             ->get()
             ->sortBy('name')
             ->values();
@@ -218,6 +336,8 @@ class UserController extends Controller
         return view('admin.users.create', [
             'roles'      => $roles,
             'menuMatrix' => MasterMenu::matrixForRoleForm(),
+            'bidangs'    => self::masterBidangsForForm(),
+            'jabatans'   => self::masterJabatansForForm(),
         ]);
     }
 
@@ -228,14 +348,25 @@ class UserController extends Controller
         $role     = Role::find($request->input('role_id'));
         $roleName = $role?->name ?? '';
 
-        [$orgRules, $orgAttributes] = self::orgHierarchyRules($roleName, $request->input('level_jabatan', ''));
+        [$masterUnitRules, $masterUnitAttributes] = self::masterUnitRules(
+            self::normalizeIdInput($request->input('bidang_id'))
+        );
 
-        $validated = $request->validate(array_merge(
-            $this->validationRules(true),
-            $orgRules
-        ), $orgAttributes);
+        // Form hanya mengirim role + Master Bidang + Master Jabatan;
+        // level/department/sub-bidang diturunkan otomatis (applyOrgScoping).
+        $validated = $request->validate(
+            array_merge($this->validationRules(true), $masterUnitRules),
+            $masterUnitAttributes
+        );
 
         $role = Role::findOrFail($validated['role_id']);
+
+        // Role legacy (mis. "Administrator") tidak boleh diberikan lagi.
+        if (in_array($role->name, User::LEGACY_ROLE_NAMES, true)) {
+            return back()->withErrors([
+                'role_id' => 'Role tersebut sudah tidak dapat dipilih — gunakan Super Admin.',
+            ])->withInput();
+        }
 
         // Validasi: role yang dipilih harus aktif.
         // Semua role (termasuk role buatan admin) boleh dipilih.
@@ -251,27 +382,24 @@ class UserController extends Controller
             ])->withInput();
         }
 
+        self::normalizeMasterUnit($validated, $role->name);
+        self::assertMasterUnitComplete($validated, $role->name);
+        self::applyOrgScoping($validated, $role->name);
+
         // REVISI — kuota Level Jabatan "Senior Manager" (role Karyawan):
-        // maksimal 3 akun AKTIF di database.
+        // maksimal 3 akun AKTIF di database. Level kini diturunkan dari
+        // nama Master Jabatan, bukan dipilih manual di form.
         if ($role->name === 'Karyawan'
-            && $validated['level_jabatan'] === 'senior_manager'
+            && ($validated['level_jabatan'] ?? null) === 'senior_manager'
             && User::seniorManagerAccountCount() >= User::MAX_SENIOR_MANAGER_ACCOUNTS) {
             return back()->withErrors([
-                'level_jabatan' => 'Gagal: Jumlah akun Senior Manager sudah mencapai batas maksimal (3 akun).',
+                'jabatan_id' => 'Gagal: Jumlah akun Senior Manager sudah mencapai batas maksimal (3 akun).',
             ])->withInput();
         }
-
-        self::normalizeOrgHierarchy($validated, $role->name);
 
         $validated['password'] = bcrypt($validated['password']);
         $validated['role_id']  = $role->id;
         $validated['role']     = $role->name;
-
-        // RBAC — sinkronkan FK department_id dengan kode bidang terpilih
-        // (pengikatan akun Admin Bidang / Karyawan ke satu bidang).
-        $validated['department_id'] = $validated['department'] !== null
-            ? Department::byCode($validated['department'])?->id
-            : null;
 
         $user = User::create($validated);
 
@@ -335,7 +463,7 @@ class UserController extends Controller
             ->values();
 
         $otherRoles = Role::where('status', true)
-            ->whereNotIn('name', User::ASSIGNABLE_ROLE_NAMES)
+            ->whereNotIn('name', array_merge(User::ASSIGNABLE_ROLE_NAMES, User::LEGACY_ROLE_NAMES))
             ->get()
             ->sortBy('name')
             ->values();
@@ -347,6 +475,8 @@ class UserController extends Controller
             'roles'             => $roles,
             'menuMatrix'        => MasterMenu::matrixForRoleForm(),
             'userPermissionIds' => $user->directPermissionIds(),
+            'bidangs'           => self::masterBidangsForForm(),
+            'jabatans'          => self::masterJabatansForForm(),
         ]);
     }
 
@@ -401,31 +531,49 @@ class UserController extends Controller
         $role = $requestedRole;
         $roleName = $role?->name ?? (($actorMayChangeRole && $requestedRoleId > 0) ? '' : $user->role);
 
-        [$orgRules, $orgAttributes] = self::orgHierarchyRules($roleName, $request->input('level_jabatan', ''));
+        // MASTER BIDANG & JABATAN — satu-satunya input organisasi pada
+        // form lengkap; untuk self-edit non-super (form compact)
+        // nilai lama dipertahankan.
+        [$masterUnitRules, $masterUnitAttributes] = self::masterUnitRules(
+            self::normalizeIdInput($request->input('bidang_id'))
+        );
 
-        // Jika bukan Super Admin / Admin utama, validasi role_id tetap
-        // dilewatkan dan role lama dipaksa tetap ada.
+        $rules = array_merge($this->validationRules(false, $user->id), $masterUnitRules);
+
+        // Jika bukan Super Admin / Admin utama, role_id tidak wajib
+        // dikirim dan role lama dipaksa tetap ada.
         if (! $actorMayChangeRole) {
-            $orgRules['role_id'] = 'sometimes|integer|exists:roles,id';
+            $rules['role_id'] = 'sometimes|integer|exists:roles,id';
         }
 
-        $validated = $request->validate(array_merge(
-            $this->validationRules(false, $user->id),
-            $orgRules
-        ), $orgAttributes);
+        $validated = $request->validate($rules, $masterUnitAttributes);
 
-        // Jika actor tidak punya hak ubah role, force role lama.
+        // Jika actor tidak punya hak ubah role, force role & unit lama.
         if (! $actorMayChangeRole) {
-            $validated['role_id'] = $user->role_id;
-            $validated['role']    = $user->role;
+            $validated['role_id']        = $user->role_id;
+            $validated['role']           = $user->role;
             $validated['department']     = $user->department;
+            $validated['department_id']  = $user->department_id;
             $validated['sub_department'] = $user->sub_department;
             $validated['level_jabatan']  = $user->level_jabatan;
+            $validated['bidang_id']      = $user->bidang_id;
+            $validated['jabatan_id']     = $user->jabatan_id;
+        } else {
+            // Scoping diturunkan dari MASTER Bidang & Jabatan.
+            self::normalizeMasterUnit($validated, $roleName, $user);
+            self::assertMasterUnitComplete($validated, $roleName);
+            self::applyOrgScoping($validated, $roleName);
         }
 
         // Validasi: role yang dipilih harus aktif.
         // Dipakai HANYA bila actor diizinkan mengubah role.
         if ($actorMayChangeRole) {
+            if (in_array($role->name, User::LEGACY_ROLE_NAMES, true)) {
+                return back()->withErrors([
+                    'role_id' => 'Role tersebut sudah tidak dapat dipilih — gunakan Super Admin.',
+                ])->withInput();
+            }
+
             if (! $role->status) {
                 return back()->withErrors(['role_id' => 'Role yang dipilih sedang dinonaktifkan.'])->withInput();
             }
@@ -447,7 +595,7 @@ class UserController extends Controller
                 && $user->level_jabatan !== 'senior_manager'
                 && User::seniorManagerAccountCount() >= User::MAX_SENIOR_MANAGER_ACCOUNTS) {
                 return back()->withErrors([
-                    'level_jabatan' => 'Gagal: Jumlah akun Senior Manager sudah mencapai batas maksimal (3 akun).',
+                    'jabatan_id' => 'Gagal: Jumlah akun Senior Manager sudah mencapai batas maksimal (3 akun).',
                 ])->withInput();
             }
         } else {
@@ -456,8 +604,6 @@ class UserController extends Controller
                 return back()->withErrors(['role_id' => 'Role akun ini saat ini tidak aktif. Kontak Super Admin.'])->withInput();
             }
         }
-
-        self::normalizeOrgHierarchy($validated, $roleName);
 
         // Password kosong (update) → tidak diganti.
         if (($validated['password'] ?? '') !== '') {
@@ -468,10 +614,6 @@ class UserController extends Controller
 
         $validated['role_id'] = $role->id;
         $validated['role']    = $role->name;
-
-        $validated['department_id'] = $validated['department'] !== null
-            ? Department::byCode($validated['department'])?->id
-            : null;
 
         $user->update($validated);
 
