@@ -89,12 +89,12 @@ class TamuController extends Controller
 
             'tujuan_ditemui' => ['required', 'string', 'max:150'],
 
-            // Jabatan orang yang ditemui — OPSIONAL, dipilih dari master
+            // Jabatan orang yang ditemui — WAJIB, dipilih dari master
             // jabatans (dropdown bertingkat mengikuti bidang tujuan).
             // Nilai dikirim sebagai NAMA jabatan; dicocokkan ke master
             // untuk mencegah isian bebas (relasi bidang ⇄ jabatan).
             'jabatan_ditemui' => [
-                'nullable',
+                'required',
                 'string',
                 'max:150',
                 function (string $attribute, mixed $value, \Closure $fail) use ($request) {
@@ -117,9 +117,9 @@ class TamuController extends Controller
             ],
             'jumlah_tamu'    => ['required', 'integer', 'min:1', 'max:100'],
 
-            // Nama orang yang ditemui — OPSIONAL (teks bebas, pelengkap
-            // bidang & jabatan yang ditemui).
-            'orang_ditemui' => ['nullable', 'string', 'max:150'],
+            // Nama orang yang ditemui — WAJIB (teks bebas / pilih
+            // dari daftar pengguna, pelengkap bidang & jabatan).
+            'orang_ditemui' => ['required', 'string', 'max:150'],
 
             // Penjadwalan: tanggal & jam dikirim terpisah dari form.
             // Jam harus salah satu slot operasional (sesi pagi/siang),
@@ -175,7 +175,9 @@ class TamuController extends Controller
             'jam_kunjungan.required'    => 'Jam kunjungan wajib dipilih.',
             'jam_kunjungan.in'          => 'Jam kunjungan harus di luar jam istirahat & sesuai jam operasional.',
             'keperluan.required'        => 'Maksud & keperluan kunjungan wajib diisi.',
+            'jabatan_ditemui.required'  => 'Jabatan yang ditemui wajib dipilih.',
             'jabatan_ditemui.max'       => 'Jabatan yang ditemui maksimal :max karakter.',
+            'orang_ditemui.required'    => 'Nama orang yang ditemui wajib diisi.',
             'orang_ditemui.max'         => 'Nama orang yang ditemui maksimal :max karakter.',
         ]);
 
@@ -219,8 +221,8 @@ class TamuController extends Controller
             'email'          => $validated['email'],
             'dokumen_zip'    => $dokumen_zip,
             'tujuan_ditemui' => $validated['tujuan_ditemui'],
-            'jabatan_ditemui' => $validated['jabatan_ditemui'] ?? null,
-            'orang_ditemui'  => $validated['orang_ditemui'] ?? null,
+            'jabatan_ditemui' => $validated['jabatan_ditemui'],
+            'orang_ditemui'  => $validated['orang_ditemui'],
             'jumlah_tamu'    => $validated['jumlah_tamu'],
             'tanggal_kunjungan' => $validated['tanggal_kunjungan'] . ' ' . $validated['jam_kunjungan'],
             'keperluan'      => $validated['keperluan'],

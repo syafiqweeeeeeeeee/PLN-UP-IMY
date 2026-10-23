@@ -1185,21 +1185,31 @@
 </div>
 
 @if (session('wa_konfirmasi'))
-@php $wa = session('wa_konfirmasi'); @endphp
+@php $wa = session('wa_konfirmasi'); $waBentrok = ! empty($wa['bentrok']); @endphp
 <div class="tamu-modal-overlay show" id="waKonfirmasiModal">
     <div class="tamu-modal">
         <div class="tamu-delete-dialog">
+            @if ($waBentrok)
+            <div class="del-icon" style="background:#fff7ed; color:#ea580c;"><i class="fas fa-calendar-xmark" style="font-size:1.5rem;"></i></div>
+            <h6>Jadwal Kunjungan Sudah Ada yang Diizinkan</h6>
+            <p>Kunjungan <b>{{ $wa['nama'] }}</b> ({{ $wa['no_wa'] }}) <b>TIDAK disetujui</b>:
+                jadwalnya bentrok — pada jadwal & divisi yang sama sudah ada kunjungan
+                <b>{{ $wa['bentrok_dengan'] }}</b> ({{ $wa['bentrok_jadwal'] }} WIB) yang diizinkan.
+                WhatsApp tamu ini akan terbuka dengan pesan pemberitahuan agar mengajukan
+                jadwal lain — cukup tekan <b>Kirim</b>.</p>
+            @else
             <div class="del-icon" style="background:#e7f9ee; color:#16a34a;"><i class="fab fa-whatsapp" style="font-size:1.5rem;"></i></div>
             <h6>Kirim Konfirmasi WhatsApp</h6>
             <p>Berbaskan tamu <b>{{ $wa['nama'] }}</b> ({{ $wa['no_wa'] }}) bahwa kunjungannya
                 <b>{{ $wa['status'] }}</b>. WhatsApp akan terbuka dengan pesan yang sudah terisi otomatis —
                 cukup tekan <b>Kirim</b>.</p>
+            @endif
             <div class="tamu-delete-actions">
                 <button type="button" class="cancel" onclick="closeTamuModal('waKonfirmasiModal')">Lewati</button>
                 <a href="{{ $wa['wa_url'] }}" target="_blank" rel="noopener" class="confirm"
-                   style="background:#25D366; color:#fff; text-decoration:none; display:inline-flex;"
+                   style="background:{{ $waBentrok ? '#ea580c' : '#25D366' }}; color:#fff; text-decoration:none; display:inline-flex;"
                    onclick="setTimeout(function(){ closeTamuModal('waKonfirmasiModal'); }, 300);">
-                    <i class="fab fa-whatsapp me-1"></i> Buka WhatsApp
+                    <i class="fab fa-whatsapp me-1"></i> {{ $waBentrok ? 'Beritahu via WhatsApp' : 'Buka WhatsApp' }}
                 </a>
             </div>
         </div>

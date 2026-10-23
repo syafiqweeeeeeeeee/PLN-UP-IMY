@@ -235,8 +235,9 @@
     }
 
     .report .badge.menunggu  { background: #fef3c7; color: #b45309; }
+    .report .badge.disetujui { background: #dcfce7; color: #15803d; }
     .report .badge.berkunjung { background: #dbeafe; color: #1d4ed8; }
-    .report .badge.selesai { background: #dcfce7; color: #15803d; }
+    .report .badge.selesai { background: #f1f5f9; color: #64748b; }
     .report .badge.ditolak { background: #fee2e2; color: #dc2626; }
 
     /* ---------- Tanda tangan (gaya pdf) ---------- */
@@ -331,9 +332,9 @@
         <div class="kop">
             <div class="kop-logo"><i class="fas fa-bolt"></i></div>
             <div class="kop-text">
-                <div class="instansi">PT PLN (Persero) — Unit Induk Distribusi</div>
-                <h1>PLN Nusantara Power</h1>
-                <div class="sub">UP Pati — Buku Registrasi Pengunjung</div>
+                <div class="instansi">PT PLN Nusantara Power (Persero)</div>
+                <h1>UP PLTU Indramayu</h1>
+                <div class="sub">Buku Registrasi Pengunjung</div>
             </div>
             <div style="text-align:right; font-size:0.72rem; color:#64748b;">
                 No. Dok: BRT/{{ now()->format('Ym') }}/{{ str_pad((string) $tamus->count(), 4, '0', STR_PAD_LEFT) }}
@@ -354,14 +355,34 @@
         </p>
     </div>
 
+    @php
+        /* Label status filter — dipakai chip filter & baris meta,
+           berlaku untuk kedua gaya cetak (pdf maupun excel). */
+        $labelStatus = [
+            'menunggu'   => 'Menunggu Verifikasi',
+            'disetujui'  => 'Disetujui',
+            'ditolak'    => 'Ditolak',
+            'berkunjung' => 'Berkunjung',
+            'selesai'    => 'Selesai',
+        ];
+    @endphp
+
     @if ($style === 'pdf')
-        {{-- Ringkasan jumlah per status --}}
+        {{-- Ringkasan jumlah per status — alur verifikasi sama
+             dengan halaman Data Tamu: Menunggu -> Diizinkan/Ditolak,
+             setelahnya Berkunjung (check-in) -> Selesai (check-out). --}}
+        @php
+            $totalMenunggu  = $tamus->where('status_verifikasi', \App\Models\Tamu::STATUS_MENUNGGU)->count();
+            $totalDiizinkan = $tamus->where('status_verifikasi', \App\Models\Tamu::STATUS_DISETUJUI)->count();
+            $totalDitolak   = $tamus->where('status_verifikasi', \App\Models\Tamu::STATUS_DITOLAK)->count();
+        @endphp
         <div class="ringkasan">
             <span class="chip"><i class="fas fa-list" style="margin-right:0.35rem;"></i>Total: <b>{{ $tamus->count() }} tamu</b></span>
-            <span class="chip"><i class="fas fa-user-clock" style="margin-right:0.35rem;"></i>Berkunjung: <b>{{ $tamus->whereNull('checked_out_at')->count() }}</b></span>
-            <span class="chip"><i class="fas fa-circle-check" style="margin-right:0.35rem;"></i>Selesai: <b>{{ $tamus->whereNotNull('checked_out_at')->count() }}</b></span>
-            @if ($filter['status'])
-                <span class="chip"><i class="fas fa-filter" style="margin-right:0.35rem;"></i>Filter status: <b>{{ $filter['status'] === 'selesai' ? 'Selesai' : 'Berkunjung' }}</b></span>
+            <span class="chip"><i class="fas fa-hourglass-half" style="margin-right:0.35rem;"></i>Menunggu: <b>{{ $totalMenunggu }}</b></span>
+            <span class="chip"><i class="fas fa-circle-check" style="margin-right:0.35rem;"></i>Diizinkan: <b>{{ $totalDiizinkan }}</b></span>
+            <span class="chip"><i class="fas fa-circle-xmark" style="margin-right:0.35rem;"></i>Ditolak: <b>{{ $totalDitolak }}</b></span>
+            @if ($filter['status'] && isset($labelStatus[$filter['status']]))
+                <span class="chip"><i class="fas fa-filter" style="margin-right:0.35rem;"></i>Filter status: <b>{{ $labelStatus[$filter['status']] }}</b></span>
             @endif
         </div>
     @endif
@@ -369,7 +390,7 @@
     @if ($filter['q'] || $filter['dari'] || $filter['sampai'] || $filter['status'])
         <div class="meta">
             @if ($filter['q'])<span>Pencarian: <b>{{ $filter['q'] }}</b></span>@endif
-            @if ($filter['status'])<span>Status: <b>{{ $filter['status'] === 'selesai' ? 'Selesai' : 'Berkunjung' }}</b></span>@endif
+            @if ($filter['status'] && isset($labelStatus[$filter['status']]))<span>Status: <b>{{ $labelStatus[$filter['status']] }}</b></span>@endif
         </div>
     @endif
 
@@ -453,17 +474,18 @@
                     <td class="ctr">{{ $tamu->checked_out_at?->format('d/m/Y H:i') ?? '—' }}</td>
                     <td class="ctr">
                         @php
-                            $statusLabel = match ($tamu->status_verifikasi) {
-                                \App\Models\Tamu::STATUS_DITOLAK   => 'Ditolak',
-                                \App\Models\Tamu::STATUS_MENUNGGU  => 'Menunggu',
-                                default => $tamu->checked_out_at ? 'Selesai' : 'Berkunjung',
+                            /* Alur sama dengan tabel index: Disetujui
+                               (diizinkan, belum check-in) -> Berkunjung
+                               (sudah check-in, belum check-out) ->
+                               Selesai (sudah check-out). */
+                            $statusLabel = match (true) {
+                                $tamu->status_verifikasi === \App\Models\Tamu::STATUS_DITOLAK => 'Ditolak',
+                                $tamu->status_verifikasi === \App\Models\Tamu::STATUS_MENUNGGU => 'Menunggu',
+                                $tamu->checked_out_at !== null => 'Selesai',
+                                $tamu->checked_in_at !== null  => 'Berkunjung',
+                                default => 'Disetujui',
                             };
-                            $statusClass = match ($statusLabel) {
-                                'Ditolak'  => 'ditolak',
-                                'Menunggu' => 'menunggu',
-                                'Selesai'  => 'selesai',
-                                default    => 'berkunjung',
-                            };
+                            $statusClass = mb_strtolower($statusLabel);
                         @endphp
                         @if ($style === 'pdf')
                             <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
@@ -488,7 +510,7 @@
     @if ($style === 'pdf' && $tamus->isNotEmpty())
         {{-- Blok tanda tangan --}}
         <div class="ttd">
-            <div class="tempat">Yogyakarta, {{ now()->translatedFormat('d F Y') }}</div>
+            <div class="tempat">Indramayu, {{ now()->translatedFormat('d F Y') }}</div>
             <div style="margin-bottom:2.6rem;">Mengetahui,</div>
             <div class="nama">( .................................... )</div>
             <div style="font-size:0.72rem; color:#64748b;">Petugas Front Office</div>

@@ -376,6 +376,11 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         Route::middleware('role.scope:admin')->group(function () {
             Route::middleware('permission:tamu.view')->group(function () {
                 Route::get('tamu', [\App\Http\Controllers\Admin\TamuController::class, 'index'])->name('tamu.index');
+
+                // Jadwal Tamu — kalender kunjungan per bulan (lihat
+                // TamuController::jadwal). Gate tamu.view sama dengan index.
+                Route::get('tamu/jadwal', [\App\Http\Controllers\Admin\TamuController::class, 'jadwal'])->name('tamu.jadwal');
+
                 Route::get('tamu/export', [\App\Http\Controllers\Admin\TamuController::class, 'export'])->name('tamu.export');
                 Route::get('tamu/print/{style?}', [\App\Http\Controllers\Admin\TamuController::class, 'print'])->name('tamu.print');
 

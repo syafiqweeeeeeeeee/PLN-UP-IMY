@@ -187,6 +187,122 @@ class TamuController extends Controller
     }
 
     /**
+     * Jadwal Tamu — kalender kunjungan tamu per bulan (tampilan
+     * minimalis, selaras halaman admin lain).
+     *
+     * Bulan tampilan via query ?bulan=YYYY-MM (fallback bulan berjalan).
+     * Grid mulai Senin sebelum tanggal 1, berakhir Minggu setelah akhir
+     * bulan. Tiap sel menampilkan jumlah tamu per status (Menunggu /
+     * Disetujui / Ditolak), dan klik tanggal membuka pop-up berisi
+     * detail data tamu pada tanggal tersebut (dipasok $perHari via JSON).
+     */
+    public function jadwal(Request $request)
+    {
+        $bulan = now()->startOfMonth();
+        $queryBulan = (string) $request->query('bulan');
+
+        if (preg_match('/^\d{4}-\d{2}$/', $queryBulan)) {
+            try {
+                $parsed = \Carbon\Carbon::createFromFormat('Y-m', $queryBulan);
+                if ($parsed !== false) {
+                    $bulan = $parsed->startOfMonth();
+                }
+            } catch (\Throwable) {
+                $bulan = now()->startOfMonth();
+            }
+        }
+
+        /* Rentang grid kalender 7 kolom (Senin-first): mundur ke Senin
+           sebelum tanggal 1, maju ke Minggu setelah akhir bulan. */
+        $mulai = $bulan->copy();
+        $mulai->subDays($mulai->dayOfWeekIso - 1);
+
+        $akhir = $bulan->copy()->endOfMonth();
+        $akhir->addDays((7 - $akhir->dayOfWeekIso) % 7);
+
+        $tamus = Tamu::query()
+            ->whereBetween('tanggal_kunjungan', [
+                $mulai->copy()->startOfDay(),
+                $akhir->copy()->endOfDay(),
+            ])
+            ->orderBy('tanggal_kunjungan')
+            ->orderBy('id')
+            ->get();
+
+        /* Kelas + label status utk chip/popup — alur sama dengan tabel
+           index: Ditolak, Selesai (disetujui + sudah check-out),
+           Disetujui, Menunggu. */
+        $statusOf = static function (Tamu $t): array {
+            return match (true) {
+                $t->status_verifikasi === Tamu::STATUS_DITOLAK => ['Ditolak', 'ditolak'],
+                $t->status_verifikasi === Tamu::STATUS_DISETUJUI && $t->checked_out_at !== null => ['Selesai', 'selesai'],
+                $t->status_verifikasi === Tamu::STATUS_DISETUJUI => ['Disetujui', 'disetujui'],
+                default => ['Menunggu', 'menunggu'],
+            };
+        };
+
+        $perHari = [];      // tanggal (Y-m-d) => jumlah per status + daftar tamu
+        $statBulan = ['menunggu' => 0, 'disetujui' => 0, 'ditolak' => 0];
+
+        foreach ($tamus as $t) {
+            if (! $t->tanggal_kunjungan) {
+                continue; // data lama tanpa jadwal tidak dapat dipetakan ke kalender
+            }
+
+            [$label, $kelas] = $statusOf($t);
+            $key = $t->tanggal_kunjungan->toDateString();
+
+            // Hitung kalender: Selesai tetap satu grup dengan Disetujui
+            // (sama-sama kunjungan yang sudah diizinkan admin).
+            $kelHitung = $kelas === 'selesai' ? 'disetujui' : $kelas;
+            $perHari[$key][$kelHitung] = ($perHari[$key][$kelHitung] ?? 0) + 1;
+            $statBulan[$kelHitung]++;
+
+            $perHari[$key]['tamu'][] = [
+                'id'           => $t->id,
+                'nama'         => $t->nama,
+                'nik'          => $t->nik,
+                'no_hp'        => $t->no_hp,
+                'wa_url'       => $t->wa_chat_url,
+                'email'        => $t->email,
+                'instansi'     => $t->instansi,
+                'jumlah_tamu'  => $t->jumlah_tamu,
+                'jam'          => $t->tanggal_kunjungan->format('H:i'),
+                'tujuan'       => $t->tujuan_ditemui,
+                'jabatan'      => $t->jabatan_ditemui,
+                'orang'        => $t->orang_ditemui,
+                'keperluan'    => $t->keperluan,
+                'status_label' => $label,
+                'status'       => $kelas,
+                'dokumen'      => $this->dokumenUrl($t),
+            ];
+        }
+
+        /* Sel kalender: nomor hari + flag di-luar-bulan/hari-ini +
+           jumlah tamu per status (utk chip di sel). */
+        $hariIni = now()->toDateString();
+        $sel = [];
+        for ($d = $mulai->copy(); $d->lessThanOrEqualTo($akhir); $d->addDay()) {
+            $key = $d->toDateString();
+            $info = $perHari[$key] ?? [];
+            $sel[] = [
+                'tanggal_key' => $key,
+                'nomor'       => $d->day,
+                'bulan_lain'  => $d->month !== $bulan->month,
+                'hari_ini'    => $key === $hariIni,
+                'menunggu'    => (int) ($info['menunggu'] ?? 0),
+                'disetujui'   => (int) ($info['disetujui'] ?? 0),
+                'ditolak'     => (int) ($info['ditolak'] ?? 0),
+                'punya_data'  => isset($perHari[$key]['tamu']),
+            ];
+        }
+
+        return view('admin.tamu.jadwal', compact(
+            'bulan', 'mulai', 'akhir', 'sel', 'perHari', 'statBulan'
+        ));
+    }
+
+    /**
      * Perbarui data tamu (dipakai modal edit).
      * NIK unik diabaikan untuk data tamu ini sendiri; dokumen pendukung hanya
      * diganti bila admin mengunggah file baru.
@@ -322,6 +438,52 @@ class TamuController extends Controller
         ]);
 
         $setuju = $validated['keputusan'] === 'setuju';
+
+        /* ======================================================
+           BLOKIR SLOT KEDUA — satu jadwal per divisi hanya boleh
+           SATU kunjungan yang diizinkan. Bila ada kunjungan lain
+           yang sudah DISETUJUI pada rentang yang sama (tanggal +
+           rentang durasi block untuk tujuan_ditemui yang sama),
+           approve TIDAK dilakukan: munculkan pop-up peringatan
+           "jadwal sudah ada yang diizinkan", lalu buka WhatsApp
+           tamu ini untuk memberi tahu bahwa jadwalnya bentrok.
+           ====================================================== */
+        if ($setuju) {
+            $tanggal = $tamu->tanggal_kunjungan?->format('Y-m-d');
+            $jam     = $tamu->tanggal_kunjungan?->format('H:i');
+
+            $bentrok = ($tanggal && $jam)
+                ? Tamu::kunjunganBentrok($tanggal, $jam, $tamu->tujuan_ditemui, $tamu->id)
+                : null;
+
+            if ($bentrok) {
+                ActivityLogger::log('approve', null, [
+                    'module' => 'tamu',
+                    'description' => "approve kunjungan tamu \"{$tamu->nama}\" (NIK {$tamu->nik}) "
+                        . "DIBLOKIR — jadwal bentrok dengan kunjungan \"{$bentrok->nama}\" "
+                        . "(id {$bentrok->id}) yang sudah diizinkan",
+                    'subject' => $tamu,
+                ]);
+
+                return redirect()->route($this->indexRouteName())
+                    ->with('wa_konfirmasi', [
+                        'nama'   => $tamu->nama,
+                        'no_wa'  => $tamu->wa_number,
+                        // "bentrok" → popup berbeda (pop-up peringatan,
+                        // bukan konfirmasi approve)
+                        'status' => 'bentrok',
+                        'wa_url' => $tamu->wa_bentrok_url,
+                        // Info kunjungan yang sudah mengisi slot untuk
+                        // ditampilkan di pop-up
+                        'bentrok' => true,
+                        'bentrok_dengan' => $bentrok->nama,
+                        'bentrok_jadwal' => $bentrok->tanggal_kunjungan?->translatedFormat('d F Y, H:i'),
+                    ])
+                    ->with('error', "Approve ditolak: jadwal kunjungan \"{$tamu->nama}\" ("
+                        . $tamu->tanggal_kunjungan?->translatedFormat('d F Y, H:i')
+                        . ") sudah ada yang diizinkan untuk \"{$tamu->tujuan_ditemui}\".");
+            }
+        }
 
         $tamu->update([
             'status_verifikasi' => $setuju ? Tamu::STATUS_DISETUJUI : Tamu::STATUS_DITOLAK,

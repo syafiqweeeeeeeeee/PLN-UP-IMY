@@ -178,6 +178,25 @@ class Tamu extends Model
     }
 
     /**
+     * Pesan WA JADWAL BENTROK — dikirim saat admin mencoba menyetujui
+     * kunjungan kedua pada jadwal yang sudah diizinkan (slot sama pada
+     * tujuan/divisi yang sama). Kunjungan ini TIDAK disetujui; tamu
+     * diminta mengajukan ulang di jadwal lain.
+     */
+    public function getPesanWaBentrokAttribute(): string
+    {
+        return "Halo Bpk/Ibu {$this->nama}, mohon maaf pendaftaran kunjungan Anda di "
+            . "PT PLN Nusantara Power UP PLTU Indramayu pada "
+            . "{$this->tanggal_kunjungan?->translatedFormat('d F Y, H:i')} WIB "
+            . "belum dapat kami izinkan.\n\n"
+            . "Jadwal kunjungan tersebut BENTROK — pada slot yang sama untuk "
+            . "\"{$this->tujuan_ditemui}\" sudah ada kunjungan lain yang diizinkan "
+            . "terlebih dahulu.\n\n"
+            . "Silakan ajukan pendaftaran ulang dengan tanggal/jam kunjungan yang lain. "
+            . "Terima kasih atas pengertiannya.";
+    }
+
+    /**
      * URL wa.me dengan pesan DIIZINKAN — dibuka saat admin menyetujui.
      */
     public function getWaApproveUrlAttribute(): string
@@ -191,6 +210,15 @@ class Tamu extends Model
     public function getWaRejectUrlAttribute(): string
     {
         return 'https://wa.me/' . $this->wa_number . '?text=' . rawurlencode($this->pesan_wa_ditolak);
+    }
+
+    /**
+     * URL wa.me dengan pesan JADWAL BENTROK — dibuka saat approve
+     * diblokir karena jadwal sudah diizinkan untuk kunjungan lain.
+     */
+    public function getWaBentrokUrlAttribute(): string
+    {
+        return 'https://wa.me/' . $this->wa_number . '?text=' . rawurlencode($this->pesan_wa_bentrok);
     }
 
     /**
@@ -350,5 +378,39 @@ class Tamu extends Model
     public static function isJamTerblokir(string $tanggal, string $jam, string $divisi, ?int $kecualiId = null, ?int $durasiJam = null): bool
     {
         return in_array($jam, self::jamTerblokir($tanggal, $divisi, $kecualiId, $durasiJam), true);
+    }
+
+    /**
+     * Kunjungan DISSETUJUI yang memblokir slot tertentu — pemilik slot
+     * yang membuat approve kunjungan lain pada rentang itu bentrok.
+     *
+     * Satu slot = satu kunjungan diizinkan: bila ada kunjungan lain yang
+     * sudah di-approve untuk divisi + tanggal + rentang durasi yang sama,
+     * approve kedua harus diblokir (dipakai TamuController::verifikasi).
+     *
+     * @param  string  $tanggal  Format Y-m-d
+     * @param  string  $jam      Jam mulai (HH:MM) dari slot yang diajukan
+     * @param  string  $divisi   Nilai kolom tujuan_ditemui
+     * @param  int|null $kecualiId  ID kunjungan yang dikecualikan (dirinya sendiri)
+     * @return self|null  Kunjungan pemilik slot, atau null bila slot bebas
+     */
+    public static function kunjunganBentrok(string $tanggal, string $jam, string $divisi, ?int $kecualiId = null): ?self
+    {
+        if (! in_array($jam, self::jamTerblokir($tanggal, $divisi, $kecualiId), true)) {
+            return null;
+        }
+
+        $slot = \Carbon\Carbon::parse("{$tanggal} {$jam}");
+
+        return self::query()
+            ->where('status_verifikasi', self::STATUS_DISETUJUI)
+            ->where('tujuan_ditemui', $divisi)
+            ->whereDate('tanggal_kunjungan', $tanggal)
+            ->when($kecualiId !== null, fn ($q) => $q->where('id', '!=', $kecualiId))
+            ->get()
+            ->first(fn (self $t) =>
+                $slot->greaterThanOrEqualTo($t->tanggal_kunjungan)
+                && $slot->lessThan($t->tanggal_kunjungan->copy()->addHours(self::DURASI_KUNJUNGAN_JAM))
+            );
     }
 }

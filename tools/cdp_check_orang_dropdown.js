@@ -1,5 +1,7 @@
 /* Verifikasi dropdown "Orang yang Ditemui" (form registrasi tamu publik):
    D1 field terdefinisi & TIDAK readonly (search via ketik tetap hidup)
+   D1b filter role: HANYA staf & karyawan (role "Karyawan") yang tampil —
+      akun Admin Bidang (JUAN DINO) & Super Admin (syafiqwldn0) TIDAK ada
    D2 klik field → dropdown custom terbuka (bukan datalist bawaan browser)
    D3 ketik "pro" → opsi terfilter live (h nama mengandung "pro")
    D4 klik opsi → input terisi nama, dropdown tertutup
@@ -44,6 +46,24 @@ async function main() {
   const d1 = JSON.parse(r);
   chk('D1 field editable + dropdown custom terpasang', d1.ada && d1.readonly === false && d1.punyaMenu && d1.jumlahOpsi > 0 && d1.pakaiDatalistLama === false,
     `opsi=${d1.jumlahOpsi} datalistLama=${d1.pakaiDatalistLama}`);
+
+  // D1b — hanya staf & karyawan: buang akun admin, buang akun tak terverifikasi
+  r = await evl(`(function(){
+    var emails = Array.prototype.map.call(
+      document.querySelectorAll('#orang-options .dropdown-option'),
+      function(o){
+        var s = o.getAttribute('data-search') || '';
+        return s.substring(s.lastIndexOf(' ') + 1);
+      });
+    return JSON.stringify(emails);
+  })()`);
+  const d1b = JSON.parse(r);
+  const HARUS_ADA = ['karyawan@gmail.com', 'syafiq.wildan.ti.23@cic.ac.id'];
+  const HARUS_HILANG = ['Juanbks1@gmail.com', 'syafiqwldn0@gmail.com'];
+  const adaSemua = HARUS_ADA.every(e => d1b.includes(e));
+  const adminHilang = HARUS_HILANG.every(e => !d1b.includes(e));
+  chk('D1b hanya staf & karyawan tampil (admin dibuang)', d1b.length > 0 && adaSemua && adminHilang,
+    `total=${d1b.length} adaKaryawan=${adaSemua} adminHilang=${adminHilang}`);
 
   // D2 — klik field → dropdown terbuka
   await evl(`document.getElementById('orang_ditemui').click(); 'ok'`);

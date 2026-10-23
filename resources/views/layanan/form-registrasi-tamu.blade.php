@@ -1051,8 +1051,7 @@
                                        required autocomplete="off"
                                        class="pln-input @error('nik') has-error @enderror"
                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);"
-                                       onpaste="(function(t){ t.value=t.value.replace(/[^0-9]/g,''); if(t.value.length>16) t.value=t.value.slice(0,16); })(this)"
-                                       @error('nik') has-error @enderror" />
+                                       onpaste="(function(t){ t.value=t.value.replace(/[^0-9]/g,''); if(t.value.length>16) t.value=t.value.slice(0,16); })(this)" />
                             </div>
                         @error('nik')
                             <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
@@ -1144,7 +1143,7 @@
                         </p>
                         <div id="dokumen-upload-status" class="text-danger" style="font-size: 0.75rem; margin-top: 0.25rem;"></div>
                         <div class="pln-upload-wrap">
-                            <input type="file" id="dokumen" name="dokumen"
+                            <input type="file" id="dokumen" name="dokumen" required
                                    accept=".zip,.rar,.pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,application/pdf,image/jpeg,image/png,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                                    class="pln-file-input" />
                             <div id="dokumen-area"
@@ -1223,10 +1222,10 @@
 
                     {{-- Jabatan yang Ditemui — dropdown BERTINGKAT dari
                          MASTER jabatans: opsi mengikuti bidang yang dipilih
-                         di atas. Opsional (tidak wajib diisi). --}}
+                         di atas. WAJIB dipilih. --}}
                     <div>
                         <label for="jabatan_ditemui_display" class="pln-label" data-i18n="form.label_jabatan">
-                            Jabatan yang Ditemui
+                            Jabatan yang Ditemui <span class="required">*</span>
                         </label>
                         <div class="pln-input-icon" style="position: relative;">
                             <input type="text" id="jabatan_ditemui_display" readonly
@@ -1258,13 +1257,16 @@
 
                     {{-- Orang yang Ditemui — CUSTOM DROPDOWN dengan pencarian
                          (pola sama dengan dropdown Divisi & Jabatan di atas).
-                         Daftar opsi diambil dari TABEL USERS (akun terverifikasi).
+                         Daftar opsi diambil dari TABEL USERS: HANYA akun
+                         terverifikasi ber-role "Karyawan" (staf & karyawan,
+                         termasuk level staf/staf_spv) — akun Super Admin &
+                         Admin Bidang TIDAK ditampilkan di form publik.
                          Input TIDAK readonly: mengetik = memfilter opsi (search)
                          dan isian bebas di luar daftar tetap diperbolehkan
                          (field opsional, teks bebas). --}}
                     <div>
                         <label for="orang_ditemui" class="pln-label" data-i18n="form.label_orang">
-                            Orang yang Ditemui
+                            Orang yang Ditemui <span class="required">*</span>
                         </label>
                         <div class="pln-input-icon" style="position: relative;">
                             <i class="fas fa-user-tie"></i>
@@ -1274,12 +1276,16 @@
                                    autocomplete="off"
                                    aria-haspopup="listbox"
                                    aria-expanded="false"
+                                   required
                                    class="pln-input custom-dropdown-input @error('orang_ditemui') has-error @enderror" />
                             <i class="fas fa-chevron-down dropdown-arrow"></i>
                             <div id="orang-dropdown" class="custom-dropdown-menu custom-scroll-menu" role="listbox" style="display: none;">
                                 <div class="dropdown-options custom-scroll-content" id="orang-options">
                                     @php
+                                        /* Filter: hanya staf & karyawan (role
+                                           "Karyawan"), bukan akun admin. */
                                         $orangUsers = App\Models\User::whereNotNull('email_verified_at')
+                                            ->where('role', 'Karyawan')
                                             ->orderBy('name')
                                             ->take(30)
                                             ->get();
@@ -1287,10 +1293,9 @@
                                     @foreach ($orangUsers as $orangUser)
                                     <div class="dropdown-option orang-option"
                                          data-value="{{ $orangUser->name }}"
-                                         data-search="{{ strtolower($orangUser->name . ' ' . $orangUser->email) }}">
+                                         data-search="{{ strtolower($orangUser->name) }}">
                                         <div style="min-width: 0;">
                                             <div style="font-weight: 600;">{{ $orangUser->name }}</div>
-                                            <div style="font-size: 0.66rem; color: #94a3b8;">{{ $orangUser->email }}</div>
                                         </div>
                                     </div>
                                     @endforeach
@@ -1382,7 +1387,7 @@
                         <textarea id="keperluan" name="keperluan" rows="4" maxlength="2000" required
                                   placeholder="Jelaskan singkat maksud dan keperluan kunjungan Anda..."
                                   data-i18n-placeholder="form.ph_keperluan"
-                                  class="pln-textarea @error('keperluan') has-error @enderror">{{ old('keperluan') }}</textarea>
+                                  class="pln-textarea @error('keperluan') has-error @enderror">                        {{ old('keperluan') }}</textarea>
                         @error('keperluan')
                             <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                         @enderror
@@ -2070,7 +2075,7 @@
                 orangInput.focus();
             }
 
-            /* FITUR SEARCH — filter opsi berdasarkan nama ATAU email. */
+            /* FITUR SEARCH — filter opsi berdasarkan nama. */
             function oFilter() {
                 var q = orangInput.value.trim().toLowerCase();
                 var visible = 0;
