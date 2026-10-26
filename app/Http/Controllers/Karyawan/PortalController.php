@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Karyawan;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\News;
+use App\Models\Tamu;
 use App\Services\PortalContentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -135,6 +136,58 @@ class PortalController extends Controller
             'filters'    => PortalContentService::linkFiltersFor($user),
             'linkAccess' => PortalContentService::linkAccessFor($user),
             'authUser'   => $user,
+        ]);
+    }
+
+    /**
+     * KUNJUNGAN TAMU (khusus Portal Karyawan)
+     * ---------------------------------------------------------
+     * Daftar registrasi tamu dari form publik /layanan/form-registrasi-tamu
+     * yang MENYEBUT akun ini sebagai "Orang yang Ditemui"
+     * (`tamus.orang_ditemui` = nama akun login).
+     *
+     * SCOPING ketat per akun — dibandingkan case-insensitive + trim
+     * (nama dari dropdown registrasi diambil langsung dari kolom
+     * users.name, tapi input teks bebas bisa beda kapital/spasi).
+     * Akun lain (termasuk Super Admin) TIDAK lewat halaman ini:
+     * Super Admin melihat seluruh data lewat panel admin
+     * (admin.tamu.index) yang sudah ada.
+     *
+     * View-only mengikuti aturan portal karyawan: tanpa aksi verifikasi
+     * / edit / hapus — cukup filter + baca detail & tautan WA/dokumen.
+     */
+    public function kunjunganTamu(Request $request): View
+    {
+        $user = auth()->user();
+
+        // Basis scoping: tamu yang menunjuk nama akun ini.
+        $scoped = fn () => Tamu::query()->whereRaw(
+            'LOWER(TRIM(orang_ditemui)) = ?',
+            [mb_strtolower(trim((string) $user->name))]
+        );
+
+        // Statistik dari basis scoping (tanpa filter halaman ini).
+        $stats = [
+            'total'    => $scoped()->count(),
+            'menunggu' => (clone $scoped())->where('status_verifikasi', Tamu::STATUS_MENUNGGU)->count(),
+            'disetujui'=> (clone $scoped())->where('status_verifikasi', Tamu::STATUS_DISETUJUI)->count(),
+            'ditolak'  => (clone $scoped())->where('status_verifikasi', Tamu::STATUS_DITOLAK)->count(),
+        ];
+
+        // Daftar + filter (reuse scope search/tanggalAntara/status model).
+        $tamus = $scoped()
+            ->search($request->query('q'))
+            ->tanggalAntara($request->query('dari'), $request->query('sampai'))
+            ->status($request->query('status'))
+            ->orderByDesc('tanggal_kunjungan')
+            ->orderByDesc('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('karyawan.kunjungan-tamu', [
+            'user'  => $user,
+            'tamus' => $tamus,
+            'stats' => $stats,
         ]);
     }
 

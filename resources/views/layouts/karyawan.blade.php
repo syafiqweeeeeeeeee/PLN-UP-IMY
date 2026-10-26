@@ -449,6 +449,13 @@
                    class="kry-nav-link {{ request()->routeIs('karyawan.link') ? 'active' : '' }}">
                     <i class="fas fa-link"></i> Link Kerja
                 </a>
+                {{-- Kunjungan Tamu — khusus portal karyawan: daftar tamu
+                     dari form registrasi publik yang menunjuk akun INI
+                     sebagai orang yang ditemui. --}}
+                <a href="{{ route('karyawan.kunjungan-tamu') }}"
+                   class="kry-nav-link {{ request()->routeIs('karyawan.kunjungan-tamu') ? 'active' : '' }}">
+                    <i class="fas fa-door-open"></i> Kunjungan Tamu
+                </a>
 
                 {{-- DROPDOWN AKSES ADMIN — muncul hanya jika karyawan punya
                      minimal 1 permission admin. Berisi semua fitur admin

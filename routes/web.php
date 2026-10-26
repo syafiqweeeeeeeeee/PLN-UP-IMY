@@ -25,6 +25,12 @@ Route::post('/layanan/form-registrasi-tamu', [\App\Http\Controllers\TamuControll
 Route::get('/api/booked-slots', [\App\Http\Controllers\TamuController::class, 'bookedSlots'])
     ->name('layanan.registrasi-tamu.booked-slots');
 
+// API daftar pegawai (dipakai fetch JS dependent dropdown "Orang yang
+// Ditemui"): ?bidang=...&jabatan=... -> JSON daftar karyawan/staff pada
+// pasangan bidang & jabatan tersebut. Publik, tanpa auth — sama seperti
+// halaman form registrasi-nya.
+Route::get('/api/get-pegawai', [\App\Http\Controllers\GuestRegistrationController::class, 'getPegawai'])->name('api.get-pegawai');
+
 Route::get('/tentang-kami/sejarah', [HomeController::class, 'sejarah'])->name('sejarah');
 Route::get('/tentang-kami/visi-misi', [HomeController::class, 'visiMisi'])->name('visi-misi');
 Route::get('/tentang-kami/profil-perusahaan', [HomeController::class, 'profilPerusahaan'])->name('profil-perusahaan');
@@ -133,6 +139,12 @@ Route::middleware(['auth', 'karyawan.access'])->prefix('karyawan')->name('karyaw
     Route::get('/layanan', [\App\Http\Controllers\Karyawan\PortalController::class, 'layanan'])->name('layanan');
     Route::get('/layanan/{slug}', [\App\Http\Controllers\Karyawan\PortalController::class, 'layananDetail'])->name('layanan.detail');
     Route::get('/link', [\App\Http\Controllers\Karyawan\PortalController::class, 'link'])->name('link');
+
+    // Kunjungan Tamu — daftar registrasi tamu yang menunjuk akun ini
+    // sebagai "Orang yang Ditemui" (scoping nama akun login, view-only).
+    // Tanpa permission:khusus — semua akun Karyawan boleh melihat tamu
+    // yang datang menemui dirinya sendiri.
+    Route::get('/kunjungan-tamu', [\App\Http\Controllers\Karyawan\PortalController::class, 'kunjunganTamu'])->name('kunjungan-tamu');
 
     // Profil — satu-satunya bagian yang bisa diubah karyawan
     Route::get('/profil', [\App\Http\Controllers\Karyawan\PortalController::class, 'profil'])->name('profil');
