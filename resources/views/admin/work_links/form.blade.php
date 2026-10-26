@@ -124,9 +124,7 @@
 </div>
 
 @if (session('success'))
-<div class="form-alert success">
-    <i class="fas fa-check-circle"></i> {{ session('success') }}
-</div>
+<div class="form-alert success" data-flash-success="{{ session('success') }}" style="display:none;"></div>
 @endif
 
 @if ($errors->any())
@@ -679,4 +677,26 @@
     window.addEventListener('pagehide', closePanel);
 })();
 </script>
+@if (session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var msg = document.querySelector('[data-flash-success]');
+        if (!msg) return;
+        var text = msg.getAttribute('data-flash-success');
+        if (!text) return;
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: text,
+                showConfirmButton: false,
+                timer: 1500,
+                customClass: {
+                    popup: 'rounded-4 shadow-lg'
+                }
+            });
+        }
+    });
+</script>
+@endif
 @endsection

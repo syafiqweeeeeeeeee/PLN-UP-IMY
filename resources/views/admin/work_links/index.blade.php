@@ -1321,14 +1321,29 @@
 
             function showToast(icon, title) {
                 if (typeof Swal === 'undefined') return;
+                var isSuccess = icon === 'success' || (title && title.toLowerCase().indexOf('berhasil') !== -1);
+                if (isSuccess && title && title.toLowerCase().indexOf('diperbarui') !== -1) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: title,
+                        showConfirmButton: false,
+                        timer: 1500,
+                        customClass: {
+                            popup: 'rounded-4 shadow-lg'
+                        }
+                    });
+                    return;
+                }
                 Swal.fire({
-                    toast: true,
-                    position: 'top-end',
                     icon: icon,
-                    title: title,
+                    title: icon === 'success' ? 'Berhasil!' : (icon === 'warning' ? 'Perhatian' : (icon === 'error' ? 'Gagal' : 'Info')),
+                    text: title,
                     showConfirmButton: false,
-                    timer: 2600,
-                    timerProgressBar: true
+                    timer: icon === 'success' ? 1500 : 2200,
+                    customClass: {
+                        popup: 'rounded-4 shadow-lg'
+                    }
                 });
             }
 
@@ -1413,7 +1428,20 @@
                     updateStats(currentRow?.dataset.status === 'aktif', !!data.link.is_active);
                     updateRow(data.link);
                     close();
-                    showToast('success', data.message || 'Link Kerja berhasil diperbarui.');
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: data.message || 'Link Kerja berhasil diperbarui.',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            customClass: {
+                                popup: 'rounded-4 shadow-lg'
+                            }
+                        });
+                    } else {
+                        showToast('success', data.message || 'Link Kerja berhasil diperbarui.');
+                    }
                 })
                 .catch(function(err) {
                     if (err && err.accessDenied) {
@@ -1493,17 +1521,18 @@
 
             // HAK AKSES: link milik bidang sendiri, 'umum', (atau Super Admin)?
             // Admin Bidang + link khusus bidang lain → blokir via SweetAlert
-            // toast, TANPA redirect ke /admin/work-links/{id}/edit.
+            // toast/modal, TANPA redirect ke /admin/work-links/{id}/edit.
             if (row.dataset.canEdit !== 'true') {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
-                        toast: true,
-                        position: 'top-end',
                         icon: 'warning',
-                        title: 'Akses Dibatasi: Anda hanya dapat mengelola data milik bidang Anda.',
+                        title: 'Akses Dibatasi',
+                        text: 'Anda hanya dapat mengelola data milik bidang Anda.',
                         showConfirmButton: false,
-                        timer: 2600,
-                        timerProgressBar: true
+                        timer: 2000,
+                        customClass: {
+                            popup: 'rounded-4 shadow-lg'
+                        }
                     });
                 }
                 return;   // ← tidak ada navigasi apa pun

@@ -246,7 +246,156 @@
     @media (max-width: 767.98px) {
         .dk-page-header .header-row { flex-direction: column; align-items: flex-start; }
         .dk-filter-bar { flex-direction: column; align-items: stretch; }
+        .dk-dd { flex: 1 1 100%; min-width: 0; }
         .dk-summary-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ============================================
+       CUSTOM DROPDOWN FILTER (scrollable) — SEMUA filter di bar
+       (bidang, jabatan, grade, gender, status kawin, unit)
+       Menggantikan <select> bawaan browser:
+       - daftar maksimal max-height 220px + overflow-y auto,
+       - sudut panel membulat (8px / rounded-3) + bayangan halus,
+       - item padding 8px 12px + hover highlight lembut,
+       - TANPA kotak pencarian.
+       Value filter tetap dikirim via <input type="hidden" name="jabatan">.
+       ============================================ */
+    .dk-dd { position: relative; flex: 0 1 200px; min-width: 150px; }
+    .dk-dd-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+        font-family: inherit;
+        line-height: 1.4;
+        background: #f8fafc;
+        color: #1f2937;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .dk-dd-trigger:hover { border-color: var(--pln-blue); }
+    .dk-dd-trigger:focus,
+    .dk-dd.is-open .dk-dd-trigger {
+        border-color: var(--pln-blue);
+        box-shadow: 0 0 0 3px rgba(0, 143, 168, 0.12);
+        outline: none;
+    }
+    .dk-dd-label {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .dk-dd-trigger.is-placeholder .dk-dd-label { color: #6b7280; }
+    .dk-dd-chevron {
+        flex-shrink: 0;
+        font-size: 0.65rem;
+        color: #9ca3af;
+        transition: transform 0.18s ease, color 0.18s ease;
+    }
+    .dk-dd.is-open .dk-dd-chevron { transform: rotate(180deg); color: var(--pln-blue); }
+
+    .dk-dd-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 1200;
+        box-sizing: border-box;
+        padding: 6px;
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;                     /* sudut membulat (rounded-3) */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-height: 220px;                      /* daftar jabatan panjang tidak meluber */
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+        animation: dk-dd-in 0.14s ease-out;
+    }
+    .dk-dd-menu[hidden] { display: none; }
+    @keyframes dk-dd-in {
+        from { opacity: 0; transform: translateY(-4px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    /* Scrollbar tipis & halus (bukan scrollbar bawaan yang tebal). */
+    .dk-dd-menu::-webkit-scrollbar { width: 6px; }
+    .dk-dd-menu::-webkit-scrollbar-track { background: transparent; }
+    .dk-dd-menu::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.45); border-radius: 8px; }
+    .dk-dd-menu::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.6); }
+
+    .dk-dd .dropdown-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 8px 12px;
+        border: 0;
+        background: transparent;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 0.8rem;
+        line-height: 1.35;
+        color: #1f2937;
+        text-align: left;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+    .dk-dd .dropdown-option + .dropdown-option { margin-top: 2px; }
+    /* Opsi tersembunyi oleh filter bidang — harus benar-benar hilang
+       (aturan display:flex di atas mengalahkan atribut hidden bawaan). */
+    .dk-dd .dropdown-option[hidden] { display: none; }
+    /* Efek hover lembut + sorotan keyboard. */
+    .dk-dd .dropdown-option:hover,
+    .dk-dd .dropdown-option:focus-visible {
+        background: rgba(0, 91, 156, 0.08);
+        color: var(--pln-blue);
+        outline: none;
+    }
+    .dk-dd .dropdown-option.is-selected {
+        background: rgba(0, 91, 156, 0.12);
+        color: var(--pln-blue);
+        font-weight: 600;
+    }
+    .dk-dd .dropdown-option > span { flex: 1 1 auto; min-width: 0; }
+    /* Penanda hierarki (— —) pada filter bidang: abu muda & rapat. */
+    .dk-dd-dash {
+        color: #9ca3af;
+        letter-spacing: -0.04em;
+        margin-right: 0.25rem;
+    }
+    .dk-dd .dk-dd-empty { color: #6b7280; }
+    .dk-dd-check { display: none; font-size: 0.7rem; flex-shrink: 0; }
+    .dk-dd .dropdown-option.is-selected .dk-dd-check { display: inline-block; }
+
+    /* Mode gelap admin. */
+    html.theme-dark .dk-dd-trigger,
+    html.theme-dark .dk-dd-menu { background: var(--panel); border-color: var(--line); color: var(--ink-heading); }
+    html.theme-dark .dk-dd .dropdown-option { color: var(--ink-heading); }
+    html.theme-dark .dk-dd .dropdown-option:hover,
+    html.theme-dark .dk-dd .dropdown-option:focus-visible {
+        background: rgba(0, 163, 224, 0.12);
+        color: var(--pln-cyan);
+    }
+    html.theme-dark .dk-dd .dropdown-option.is-selected {
+        background: rgba(0, 163, 224, 0.14);
+        color: var(--pln-cyan);
+    }
+    html.theme-dark .dk-dd .dk-dd-empty { color: var(--ink-faint); }
+    html.theme-dark .dk-dd-dash { color: var(--ink-faint); }
+    html.theme-dark .dk-dd.is-open .dk-dd-trigger,
+    html.theme-dark .dk-dd-trigger:focus {
+        border-color: var(--pln-cyan);
+        box-shadow: 0 0 0 3px var(--focus-ring);
     }
 </style>
 @endpush
@@ -397,55 +546,89 @@
     </div>
 
     {{-- Nilai `#id` = filter lewat relasi master; nilai teks = data lama
-         yang belum terpetakan (tetap bisa difilter & diekspor). --}}
-    <select name="bidang" title="Filter BIDANG">
-        <option value="">Semua Bidang</option>
-        @foreach (($master['bidangRows'] ?? []) as $row)
-            @php $value = '#'.$row['node']->id; @endphp
-            <option value="{{ $value }}" @selected(request('bidang') === $value)>
-                {{ str_repeat('— ', $row['depth']) }}{{ $row['node']->nama }}
-            </option>
-        @endforeach
-        @foreach (($master['legacyBidang'] ?? []) as $value)
-            <option value="{{ $value }}" @selected(request('bidang') === $value)>{{ $value }} (teks lama)</option>
-        @endforeach
-    </select>
-    <select name="jabatan" title="Filter JABATAN">
-        <option value="">Semua Jabatan</option>
-        @foreach (($master['jabatans'] ?? []) as $jabatan)
-            @php $value = '#'.$jabatan->id; @endphp
-            <option value="{{ $value }}" data-bidang="{{ $jabatan->bidang_id }}" @selected(request('jabatan') === $value)>
-                {{ $jabatan->nama }}
-            </option>
-        @endforeach
-        @foreach (($master['legacyJabatan'] ?? []) as $value)
-            <option value="{{ $value }}" @selected(request('jabatan') === $value)>{{ $value }} (teks lama)</option>
-        @endforeach
-    </select>
-    <select name="grade" title="Filter GRADE">
-        <option value="">Semua Grade</option>
-        @foreach (($filterOptions['grade'] ?? []) as $value)
-            <option value="{{ $value }}" @selected(request('grade') === $value)>{{ $value }}</option>
-        @endforeach
-    </select>
-    <select name="gender" title="Filter GENDER">
-        <option value="">Semua Gender</option>
-        @foreach ($genders as $key => $label)
-            <option value="{{ $key }}" @selected(request('gender') === $key)>{{ $label }}</option>
-        @endforeach
-    </select>
-    <select name="status_kawin" title="Filter STATUS KAWIN">
-        <option value="">Semua Status Kawin</option>
-        @foreach ($statusesKawin as $key => $label)
-            <option value="{{ $key }}" @selected(request('status_kawin') === $key)>{{ $label }}</option>
-        @endforeach
-    </select>
-    <select name="unit" title="Filter UNIT">
-        <option value="">Semua Unit</option>
-        @foreach (($filterOptions['unit'] ?? []) as $value)
-            <option value="{{ $value }}" @selected(request('unit') === $value)>{{ $value }}</option>
-        @endforeach
-    </select>
+         yang belum terpetakan (tetap bisa difilter & diekspor).
+         Sufiks "(teks lama)" tidak ditampilkan lagi di daftar pilihan —
+         hanya label tampilan yang dibersihkan, value tetap teks aslinya
+         supaya data lama tetap bisa difilter & diekspor. --}}
+    @php
+        $bidangOptions = [];
+        foreach (($master['bidangRows'] ?? []) as $row) {
+            $bidangOptions[] = [
+                'value'  => '#'.$row['node']->id,
+                'name'   => $row['node']->nama,
+                // Penanda hierarki (— / — — ) untuk sub-bidang.
+                'prefix' => str_repeat('— ', $row['depth']),
+            ];
+        }
+        foreach (($master['legacyBidang'] ?? []) as $txt) {
+            $bidangOptions[] = ['value' => $txt, 'name' => $txt];
+        }
+
+        $jabatanOptions = [];
+        foreach (($master['jabatans'] ?? []) as $j) {
+            $jabatanOptions[] = [
+                'value' => '#'.$j->id,
+                'name'  => $j->nama,
+                // Dipakai filter dependent: jabatan hanya tampil pada bidangnya.
+                'data'  => ['bidang' => $j->bidang_id],
+            ];
+        }
+        foreach (($master['legacyJabatan'] ?? []) as $txt) {
+            $jabatanOptions[] = ['value' => $txt, 'name' => $txt];
+        }
+
+        $gradeOptions  = collect($filterOptions['grade'] ?? [])
+            ->map(fn ($v) => ['value' => $v, 'name' => $v])->values()->all();
+        $genderOptions = collect($genders)
+            ->map(fn ($label, $key) => ['value' => $key, 'name' => $label])->values()->all();
+        $statusOptions = collect($statusesKawin)
+            ->map(fn ($label, $key) => ['value' => $key, 'name' => $label])->values()->all();
+        $unitOptions   = collect($filterOptions['unit'] ?? [])
+            ->map(fn ($v) => ['value' => $v, 'name' => $v])->values()->all();
+    @endphp
+
+    @include('admin.data-karyawan._filter-dropdown', [
+        'name'        => 'bidang',
+        'title'       => 'Filter BIDANG',
+        'placeholder' => 'Semua Bidang',
+        'value'       => request('bidang'),
+        'options'     => $bidangOptions,
+    ])
+    @include('admin.data-karyawan._filter-dropdown', [
+        'name'        => 'jabatan',
+        'title'       => 'Filter JABATAN',
+        'placeholder' => 'Semua Jabatan',
+        'value'       => request('jabatan'),
+        'options'     => $jabatanOptions,
+    ])
+    @include('admin.data-karyawan._filter-dropdown', [
+        'name'        => 'grade',
+        'title'       => 'Filter GRADE',
+        'placeholder' => 'Semua Grade',
+        'value'       => request('grade'),
+        'options'     => $gradeOptions,
+    ])
+    @include('admin.data-karyawan._filter-dropdown', [
+        'name'        => 'gender',
+        'title'       => 'Filter GENDER',
+        'placeholder' => 'Semua Gender',
+        'value'       => request('gender'),
+        'options'     => $genderOptions,
+    ])
+    @include('admin.data-karyawan._filter-dropdown', [
+        'name'        => 'status_kawin',
+        'title'       => 'Filter STATUS KAWIN',
+        'placeholder' => 'Semua Status Kawin',
+        'value'       => request('status_kawin'),
+        'options'     => $statusOptions,
+    ])
+    @include('admin.data-karyawan._filter-dropdown', [
+        'name'        => 'unit',
+        'title'       => 'Filter UNIT',
+        'placeholder' => 'Semua Unit',
+        'value'       => request('unit'),
+        'options'     => $unitOptions,
+    ])
     <select name="per_page" title="Baris per halaman">
         @foreach ($perPageOptions as $option)
             <option value="{{ $option }}" @selected($perPage === $option)>{{ $option }} / halaman</option>
@@ -651,35 +834,166 @@
         }
     })();
 
-    // Filter JABATAN mengikuti BIDANG master yang sedang dipilih
-    // (opsi teks lama tetap tampil agar data belum terpetakan bisa dicari).
+    // ===== CUSTOM DROPDOWN FILTER (Data Karyawan) =====
+    // Semua filter di bar (bidang, jabatan, grade, gender, status kawin,
+    // unit) memakai daftar opsi scrollable (max-height 220px) — pengganti
+    // <select> bawaan browser. Tiap value tetap dikirim lewat
+    // <input type="hidden" name="..."> sehingga filter, ekspor & pagination
+    // menerima parameter yang sama seperti sebelumnya.
     (function () {
-        var bidangFilter = document.querySelector('.dk-filter-bar select[name="bidang"]');
-        var jabatanFilter = document.querySelector('.dk-filter-bar select[name="jabatan"]');
+        var bar = document.querySelector('.dk-filter-bar');
+        if (!bar || bar.dataset.dkDdBound === '1') return;
+        bar.dataset.dkDdBound = '1';
 
-        if (!bidangFilter || !jabatanFilter) return;
+        var registry = {};
 
-        function syncJabatanFilter() {
-            var value = bidangFilter.value;
-            var bidangId = /^#[0-9]+$/.test(value) ? value.slice(1) : null;
-
-            Array.prototype.forEach.call(jabatanFilter.options, function (option) {
-                if (!option.dataset.bidang) return;
-
-                var match = bidangId === null || option.dataset.bidang === bidangId;
-                option.hidden = !match;
-                option.disabled = !match;
-            });
-
-            var selected = jabatanFilter.options[jabatanFilter.selectedIndex];
-
-            if (selected && selected.disabled) {
-                jabatanFilter.value = '';
-            }
+        function closeDropdown(api) {
+            api.menu.hidden = true;
+            api.wrap.classList.remove('is-open');
+            api.trigger.setAttribute('aria-expanded', 'false');
         }
 
-        bidangFilter.addEventListener('change', syncJabatanFilter);
-        syncJabatanFilter();
+        Array.prototype.forEach.call(bar.querySelectorAll('.dk-dd'), function (wrap) {
+            var name    = wrap.dataset.dd;
+            var hidden  = name ? bar.querySelector('input[type="hidden"][name="' + name + '"]') : null;
+            var trigger = wrap.querySelector('.dk-dd-trigger');
+            var menu    = wrap.querySelector('.dk-dd-menu');
+            var label   = wrap.querySelector('.dk-dd-label');
+            var options = menu ? Array.prototype.slice.call(menu.querySelectorAll('.dropdown-option')) : [];
+
+            if (!hidden || !trigger || !menu || !label || !options.length) return;
+
+            var api = {
+                wrap: wrap, name: name, hidden: hidden, trigger: trigger, menu: menu,
+                label: label, options: options, placeholder: options[0], setValue: null
+            };
+            registry[name] = api;
+
+            var placeholder = api.placeholder;   // opsi "Semua …" (value kosong)
+
+            function visibleOptions() {
+                return options.filter(function (o) { return !o.hidden; });
+            }
+
+            function setOpen(open) {
+                menu.hidden = !open;
+                wrap.classList.toggle('is-open', open);
+                trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (open) {
+                    var vis = visibleOptions();
+                    if (!vis.length) return;
+                    var sel = vis.filter(function (o) { return o.classList.contains('is-selected'); })[0];
+                    var target = sel || vis[0];
+                    target.focus();
+                    target.scrollIntoView({ block: 'nearest' });
+                }
+            }
+
+            // Tulis value ke hidden input + sinkronkan label & penanda terpilih.
+            function setValue(opt) {
+                hidden.value = opt.dataset.value;
+                label.textContent = opt.dataset.label || opt.textContent.trim();
+                trigger.classList.toggle('is-placeholder', opt.dataset.value === '');
+                trigger.title = opt.dataset.label || '';
+                options.forEach(function (o) {
+                    var on = o === opt;
+                    o.classList.toggle('is-selected', on);
+                    o.setAttribute('aria-selected', on ? 'true' : 'false');
+                });
+                hidden.dispatchEvent(new Event('input', { bubbles: true }));
+                hidden.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            function choose(opt) {
+                setValue(opt);
+                setOpen(false);
+                trigger.focus();
+            }
+
+            api.setValue = setValue;
+
+            trigger.addEventListener('click', function () { setOpen(menu.hidden); });
+
+            // Listener dipasang pada semua opsi (termasuk yang tersembunyi —
+            // display:none membuatnya tak bisa diklik, tapi siap saat muncul).
+            options.forEach(function (opt) {
+                opt.addEventListener('click', function () { choose(opt); });
+            });
+
+            trigger.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') { setOpen(false); return; }
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();           // cegah aktivasi native button
+                    setOpen(true);
+                    if (e.key === 'ArrowUp') {
+                        var vis = visibleOptions();
+                        if (vis.length) vis[vis.length - 1].focus();
+                    }
+                }
+            });
+
+            menu.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    setOpen(false);
+                    trigger.focus();
+                    return;
+                }
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    var vis = visibleOptions();
+                    if (!vis.length) return;
+                    var i = vis.indexOf(document.activeElement);
+                    var next = i === -1 ? 0 : (e.key === 'ArrowDown'
+                        ? Math.min(i + 1, vis.length - 1)
+                        : Math.max(i - 1, 0));
+                    vis[next].focus();
+                    vis[next].scrollIntoView({ block: 'nearest' });
+                }
+            });
+
+            // Tab keluar dari dropdown → tutup panelnya.
+            wrap.addEventListener('focusout', function () {
+                requestAnimationFrame(function () {
+                    if (!menu.hidden && !wrap.contains(document.activeElement)) closeDropdown(api);
+                });
+            });
+        });
+
+        // Klik di luar baris filter → tutup dropdown mana pun yang terbuka.
+        document.addEventListener('mousedown', function (e) {
+            Object.keys(registry).forEach(function (key) {
+                var api = registry[key];
+                if (!api.menu.hidden && !api.wrap.contains(e.target)) closeDropdown(api);
+            });
+        });
+
+        // ===== Filter JABATAN mengikuti BIDANG master yang sedang dipilih =====
+        // (nilai teks lama tetap tampil agar data belum terpetakan bisa dicari.)
+        var bidang  = registry['bidang'];
+        var jabatan = registry['jabatan'];
+
+        if (bidang && jabatan) {
+            var syncJabatanFilter = function () {
+                var value = bidang.hidden.value;
+                var bidangId = /^#[0-9]+$/.test(value) ? value.slice(1) : null;
+
+                jabatan.options.forEach(function (opt) {
+                    var bid = opt.dataset.bidang;
+                    if (!bid) return;              // placeholder & nilai teks lama selalu tampil
+                    opt.hidden = bidangId !== null && bid !== bidangId;
+                });
+
+                // Pilihan yang tersaring oleh bidang terpilih → "Semua Jabatan".
+                var selected = jabatan.options.filter(function (o) {
+                    return o.classList.contains('is-selected');
+                })[0];
+                if (selected && selected.hidden) jabatan.setValue(jabatan.placeholder);
+            };
+
+            bidang.hidden.addEventListener('change', syncJabatanFilter);
+            syncJabatanFilter();
+        }
     })();
 </script>
 @endsection

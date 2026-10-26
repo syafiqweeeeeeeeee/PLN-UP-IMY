@@ -117,11 +117,14 @@
 
     /* Modal Tambah Menu (lebar + rata kiri, beda dengan modal konfirmasi) */
     .modal-menu-dialog {
-        background: #fff; border-radius: 16px; padding: 1.5rem 1.75rem;
+        background: #fff; border-radius: 16px; padding: 1.5rem 1.75rem 2.5rem;
         max-width: 520px; width: 100%; text-align: left;
         box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         animation: modalPlnIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        max-height: 90vh; overflow-y: auto;
+        max-height: 90vh; overflow: visible;
+    }
+    .modal-menu-form {
+        overflow: visible;
     }
     .modal-menu-title { font-size: 1rem; font-weight: 800; color: var(--pln-text); margin: 0; }
     .modal-menu-sub { font-size: 0.75rem; color: #9ca3af; margin: 0.2rem 0 0; }
@@ -133,6 +136,120 @@
 
     /* Kelas form dipakai modal: form-label-mod, form-control-mod, form-hint,
        form-btn-save → global di public/css/admin.css */
+
+    /* Custom Dropdown untuk modal menu (pengganti select bawaan) */
+    .menu-dd { position: relative; }
+    .menu-dd-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.6rem;
+        width: 100%;
+        text-align: left;
+        line-height: 1.4;
+        cursor: pointer;
+    }
+    .menu-dd-trigger:disabled { cursor: not-allowed; opacity: 0.65; }
+    .menu-dd-label {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .menu-dd-trigger.is-placeholder .menu-dd-label { color: #9ca3af; font-style: italic; }
+    .menu-dd-chevron {
+        flex-shrink: 0;
+        font-size: 0.7rem;
+        color: #9ca3af;
+        transition: transform 0.18s ease, color 0.18s ease;
+    }
+    .menu-dd.is-open .menu-dd-chevron { transform: rotate(180deg); color: var(--pln-blue); }
+    .menu-dd.is-open .menu-dd-trigger {
+        border-color: var(--pln-blue);
+        box-shadow: 0 0 0 3px rgba(0, 91, 156, 0.12);
+    }
+
+    .menu-dd-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        bottom: auto;
+        left: 0;
+        right: 0;
+        z-index: 20000;
+        box-sizing: border-box;
+        padding: 6px;
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+        max-height: 180px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+        animation: menu-dd-in 0.14s ease-out;
+    }
+    .menu-dd.menu-dd-up .menu-dd-menu {
+        top: auto;
+        bottom: calc(100% + 6px);
+        animation: menu-dd-in-up 0.14s ease-out;
+    }
+    @keyframes menu-dd-in-up {
+        from { opacity: 0; transform: translateY(4px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .menu-dd-menu[hidden] { display: none; }
+    @keyframes menu-dd-in {
+        from { opacity: 0; transform: translateY(-4px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .menu-dd-menu::-webkit-scrollbar { width: 6px; }
+    .menu-dd-menu::-webkit-scrollbar-track { background: transparent; }
+    .menu-dd-menu::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.45);
+        border-radius: 8px;
+    }
+    .menu-dd-menu::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.6); }
+
+    .menu-dd .menu-dd-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 8px 12px;
+        border: 0;
+        background: transparent;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        color: #1f2937;
+        text-align: left;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+    .menu-dd .menu-dd-option + .menu-dd-option { margin-top: 2px; }
+    .menu-dd .menu-dd-option:hover,
+    .menu-dd .menu-dd-option:focus-visible {
+        background: rgba(0, 91, 156, 0.08);
+        color: var(--pln-blue);
+        outline: none;
+    }
+    .menu-dd .menu-dd-option.is-selected {
+        background: rgba(0, 91, 156, 0.12);
+        color: var(--pln-blue);
+        font-weight: 600;
+    }
+    .menu-dd-check { display: none; font-size: 0.7rem; flex-shrink: 0; }
+    .menu-dd .menu-dd-option.is-selected .menu-dd-check { display: inline-block; }
+
+    html.theme-dark .menu-dd-menu { background: var(--panel); border-color: var(--line); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    html.theme-dark .menu-dd .menu-dd-option { color: var(--ink-heading); }
+    html.theme-dark .menu-dd .menu-dd-option:hover,
+    html.theme-dark .menu-dd .menu-dd-option:focus-visible { background: rgba(0, 163, 224, 0.12); color: var(--pln-cyan); }
+    html.theme-dark .menu-dd .menu-dd-option.is-selected { background: rgba(0, 163, 224, 0.14); color: var(--pln-cyan); }
 </style>
 @endpush
 
@@ -339,7 +456,7 @@
             </button>
         </div>
 
-        <form id="menuModalForm" method="POST" action="{{ route('admin.menus.store') }}">
+        <form id="menuModalForm" class="modal-menu-form" method="POST" action="{{ route('admin.menus.store') }}">
             @csrf
             <input type="hidden" name="parent_id" id="menuModalParent" value="">
             <input type="hidden" name="is_active" value="1">
@@ -357,32 +474,82 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-group-label" for="menuModalType">Tipe tujuan <span class="required">*</span></label>
-                <select id="menuModalType" name="type" class="form-input" onchange="toggleMenuModalTargets()">
+                <label class="form-group-label" for="menuModalTypeTrigger">Tipe tujuan <span class="required">*</span></label>
+                <select id="menuModalType" name="type" class="form-input d-none" onchange="if(window.toggleMenuModalTargets) toggleMenuModalTargets();">
                     @foreach ($typeLabels as $typeKey => $typeLabel)
-                        <option value="{{ $typeKey }}">{{ $typeLabel }}</option>
+                        <option value="{{ $typeKey }}" @selected($loop->first)>{{ $typeLabel }}</option>
                     @endforeach
                 </select>
+                <div class="menu-dd" id="menuTypeDd">
+                    <button type="button" id="menuModalTypeTrigger" class="form-input menu-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="menuTypeDdMenu">
+                        <span class="menu-dd-label" id="menuModalTypeLabel">{{ reset($typeLabels) }}</span>
+                        <i class="fas fa-chevron-down menu-dd-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="menu-dd-menu" id="menuTypeDdMenu" role="listbox" aria-labelledby="menuModalTypeTrigger" hidden>
+                        @foreach ($typeLabels as $typeKey => $typeLabel)
+                            <button type="button" class="menu-dd-option{{ $loop->first ? ' is-selected' : '' }}" role="option" aria-selected="{{ $loop->first ? 'true' : 'false' }}" data-value="{{ $typeKey }}" data-label="{{ $typeLabel }}">
+                                <span>{{ $typeLabel }}</span>
+                                <i class="fas fa-check menu-dd-check" aria-hidden="true"></i>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
             </div>
 
             <div class="mb-3 menu-modal-target" data-for="route" style="display:none;">
-                <label class="form-group-label" for="menuModalRoute">Pilih halaman situs</label>
-                <select id="menuModalRoute" name="route_name" class="form-input">
+                <label class="form-group-label" for="menuModalRouteTrigger">Pilih halaman situs</label>
+                <select id="menuModalRoute" name="route_name" class="form-input d-none">
                     <option value="">— pilih —</option>
                     @foreach ($routeOptions ?? [] as $routeName => $routeLabel)
                         <option value="{{ $routeName }}">{{ $routeLabel }}</option>
                     @endforeach
                 </select>
+                <div class="menu-dd" id="menuRouteDd">
+                    <button type="button" id="menuModalRouteTrigger" class="form-input menu-dd-trigger is-placeholder" aria-haspopup="listbox" aria-expanded="false" aria-controls="menuRouteDdMenu">
+                        <span class="menu-dd-label" id="menuModalRouteLabel">— pilih —</span>
+                        <i class="fas fa-chevron-down menu-dd-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="menu-dd-menu" id="menuRouteDdMenu" role="listbox" aria-labelledby="menuModalRouteTrigger" hidden>
+                        <button type="button" class="menu-dd-option menu-dd-empty is-selected" role="option" aria-selected="true" data-value="" data-label="— pilih —">
+                            <span>— pilih —</span>
+                            <i class="fas fa-check menu-dd-check" aria-hidden="true"></i>
+                        </button>
+                        @foreach ($routeOptions ?? [] as $routeName => $routeLabel)
+                            <button type="button" class="menu-dd-option" role="option" aria-selected="false" data-value="{{ $routeName }}" data-label="{{ $routeLabel }}">
+                                <span>{{ $routeLabel }}</span>
+                                <i class="fas fa-check menu-dd-check" aria-hidden="true"></i>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
             </div>
 
             <div class="mb-3 menu-modal-target" data-for="page" style="display:none;">
-                <label class="form-group-label" for="menuModalPage">Pilih Halaman Internal <span class="required">*</span></label>
-                <select id="menuModalPage" name="page_id" class="form-input">
+                <label class="form-group-label" for="menuModalPageTrigger">Pilih Halaman Internal <span class="required">*</span></label>
+                <select id="menuModalPage" name="page_id" class="form-input d-none">
                     <option value="">— pilih —</option>
                     @foreach ($pages as $pageOption)
                         <option value="{{ $pageOption->id }}">{{ $pageOption->title }} (/halaman/{{ $pageOption->slug }})</option>
                     @endforeach
                 </select>
+                <div class="menu-dd" id="menuPageDd">
+                    <button type="button" id="menuModalPageTrigger" class="form-input menu-dd-trigger is-placeholder" aria-haspopup="listbox" aria-expanded="false" aria-controls="menuPageDdMenu">
+                        <span class="menu-dd-label" id="menuModalPageLabel">— pilih —</span>
+                        <i class="fas fa-chevron-down menu-dd-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="menu-dd-menu" id="menuPageDdMenu" role="listbox" aria-labelledby="menuModalPageTrigger" hidden>
+                        <button type="button" class="menu-dd-option menu-dd-empty is-selected" role="option" aria-selected="true" data-value="" data-label="— pilih —">
+                            <span>— pilih —</span>
+                            <i class="fas fa-check menu-dd-check" aria-hidden="true"></i>
+                        </button>
+                        @foreach ($pages as $pageOption)
+                            <button type="button" class="menu-dd-option" role="option" aria-selected="false" data-value="{{ $pageOption->id }}" data-label="{{ $pageOption->title }} (/halaman/{{ $pageOption->slug }})">
+                                <span>{{ $pageOption->title }} (/halaman/{{ $pageOption->slug }})</span>
+                                <i class="fas fa-check menu-dd-check" aria-hidden="true"></i>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
                 <div class="form-hint flex">
                     <i class="fas fa-shield-halved"></i>
                     Hanya halaman berstatus <strong>Terbit</strong> yang terdaftar. Menu ini otomatis disembunyikan dari pengunjung yang tidak berhak melihat halamannya.
@@ -407,6 +574,145 @@
 </div>
 
 <script>
+    function initMenuDropdown(wrapId, selectId, labelId, onChange) {
+        var wrap = document.getElementById(wrapId);
+        if (!wrap) return;
+        var trigger = wrap.querySelector('.menu-dd-trigger');
+        var menu = wrap.querySelector('.menu-dd-menu');
+        var selectEl = document.getElementById(selectId);
+        var labelEl = document.getElementById(labelId);
+        var options = Array.prototype.slice.call(menu.querySelectorAll('.menu-dd-option'));
+        if (!trigger || !selectEl || !menu || options.length === 0) return;
+
+        function setOpen(open) {
+            wrap.classList.remove('menu-dd-up');
+            if (open) {
+                var rect = wrap.getBoundingClientRect();
+                var spaceBelow = window.innerHeight - rect.bottom;
+                var menuHeight = 180 + 12;
+                if (spaceBelow < menuHeight && rect.top > menuHeight) {
+                    wrap.classList.add('menu-dd-up');
+                }
+            }
+            menu.hidden = !open;
+            wrap.classList.toggle('is-open', open);
+            trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) {
+                var idx = options.findIndex(function (o) { return o.classList.contains('is-selected'); });
+                var target = options[idx >= 0 ? idx : 0];
+                target.focus();
+                target.scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function syncFromSelect() {
+            var val = selectEl.value;
+            var found = null;
+            options.forEach(function (o) {
+                var on = (o.dataset.value || '') === (val || '');
+                o.classList.toggle('is-selected', on);
+                o.setAttribute('aria-selected', on ? 'true' : 'false');
+                if (on) found = o;
+            });
+            if (found) {
+                if (labelEl) labelEl.textContent = found.dataset.label || found.textContent.trim();
+                trigger.classList.toggle('is-placeholder', (found.dataset.value || '') === '');
+            } else if (options.length) {
+                options[0].classList.add('is-selected');
+                options[0].setAttribute('aria-selected', 'true');
+                if (labelEl) labelEl.textContent = options[0].dataset.label || options[0].textContent.trim();
+                trigger.classList.toggle('is-placeholder', (options[0].dataset.value || '') === '');
+                selectEl.value = options[0].dataset.value || '';
+                options.forEach(function (o, idx) {
+                    if (idx === 0) {
+                        o.classList.add('is-selected');
+                        o.setAttribute('aria-selected', 'true');
+                    } else {
+                        o.classList.remove('is-selected');
+                        o.setAttribute('aria-selected', 'false');
+                    }
+                });
+            }
+            if (typeof onChange === 'function') onChange(selectEl.value);
+        }
+
+        function choose(opt) {
+            var val = opt.dataset.value || '';
+            selectEl.value = val;
+            if (labelEl) {
+                labelEl.textContent = opt.dataset.label || opt.textContent.trim();
+            }
+            trigger.classList.toggle('is-placeholder', val === '');
+            options.forEach(function (o) {
+                var on = o === opt;
+                o.classList.toggle('is-selected', on);
+                o.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            selectEl.dispatchEvent(new Event('input', { bubbles: true }));
+            selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+            if (typeof onChange === 'function') onChange(val);
+            setOpen(false);
+            trigger.focus();
+        }
+
+        selectEl.addEventListener('change', syncFromSelect);
+
+        trigger.addEventListener('click', function () { setOpen(menu.hidden); });
+        options.forEach(function (opt) {
+            opt.addEventListener('click', function () { choose(opt); });
+        });
+        trigger.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { setOpen(false); return; }
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setOpen(true);
+                if (e.key === 'ArrowUp') options[options.length - 1].focus();
+            }
+        });
+        menu.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                setOpen(false);
+                trigger.focus();
+                return;
+            }
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                var i = options.indexOf(document.activeElement);
+                var next = e.key === 'ArrowDown' ? Math.min(i + 1, options.length - 1) : Math.max(i - 1, 0);
+                options[next].focus();
+                options[next].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (document.activeElement && document.activeElement.classList.contains('menu-dd-option')) {
+                    choose(document.activeElement);
+                }
+            }
+        });
+        document.addEventListener('mousedown', function (e) {
+            if (!menu.hidden && !wrap.contains(e.target)) setOpen(false);
+        });
+        wrap.addEventListener('focusout', function () {
+            requestAnimationFrame(function () {
+                if (!wrap.contains(document.activeElement)) setOpen(false);
+            });
+        });
+
+        // initial sync to be safe
+        syncFromSelect();
+
+        return { choose: choose, setOpen: setOpen, options: options, syncFromSelect: syncFromSelect };
+    }
+
+    var menuTypeDropdown, menuRouteDropdown, menuPageDropdown;
+
+    function toggleMenuModalTargets() {
+        var type = document.getElementById('menuModalType').value;
+        document.querySelectorAll('.menu-modal-target').forEach(function (el) {
+            el.style.display = (el.dataset.for === type) ? '' : 'none';
+        });
+    }
+
     function openMenuModal(parentId, parentLabel) {
         var form = document.getElementById('menuModalForm');
         form.reset();
@@ -417,6 +723,20 @@
             ? 'Tambah Submenu di \'' + parentLabel + '\''
             : 'Tambah Menu';
 
+        var typeSel = document.getElementById('menuModalType');
+        var routeSel = document.getElementById('menuModalRoute');
+        var pageSel = document.getElementById('menuModalPage');
+        if (typeSel && typeSel.options.length) typeSel.value = typeSel.options[0].value;
+        if (routeSel) routeSel.value = '';
+        if (pageSel) pageSel.value = '';
+        document.getElementById('menuModalUrl').value = '';
+
+        if (menuTypeDropdown && typeof menuTypeDropdown.syncFromSelect === 'function') menuTypeDropdown.syncFromSelect();
+        if (menuRouteDropdown && typeof menuRouteDropdown.syncFromSelect === 'function') menuRouteDropdown.syncFromSelect();
+        if (menuPageDropdown && typeof menuPageDropdown.syncFromSelect === 'function') menuPageDropdown.syncFromSelect();
+
+        document.querySelectorAll('.menu-dd').forEach(function (el) { el.classList.remove('menu-dd-up'); });
+
         toggleMenuModalTargets();
         document.getElementById('menuModal').classList.add('show');
         document.getElementById('menuModalLabel').focus();
@@ -424,17 +744,18 @@
 
     function closeMenuModal() {
         document.getElementById('menuModal').classList.remove('show');
-    }
-
-    function toggleMenuModalTargets() {
-        var type = document.getElementById('menuModalType').value;
-        document.querySelectorAll('.menu-modal-target').forEach(function (el) {
-            el.style.display = (el.dataset.for === type) ? '' : 'none';
-        });
+        document.querySelectorAll('.menu-dd').forEach(function (el) { el.classList.remove('menu-dd-up'); });
     }
 
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') closeMenuModal();
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        menuTypeDropdown = initMenuDropdown('menuTypeDd', 'menuModalType', 'menuModalTypeLabel', toggleMenuModalTargets);
+        menuRouteDropdown = initMenuDropdown('menuRouteDd', 'menuModalRoute', 'menuModalRouteLabel');
+        menuPageDropdown = initMenuDropdown('menuPageDd', 'menuModalPage', 'menuModalPageLabel');
+        toggleMenuModalTargets();
     });
 
     {{-- Setelah gagal validasi: buka lagi modal + kembalikan nilai yang sudah diisi --}}
@@ -444,15 +765,47 @@
             openMenuModal(parentId ? parseInt(parentId, 10) : null, '');
 
             document.getElementById('menuModalLabel').value = @js((string) old('label'));
-            document.getElementById('menuModalType').value  = @js((string) old('type', 'route'));
-            toggleMenuModalTargets();
+            document.getElementById('menuModalUrl').value = @js((string) old('url', ''));
 
-            var route = document.getElementById('menuModalRoute');
-            var page  = document.getElementById('menuModalPage');
-            var url   = document.getElementById('menuModalUrl');
-            if (route) route.value = @js((string) old('route_name', ''));
-            if (page)  page.value  = @js((string) (old('page_id') ?? ''));
-            if (url)   url.value   = @js((string) old('url', ''));
+            var typeSel = document.getElementById('menuModalType');
+            var routeSel = document.getElementById('menuModalRoute');
+            var pageSel = document.getElementById('menuModalPage');
+            if (typeSel) typeSel.value = @js((string) old('type', 'route'));
+            if (routeSel) routeSel.value = @js((string) old('route_name', ''));
+            if (pageSel) pageSel.value = @js((string) (old('page_id') ?? ''));
+
+            function syncCustom(wrapId, selectId) {
+                var wrap = document.getElementById(wrapId);
+                var selectEl = document.getElementById(selectId);
+                if (!wrap || !selectEl) return;
+                var options = wrap.querySelectorAll('.menu-dd-option');
+                var labelEl = wrap.querySelector('.menu-dd-label');
+                var trigger = wrap.querySelector('.menu-dd-trigger');
+                var val = selectEl.value;
+                var found = null;
+                options.forEach(function (o) {
+                    var on = (o.dataset.value || '') === (val || '');
+                    o.classList.toggle('is-selected', on);
+                    o.setAttribute('aria-selected', on ? 'true' : 'false');
+                    if (on) found = o;
+                });
+                if (found) {
+                    if (labelEl) labelEl.textContent = found.dataset.label || found.textContent.trim();
+                    if (trigger) trigger.classList.toggle('is-placeholder', (found.dataset.value || '') === '');
+                } else if (options.length) {
+                    options[0].classList.add('is-selected');
+                    options[0].setAttribute('aria-selected', 'true');
+                    if (labelEl) labelEl.textContent = options[0].dataset.label || options[0].textContent.trim();
+                    if (trigger) trigger.classList.toggle('is-placeholder', (options[0].dataset.value || '') === '');
+                    selectEl.value = options[0].dataset.value || '';
+                }
+            }
+
+            syncCustom('menuTypeDd', 'menuModalType');
+            syncCustom('menuRouteDd', 'menuModalRoute');
+            syncCustom('menuPageDd', 'menuModalPage');
+
+            toggleMenuModalTargets();
         })();
     @endif
 </script>

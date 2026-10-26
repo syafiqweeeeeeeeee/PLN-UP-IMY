@@ -1352,13 +1352,14 @@
                 });
 
                 Swal.fire({
-                    toast: true,
-                    position: 'top-end',
                     icon: 'success',
-                    title: 'Data master karyawan "' + (values.nama || nid) + '" berhasil dimuat.',
+                    title: 'Berhasil!',
+                    text: 'Data master karyawan "' + (values.nama || nid) + '" berhasil dimuat.',
                     showConfirmButton: false,
-                    timer: 2500,
-                    timerProgressBar: true
+                    timer: 1800,
+                    customClass: {
+                        popup: 'rounded-4 shadow-lg'
+                    }
                 });
             })
             .catch(function () {
