@@ -332,7 +332,7 @@
                 <p class="form-section-desc">
                     {{ $isSuperAdminEdit
                         ? 'Role akun ini diproteksi — unit kerja & jabatan mengikuti data master'
-                        : 'Role menentukan hak akses; Master Bidang & Master Jabatan menentukan unit kerja dan posisi pengguna' }}
+                        : 'Role menentukan hak akses' }}
                 </p>
             </div>
         </div>
@@ -341,7 +341,7 @@
         <div class="bj-group" id="groupAkses">
             <div class="bj-group-title">
                 <i class="fas fa-key"></i> Akses & Unit Kerja
-                <span class="bj-group-note">Role menentukan hak akses sistem; Master Bidang & Master Jabatan menentukan unit kerja dan posisi</span>
+               
             </div>
             <div class="row g-3">
             <div class="col-md-6">
@@ -395,7 +395,7 @@
         <div class="bj-group" id="masterUnitSection">
             <div class="bj-group-title">
                 <i class="fas fa-sitemap"></i> Master Bidang & Jabatan
-                <span class="bj-group-note">Pilih unit kerja pada Master Bidang (induk atau sub-bidang), lalu jabatan di dalamnya</span>
+                
             </div>
 
             <div class="row g-3">
@@ -445,7 +445,7 @@
                         </select>
                     </div>
                     <div class="form-hint flex" id="masterJabatanHint" style="display:none;">
-                        <i class="far fa-lightbulb"></i> Daftar jabatan mengikuti Bidang yang dipilih. Jabatan adalah posisi pekerjaan — hak akses sistem tetap ditentukan Role.
+                        
                     </div>
                     @error('jabatan_id')
                         <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
@@ -490,9 +490,7 @@
     </div>
     @endif
 
-    {{-- ============================================
-         FOOTER — standar Design System Form
-         ============================================ --}}
+    
     <div class="form-footer">
         <div class="form-footer-info">
             <i class="fas fa-circle-info"></i> Field dengan <span style="color:#dc2626;">*</span> wajib diisi
@@ -509,10 +507,7 @@
     </div>
 </form>
 
-{{-- Script WAJIB di dalam @section('content') (bukan @push('scripts'))
-     karena client-side router (router.js) hanya mengeksekusi ulang
-     <script> di dalam <main>; kalau di push stack, tombol show password
-     & indikator kekuatan password mati setelah navigasi via sidebar. --}}
+
 <script>
     function togglePassword(fieldId, btn) {
         const field = document.getElementById(fieldId);
@@ -522,12 +517,7 @@
         else { field.type = 'password'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
     }
 
-    /* ===== Conditional Fields berdasarkan ROLE =====
-       - Super Admin  → Level Jabatan, Bidang Utama & Sub-Bidang disembunyikan.
-       - Admin Bidang → Level disembunyikan; Bidang Utama & Sub-Bidang tampil
-                        (wajib, sub dependent) + SECTION DIRECT PERMISSION tampil.
-       - Karyawan     → ketiga field tampil; Level Jabatan hanya 4 tingkat;
-                        kewajiban bidang/sub mengikuti level terpilih. */
+
     (function () {
         const roleSelect = document.getElementById('role_id');
         if (!roleSelect || roleSelect.dataset.roleRulesBound) return;   // anti double-bind

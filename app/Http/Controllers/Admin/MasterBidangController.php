@@ -147,6 +147,19 @@ class MasterBidangController extends Controller
             ]);
         }
 
+        // Link Kerja yang menargetkan bidang ini (kolom work_links.bidang_id).
+        // Menghapus bidang akan melepas target link — relasi harus tetap
+        // konsisten, jadi penghapusan ditolak sampai link dipindahkan/
+        // dihapus. FK restrictOnDelete juga menjaga di level database.
+        $workLinkUsage = $bidang->workLinks()->count();
+
+        if ($workLinkUsage > 0) {
+            return redirect()->route('admin.master_bidang.index')->withErrors([
+                'delete' => "Bidang \"{$bidang->nama}\" tidak dapat dihapus karena masih menjadi target {$workLinkUsage} Link Kerja. "
+                    . 'Pindahkan atau hapus link tersebut terlebih dahulu.',
+            ]);
+        }
+
         $nama = $bidang->nama;
         $bidang->delete();
 

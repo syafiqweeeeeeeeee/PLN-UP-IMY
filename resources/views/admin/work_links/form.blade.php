@@ -312,57 +312,62 @@
         </div>
 
         {{-- Panel target — tampil hanya saat kategori Khusus.
-             Admin Bidang: Bidang Utama terisi otomatis & dikunci (read-only)
-             sesuai bidang admin; server tetap memvalidasi ulang. --}}
+             Pilihan Bidang diambil LANGSUNG dari MASTER BIDANG (tabel
+             `bidangs`) lewat WorkLinkController::formContext(), berjenjang
+             induk → sub-bidang. Akun yang terkunci sub-bidang: nilai
+             terisi otomatis & read-only; server tetap memaksa nilai itu. --}}
         <div id="targetKhususPanel" class="{{ old('category', $link?->category ?? 'umum') === 'khusus' ? '' : 'hidden-panel' }}">
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-8">
                     <div class="form-group">
                         {{-- Label utama disembunyikan secara visual (tetap terbaca
                              screen reader) dan digantikan floating label DI DALAM box. --}}
-                        <label class="form-group-label pln-label-sr" for="department">
-                            Bidang Utama <span class="required">*</span>
-                            @if ($lockedDepartment)
-                                <span class="optional"><i class="fas fa-lock" style="font-size:0.7rem;"></i> terkunci ({{ \App\Models\User::DEPARTMENTS[$lockedDepartment] ?? $lockedDepartment }})</span>
+                        <label class="form-group-label pln-label-sr" for="bidang_id">
+                            Bidang <span class="required">*</span>
+                            @if ($lockedBidangId)
+                                <span class="optional"><i class="fas fa-lock" style="font-size:0.7rem;"></i> terkunci ({{ $lockedBidangLabel }})</span>
                             @endif
                         </label>
                         <div class="pln-select-wrap is-required">
-                            <span class="pln-field-float">Bidang Utama <span class="required">*</span></span>
-                            <select id="department" name="department" class="form-input"
-                                    @if ($lockedDepartment) disabled @endif>
+                            <span class="pln-field-float">Bidang <span class="required">*</span></span>
+                            <select id="bidang_id" name="bidang_id" class="form-input"
+                                    @if ($lockedBidangId) disabled @endif>
                                 {{-- Opsi value kosong DIHILANGKAN dari tampilan
                                      panel (floating label yang bertanya) — tetap
                                      ada sebagai <option> native untuk mengirim
                                      nilai kosong. --}}
                                 <option value=""></option>
-                                @foreach ($departments as $deptKey => $deptLabel)
-                                    <option value="{{ $deptKey }}" {{ old('department', $link?->department ?? $lockedDepartment) === $deptKey ? 'selected' : '' }}>{{ $deptLabel }}</option>
+                                @foreach ($bidangOptions as $option)
+                                    <option value="{{ $option['id'] }}"
+                                        {{ (string) $selectedBidangId === (string) $option['id'] ? 'selected' : '' }}>
+                                        {{ str_repeat('— ', max(0, $option['depth'] - 1)) }}{{ $option['nama'] }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-                        @if ($lockedDepartment)
+                        @if ($lockedBidangId)
                             <div class="form-hint flex">
-                                <i class="fas fa-lock"></i> Terkunci ke bidang Anda ({{ \App\Models\User::DEPARTMENTS[$lockedDepartment] ?? $lockedDepartment }})
+                                <i class="fas fa-lock"></i> Terkunci ke unit kerja Anda ({{ $lockedBidangLabel }})
                             </div>
                             {{-- select disabled tidak dikirim browser →
                                  kirim nilai via hidden input. --}}
-                            <input type="hidden" name="department" value="{{ $lockedDepartment }}">
+                            <input type="hidden" name="bidang_id" value="{{ $lockedBidangId }}">
+                        @else
+                            <div class="form-hint flex">
+                                <i class="fas fa-sitemap"></i> Daftar dari Master Bidang — pilih bidang induk untuk seluruh sub-bidangnya, atau sub-bidang tertentu saja.
+                            </div>
                         @endif
+                        @error('bidang_id')
+                            <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label class="form-group-label pln-label-sr" for="sub_department">
-                            Sub-Bidang <span class="optional">(opsional)</span>
-                        </label>
-                        <div class="pln-select-wrap">
-                            <span class="pln-field-float">Sub-Bidang (Opsional)</span>
-                            <select id="sub_department" name="sub_department" class="form-input">
-                                <option value=""></option>
-                            </select>
-                        </div>
-                        <div class="form-hint flex">
-                            <i class="far fa-lightbulb"></i> Kosongkan bila link berlaku untuk seluruh bidang
+                        <label class="form-group-label">Cakupan Akses</label>
+                        <div class="form-hint flex" style="align-items:flex-start;">
+                            <i class="fas fa-user-lock" style="margin-top:2px;"></i>
+                            <span>Link hanya tampil untuk akun yang terikat pada bidang terpilih. Bila memilih bidang induk, seluruh sub-bidang di bawahnya tercakup.</span>
                         </div>
                     </div>
                 </div>
@@ -419,26 +424,18 @@
     </div>
 </form>
 
-{{-- Data sub-bidang untuk dropdown dinamis (JS) --}}
-<script id="subDepartmentsData" type="application/json">@json($subDepartments)</script>
-
 <script>
 (function() {
     var form = document.getElementById('workLinkForm');
     if (!form || form.dataset.workLinkBound) return;   // anti double-bind saat navigasi SPA
     form.dataset.workLinkBound = '1';
 
-    var SUBS = JSON.parse(document.getElementById('subDepartmentsData').textContent);
-
     var catUmum   = document.getElementById('cat-umum');
     var catKhusus = document.getElementById('cat-khusus');
     var panel     = document.getElementById('targetKhususPanel');
-    var deptSel   = document.getElementById('department');
-    var subSel    = document.getElementById('sub_department');
+    var bidangSel = document.getElementById('bidang_id');
     var iconSel   = document.getElementById('icon');
     var iconEl    = document.getElementById('iconPreviewEl');
-
-    var selectedSub = @json((string) old('sub_department', $link?->sub_department ?? ''));
 
     function togglePanel() {
         if (catKhusus && catKhusus.checked) {
@@ -448,30 +445,9 @@
         }
     }
 
-    function fillSubOptions(department) {
-        if (!subSel) return;
-        subSel.innerHTML = '<option value=""></option>';
-
-        var subs = SUBS[department] || {};
-        Object.keys(subs).forEach(function (key) {
-            var opt = document.createElement('option');
-            opt.value = key;
-            opt.textContent = subs[key];
-            if (key === selectedSub) opt.selected = true;
-            subSel.appendChild(opt);
-        });
-    }
-
     catUmum?.addEventListener('change', togglePanel);
     catKhusus?.addEventListener('change', togglePanel);
 
-    deptSel?.addEventListener('change', function () {
-        selectedSub = '';
-        fillSubOptions(this.value);
-    });
-
-    // Kondisi awal: isi dropdown sub sesuai bidang terpilih.
-    fillSubOptions(deptSel ? deptSel.value : '');
     togglePanel();
 
     // Preview icon realtime (nilai opsi = class lengkap, mis. 'fa-solid fa-link')
@@ -499,11 +475,11 @@
             urlInput?.classList.remove('is-invalid');
         }
 
-        // Khusus wajib memilih Bidang Utama
-        if (catKhusus && catKhusus.checked && !(deptSel?.value ?? '')) {
+        // Khusus wajib memilih Bidang (master bidangs)
+        if (catKhusus && catKhusus.checked && !(bidangSel?.value ?? '')) {
             panel?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             e.preventDefault();
-            deptSel?.focus();
+            bidangSel?.focus();
             return;
         }
 
@@ -518,16 +494,15 @@
 /* ============================================================
    CLEAN DROPDOWN (EnhancedSelect — pola form Pengguna)
    ------------------------------------------------------------
-   Dropdown Bidang Utama & Sub-Bidang memakai panel list custom
-   (.pln-dd-panel):
+   Dropdown Bidang memakai panel list custom (.pln-dd-panel):
      - Floating label DI DALAM box (menggantikan opsi placeholder).
      - TANPA kotak pencarian — daftar opsi data langsung tersaji.
      - Panel SELALU terbuka DI BAWAH kontrol (fixed, di-append ke
        <body>) dan TIDAK PERNAH flip ke atas: bila ruang di bawah
        sempit, halaman di-scroll dulu sebelum panel tampil.
      - Item memilih men-set nilai pada <select> native lalu
-       men-dispatch 'input' + 'change' → toggle Khusus, fillSubOptions,
-       dan validasi submit tidak tersentuh.
+       men-dispatch 'input' + 'change' → toggle Khusus dan validasi
+       submit tidak tersentuh.
      - Binding per-instance DOM (form.dataset) supaya router.js
        SPA swap selalu me-rebind pada DOM baru.
    ============================================================ */

@@ -365,7 +365,7 @@ dipakai hard-coded di banyak tempat.
 | `contact_messages` | `2026_09_15_000001` | Pesan dari form kontak landing |
 | `pages`, `page_role`, `page_sections` | `2026_09_15_000001` | CMS halaman statis landing; `page_role` membatasi halaman per role |
 | `menus` | `2026_09_15_000002` + `_000003` | Menu navigasi landing page + kolom `target` |
-| `work_links` | `2026_09_29_000002` | Link kerja per bidang/sub-bidang (dipakai Admin Bidang) |
+| `work_links` | `2026_09_29_000002` + `2026_10_26_000001` | Link kerja terhubung Master Bidang (`bidang_id`); `department`/`sub_department` diturunkan otomatis dari baris Bidang |
 
 > Contoh lama `contact_locations` & `contact_social_media` sudah **dihapus**
 > lewat migrasi `2026_09_21_000001_drop_contacts_locations_social_media_tables.php`.

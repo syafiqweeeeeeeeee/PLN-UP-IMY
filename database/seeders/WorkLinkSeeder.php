@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Bidang;
 use App\Models\WorkLink;
 use Illuminate\Database\Seeder;
 
@@ -90,6 +91,7 @@ class WorkLinkSeeder extends Seeder
                 'category' => 'umum',
             ], $link + [
                 'category'      => 'umum',
+                'bidang_id'     => null,
                 'department'    => null,
                 'sub_department' => null,
                 'is_active'     => true,
@@ -145,13 +147,46 @@ class WorkLinkSeeder extends Seeder
         ];
 
         foreach ($khususLinks as $link) {
-            WorkLink::firstOrCreate([
+            $bidangId = $this->bidangId($link['department'], $link['sub_department']);
+
+            $record = WorkLink::firstOrCreate([
                 'title'    => $link['title'],
                 'category' => 'khusus',
             ], $link + [
                 'category'  => 'khusus',
+                'bidang_id' => $bidangId,
                 'is_active' => true,
             ]);
+
+            // Instalasi lama: lengkapi relasi Bidang yang masih kosong
+            // tanpa menimpa perubahan admin.
+            if ($record->bidang_id === null && $bidangId !== null) {
+                $record->update(['bidang_id' => $bidangId]);
+            }
         }
+    }
+
+    /**
+     * Baris Master Bidang yang cocok dengan kode legacy target link.
+     * Mengembalikan null bila master belum di-seed (link tetap legacy).
+     */
+    private function bidangId(?string $department, ?string $subDepartment): ?int
+    {
+        if ($department === null) {
+            return null;
+        }
+
+        $query = Bidang::query()->where('department_code', $department);
+
+        if ($subDepartment !== null) {
+            $query->where('sub_department_code', $subDepartment);
+        } else {
+            $query->whereNull('sub_department_code');
+        }
+
+        $id = (clone $query)->whereNull('parent_id')->orderBy('id')->value('id')
+            ?? (clone $query)->orderBy('id')->value('id');
+
+        return $id !== null ? (int) $id : null;
     }
 }

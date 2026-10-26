@@ -73,6 +73,12 @@ class Bidang extends Model
         return $this->hasMany(Jabatan::class);
     }
 
+    /** Link Kerja yang menargetkan bidang ini (tabel work_links). */
+    public function workLinks(): HasMany
+    {
+        return $this->hasMany(WorkLink::class, 'bidang_id');
+    }
+
     /**
      * Jumlah data karyawan (master HR) yang memakai bidang ini — baik
      * lewat relasi `bidang_id` maupun lewat kolom teks lama `bidang`

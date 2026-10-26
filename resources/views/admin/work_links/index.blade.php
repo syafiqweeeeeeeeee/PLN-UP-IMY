@@ -453,8 +453,8 @@
                     <th>Nama Link</th>
                     <th class="col-hide-mobile">URL</th>
                     <th>Kategori</th>
-                    <th>Target Bidang</th>
-                    <th>Target Sub-Bidang</th>
+                    <th>Bidang</th>
+                    <th>Tingkat</th>
                     <th>Status</th>
                     <th class="th-actions">Aksi</th>
                 </tr>
@@ -492,7 +492,7 @@
                          sekali (" → &quot;) — e() ganda membuat atribut
                          tak ter-parse (JSON.parse gagal) sehingga data link
                          tidak pernah ter-populate di modal edit. --}}
-                    data-link="{{ json_encode($item->only(['id', 'title', 'url', 'description', 'icon', 'category', 'department', 'sub_department', 'is_active'])) }}">
+                    data-link="{{ json_encode($item->only(['id', 'title', 'url', 'description', 'icon', 'category', 'bidang_id', 'department', 'sub_department', 'is_active'])) }}">
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <span class="worklink-icon"><i class="{{ $item->icon_class }}"></i></span>
@@ -520,15 +520,19 @@
                     </td>
                     <td>
                         <span class="target-cell">
-                            {{ $item->category === 'umum' ? '—' : (\App\Models\User::DEPARTMENTS[$item->department] ?? '-') }}
+                            {{ $item->category === 'umum' ? '—' : ($item->department_label ?? '-') }}
                         </span>
                     </td>
                     <td>
                         <span class="target-cell">
-                            @if ($item->category === 'umum' || ! $item->sub_department)
+                            @if ($item->category === 'umum')
                                 —
-                            @else
+                            @elseif ($item->bidang?->parent)
+                                Sub dari {{ $item->bidang->parent->nama }}
+                            @elseif ($item->sub_department)
                                 {{ \App\Models\User::subDepartmentLabel($item->department, $item->sub_department) ?? $item->sub_department }}
+                            @else
+                                Seluruh bidang
                             @endif
                         </span>
                     </td>
@@ -640,19 +644,9 @@
      submit AJAX → update baris tanpa reload.
      ============================================ --}}
 @php
-    /* Konteks modal edit — pola formContext() di WorkLinkController:
-       Admin Bidang → daftar bidang & sub-bidang dikunci ke bidangnya. */
-    $wlBoundDept = auth()->check() && ! auth()->user()->isSuperAdmin()
-        ? auth()->user()->boundDepartment()
-        : null;
-
-    $wlDepartments = $wlBoundDept !== null
-        ? array_intersect_key(\App\Models\User::DEPARTMENTS, [$wlBoundDept => true])
-        : \App\Models\User::DEPARTMENTS;
-
-    $wlSubDepartments = $wlBoundDept !== null
-        ? array_intersect_key(\App\Models\User::SUB_DEPARTMENTS, [$wlBoundDept => true])
-        : \App\Models\User::SUB_DEPARTMENTS;
+    /* Konteks modal edit — $bidangOptions / $lockedBidangId /
+       $lockedBidangLabel disiapkan WorkLinkController::index() dari
+       MASTER BIDANG (tabel bidangs), sumber yang sama dengan form. */
 
     /* Daftar 8 ikon utama FontAwesome (library ikon yang dipakai layout
        admin). Nilai 'value' = nama class yang disimpan ke DB;
@@ -751,56 +745,53 @@
                 </div>
 
                 {{-- Panel target khusus — tampil hanya saat kategori Khusus.
-                     Admin Bidang: Bidang Utama terkunci sesuai bidang admin. --}}
+                     Bidang dipilih dari MASTER BIDANG (tabel bidangs);
+                     akun terkunci sub-bidang: nilai read-only. --}}
                 <div class="worklink-target-panel hidden-panel" id="wlEditTargetPanel">
                     <div class="row g-2">
-                        <div class="col-md-6">
+                        <div class="col-md-8">
                             <div class="form-group">
                                 {{-- Floating label DI DALAM box — label utama
                                      disembunyikan visual (screen reader tetap baca). --}}
-                                <label class="form-group-label pln-label-sr" for="wlEditDepartment">
-                                    Bidang Utama <span class="required">*</span>
-                                    @if ($wlBoundDept)
-                                        <span class="optional"><i class="fas fa-lock" style="font-size:0.7rem;"></i> terkunci</span>
+                                <label class="form-group-label pln-label-sr" for="wlEditBidang">
+                                    Bidang <span class="required">*</span>
+                                    @if ($lockedBidangId)
+                                        <span class="optional"><i class="fas fa-lock" style="font-size:0.7rem;"></i> terkunci ({{ $lockedBidangLabel }})</span>
                                     @endif
                                 </label>
                                 <div class="pln-select-wrap is-required">
-                                    <span class="pln-field-float">Bidang Utama <span class="required">*</span></span>
-                                    <select id="wlEditDepartment" name="department" class="form-input"
-                                            @if ($wlBoundDept) disabled @endif>
+                                    <span class="pln-field-float">Bidang <span class="required">*</span></span>
+                                    <select id="wlEditBidang" name="bidang_id" class="form-input"
+                                            @if ($lockedBidangId) disabled @endif>
                                         {{-- Opsi value kosong tetap ada secara native
                                              (pengiriman nilai kosong & validasi) namun
                                              TIDAK ditampilkan di panel custom. --}}
                                         <option value=""></option>
-                                        @foreach ($wlDepartments as $wlDeptKey => $wlDeptLabel)
-                                            <option value="{{ $wlDeptKey }}" {{ $wlBoundDept === $wlDeptKey ? 'selected' : '' }}>{{ $wlDeptLabel }}</option>
+                                        @foreach ($bidangOptions as $option)
+                                            <option value="{{ $option['id'] }}">
+                                                {{ str_repeat('— ', max(0, $option['depth'] - 1)) }}{{ $option['nama'] }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
-                                @if ($wlBoundDept)
+                                @if ($lockedBidangId)
                                     <div class="form-hint flex">
-                                        <i class="fas fa-lock"></i> Terkunci ke bidang Anda
+                                        <i class="fas fa-lock"></i> Terkunci ke unit kerja Anda
                                     </div>
                                     {{-- select disabled tidak dikirim browser →
                                          kirim nilai via hidden input. --}}
-                                    <input type="hidden" name="department" value="{{ $wlBoundDept }}">
+                                    <input type="hidden" name="bidang_id" value="{{ $lockedBidangId }}">
+                                @else
+                                    <div class="form-hint flex">
+                                        <i class="fas fa-sitemap"></i> Pilih bidang dari Master Bidang
+                                    </div>
                                 @endif
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-group-label pln-label-sr" for="wlEditSubDepartment">
-                                    Sub-Bidang <span class="optional">(opsional)</span>
-                                </label>
-                                <div class="pln-select-wrap">
-                                    <span class="pln-field-float">Sub-Bidang (Opsional)</span>
-                                    <select id="wlEditSubDepartment" name="sub_department" class="form-input">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                                <div class="form-hint flex">
-                                    <i class="far fa-lightbulb"></i> Kosongkan bila link berlaku untuk seluruh bidang
-                                </div>
+                        <div class="col-md-4">
+                            <div class="form-hint flex" style="align-items:flex-start;">
+                                <i class="fas fa-user-lock" style="margin-top:2px;"></i>
+                                <span>Link tampil untuk akun di bidang terpilih (bidang induk mencakup seluruh sub-bidang).</span>
                             </div>
                         </div>
                     </div>
@@ -839,10 +830,6 @@
     </div>
 </div>
 
-{{-- Data referensi untuk modal edit & pembaruan baris tabel (JS) --}}
-<script id="workLinkDepartmentsData" type="application/json">@json($wlDepartments)</script>
-<script id="workLinkSubDepartmentsData" type="application/json">@json($wlSubDepartments)</script>
-
 {{-- Script inline — WAJIB di dalam content agar router.js
      mengeksekusi ulang setelah navigasi SPA. --}}
 <script>
@@ -878,10 +865,10 @@
 
     /* ============================================================
        CLEAN DROPDOWN (pola EnhancedSelect form Pengguna) — modal
-       edit: dropdown Bidang Utama & Sub-Bidang memakai panel list
-       custom (.pln-dd-panel): floating label DI DALAM box, TANPA
-       kotak pencarian, tanpa opsi placeholder, dan SELALU terbuka
-       ke bawah (auto-scroll bila ruang sempit, tidak pernah flip).
+       edit: dropdown Bidang memakai panel list custom
+       (.pln-dd-panel): floating label DI DALAM box, TANPA kotak
+       pencarian, tanpa opsi placeholder, dan SELALU terbuka ke bawah
+       (auto-scroll bila ruang sempit, tidak pernah flip).
        Binding per-instance DOM (form.dataset) supaya router.js SPA
        swap selalu me-rebind pada DOM baru.
        ============================================================ */
@@ -955,7 +942,7 @@
                     if (opt.disabled) return;
                     ownerSelect.value = opt.value;
                     // Dispatch 'input' + 'change' — toggle Khusus modal,
-                    // fillSubOptions & syncIconPreview ikut terpanggil.
+                    // syncIconPreview ikut terpanggil.
                     ownerSelect.dispatchEvent(new Event('input', { bubbles: true }));
                     ownerSelect.dispatchEvent(new Event('change', { bubbles: true }));
                     closePanel();
@@ -1131,28 +1118,20 @@
             const overlayEl   = () => document.getElementById('workLinkEditModal');
             const formEl      = () => document.getElementById('workLinkEditForm');
             const panelEl     = () => document.getElementById('wlEditTargetPanel');
-            const deptSelEl   = () => document.getElementById('wlEditDepartment');
-            const subSelEl    = () => document.getElementById('wlEditSubDepartment');
+            const bidangSelEl = () => document.getElementById('wlEditBidang');
             const submitBtnEl = () => document.getElementById('workLinkEditSubmit');
 
-            function refData() {
-                let depts = {}, subs = {};
-                try {
-                    depts = JSON.parse(document.getElementById('workLinkDepartmentsData')?.textContent || '{}');
-                    subs  = JSON.parse(document.getElementById('workLinkSubDepartmentsData')?.textContent || '{}');
-                } catch (e) { /* data referensi belum ter-render */ }
-                return { depts: depts, subs: subs };
-            }
-
             /* ---- Baris tabel: pemetaan kolom <- payload link ---- */
-            function ownerLabel(link, depts) {
+            function ownerLabel(link) {
                 if (link.category === 'umum') return '—';
-                return depts[link.department] || link.department || '-';
+                return link.bidang_label || link.department || '-';
             }
 
-            function subLabel(link, subs) {
-                if (link.category !== 'khusus' || !link.sub_department) return '—';
-                return (subs[link.department] || {})[link.sub_department] || link.sub_department;
+            function targetLevelLabel(link) {
+                if (link.category === 'umum') return '—';
+                if (link.bidang_parent_label) return 'Sub dari ' + link.bidang_parent_label;
+                if (link.sub_department) return 'Sub-bidang';
+                return 'Seluruh bidang';
             }
 
             /* ---- Class <i> ikon: dukung nilai DB lama ('fa-link') dan
@@ -1167,7 +1146,6 @@
             function updateRow(link) {
                 const row = currentRow;
                 if (!row) return;
-                const refs = refData();
 
                 row.dataset.title    = (link.title || '').toLowerCase();
                 row.dataset.url      = (link.url || '').toLowerCase();
@@ -1208,8 +1186,8 @@
 
                 // Target bidang / sub-bidang
                 const cells = row.querySelectorAll('td');
-                if (cells[3]) cells[3].querySelector('.target-cell').textContent = ownerLabel(link, refs.depts);
-                if (cells[4]) cells[4].querySelector('.target-cell').textContent = subLabel(link, refs.subs);
+                if (cells[3]) cells[3].querySelector('.target-cell').textContent = ownerLabel(link);
+                if (cells[4]) cells[4].querySelector('.target-cell').textContent = targetLevelLabel(link);
 
                 // Badge status
                 const stEl = row.querySelector('.worklink-status-badge');
@@ -1234,21 +1212,6 @@
                     numbers[1].textContent = Math.max(0, aktif - 1);
                     numbers[2].textContent = nonaktif + 1;
                 }
-            }
-
-            /* ---- Dropdown sub-bidang dinamis (pola form) ---- */
-            function fillSubOptions(department, selected) {
-                const subSel = subSelEl();
-                if (!subSel) return;
-                const subs = refData().subs[department] || {};
-                subSel.innerHTML = '<option value=""></option>';
-                Object.keys(subs).forEach(function(key) {
-                    const opt = document.createElement('option');
-                    opt.value = key;
-                    opt.textContent = subs[key];
-                    if (key === selected) opt.selected = true;
-                    subSel.appendChild(opt);
-                });
             }
 
             /* ---- Toggle panel target sesuai kategori ---- */
@@ -1278,7 +1241,7 @@
 
             function open(row) {
                 const form = formEl(), overlay = overlayEl();
-                const deptSel = deptSelEl();
+                const bidangSel = bidangSelEl();
                 if (!form || !overlay) return;
 
                 currentRow = row;
@@ -1308,9 +1271,8 @@
                 const catRadio = form.querySelector('input[name="category"][value="' + cat + '"]');
                 if (catRadio) catRadio.checked = true;
 
-                const dept = cat === 'khusus' ? (link.department || '') : '';
-                if (deptSel && !deptSel.disabled) deptSel.value = dept;
-                fillSubOptions(dept, link.sub_department || '');
+                const bidang = cat === 'khusus' ? String(link.bidang_id || '') : '';
+                if (bidangSel) bidangSel.value = bidang;   // nilai hidden tetap dipakai bila select disabled
 
                 // Status Link: radio di-populate + hidden input disinkronkan
                 // (nilai ini yang dipakai payload — lihat handleSubmit).
@@ -1379,8 +1341,7 @@
                 // Validasi ringan (pola validasi form utama)
                 const titleInput = form.querySelector('[name="title"]');
                 const urlInput   = form.querySelector('[name="url"]');
-                const deptSel    = deptSelEl();
-                const subSel     = subSelEl();
+                const bidangSel  = bidangSelEl();
                 const submitBtn  = submitBtnEl();
                 let firstInvalid = null;
 
@@ -1391,11 +1352,11 @@
                 });
 
                 if (form.querySelector('input[name="category"]:checked')?.value === 'khusus'
-                    && !(deptSel?.value ?? '')) {
-                    deptSel?.classList.add('is-invalid');
-                    firstInvalid = firstInvalid || deptSel;
+                    && !(bidangSel?.value ?? '')) {
+                    bidangSel?.classList.add('is-invalid');
+                    firstInvalid = firstInvalid || bidangSel;
                 } else {
-                    deptSel?.classList.remove('is-invalid');
+                    bidangSel?.classList.remove('is-invalid');
                 }
 
                 if (firstInvalid) {
@@ -1416,13 +1377,13 @@
                     description:   form.querySelector('[name="description"]').value.trim(),
                     icon:          form.querySelector('[name="icon"]').value,
                     category:      form.querySelector('input[name="category"]:checked')?.value || 'umum',
-                    department:    (deptSel && !deptSel.disabled) ? (deptSel.value || null) : (form.querySelector('input[name="department"][type="hidden"]')?.value ?? null),
-                    sub_department: subSel?.value || null,
+                    bidang_id:     (bidangSel && !bidangSel.disabled)
+                        ? (bidangSel.value || null)
+                        : (form.querySelector('input[name="bidang_id"][type="hidden"]')?.value ?? null),
                     is_active:     isActive            // ← sebelumnya TIDAK PERNAH terkirim (bug)
                 };
                 if (payload.category === 'umum') {
-                    payload.department = null;
-                    payload.sub_department = null;
+                    payload.bidang_id = null;
                 }
 
                 if (submitBtn) submitBtn.disabled = true;
@@ -1479,9 +1440,6 @@
 
                 // Kategori: All → sembunyikan target; Khusus → tampilkan
                 if (e.target.name === 'category') togglePanel();
-
-                // Bidang Utama berubah → isi ulang dropdown Sub-Bidang
-                if (e.target === deptSelEl()) fillSubOptions(e.target.value, '');
 
                 // Select Icon: update preview realtime
                 if (e.target.name === 'icon') syncIconPreview();

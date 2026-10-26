@@ -8,6 +8,7 @@ use App\Models\Karyawan;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\WorkLink;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -430,6 +431,30 @@ class MasterBidangJabatanTest extends TestCase
 
         $this->assertStringContainsString('jabatan', session('errors')->first('delete'));
         $this->assertDatabaseHas('bidangs', ['id' => $bidang->id]);
+    }
+
+    public function test_delete_bidang_used_by_work_link_is_blocked(): void
+    {
+        $bidang = Bidang::create(['nama' => 'Target Link Kerja']);
+        WorkLink::create([
+            'title' => 'Link Terikat Bidang',
+            'url' => 'https://link.pln.co.id',
+            'category' => 'khusus',
+            'bidang_id' => $bidang->id,
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($this->masterUser(['master_bidang.delete']))
+            ->delete(route('admin.master_bidang.destroy', $bidang))
+            ->assertRedirect(route('admin.master_bidang.index'))
+            ->assertSessionHasErrors('delete');
+
+        $this->assertStringContainsString('Link Kerja', session('errors')->first('delete'));
+        $this->assertDatabaseHas('bidangs', ['id' => $bidang->id]);
+        $this->assertDatabaseHas('work_links', [
+            'title' => 'Link Terikat Bidang',
+            'bidang_id' => $bidang->id,
+        ]);
     }
 
     public function test_delete_bidang_used_by_karyawan_is_blocked_and_data_untouched(): void

@@ -21,8 +21,10 @@ class DatabaseSeeder extends Seeder
             MenuSeeder::class,
             MasterMenuSeeder::class,
             KaryawanUserSeeder::class,
-            WorkLinkSeeder::class,
+            // Master Bidang lebih dulu — WorkLinkSeeder memetakan setiap
+            // link khusus ke baris bidangs (bidang_id).
             MasterBidangJabatanSeeder::class,
+            WorkLinkSeeder::class,
         ]);
 
         // firstOrCreate agar seeder aman dijalankan berulang (tidak error duplicate)

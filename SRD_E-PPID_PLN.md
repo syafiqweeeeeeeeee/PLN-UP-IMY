@@ -333,7 +333,8 @@ E-PPID PLN menyediakan solusi berbasis web:
 | description | TEXT nullable | Keterangan |
 | icon | VARCHAR | Ikon FontAwesome (default fa-link) |
 | category | ENUM | umum (semua karyawan) / khusus (terikat bidang) |
-| department / sub_department | VARCHAR nullable | Target bidang/sub-bidang (untuk kategori khusus) |
+| bidang_id | FK bidangs nullable | Bidang target dari Master Bidang (untuk kategori khusus) |
+| department / sub_department | VARCHAR nullable | Kode legacy yang DITURUNKAN dari `bidang_id` (kompatibilitas filter lama) |
 | is_active | BOOLEAN | Nonaktif = disembunyikan tanpa dihapus |
 
 #### Tabel: activity_logs

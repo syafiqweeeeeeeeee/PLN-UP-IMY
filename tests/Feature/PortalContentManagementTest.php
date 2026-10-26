@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Announcement;
+use App\Models\Bidang;
 use App\Models\News;
 use App\Models\WorkLink;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -262,12 +263,19 @@ class PortalContentManagementTest extends TestCase
         $this->assertDatabaseMissing('work_links', ['id' => $link->id]);
     }
 
-    public function test_work_link_edit_form_shows_dynamic_target_fields(): void
+    public function test_work_link_edit_form_uses_bidang_from_master(): void
     {
+        $bidang = Bidang::create([
+            'nama' => 'SUB BIDANG CHCB A',
+            'department_code' => 'operasi',
+            'sub_department_code' => 'spv_chcb_a',
+        ]);
+
         $link = WorkLink::create([
             'title' => 'Link Edit Uji',
             'url' => 'https://edit.pln-np.co.id',
             'category' => 'khusus',
+            'bidang_id' => $bidang->id,
             'department' => 'operasi',
             'sub_department' => 'spv_chcb_a',
             'is_active' => true,
@@ -276,12 +284,116 @@ class PortalContentManagementTest extends TestCase
         $this->actingAs($this->adminUser())
             ->get(route('admin.work-links.edit', $link))
             ->assertOk()
-            ->assertSee('Bidang Utama')
-            ->assertSee('Sub-Bidang')
-            // Bidang terpilih di-render server; sub-bidang via JS (JSON data)
-            ->assertSee('value="operasi" selected', false)
-            ->assertSee('"spv_chcb_a"', false)
+            ->assertSee('Bidang')
+            ->assertSee('Master Bidang')
+            // Opsi dari tabel bidangs; baris terpilih di-render server.
+            ->assertSee('SUB BIDANG CHCB A')
+            ->assertSee('value="' . $bidang->id . '"', false)
+            ->assertSee('selected', false)
             ->assertSee('Select Icon');
+    }
+
+    public function test_admin_can_create_khusus_link_linked_to_master_bidang(): void
+    {
+        $bidang = Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI A',
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_a',
+        ]);
+
+        $this->actingAs($this->adminUser())->post(route('admin.work-links.store'), [
+            'title' => 'Link Terhubung Bidang',
+            'url' => 'https://bidang.pln-np.co.id',
+            'category' => 'khusus',
+            'bidang_id' => $bidang->id,
+            'is_active' => '1',
+        ])->assertRedirect(route('admin.work-links.index'));
+
+        // Relasi Bidang tersimpan + kode legacy diturunkan otomatis.
+        $this->assertDatabaseHas('work_links', [
+            'title' => 'Link Terhubung Bidang',
+            'category' => 'khusus',
+            'bidang_id' => $bidang->id,
+            'department' => 'operasi',
+            'sub_department' => 'asmen_prod_a',
+        ]);
+
+        // Form Tambah menampilkan pilihan Bidang dari database.
+        $this->actingAs($this->adminUser())
+            ->get(route('admin.work-links.create'))
+            ->assertOk()
+            ->assertSee('SUB BIDANG PRODUKSI A');
+    }
+
+    public function test_updating_link_bidang_keeps_legacy_codes_consistent(): void
+    {
+        $prodA = Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI A',
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_a',
+        ]);
+        $prodB = Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI B',
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_b',
+        ]);
+
+        $link = WorkLink::create([
+            'title' => 'Link Pindah Bidang',
+            'url' => 'https://pindah.pln-np.co.id',
+            'category' => 'khusus',
+            'bidang_id' => $prodA->id,
+            'department' => 'operasi',
+            'sub_department' => 'asmen_prod_a',
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($this->adminUser())
+            ->put(route('admin.work-links.update', $link), [
+                'title' => 'Link Pindah Bidang',
+                'url' => 'https://pindah.pln-np.co.id',
+                'category' => 'khusus',
+                'bidang_id' => $prodB->id,
+                'is_active' => '1',
+            ])->assertRedirect(route('admin.work-links.index'));
+
+        $link->refresh();
+
+        $this->assertSame($prodB->id, (int) $link->bidang_id);
+        $this->assertSame('operasi', $link->department);
+        $this->assertSame('asmen_prod_b', $link->sub_department);
+    }
+
+    public function test_work_link_seeder_resolves_bidang_from_master(): void
+    {
+        Bidang::create([
+            'nama' => 'BIDANG OPERASI',
+            'department_code' => 'operasi',
+        ]);
+        Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI A',
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_a',
+        ]);
+
+        $this->seed(\Database\Seeders\WorkLinkSeeder::class);
+
+        $link = WorkLink::where('title', 'Dashboard Kontrol Pembangkit')->firstOrFail();
+
+        $this->assertNotNull($link->bidang_id);
+        $this->assertSame('SUB BIDANG PRODUKSI A', $link->bidang?->nama);
+    }
+
+    public function test_database_seeder_links_work_links_to_master_bidang(): void
+    {
+        // Instalasi baru: Master Bidang di-seed lebih dulu, lalu WorkLink
+        // seeder memetakan link khusus ke baris bidangs.
+        $this->seed(\Database\Seeders\DatabaseSeeder::class);
+
+        $link = WorkLink::where('title', 'Dashboard Kontrol Pembangkit')->firstOrFail();
+
+        $this->assertNotNull($link->bidang_id);
+        $this->assertSame('SUB BIDANG PRODUKSI A', $link->bidang?->nama);
     }
 
     /* =========================================================

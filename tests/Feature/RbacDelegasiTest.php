@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Announcement;
+use App\Models\Bidang;
 use App\Models\Department;
 use App\Models\Role;
 use App\Models\User;
@@ -337,6 +338,33 @@ class RbacDelegasiTest extends TestCase
         ]);
     }
 
+    public function test_admin_bidang_cannot_hijack_target_via_bidang_id(): void
+    {
+        Bidang::create(['nama' => 'BIDANG OPERASI', 'department_code' => 'operasi']);
+        $pml = Bidang::create(['nama' => 'BIDANG PEMELIHARAAN', 'department_code' => 'pemeliharaan']);
+
+        // Admin Bidang legacy (tanpa users.bidang_id) mengirim bidang lain.
+        $this->actingAs($this->adminBidang('operasi'))
+            ->post(route('admin.work-links.store'), [
+                'title' => 'Link Coba Hijack',
+                'url' => 'https://hijack.co.id',
+                'category' => 'khusus',
+                'bidang_id' => $pml->id,
+                'is_active' => '1',
+            ])->assertRedirect(route('admin.work-links.index'));
+
+        // Tetap dipaksa ke bidang sendiri (relasi master ikut dipetakan).
+        $this->assertDatabaseHas('work_links', [
+            'title' => 'Link Coba Hijack',
+            'department' => 'operasi',
+            'bidang_id' => Bidang::where('nama', 'BIDANG OPERASI')->value('id'),
+        ]);
+        $this->assertDatabaseMissing('work_links', [
+            'title' => 'Link Coba Hijack',
+            'bidang_id' => $pml->id,
+        ]);
+    }
+
     public function test_admin_bidang_cannot_edit_or_delete_other_department_link(): void
     {
         $foreign = WorkLink::create(['title' => 'Link Milik PML', 'url' => 'https://pml.co.id', 'category' => 'khusus', 'department' => 'pemeliharaan', 'is_active' => true]);
@@ -415,19 +443,119 @@ class RbacDelegasiTest extends TestCase
         $this->assertSame('operasi', $own->fresh()->department);
     }
 
-    public function test_work_link_form_locks_department_for_admin_bidang(): void
+    public function test_work_link_form_limits_bidang_options_to_admin_unit(): void
     {
-        $html = $this->actingAs($this->adminBidang('operasi'))
+        $ops = Bidang::create(['nama' => 'BIDANG OPERASI', 'department_code' => 'operasi']);
+        Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI A',
+            'parent_id' => $ops->id,
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_a',
+        ]);
+        Bidang::create(['nama' => 'BIDANG PEMELIHARAAN', 'department_code' => 'pemeliharaan']);
+
+        $admin = $this->adminBidang('operasi');
+        $admin->update(['bidang_id' => $ops->id]);
+
+        $html = $this->actingAs($admin)
             ->get(route('admin.work-links.create'))
             ->assertOk()
             ->getContent();
 
-        // Bidang terkunci: select disabled + hidden input + opsi bidang
-        // hanya operasi (dropdown bidang tanpa <option> bidang lain).
-        $this->assertStringContainsString('id="department" name="department" class="form-input"', $html);
+        // Sumber opsi = tabel bidangs, dibatasi unit kerja admin.
+        $this->assertStringContainsString('id="bidang_id" name="bidang_id" class="form-input"', $html);
+        $this->assertStringContainsString('BIDANG OPERASI', $html);
+        $this->assertStringContainsString('SUB BIDANG PRODUKSI A', $html);
+        $this->assertStringNotContainsString('BIDANG PEMELIHARAAN', $html);
+    }
+
+    public function test_work_link_form_locks_bidang_for_sub_scoped_admin(): void
+    {
+        $ops = Bidang::create(['nama' => 'BIDANG OPERASI', 'department_code' => 'operasi']);
+        $sub = Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI A',
+            'parent_id' => $ops->id,
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_a',
+        ]);
+
+        $admin = $this->adminBidang('operasi');
+        $admin->update([
+            'bidang_id' => $sub->id,
+            'sub_department' => 'asmen_prod_a',
+        ]);
+
+        $html = $this->actingAs($admin)
+            ->get(route('admin.work-links.create'))
+            ->assertOk()
+            ->getContent();
+
+        // Akun terkunci sub-bidang: select disabled + hidden input.
         $this->assertStringContainsString('disabled', $html);
-        $this->assertStringContainsString('name="department" value="operasi"', $html);
-        $this->assertStringNotContainsString('<option value="pemeliharaan"', $html);
+        $this->assertStringContainsString('name="bidang_id" value="' . $sub->id . '"', $html);
+        $this->assertStringContainsString('SUB BIDANG PRODUKSI A', $html);
+    }
+
+    public function test_work_link_targeted_to_bidang_induk_covers_all_sub_bidang(): void
+    {
+        $ops = Bidang::create(['nama' => 'BIDANG OPERASI', 'department_code' => 'operasi']);
+        $prodA = Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI A',
+            'parent_id' => $ops->id,
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_a',
+        ]);
+        $pml = Bidang::create(['nama' => 'BIDANG PEMELIHARAAN', 'department_code' => 'pemeliharaan']);
+
+        WorkLink::create(['title' => 'Link Induk Operasi', 'url' => 'https://ops.co.id', 'category' => 'khusus', 'bidang_id' => $ops->id, 'department' => 'operasi', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Prod A', 'url' => 'https://pa.co.id', 'category' => 'khusus', 'bidang_id' => $prodA->id, 'department' => 'operasi', 'sub_department' => 'asmen_prod_a', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Pemeliharaan', 'url' => 'https://pml.co.id', 'category' => 'khusus', 'bidang_id' => $pml->id, 'department' => 'pemeliharaan', 'is_active' => true]);
+
+        // Manager Bidang terikat baris induk → mencakup seluruh sub-bidang.
+        $user = $this->karyawanWithHierarchy('operasi', 'manager_bidang');
+        $user->update(['bidang_id' => $ops->id]);
+
+        $this->actingAs($user);
+
+        $titles = WorkLink::query()->pluck('title')->all();
+
+        $this->assertContains('Link Induk Operasi', $titles);
+        $this->assertContains('Link Prod A', $titles);
+        $this->assertNotContains('Link Pemeliharaan', $titles);
+    }
+
+    public function test_work_link_targeted_to_master_bidang_follows_user_binding(): void
+    {
+        $ops = Bidang::create(['nama' => 'BIDANG OPERASI', 'department_code' => 'operasi']);
+        $prodA = Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI A',
+            'parent_id' => $ops->id,
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_a',
+        ]);
+        $prodB = Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI B',
+            'parent_id' => $ops->id,
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_b',
+        ]);
+        $pml = Bidang::create(['nama' => 'BIDANG PEMELIHARAAN', 'department_code' => 'pemeliharaan']);
+
+        WorkLink::create(['title' => 'Link Prod A', 'url' => 'https://pa.co.id', 'category' => 'khusus', 'bidang_id' => $prodA->id, 'department' => 'operasi', 'sub_department' => 'asmen_prod_a', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Prod B', 'url' => 'https://pb.co.id', 'category' => 'khusus', 'bidang_id' => $prodB->id, 'department' => 'operasi', 'sub_department' => 'asmen_prod_b', 'is_active' => true]);
+        WorkLink::create(['title' => 'Link Pemeliharaan', 'url' => 'https://pml.co.id', 'category' => 'khusus', 'bidang_id' => $pml->id, 'department' => 'pemeliharaan', 'is_active' => true]);
+
+        $user = $this->karyawanWithHierarchy('operasi', 'staf', 'asmen_prod_a');
+        $user->update(['bidang_id' => $prodA->id]);
+
+        $this->actingAs($user);
+
+        $titles = WorkLink::query()->pluck('title')->all();
+
+        // Hanya link yang menargetkan baris Bidang milik user.
+        $this->assertContains('Link Prod A', $titles);
+        $this->assertNotContains('Link Prod B', $titles);
+        $this->assertNotContains('Link Pemeliharaan', $titles);
     }
 
     /* =========================================================
