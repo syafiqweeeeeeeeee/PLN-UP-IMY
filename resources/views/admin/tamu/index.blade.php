@@ -157,7 +157,12 @@
     .tamu-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 1060px;
+        /* Lebar kolom dikunci (fixed) agar tidak "loncat" mengikuti isi:
+           tiap kolom dapat porsi yang sudah diatur, kelebihan ruang jatuh
+           ke kolom Instansi. Di layar sempit tabel tetap bisa digulir
+           horizontal, bukan memampatkan tombol aksi. */
+        table-layout: fixed;
+        min-width: 1100px;
     }
     .tamu-table thead th {
         text-align: left;
@@ -175,15 +180,14 @@
     .tamu-table thead th.text-right { text-align: right; }
     .tamu-table thead th.text-center { text-align: center; }
 
-    /* Lebar kolom agar tabel tidak "loncat" antar halaman & tetap rapi */
-    .tamu-table th.col-no        { width: 215px; }
-    .tamu-table th.col-identitas { width: 17%; min-width: 170px; }
-    .tamu-table th.col-instansi  { width: 13%; min-width: 120px; }
-    .tamu-table th.col-email     { width: 15%; min-width: 140px; }
-    .tamu-table th.col-tujuan    { width: 20%; min-width: 200px; }
-    .tamu-table th.col-doc       { width: 92px; }
-    .tamu-table th.col-status    { width: 118px; }
-    .tamu-table th.col-aksi      { width: 178px; }
+    /* Lebar kolom agar tabel tidak "loncat" antar halaman & tetap rapi.
+       Ringkas: No/Waktu Masuk — Jadwal — Instansi — Status — Aksi.
+       Identitas, kontak, tujuan & dokumen ada di POPUP DETAIL. */
+    .tamu-table th.col-no        { width: 230px; }
+    .tamu-table th.col-jadwal    { width: 200px; }
+    .tamu-table th.col-instansi  { width: auto; } /* sisa ruang -> instansi */
+    .tamu-table th.col-status    { width: 285px; }
+    .tamu-table th.col-aksi      { width: 215px; } /* 5 tombol aksi sejajar */
     html.theme-dark .tamu-table thead th { background: var(--panel); border-color: var(--line); }
     .tamu-table tbody td {
         padding: 0.75rem 0.9rem;
@@ -194,6 +198,7 @@
         color: #374151;
     }
     .tamu-table td.text-center { text-align: center; }
+    .tamu-table td.col-aksi { text-align: right; }
     .tamu-table tbody tr:last-child td { border-bottom: none; }
     .tamu-table tbody tr { transition: background 0.15s ease, box-shadow 0.15s ease; }
 
@@ -343,13 +348,16 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    .tamu-instansi {
-        font-size: 0.8rem;
-        max-width: 170px;
-        white-space: nowrap;
+    /* Potong teks panjang dengan elipsis (max-width tidak berlaku pada
+       sel tabel, jadi dipakai pembungkus block di dalam sel). */
+    .cell-ellipsis {
+        display: block;
         overflow: hidden;
         text-overflow: ellipsis;
+        white-space: nowrap;
     }
+    .tamu-instansi { font-size: 0.8rem; }
+    .tamu-instansi .cell-ellipsis { font-weight: 500; color: var(--pln-text); }
 
     /* Chip dokumen pendukung (satu berkas per tamu) */
     .doc-chip {
@@ -409,11 +417,34 @@
     html.theme-dark .tamu-badge.ditolak   { background: rgba(220,38,38,0.25); color: #fca5a5; }
     html.theme-dark .tamu-badge.selesai    { background: var(--panel); color: var(--ink-muted); }
 
-    /* Action Buttons */
-    .tamu-actions { display: flex; gap: 0.3rem; justify-content: flex-end; flex-wrap: wrap; }
+    /* Log verifikasi — pengganti tombol Setujui/Tolak setelah kunjungan
+       diproses pihak pertama (Admin ATAU karyawan yang ditemui). */
+    .tamu-verify-log {
+        display: block;
+        width: 100%;
+        margin-top: 0.4rem;
+        padding: 0.35rem 0.55rem;
+        font-size: 0.67rem;
+        font-weight: 500;
+        line-height: 1.45;
+        text-align: left;
+        white-space: normal;
+        color: var(--ink-muted);
+        background: rgba(0, 0, 0, 0.03);
+        border: 1px dashed rgba(0, 0, 0, 0.14);
+        border-radius: 8px;
+    }
+    html.theme-dark .tamu-verify-log { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.16); }
+    .tamu-verify-log strong { font-weight: 700; }
+    /* Nama panjang di dalam log tidak boleh melebihi lebar sel */
+    .tamu-status .tamu-verify-log { overflow-wrap: anywhere; }
+
+    /* Action Buttons — satu baris, rata kanan sejajar dengan judul "Aksi" */
+    .tamu-actions { display: flex; gap: 0.35rem; justify-content: flex-end; flex-wrap: nowrap; }
     .tamu-action-btn {
         width: 32px;
         height: 32px;
+        flex-shrink: 0;
         border-radius: 8px;
         border: none;
         display: inline-flex;
@@ -595,6 +626,15 @@
     .detail-row:last-child { border-bottom: none; }
     .detail-row dt { color: #9ca3af; font-weight: 600; }
     .detail-row dd { margin: 0; color: var(--pln-text); font-weight: 500; word-break: break-word; }
+    /* Pintasan ke halaman detail di dalam popup */
+    .dt-page-link {
+        display: flex; align-items: center; justify-content: center; gap: 0.45rem;
+        margin-bottom: 0.9rem; padding: 0.55rem 0.9rem;
+        border: 1px dashed #bfdbfe; border-radius: 10px;
+        background: #eff6ff; color: #1d4ed8;
+        font-size: 0.78rem; font-weight: 700; text-decoration: none;
+    }
+    .dt-page-link:hover { background: #dbeafe; }
     html.theme-dark .detail-row { border-color: var(--line); }
     html.theme-dark .detail-row dd { color: var(--ink-heading); }
 
@@ -952,11 +992,8 @@
         <thead>
             <tr>
                 <th class="col-no">No / Waktu Masuk</th>
-                <th class="col-identitas">Identitas Tamu</th>
+                <th class="col-jadwal">Jadwal Kunjungan</th>
                 <th class="col-instansi">Instansi</th>
-                <th class="col-email">Email</th>
-                <th class="col-tujuan">Bidang / Jabatan / Orang yang Ditemui</th>
-                <th class="col-doc text-center">Dokumen</th>
                 <th class="col-status text-center">Status</th>
                 <th class="col-aksi text-right">Aksi</th>
             </tr>
@@ -973,68 +1010,26 @@
                                 <span class="pill-sep">·</span>
                                 <span class="pill-jam">{{ $tamu->created_at->format('H:i') }}</span>
                             </span>
-                            <span class="kunjungan-chip" title="Jadwal kunjungan yang dipilih tamu">
-                                <i class="fas fa-calendar-check"></i>
-                                {{ $tamu->tanggal_kunjungan?->translatedFormat('d M Y') ?? '—' }}
-                                @if ($tamu->tanggal_kunjungan)
-                                    <span class="chip-sep">·</span>
-                                    <span>{{ $tamu->tanggal_kunjungan->format('H:i') }}</span>
-                                @endif
-                            </span>
                         </div>
                     </div>
                 </td>
-                <td>
-                    <div class="tamu-nama">{{ $tamu->nama }}</div>
-                    <div class="tamu-nik">NIK {{ $tamu->nik }}</div>
-                    <div class="tamu-hp">
-                        <a href="{{ $tamu->wa_chat_url }}" target="_blank" rel="noopener" class="wa-chat-link"
-                           title="Chat WhatsApp ke {{ $tamu->no_hp }} (terbuka di tab baru)">
-                            <i class="fab fa-whatsapp"></i> {{ $tamu->no_hp }}
-                        </a>
-                    </div>
+                {{-- Jadwal kunjungan — kolom tersendiri. Identitas, kontak,
+                     tujuan & dokumen tidak lagi dipertampilkan di tabel:
+                     semuanya ada di POPUP DETAIL (tombol mata). --}}
+                <td class="tamu-jadwal">
+                    <span class="kunjungan-chip" title="Jadwal kunjungan yang dipilih tamu">
+                        <i class="fas fa-calendar-check"></i>
+                        {{ $tamu->tanggal_kunjungan?->translatedFormat('d M Y') ?? '—' }}
+                        @if ($tamu->tanggal_kunjungan)
+                            <span class="chip-sep">·</span>
+                            <span>{{ $tamu->tanggal_kunjungan->format('H:i') }}</span>
+                        @endif
+                    </span>
                 </td>
-                <td class="tamu-instansi" title="{{ $tamu->instansi }}">{{ $tamu->instansi ?? '—' }}</td>
-                <td>
-                    @if ($tamu->email)
-                        <a href="{{ $tamu->mailto_url }}" class="mailto-link"
-                           title="{{ $tamu->email }} — kirim email konfirmasi">
-                            <i class="fas fa-envelope"></i> {{ $tamu->email }}
-                        </a>
-                    @else
-                        <span class="email-empty">—</span>
-                    @endif
+                <td class="tamu-instansi" title="{{ $tamu->instansi }}">
+                    <span class="cell-ellipsis">{{ $tamu->instansi ?? '—' }}</span>
                 </td>
-                <td class="tamu-tujuan">
-                    {{-- Tujuan kunjungan terstruktur: Bidang -> Jabatan -> Orang --}}
-                    <div class="tujuan-line tujuan-bidang" title="Bidang yang ditemui">
-                        <i class="fas fa-sitemap"></i><span>{{ $tamu->tujuan_ditemui }}</span>
-                    </div>
-                    @if ($tamu->jabatan_ditemui)
-                        <div class="tujuan-line tujuan-jabatan" title="Jabatan yang ditemui">
-                            <i class="fas fa-id-badge"></i><span>{{ $tamu->jabatan_ditemui }}</span>
-                        </div>
-                    @endif
-                    @if ($tamu->orang_ditemui)
-                        <div class="tujuan-line tujuan-orang" title="Orang yang ditemui">
-                            <i class="fas fa-user-tie"></i><span>{{ $tamu->orang_ditemui }}</span>
-                        </div>
-                    @endif
-                    <span class="tujuan-keperluan" title="{{ $tamu->keperluan }}">{{ $tamu->keperluan }}</span>
-                </td>
-                <td class="text-center">
-                    @if ($tamu->hasDokumen())
-                        {{-- Satu berkas pendukung per tamu — disajikan privat via route ber-auth --}}
-                        <a href="{{ $tamu->dokumen_zip_url }}" target="_blank" rel="noopener"
-                           class="doc-chip" title="Buka / unduh dokumen pendukung {{ $tamu->nama }}">
-                            <i class="fas fa-paperclip"></i>
-                            Dokumen
-                        </a>
-                    @else
-                        <div class="doc-empty" title="Tidak ada lampiran"><i class="fas fa-paperclip"></i></div>
-                    @endif
-                </td>
-                <td class="text-center">
+                <td class="text-center tamu-status">
                     {{-- Alur verifikasi: Menunggu -> Disetujui/Ditolak.
                          Setelah disetujui, kunjungan berjalan (Berkunjung/Selesai
                          mengikuti check-in/out). Ditolak = kunjungan batal. --}}
@@ -1049,8 +1044,22 @@
                     @else
                         <span class="tamu-badge menunggu" title="Menunggu verifikasi admin"><i class="fas fa-circle"></i> Menunggu</span>
                     @endif
+                    {{-- Log verifikasi — SIAPA & KAPAN perubahan status terakhir.
+                         Tombol aksi tetap tampil pada status apa pun
+                         (revisi status bolak-balik Disetujui <-> Dibatalkan). --}}
+                    @if ($tamu->verified_at && $tamu->verified_by)
+                        <span class="tamu-verify-log">
+                            @if ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_DITOLAK)
+                                Dibatalkan oleh {{ $tamu->verifier_role_label }} atasnama <strong>{{ $tamu->verifier_name }}</strong>
+                            @else
+                                Sudah diapprove oleh <strong>{{ $tamu->verifier_name }}</strong>
+                            @endif
+                            pada tanggal {{ $tamu->verified_at->translatedFormat('d F Y') }}
+                            jam {{ $tamu->verified_at->format('H.i') }}
+                        </span>
+                    @endif
                 </td>
-                <td>
+                <td class="col-aksi">
                     <div class="tamu-actions">
                         <button type="button" class="tamu-action-btn detail" title="Detail"
                                 onclick="openDetailModal({{ $tamu->id }})">
@@ -1063,6 +1072,10 @@
                             </button>
                         @endcan
                         @can('tamu.checkout')
+                            {{-- Aksi status — REVISI: status boleh diubah berulang.
+                                 Menunggu   -> Setujui + Batalkan
+                                 Disetujui  -> Ubah menjadi Dibatalkan
+                                 Dibatalkan -> Ubah menjadi Disetujui --}}
                             @if ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_MENUNGGU)
                                 <button type="button" class="tamu-action-btn setuju" title="Setujui kunjungan & kirim konfirmasi WA"
                                         onclick="openVerifikasiModal({{ $tamu->id }}, 'setuju')">
@@ -1071,6 +1084,16 @@
                                 <button type="button" class="tamu-action-btn tolak" title="Tolak kunjungan & kirim konfirmasi WA"
                                         onclick="openVerifikasiModal({{ $tamu->id }}, 'tolak')">
                                     <i class="fas fa-xmark"></i>
+                                </button>
+                            @elseif ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_DISETUJUI)
+                                <button type="button" class="tamu-action-btn tolak" title="Ubah menjadi Dibatalkan"
+                                        onclick="openVerifikasiModal({{ $tamu->id }}, 'tolak')">
+                                    <i class="fas fa-rotate"></i>
+                                </button>
+                            @else
+                                <button type="button" class="tamu-action-btn setuju" title="Ubah menjadi Disetujui"
+                                        onclick="openVerifikasiModal({{ $tamu->id }}, 'setuju')">
+                                    <i class="fas fa-rotate"></i>
                                 </button>
                             @endif
                         @endcan
@@ -1085,7 +1108,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="8">
+                <td colspan="5">
                     <div class="tamu-empty">
                         <div class="empty-icon"><i class="fas fa-id-card"></i></div>
                         <h6>Belum ada data tamu</h6>
@@ -1656,9 +1679,28 @@
         document.getElementById('dokumenModalUrl').href = url;
         document.getElementById('dokumenModalName').textContent = nama;
         openTamuModal('dokumenModal');
-    }    /* ===== Modal Detail ===== */
+    }    /* ===== Modal Detail =====
+       Sumber data: payload $tamuData (satu baris tabel → satu objek).
+       Tabel kini hanya menampilkan Waktu Masuk, Jadwal, Instansi, Status
+       & Aksi — identitas, kontak, tujuan, keperluan & dokumen hidup di
+       sini. No. HP tertaut WhatsApp & email tertaut mailto (sama seperti
+       tampilan lama di tabel). */
     var tamuData = @json($tamuData);
     var tamuFullData = @json($tamuFullDataForJs);
+
+    function escHtml(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function escAttr(s) { return escHtml(s).replace(/'/g, '&#39;'); }
+
+    /* 08xx… / 8xx… / 62xx… → https://wa.me/62xx… (sama dgn Tamu::wa_number) */
+    function waHref(no) {
+        var d = String(no).replace(/\D/g, '');
+        if (d.charAt(0) === '0') d = '62' + d.substring(1);
+        else if (d.charAt(0) === '8') d = '62' + d;
+        return 'https://wa.me/' + d;
+    }
 
     function openDetailModal(id) {
         var t = tamuData[id];
@@ -1669,13 +1711,24 @@
             t = tf;
         }
 
+        var noHp = t.no_hp || t.wa || '';
+        var waHtml = noHp
+            ? '<a href="' + escAttr(waHref(t.wa || noHp)) + '" target="_blank" rel="noopener" class="wa-chat-link" title="Chat WhatsApp ke ' + escAttr(noHp) + ' (terbuka di tab baru)"><i class="fab fa-whatsapp"></i> ' + escHtml(noHp) + '</a>'
+            : null;
+        var emailHtml = t.email
+            ? '<a href="mailto:' + escAttr(t.email) + '" class="mailto-link" title="' + escAttr(t.email) + ' — kirim email konfirmasi"><i class="fas fa-envelope"></i> ' + escHtml(t.email) + '</a>'
+            : null;
+
         var rows = [
             ['Nama Lengkap', t.nama],
             ['NIK / No. KTP', t.nik],
-            t.wa ? ['No. WhatsApp / HP', t.wa] : null,
-            t.email ? ['Email', t.email] : null,
+            // Tertaut: WhatsApp & mailto (kolom ke-3 = HTML mentah)
+            waHtml   ? ['No. WhatsApp / HP', waHtml, true] : null,
+            emailHtml ? ['Email', emailHtml, true] : null,
             ['Instansi', t.instansi || '-'],
-            ['Tujuan Ditemui', t.tujuan],
+            ['Bidang Ditemui', t.tujuan || '-'],
+            t.jabatan ? ['Jabatan Ditemui', t.jabatan] : null,
+            t.orang   ? ['Orang yang Ditemui', t.orang] : null,
             ['Jumlah Tamu', (t.jumlah || 1) + ' orang'],
             ['Tanggal Kunjungan', t.tanggal || '-'],
             ['Waktu Pendaftaran', t.daftar || '-'],
@@ -1686,15 +1739,16 @@
 
         var html = '<div class="detail-list">';
         rows.forEach(function (row) {
-            if (!row) return; // lewati baris kosong (WA/email null)
-            html += '<div class="detail-row"><dt>' + row[0] + '</dt><dd>' + String(row[1]).replace(/</g, '&lt;') + '</dd></div>';
+            if (!row) return; // lewati baris kosong (WA/email/jabatan null)
+            var value = row[2] ? String(row[1]) : escHtml(String(row[1]));
+            html += '<div class="detail-row"><dt>' + escHtml(row[0]) + '</dt><dd>' + value + '</dd></div>';
         });
         html += '</div>';
 
         if (t.keperluan) {
             html += '<div style="margin-top:1rem;"><div style="font-size:0.72rem; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">Maksud & Keperluan</div>'
                  + '<div style="background:#f8fafc; border:1px solid #eef2f7; border-radius:10px; padding:0.75rem 0.9rem; font-size:0.83rem; color:#374151;">'
-                 + String(t.keperluan).replace(/</g, '&lt;').replace(/\n/g, '<br>')
+                 + escHtml(String(t.keperluan)).replace(/\n/g, '<br>')
                  + '</div></div>';
         }
 
@@ -1705,6 +1759,12 @@
                  + '<a href="javascript:void(0)" onclick="openDokumenModal(\'' + dokumenUrl + '\', \'' + namaSafe + '\')" style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.8rem; font-weight:600; color:#2563eb; background:#eff6ff; border:1px solid #dbeafe; border-radius:9px; padding:0.5rem 0.9rem; text-decoration:none; cursor:pointer;">'
                  + '<i class="fas fa-paperclip" style="color:#dc2626;"></i> Buka / Unduh Dokumen</a></div>';
         }
+
+        {{-- Pintasan ke HALAMAN DETAIL (badge status + log aktivitas +
+             tombol revisi status) — popup ini hanya ringkasan data. --}}
+        const detailPageUrl = '{{ route('admin.tamu.detail', ['tamu' => ':id']) }}'.replace(':id', t.id);
+        html = '<a href="' + escAttr(detailPageUrl) + '" class="dt-page-link" title="Buka halaman detail (status, log aktivitas & aksi revisi)">'
+             + '<i class="fas fa-arrow-up-right-from-square"></i> Buka Halaman Detail Kunjungan</a>' + html;
 
         document.getElementById('detailModalBody').innerHTML = html;
         openTamuModal('detailModal');
@@ -1925,7 +1985,11 @@
         if (!value) return;
         hidden.value = value;
 
-        const menu = hidden.closest('.tamu-dd-wrap').querySelector('.tamu-dd-options');
+        /* Hidden input berada DI LUAR .tamu-dd-wrap (pilihan struktur form),
+           jadi kaitkan ke wrapper lewat input display sebagai fallback —
+           tanpa ini .closest() menghasilkan null dan openEditModal gagal. */
+        const wrap = hidden.closest('.tamu-dd-wrap') || display.closest('.tamu-dd-wrap');
+        const menu = wrap && wrap.querySelector('.tamu-dd-options');
         const ada = menu && Array.prototype.some.call(menu.querySelectorAll('.dropdown-option'), function (o) {
             return o.getAttribute('data-value') === value;
         });
@@ -2349,6 +2413,10 @@
                     return;
                 }
                 setJamStatus(c.status, 'Gagal memuat ketersediaan jam', 'blocked');
+                /* API gagal — tetap bangun opsi dasar: select jam itu
+                   WAJIB, dan select kosong membuat form edit mustahil
+                   disimpan. Slot tetap diverifikasi ulang oleh server. */
+                buildJamOptions(prefix, []);
             });
     }
 

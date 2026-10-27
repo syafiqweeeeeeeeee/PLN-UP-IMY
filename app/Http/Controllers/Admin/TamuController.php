@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\VerifiesTamu;
 use App\Http\Controllers\Controller;
 use App\Models\Tamu;
 use App\Services\ActivityLogger;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -28,6 +30,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class TamuController extends Controller
 {
+    use VerifiesTamu;
+
     /* =========================================================
        KONTEKS AKSES — halaman ini dipakai dua konteks:
        Panel Admin (admin.tamu.*) dan Portal Karyawan
@@ -53,6 +57,41 @@ class TamuController extends Controller
     protected function dokumenUrl(Tamu $tamu): ?string
     {
         return $tamu->dokumen_zip_url;
+    }
+
+    /** Route tujuan setelah keputusan verifikasi (satu baris di bawah index). */
+    protected function verifikasiRedirectRoute(): string
+    {
+        return $this->indexRouteName();
+    }
+
+    /**
+     * Setelah approve()/reject() dari halaman DETAIL, kembali ke halaman
+     * itu (bukan ke daftar) supaya admin langsung melihat status & log baru.
+     */
+    #[\Override]
+    protected function aksiStatusRedirect(Request $request, Tamu $tamu): RedirectResponse
+    {
+        return redirect()->route('admin.tamu.detail', $tamu);
+    }
+
+    /**
+     * HALAMAN DETAIL KUNJUNGAN TAMU (admin/tamu/detail.blade.php).
+     *
+     * Bagian atas: badge status utama + kartu log aktivitas yang mencatat
+     * siapa yang melakukan perubahan status terakhir beserta tanggal &
+     * jamnya. Di bawahnya tombol aksi sesuai status saat ini:
+     *   Menunggu   -> [Setujui Kunjungan] + [Batalkan Kunjungan]
+     *   Dibatalkan -> [Ubah Menjadi Disetujui]
+     *   Disetujui  -> [Ubah Menjadi Dibatalkan]
+     * Semua aksi dikonfirmasi dialog sebelum dikirim.
+     */
+    public function detail(Tamu $tamu)
+    {
+        return view('admin.tamu.detail', [
+            'tamu'       => $tamu,
+            'dokumenUrl' => $this->dokumenUrl($tamu),
+        ]);
     }
 
     public function index(Request $request)
@@ -421,93 +460,10 @@ class TamuController extends Controller
         ];
     }
 
-    /**
-     * Keputusan verifikasi kunjungan: "setuju" atau "tolak".
-     *
-     * Status disimpan, lalu admin diarahkan ke WhatsApp tamu (wa.me
-     * click-to-chat) dengan pesan konfirmasi yang sudah terisi — admin
-     * cukup menekan tombol kirim di aplikasi WA-nya.
-     */
-    public function verifikasi(Request $request, Tamu $tamu)
-    {
-        $validated = $request->validate([
-            'keputusan' => ['required', 'in:setuju,tolak'],
-        ], [
-            'keputusan.required' => 'Pilih keputusan verifikasi terlebih dahulu.',
-            'keputusan.in'       => 'Keputusan verifikasi tidak valid.',
-        ]);
-
-        $setuju = $validated['keputusan'] === 'setuju';
-
-        /* ======================================================
-           BLOKIR SLOT KEDUA — satu jadwal per divisi hanya boleh
-           SATU kunjungan yang diizinkan. Bila ada kunjungan lain
-           yang sudah DISETUJUI pada rentang yang sama (tanggal +
-           rentang durasi block untuk tujuan_ditemui yang sama),
-           approve TIDAK dilakukan: munculkan pop-up peringatan
-           "jadwal sudah ada yang diizinkan", lalu buka WhatsApp
-           tamu ini untuk memberi tahu bahwa jadwalnya bentrok.
-           ====================================================== */
-        if ($setuju) {
-            $tanggal = $tamu->tanggal_kunjungan?->format('Y-m-d');
-            $jam     = $tamu->tanggal_kunjungan?->format('H:i');
-
-            $bentrok = ($tanggal && $jam)
-                ? Tamu::kunjunganBentrok($tanggal, $jam, $tamu->tujuan_ditemui, $tamu->id)
-                : null;
-
-            if ($bentrok) {
-                ActivityLogger::log('approve', null, [
-                    'module' => 'tamu',
-                    'description' => "approve kunjungan tamu \"{$tamu->nama}\" (NIK {$tamu->nik}) "
-                        . "DIBLOKIR — jadwal bentrok dengan kunjungan \"{$bentrok->nama}\" "
-                        . "(id {$bentrok->id}) yang sudah diizinkan",
-                    'subject' => $tamu,
-                ]);
-
-                return redirect()->route($this->indexRouteName())
-                    ->with('wa_konfirmasi', [
-                        'nama'   => $tamu->nama,
-                        'no_wa'  => $tamu->wa_number,
-                        // "bentrok" → popup berbeda (pop-up peringatan,
-                        // bukan konfirmasi approve)
-                        'status' => 'bentrok',
-                        'wa_url' => $tamu->wa_bentrok_url,
-                        // Info kunjungan yang sudah mengisi slot untuk
-                        // ditampilkan di pop-up
-                        'bentrok' => true,
-                        'bentrok_dengan' => $bentrok->nama,
-                        'bentrok_jadwal' => $bentrok->tanggal_kunjungan?->translatedFormat('d F Y, H:i'),
-                    ])
-                    ->with('error', "Approve ditolak: jadwal kunjungan \"{$tamu->nama}\" ("
-                        . $tamu->tanggal_kunjungan?->translatedFormat('d F Y, H:i')
-                        . ") sudah ada yang diizinkan untuk \"{$tamu->tujuan_ditemui}\".");
-            }
-        }
-
-        $tamu->update([
-            'status_verifikasi' => $setuju ? Tamu::STATUS_DISETUJUI : Tamu::STATUS_DITOLAK,
-            'verified_at'       => now(),
-            'verified_by'       => $request->user()->id,
-        ]);
-
-        ActivityLogger::log($setuju ? 'approve' : 'reject', null, [
-            'module' => 'tamu',
-            'description' => ($setuju ? 'menyetujui' : 'menolak') . " pendaftaran tamu \"{$tamu->nama}\" (NIK {$tamu->nik})",
-            'subject' => $tamu,
-        ]);
-
-        $statusLabel = $setuju ? 'disetujui' : 'ditolak';
-
-        // Flash data untuk pop-up "kirim konfirmasi WA" di halaman index:
-        // memuat URL wa.me dengan pesan yang sudah terisi sesuai keputusan.
-        return redirect()->route($this->indexRouteName())->with('wa_konfirmasi', [
-            'nama'   => $tamu->nama,
-            'no_wa'  => $tamu->wa_number,
-            'status' => $statusLabel,
-            'wa_url' => $setuju ? $tamu->wa_approve_url : $tamu->wa_reject_url,
-        ])->with('success', "Pendaftaran tamu \"{$tamu->nama}\" {$statusLabel}.");
-    }
+    /* Keputusan verifikasi ("setuju" / "tolak") ada di trait
+       Concerns\VerifiesTamu — aturan satu-aksi-per-kunjungan, blokir
+       jadwal bentrok, pencatatan verified_by/verified_at & log aktivitas
+       dipakai bersama oleh panel Admin dan Portal Karyawan. */
 
     public function checkout(Tamu $tamu)
     {

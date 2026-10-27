@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Karyawan;
 
+use App\Http\Controllers\Concerns\VerifiesTamu;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\News;
@@ -14,11 +15,37 @@ use Illuminate\View\View;
 
 /**
  * Portal Karyawan (Employee Portal) — area internal yang terpisah
- * dari panel admin. Seluruh halaman konten bersifat view-only;
- * satu-satunya aksi tulis adalah memperbarui profil sendiri.
+ * dari panel admin. Halaman kontens bersifat view-only; aksi tulis:
+ * memperbarui profil sendiri + verifikasi kunjungan tamu yang
+ * menunjuk akun ini (sekali pakai, lihat trait VerifiesTamu).
  */
 class PortalController extends Controller
 {
+    use VerifiesTamu;
+
+    /** Route tujuan setelah keputusan verifikasi di halaman Kunjungan Tamu. */
+    protected function verifikasiRedirectRoute(): string
+    {
+        return 'karyawan.kunjungan-tamu';
+    }
+
+    /**
+     * Batas aksi verifikasi di Portal Karyawan: hanya tamu yang MENYEBUT
+     * akun ini sebagai "Orang yang Ditemui" — scoping yang sama dengan
+     * daftar di kunjunganTamu() (case-insensitive + trim).
+     */
+    protected function bolehVerifikasi(Request $request, Tamu $tamu): bool
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return false;
+        }
+
+        return mb_strtolower(trim((string) $tamu->orang_ditemui))
+            === mb_strtolower(trim((string) $user->name));
+    }
+
     /**
      * Dashboard portal: ringkasan pengumuman, layanan, dan link kerja.
      * Semua data ter-scope sesuai Hirarki Organisasi user yang login
@@ -153,8 +180,11 @@ class PortalController extends Controller
      * Super Admin melihat seluruh data lewat panel admin
      * (admin.tamu.index) yang sudah ada.
      *
-     * View-only mengikuti aturan portal karyawan: tanpa aksi verifikasi
-     * / edit / hapus — cukup filter + baca detail & tautan WA/dokumen.
+     * Aksi tulis HALAMAN INI hanya SATU: verifikasi (Setujui / Batalkan)
+     * kunjungan yang menunjuk akun ini — hanya boleh dilakukan sekali,
+     * dilakukan lewat route karyawan.kunjungan-tamu.verifikasi (tanpa
+     * permission khusus; izin dijaga scoping nama akun + guard status
+     * "menunggu" di trait VerifiesTamu).
      */
     public function kunjunganTamu(Request $request): View
     {

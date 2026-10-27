@@ -66,6 +66,41 @@ class Tamu extends Model
     ];
 
     /**
+     * Relasi user yang mengambil keputusan verifikasi (approve / batalkan).
+     * Menghubungkan verified_by ke Model User.
+     */
+    public function verifier(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    /**
+     * Nama verifier untuk log tampilan (fallback "—" bila data lama
+     * belum memiliki verified_by).
+     */
+    public function getVerifierNameAttribute(): string
+    {
+        return $this->verifier?->name ?? '—';
+    }
+
+    /**
+     * Role verifier untuk log: "Admin" (Super Admin / Admin Bidang)
+     * atau "Karyawan" (orang yang ditemui sendiri).
+     */
+    public function getVerifierRoleLabelAttribute(): string
+    {
+        $verifier = $this->verifier;
+
+        if ($verifier === null) {
+            return 'Sistem';
+        }
+
+        return ($verifier->isSuperAdmin() || $verifier->isDepartmentAdmin())
+            ? 'Admin'
+            : 'Karyawan';
+    }
+
+    /**
      * Label status verifikasi dalam bahasa Indonesia (untuk badge UI).
      */
     public function getVerifikasiLabelAttribute(): string

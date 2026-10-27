@@ -205,6 +205,40 @@ class AdminTamuTest extends TestCase
             ->assertForbidden();
     }
 
+    /* Tombol "Edit Data Tamu" — kontrak JS dropdown custom.
+       ensureDivisiOption() dahulu memanggil .closest('.tamu-dd-wrap')
+       pada hidden input yang berada DI LUAR wrapper -> null -> TypeError
+       -> openEditModal terhenti sebelum modal terbuka (tombol terasa
+       mati). Proyek belum punya test runner JS, jadi kunci kontraknya
+       di sini. */
+    public function test_edit_modal_js_dropdown_mengambil_wrapper_dengan_aman(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.edit']);
+        $this->createTamu();
+
+        $html = $this->actingAs($admin)
+            ->get(route('admin.tamu.index'))
+            ->assertOk()
+            ->getContent();
+
+        // Tombol Edit tersedia & membawa payload baris tabel.
+        $this->assertStringContainsString('openEditModal(', $html);
+
+        // Guard: wrapper diambil dari hidden ATAU display input —
+        // tidak mengandalkan hidden input berada di dalam wrapper.
+        $this->assertStringContainsString(
+            "hidden.closest('.tamu-dd-wrap') || display.closest('.tamu-dd-wrap')",
+            $html
+        );
+
+        // Bila API slot jam gagal, opsi tetap dibangun (select jam wajib
+        // diisi, kosong = form mustahil disimpan).
+        $this->assertMatchesRegularExpression(
+            '/Gagal memuat ketersediaan jam[\s\S]{0,600}buildJamOptions\(prefix, \[\]\)/',
+            $html
+        );
+    }
+
     /* =========================================================
        CHECK-OUT
        ========================================================= */
@@ -359,6 +393,227 @@ class AdminTamuTest extends TestCase
         $this->actingAs($admin)
             ->post(route('admin.tamu.verifikasi', $tamu), ['keputusan' => 'cacat'])
             ->assertSessionHasErrors(['keputusan']);
+    }
+
+    public function test_index_menampilkan_log_verifikasi_dan_tombol_revisi(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.checkout']);
+        $karyawan = User::factory()->create(['name' => 'ABDI ROBBI IKHSAN']);
+
+        // Baris yang SUDAH diproses karyawan -> log tampil DAN tombol
+        // revisi muncul (Dibatalkan -> tombol "Ubah menjadi Disetujui").
+        $this->createTamu([
+            'status_verifikasi' => Tamu::STATUS_DITOLAK,
+            'verified_by'       => $karyawan->id,
+            'verified_at'       => now()->subHour(),
+        ]);
+        // Baris masih menunggu -> tombol Setujui/Tolak tetap tampil.
+        $this->createTamu([
+            'nik'  => '3201123456780002',
+            'nama' => 'Tamu Masih Menunggu',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.tamu.index'));
+
+        $response->assertOk()
+            ->assertSee('Dibatalkan oleh Karyawan atasnama')
+            ->assertSee('ABDI ROBBI IKHSAN')
+            ->assertSee('pada tanggal')
+            ->assertSee('Tamu Masih Menunggu');
+
+        // 2 tombol baris "Menunggu" + 1 tombol revisi baris "Dibatalkan".
+        $this->assertSame(3, substr_count($response->getContent(), 'onclick="openVerifikasiModal('));
+    }
+
+    public function test_index_tabel_ringkas_lima_kolom_sisanya_di_popup(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $this->createTamu();
+
+        $response = $this->actingAs($admin)->get(route('admin.tamu.index'));
+        $response->assertOk();
+
+        $html = $response->getContent();
+
+        // Header: hanya 5 kolom — No/Waktu Masuk, Jadwal, Instansi, Status, Aksi.
+        $this->assertSame(1, preg_match('/<thead>(.*?)<\/thead>/s', $html, $head));
+        $this->assertSame(5, substr_count($head[1], '<th'));
+        foreach (['No / Waktu Masuk', 'Jadwal Kunjungan', 'Instansi', 'Status', 'Aksi'] as $label) {
+            $this->assertStringContainsString($label, $head[1]);
+        }
+
+        // Baris data juga hanya 5 sel (identitas, kontak, tujuan & dokumen
+        // sudah pindah ke popup detail).
+        $this->assertSame(1, preg_match('/<tbody>(.*?)<\/tbody>/s', $html, $body));
+        $this->assertSame(1, preg_match('/<tr>(.*?)<\/tr>/s', $body[1], $row));
+        $this->assertSame(5, substr_count($row[1], '<td'));
+
+        // Payload popup tetap memuat identitas + kontak (WA & email).
+        $this->assertStringContainsString('"wa":', $html);
+        $this->assertStringContainsString('"email":', $html);
+        $this->assertStringContainsString('waHref(', $html);
+        $this->assertStringContainsString('mailto:', $html);
+    }
+
+    public function test_verifikasi_status_bisa_direvisi_oleh_pihak_lain(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.checkout']);
+
+        // Karyawan yang ditemui sudah memproses lebih dulu.
+        $karyawan = User::factory()->create(['name' => 'ABDI ROBBI IKHSAN']);
+        $tamu = $this->createTamu([
+            'status_verifikasi' => Tamu::STATUS_DISETUJUI,
+            'verified_by'       => $karyawan->id,
+            'verified_at'       => now()->subHour(),
+        ]);
+
+        // REVISI: status "Disetujui" -> "Dibatalkan" diperbolehkan,
+        // verified_by & verified_at ikut diperbarui ke pihak terakhir.
+        $this->actingAs($admin)
+            ->post(route('admin.tamu.verifikasi', $tamu), ['keputusan' => 'tolak'])
+            ->assertRedirect(route('admin.tamu.index'))
+            ->assertSessionHas('success')
+            ->assertSessionHas('wa_konfirmasi');
+
+        $tamu->refresh();
+        $this->assertSame(Tamu::STATUS_DITOLAK, $tamu->status_verifikasi);
+        $this->assertSame($admin->id, $tamu->verified_by);
+        $this->assertNotNull($tamu->verified_at);
+        $this->assertTrue($tamu->verified_at->gte(now()->subMinute()));
+    }
+
+    /* =========================================================
+       HALAMAN DETAIL — badge status + card log + tombol revisi
+       ========================================================= */
+
+    public function test_detail_requires_tamu_view_permission(): void
+    {
+        $tamu = $this->createTamu();
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('admin.tamu.detail', $tamu))
+            ->assertForbidden();
+    }
+
+    public function test_detail_menampilkan_badge_log_dan_tombol_sesuai_status(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.checkout']);
+        $karyawan = User::factory()->create(['name' => 'ABDI ROBBI IKHSAN']);
+
+        $menunggu = $this->createTamu([
+            'nik'  => '3201123456780021',
+            'nama' => 'Tamu Menunggu Detail',
+        ]);
+        $disetujui = $this->createTamu([
+            'nik'               => '3201123456780022',
+            'nama'              => 'Tamu Disetujui Detail',
+            'status_verifikasi' => Tamu::STATUS_DISETUJUI,
+            'verified_by'       => $karyawan->id,
+            'verified_at'       => now()->subHour(),
+        ]);
+        $dibatalkan = $this->createTamu([
+            'nik'               => '3201123456780023',
+            'nama'              => 'Tamu Dibatalkan Detail',
+            'status_verifikasi' => Tamu::STATUS_DITOLAK,
+            'verified_by'       => $karyawan->id,
+            'verified_at'       => now()->subHour(),
+        ]);
+
+        // Menunggu -> dua tombol utama + log "belum ada perubahan".
+        $this->actingAs($admin)->get(route('admin.tamu.detail', $menunggu))
+            ->assertOk()
+            ->assertSee('Setujui Kunjungan')
+            ->assertSee('Batalkan Kunjungan')
+            ->assertSee('Belum ada perubahan status');
+
+        // Disetujui -> tombol revisi menjadi Dibatalkan + card log.
+        $this->actingAs($admin)->get(route('admin.tamu.detail', $disetujui))
+            ->assertOk()
+            ->assertSee('Ubah Menjadi Dibatalkan')
+            ->assertSee('Terakhir diperbarui oleh')
+            ->assertSee('ABDI ROBBI IKHSAN')
+            ->assertDontSee('Setujui Kunjungan');
+
+        // Dibatalkan -> tombol revisi menjadi Disetujui + card log.
+        $this->actingAs($admin)->get(route('admin.tamu.detail', $dibatalkan))
+            ->assertOk()
+            ->assertSee('Ubah Menjadi Disetujui')
+            ->assertSee('Terakhir diperbarui oleh')
+            ->assertDontSee('Ubah Menjadi Dibatalkan');
+
+        // Setiap aksi wajib lewat dialog konfirmasi.
+        $html = $this->actingAs($admin)->get(route('admin.tamu.detail', $menunggu))->getContent();
+        $this->assertStringContainsString('dt-status-form', $html);
+        $this->assertStringContainsString('Swal.fire', $html);
+    }
+
+    public function test_approve_revisi_dari_dibatalkan_menjadi_disetujui(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.checkout']);
+        $karyawan = User::factory()->create(['name' => 'ABDI ROBBI IKHSAN']);
+        $tamu = $this->createTamu([
+            'status_verifikasi' => Tamu::STATUS_DITOLAK,
+            'verified_by'       => $karyawan->id,
+            'verified_at'       => now()->subHour(),
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.tamu.approve', $tamu))
+            ->assertRedirect(route('admin.tamu.detail', $tamu))
+            ->assertSessionHas('success');
+
+        $tamu->refresh();
+        $this->assertSame(Tamu::STATUS_DISETUJUI, $tamu->status_verifikasi);
+        $this->assertSame($admin->id, $tamu->verified_by);
+        $this->assertTrue($tamu->verified_at->gte(now()->subMinute()));
+
+        // Sebaliknya: Disetujui -> Dibatalkan lewat reject().
+        $this->actingAs($admin)
+            ->post(route('admin.tamu.reject', $tamu))
+            ->assertRedirect(route('admin.tamu.detail', $tamu))
+            ->assertSessionHas('success');
+
+        $tamu->refresh();
+        $this->assertSame(Tamu::STATUS_DITOLAK, $tamu->status_verifikasi);
+        $this->assertSame($admin->id, $tamu->verified_by);
+    }
+
+    public function test_approve_reject_butuh_permission_checkout(): void
+    {
+        $viewer = $this->adminWithPermissions(['tamu.view']);
+        $tamu = $this->createTamu();
+
+        $this->actingAs($viewer)->post(route('admin.tamu.approve', $tamu))->assertForbidden();
+        $this->actingAs($viewer)->post(route('admin.tamu.reject', $tamu))->assertForbidden();
+
+        $this->assertSame(Tamu::STATUS_MENUNGGU, $tamu->fresh()->status_verifikasi);
+    }
+
+    public function test_approve_dari_detail_tetap_diblokir_bila_jadwal_bentrok(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.checkout']);
+        $jadwal = now()->addDays(3)->setTime(9, 0);
+
+        // Kunjungan lain sudah DISETUJUI pada slot & divisi yang sama.
+        $this->createTamu([
+            'nik'               => '3201123456780031',
+            'nama'              => 'Tamu Sudah Mengisi Slot',
+            'tanggal_kunjungan' => $jadwal,
+            'status_verifikasi' => Tamu::STATUS_DISETUJUI,
+            'verified_by'       => User::factory()->create()->id,
+            'verified_at'       => now()->subHour(),
+        ]);
+        $tamu = $this->createTamu([
+            'nik'               => '3201123456780032',
+            'nama'              => 'Tamu Bentrok',
+            'tanggal_kunjungan' => $jadwal,
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.tamu.approve', $tamu))
+            ->assertSessionHas('error');
+
+        $this->assertSame(Tamu::STATUS_MENUNGGU, $tamu->fresh()->status_verifikasi);
     }
 
     public function test_index_search_matches_nama_instansi_nik(): void

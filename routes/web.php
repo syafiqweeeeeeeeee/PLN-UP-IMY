@@ -145,6 +145,10 @@ Route::middleware(['auth', 'karyawan.access'])->prefix('karyawan')->name('karyaw
     // Tanpa permission:khusus — semua akun Karyawan boleh melihat tamu
     // yang datang menemui dirinya sendiri.
     Route::get('/kunjungan-tamu', [\App\Http\Controllers\Karyawan\PortalController::class, 'kunjunganTamu'])->name('kunjungan-tamu');
+    // Aksi Setujui / Batalkan dari halaman Kunjungan Tamu — SATU pihak,
+    // SATU kali (guard status "menunggu" + scoping nama akun di controller).
+    Route::post('/kunjungan-tamu/{tamu}/verifikasi', [\App\Http\Controllers\Karyawan\PortalController::class, 'verifikasi'])
+        ->name('kunjungan-tamu.verifikasi');
 
     // Profil — satu-satunya bagian yang bisa diubah karyawan
     Route::get('/profil', [\App\Http\Controllers\Karyawan\PortalController::class, 'profil'])->name('profil');
@@ -396,6 +400,11 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
                 Route::get('tamu/export', [\App\Http\Controllers\Admin\TamuController::class, 'export'])->name('tamu.export');
                 Route::get('tamu/print/{style?}', [\App\Http\Controllers\Admin\TamuController::class, 'print'])->name('tamu.print');
 
+                // Halaman DETAIL kunjungan tamu — badge status + kartu log
+                // aktivitas (siapa & kapan perubahan terakhir) + tombol
+                // revisi status. Gate sama dengan index (tamu.view).
+                Route::get('tamu/{tamu}/detail', [\App\Http\Controllers\Admin\TamuController::class, 'detail'])->name('tamu.detail');
+
                 // Dokumen privat tamu (satu arsip ZIP) — disajikan dari disk
                 // private, tidak bisa diakses via /storage. Wajib auth + tamu.view.
                 Route::get('tamu/{tamu}/dokumen', [\App\Http\Controllers\TamuDocumentController::class, 'dokumen'])->name('tamu.dokumen');
@@ -413,6 +422,11 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
                 // Verifikasi kunjungan (setuju / tolak) — satu gate dengan
                 // check-out karena keduanya keputusan front office.
                 Route::post('tamu/{tamu}/verifikasi', [\App\Http\Controllers\Admin\TamuController::class, 'verifikasi'])->name('tamu.verifikasi');
+
+                // Revisi status dari halaman detail — status boleh berpindah
+                // bolak-balik (Disetujui <-> Dibatalkan) berulang kali.
+                Route::post('tamu/{tamu}/approve', [\App\Http\Controllers\Admin\TamuController::class, 'approve'])->name('tamu.approve');
+                Route::post('tamu/{tamu}/reject', [\App\Http\Controllers\Admin\TamuController::class, 'reject'])->name('tamu.reject');
             });
             Route::middleware('permission:tamu.delete')->group(function () {
                 Route::delete('tamu/{tamu}', [\App\Http\Controllers\Admin\TamuController::class, 'destroy'])->name('tamu.destroy');

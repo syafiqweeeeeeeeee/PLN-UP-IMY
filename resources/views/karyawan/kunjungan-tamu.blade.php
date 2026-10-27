@@ -6,11 +6,15 @@
 <style>
     /* ============================================
        KUNJUNGAN TAMU — PORTAL KARYAWAN
-       Halaman READ-ONLY: daftar registrasi tamu dari
-       form publik yang menunjuk akun ini sebagai
-       "Orang yang Ditemui". Struktur selaras
-       karyawan/tamu/index (header + stats, filter bar,
-       tabel, pagination) tetapi TANPA aksi tulis.
+       Daftar registrasi tamu dari form publik yang
+       menunjuk akun ini sebagai "Orang yang Ditemui".
+       Struktur selaras karyawan/tamu/index (header +
+       stats, filter bar, tabel, pagination).
+
+       SATU-SATUNYA aksi tulis: Setujui / Batalkan
+       (hanya bila status masih "Menunggu"). Setelah
+       diproses Admin ATAU karyawan sendiri, tombol
+       hilang dan berganti menjadi LOG aktivitas.
        ============================================ */
 
     .kt-page-header {
@@ -162,7 +166,7 @@
         width: 100%;
         border-collapse: collapse;
         font-size: 0.82rem;
-        min-width: 880px;
+        min-width: 1120px;
     }
     .kt-table thead th {
         text-align: left;
@@ -279,6 +283,44 @@
     }
     .kt-empty h6 { font-weight: 700; color: var(--kry-teal-deep); margin: 0 0 0.3rem; }
     .kt-empty p { font-size: 0.8rem; margin: 0; max-width: 420px; margin-inline: auto; }
+
+    /* Kolom aksi — tombol hanya saat status "Menunggu" */
+    .kt-aksi { min-width: 190px; }
+    .kt-aksi-btns { display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; }
+    .kt-act-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.74rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: filter .15s ease, box-shadow .15s ease;
+    }
+    .kt-act-btn:hover { filter: brightness(0.95); box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+    .kt-act-btn.approve { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+    .kt-act-btn.cancel  { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+    html.theme-dark .kt-act-btn.approve { background: rgba(22,163,74,.25); color: #86efac; border-color: rgba(22,163,74,.4); }
+    html.theme-dark .kt-act-btn.cancel  { background: rgba(220,38,38,.25); color: #fca5a5; border-color: rgba(220,38,38,.4); }
+
+    /* Log aktivitas verifikasi — pengganti tombol setelah diproses */
+    .kt-verify-log {
+        display: block;
+        text-align: left;
+        font-size: 0.73rem;
+        line-height: 1.5;
+        color: var(--kry-muted);
+        background: var(--kry-bg);
+        border: 1px dashed var(--kry-line);
+        border-radius: 8px;
+        padding: 0.45rem 0.6rem;
+    }
+    .kt-verify-log i { margin-right: 0.25rem; }
+    .kt-verify-log.approved i { color: #16a34a; }
+    .kt-verify-log.cancelled i { color: #dc2626; }
+    .kt-verify-log strong { color: var(--kry-teal-deep); font-weight: 700; }
 </style>
 @endpush
 
@@ -295,7 +337,7 @@
         <div class="header-row">
             <div class="header-left">
                 <h5><i class="fas fa-door-open"></i> Kunjungan Tamu</h5>
-                <p>Daftar pendaftaran tamu dari form registrasi publik yang menunjuk Anda sebagai orang yang ditemui. Tampilan hanya-baca.</p>
+                <p>Daftar pendaftaran tamu dari form registrasi publik yang menunjuk Anda sebagai orang yang ditemui. Anda dapat menyetujui atau membatalkan kunjungan — cukup sekali, sebelum diproses Admin.</p>
             </div>
             <span class="kt-scope-chip" title="Hanya tamu yang menyebut nama akun Anda">
                 <i class="fas fa-user-shield"></i> Khusus: {{ $user->name }}
@@ -334,8 +376,27 @@
         </div>
     </div>
 
+    @if (session('error'))
+        <div class="kry-alert" style="background:#fef2f2; border:1px solid #fecaca; color:#dc2626;" role="status">
+            <i class="fas fa-circle-exclamation"></i> {{ session('error') }}
+        </div>
+    @endif
+    @if ($errors->any())
+        <div class="kry-alert" style="background:#fef2f2; border:1px solid #fecaca; color:#dc2626;" role="status">
+            <i class="fas fa-circle-exclamation"></i>
+            <span>
+                <strong>Verifikasi belum bisa diproses — periksa kembali:</strong>
+                <ul style="margin:0.3rem 0 0; padding-left:1.2rem; font-weight:500;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </span>
+        </div>
+    @endif
+
     {{-- ============================================
-         FILTER BAR (read-only — filter saja)
+         FILTER BAR (filter saja — aksi ada di tabel)
          ============================================ --}}
     <form class="kt-filter-bar" method="GET" action="{{ route('karyawan.kunjungan-tamu') }}">
         <div class="search-wrapper">
@@ -379,6 +440,7 @@
                     <th>Tujuan / Keperluan</th>
                     <th class="text-center">Dokumen</th>
                     <th class="text-center">Status</th>
+                    <th class="text-center">Aksi / Log Verifikasi</th>
                 </tr>
             </thead>
             <tbody>
@@ -453,15 +515,107 @@
                                 <span class="kt-badge disetujui" title="Sedang berkunjung"><i class="fas fa-circle"></i> Berkunjung</span>
                             @else
                                 <span class="kt-badge disetujui" title="Disetujui — tamu dapat berkunjung"><i class="fas fa-circle"></i> Disetujui</span>
+                            @endif                            @else
+                                <span class="kt-badge menunggu" title="Menunggu verifikasi"><i class="fas fa-circle"></i> Menunggu</span>
                             @endif
+                    </td>
+                    {{-- ======================================
+                         AKSI / LOG VERIFIKASI — REVISI STATUS
+                         Menunggu        → tombol Setujui & Batalkan
+                         Disetujui       → tombol "Batalkan" (revisi)
+                         Ditolak/Batal   → tombol "Setujui" (revisi)
+                         + log siapa & kapan perubahan terakhir.
+                         Status boleh diubah berulang (bukan sekali).
+                         ====================================== --}}
+                    <td class="kt-aksi text-center">
+                        {{-- ======================================
+                             AKSI STATUS — REVISI (bisa berulang):
+                             Menunggu   -> Setujui & Batalkan
+                             Disetujui  -> Batalkan (jadi Dibatalkan)
+                             Dibatalkan -> Setujui (jadi Disetujui)
+                             Log di bawahnya mencatat SIAPA & KAPAN
+                             perubahan status terakhir.
+                             ====================================== --}}
+                        <div class="kt-aksi-btns">
+                        @if ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_MENUNGGU)
+                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}">
+                                    @csrf
+                                    <input type="hidden" name="keputusan" value="setuju">
+                                    <button type="submit" class="kt-act-btn approve"
+                                            title="Setujui kunjungan tamu {{ $tamu->nama }}"
+                                            onclick="return confirm('Setujui kunjungan \"{{ $tamu->nama }}\" pada {{ $tamu->tanggal_kunjungan?->translatedFormat('d F Y H:i') }}?');">
+                                        <i class="fas fa-check"></i> Setujui
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}">
+                                    @csrf
+                                    <input type="hidden" name="keputusan" value="tolak">
+                                    <button type="submit" class="kt-act-btn cancel"
+                                            title="Batalkan kunjungan tamu {{ $tamu->nama }}"
+                                            onclick="return confirm('Batalkan kunjungan \"{{ $tamu->nama }}\" pada {{ $tamu->tanggal_kunjungan?->translatedFormat('d F Y H:i') }}?');">
+                                        <i class="fas fa-xmark"></i> Batalkan
+                                    </button>
+                                </form>
+                        @elseif ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_DISETUJUI)
+                                {{-- Sudah Disetujui — aksi revisi menjadi Dibatalkan --}}
+                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}">
+                                    @csrf
+                                    <input type="hidden" name="keputusan" value="tolak">
+                                    <button type="submit" class="kt-act-btn cancel"
+                                            title="Ubah menjadi Dibatalkan"
+                                            onclick="return confirm('Ubah status kunjungan \"{{ $tamu->nama }}\" menjadi DIBATALKAN?');">
+                                        <i class="fas fa-rotate"></i> Batalkan
+                                    </button>
+                                </form>
                         @else
-                            <span class="kt-badge menunggu" title="Menunggu verifikasi"><i class="fas fa-circle"></i> Menunggu</span>
+                                {{-- Dibatalkan — aksi revisi menjadi Disetujui --}}
+                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}">
+                                    @csrf
+                                    <input type="hidden" name="keputusan" value="setuju">
+                                    <button type="submit" class="kt-act-btn approve"
+                                            title="Ubah menjadi Disetujui"
+                                            onclick="return confirm('Ubah status kunjungan \"{{ $tamu->nama }}\" menjadi DISETUJUI?');">
+                                        <i class="fas fa-rotate"></i> Setujui
+                                    </button>
+                                </form>
+                        @endif
+                            </div>
+
+                        @if ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_MENUNGGU)
+                            {{-- Belum ada perubahan status — tanpa log. --}}
+                        @elseif ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_DISETUJUI)
+                            {{-- Disetujui — nama verifier mengikuti role verified_by:
+                                 Admin (Super Admin / Admin Bidang) atau karyawan sendiri. --}}
+                            <span class="kt-verify-log approved">
+                                <i class="fas fa-circle-check"></i>
+                                @if ($tamu->verified_at && $tamu->verifier)
+                                    Sudah diapprove oleh <strong>{{ $tamu->verifier_name }}</strong>
+                                    pada tanggal {{ $tamu->verified_at->translatedFormat('d F Y') }}
+                                    jam {{ $tamu->verified_at->format('H.i') }}
+                                @else
+                                    Sudah diapprove oleh <strong>{{ $tamu->verifier_name }}</strong>
+                                @endif
+                            </span>
+                        @else
+                            {{-- Ditolak / Dibatalkan — sertakan role verifier. --}}
+                            <span class="kt-verify-log cancelled">
+                                <i class="fas fa-circle-xmark"></i>
+                                @if ($tamu->verified_at && $tamu->verifier)
+                                    Dibatalkan oleh {{ $tamu->verifier_role_label }}
+                                    atasnama <strong>{{ $tamu->verifier_name }}</strong>
+                                    pada tanggal {{ $tamu->verified_at->translatedFormat('d F Y') }}
+                                    jam {{ $tamu->verified_at->format('H.i') }}
+                                @else
+                                    Dibatalkan oleh {{ $tamu->verifier_role_label }}
+                                    atasnama <strong>{{ $tamu->verifier_name }}</strong>
+                                @endif
+                            </span>
                         @endif
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6">
+                    <td colspan="7">
                         <div class="kt-empty">
                             <div class="empty-icon"><i class="fas fa-door-open"></i></div>
                             <h6>Belum ada kunjungan tamu untuk Anda</h6>

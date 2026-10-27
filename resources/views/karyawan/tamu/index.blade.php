@@ -389,6 +389,25 @@
     .tamu-badge.ditolak   { background: #fee2e2; color: #dc2626; }
     .tamu-badge.selesai    { background: #f1f5f9; color: #64748b; }
 
+    /* Log verifikasi — pengganti tombol Setujui/Tolak setelah kunjungan
+       diproses pihak pertama (Admin ATAU karyawan yang ditemui). */
+    .tamu-verify-log {
+        display: block;
+        max-width: 250px;
+        margin: 0.35rem auto 0;
+        padding: 0.3rem 0.5rem;
+        font-size: 0.67rem;
+        font-weight: 500;
+        line-height: 1.45;
+        text-align: left;
+        white-space: normal;
+        color: var(--kry-muted);
+        background: var(--kry-bg);
+        border: 1px dashed var(--kry-line);
+        border-radius: 8px;
+    }
+    .tamu-verify-log strong { color: var(--kry-teal-deep); font-weight: 700; }
+
     /* Action Buttons */
     .tamu-actions { display: flex; gap: 0.3rem; justify-content: flex-end; flex-wrap: wrap; }
     .tamu-action-btn {
@@ -1001,6 +1020,20 @@
                     @else
                         <span class="tamu-badge menunggu" title="Menunggu verifikasi"><i class="fas fa-circle"></i> Menunggu</span>
                     @endif
+                    {{-- Log verifikasi — SIAPA & KAPAN perubahan status terakhir.
+                         Tombol aksi kini tetap tampil pada status apa pun
+                         (revisi status bolak-balik Disetujui <-> Dibatalkan). --}}
+                    @if ($tamu->verified_at && $tamu->verified_by)
+                        <span class="tamu-verify-log">
+                            @if ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_DITOLAK)
+                                Dibatalkan oleh {{ $tamu->verifier_role_label }} atasnama <strong>{{ $tamu->verifier_name }}</strong>
+                            @else
+                                Sudah diapprove oleh <strong>{{ $tamu->verifier_name }}</strong>
+                            @endif
+                            pada tanggal {{ $tamu->verified_at->translatedFormat('d F Y') }}
+                            jam {{ $tamu->verified_at->format('H.i') }}
+                        </span>
+                    @endif
                 </td>
                 <td>
                     <div class="tamu-actions">
@@ -1015,6 +1048,10 @@
                             </button>
                         @endcan
                         @can('tamu.checkout')
+                            {{-- Aksi status — REVISI: status boleh diubah berulang.
+                                 Menunggu   -> Setujui + Batalkan
+                                 Disetujui  -> Ubah menjadi Dibatalkan
+                                 Dibatalkan -> Ubah menjadi Disetujui --}}
                             @if ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_MENUNGGU)
                                 <button type="button" class="tamu-action-btn setuju" title="Setujui kunjungan & kirim konfirmasi WA"
                                         onclick="openVerifikasiModal({{ $tamu->id }}, 'setuju')">
@@ -1023,6 +1060,16 @@
                                 <button type="button" class="tamu-action-btn tolak" title="Tolak kunjungan & kirim konfirmasi WA"
                                         onclick="openVerifikasiModal({{ $tamu->id }}, 'tolak')">
                                     <i class="fas fa-xmark"></i>
+                                </button>
+                            @elseif ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_DISETUJUI)
+                                <button type="button" class="tamu-action-btn tolak" title="Ubah menjadi Dibatalkan"
+                                        onclick="openVerifikasiModal({{ $tamu->id }}, 'tolak')">
+                                    <i class="fas fa-rotate"></i>
+                                </button>
+                            @else
+                                <button type="button" class="tamu-action-btn setuju" title="Ubah menjadi Disetujui"
+                                        onclick="openVerifikasiModal({{ $tamu->id }}, 'setuju')">
+                                    <i class="fas fa-rotate"></i>
                                 </button>
                             @endif
                         @endcan
