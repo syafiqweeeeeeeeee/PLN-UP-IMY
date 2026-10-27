@@ -2,6 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Bidang;
+use App\Models\Department;
+use App\Models\EmployeeProfile;
+use App\Models\Jabatan;
 use App\Models\Karyawan;
 use App\Models\Permission;
 use App\Models\Role;
@@ -9,6 +13,7 @@ use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Tests\Support\XlsxWriter;
 use Tests\TestCase;
 
@@ -201,6 +206,97 @@ class DataKaryawanTest extends TestCase
             ->get(route('admin.karyawan_data.edit', $karyawan))->assertOk()->assertSee($karyawan->nid);
     }
 
+    public function test_index_table_shows_only_four_columns_in_order(): void
+    {
+        $karyawan = Karyawan::factory()->create([
+            'nid' => '9001',
+            'nama' => 'Siti Aminah',
+            'bidang' => 'Operasi',
+            'email' => 'siti.aminah@example.com',
+            'hp' => '0812999888777',
+        ]);
+
+        $html = $this->actingAs($this->hrUser())
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->getContent();
+
+        // Header tabel — TEPAT 4 kolom, urutan persis spec.
+        $this->assertMatchesRegularExpression('/<thead>[\s\S]*?<\/thead>/', $html);
+        preg_match('/<thead>([\s\S]*?)<\/thead>/', $html, $theadBlock);
+
+        preg_match_all('/<th[^>]*>\s*([^<]*?)\s*<\/th>/', $theadBlock[1], $headerCells);
+
+        $this->assertSame(['NID', 'Nama', 'Bidang', 'Aksi'], $headerCells[1]);
+
+        // Setiap baris data juga hanya 4 sel.
+        $this->assertMatchesRegularExpression(
+            '/<tr>\s*<td class="sticky-1">[\s\S]*?<\/tr>/',
+            $html
+        );
+        preg_match('/(<tr>\s*<td class="sticky-1">[\s\S]*?)<\/tr>/', $html, $firstRow);
+        $this->assertSame(4, substr_count($firstRow[1], '<td'));
+
+        // Kolom identitas & bidang tetap tampil di baris yang sama…
+        $this->assertStringContainsString('9001', $firstRow[1]);
+        $this->assertStringContainsString('Siti Aminah', $firstRow[1]);
+        $this->assertStringContainsString('Operasi', $firstRow[1]);
+
+        // …sedangkan kolom detail (email, telepon, dll.) hilang dari tampilan.
+        $this->assertStringNotContainsString('siti.aminah@example.com', $html);
+        $this->assertStringNotContainsString('0812999888777', $html);
+
+        // Empty state juga cuma menutupi 4 kolom (bukan 26 lagi).
+        $this->assertStringNotContainsString('colspan="26"', $html);
+
+        $emptyHtml = $this->actingAs($this->hrUser())
+            ->get(route('admin.karyawan_data.index', ['q' => 'tidak-ada-data-xyz']))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('<td colspan="4">', $emptyHtml);
+    }
+
+    public function test_action_column_targets_correct_karyawan_per_permission(): void
+    {
+        $karyawan = Karyawan::factory()->create(['nid' => '7788', 'nama' => 'Andi Wijaya']);
+
+        $detailUrl = route('admin.karyawan_data.show', $karyawan);
+        $editUrl = route('admin.karyawan_data.edit', $karyawan);
+
+        // Hanya permission view → tombol Detail saja, tanpa Edit/Hapus.
+        $html = $this->actingAs($this->hrUser(['karyawan_data.view']))
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString($detailUrl, $html);
+        $this->assertStringNotContainsString($editUrl, $html);
+        $this->assertStringNotContainsString('name="_method" value="DELETE"', $html);
+
+        // Permission edit & delete → tombol muncul, tetap ID karyawan yang sama.
+        $html = $this->actingAs($this->hrUser())
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString($detailUrl, $html);
+        $this->assertStringContainsString($editUrl, $html);
+        $this->assertMatchesRegularExpression(
+            '/<a href="'.preg_quote($editUrl, '/').'"/',
+            $html
+        );
+        // Form hapus memakai URL yang sama dengan detail (method DELETE).
+        $this->assertMatchesRegularExpression(
+            '/<form method="POST" action="'.preg_quote($detailUrl, '/').'"[\s\S]{0,400}name="_method" value="DELETE"/',
+            $html
+        );
+
+        // Tombol mengarah ke rute yang benar untuk ID tersebut.
+        $this->actingAs($this->hrUser())->get($detailUrl)->assertOk();
+        $this->actingAs($this->hrUser())->get($editUrl)->assertOk();
+    }
+
     /* =========================================================
        3. PENCARIAN, FILTER, PAGINATION
        ========================================================= */
@@ -220,17 +316,61 @@ class DataKaryawanTest extends TestCase
         $this->assertSame('Siti Aminah', $response->viewData('karyawans')->first()->nama);
     }
 
-    public function test_filter_by_bidang_and_gender(): void
+    public function test_filter_by_bidang_applies_while_removed_filters_are_ignored(): void
     {
-        Karyawan::factory()->create(['bidang' => 'Operasi', 'gender' => 'L']);
-        Karyawan::factory()->create(['bidang' => 'Engineering', 'gender' => 'P']);
-        Karyawan::factory()->create(['bidang' => 'Operasi', 'gender' => 'P']);
+        Karyawan::factory()->create(['bidang' => 'Operasi', 'gender' => 'L', 'grade' => 'IIIA']);
+        Karyawan::factory()->create(['bidang' => 'Engineering', 'gender' => 'P', 'grade' => 'IV']);
+        Karyawan::factory()->create(['bidang' => 'Operasi', 'gender' => 'P', 'grade' => 'IV']);
 
+        // Filter BIDANG (satu-satunya filter dropdown yang tersisa) tetap berlaku.
         $response = $this->actingAs($this->hrUser())
-            ->get(route('admin.karyawan_data.index', ['bidang' => 'Operasi', 'gender' => 'P']));
+            ->get(route('admin.karyawan_data.index', ['bidang' => 'Operasi']));
 
         $response->assertOk();
-        $this->assertSame(1, $response->viewData('karyawans')->total());
+        $this->assertSame(2, $response->viewData('karyawans')->total());
+
+        // Parameter filter yang SUDAH DIHAPUS (gender, grade, jabatan,
+        // status_kawin, unit) diabaikan backend — tidak menyaring apa pun.
+        foreach (['gender' => 'P', 'grade' => 'IV', 'jabatan' => 'Manager', 'status_kawin' => 'K', 'unit' => 'Unit 1'] as $name => $value) {
+            $response = $this->actingAs($this->hrUser())
+                ->get(route('admin.karyawan_data.index', [$name => $value]));
+
+            $response->assertOk();
+            $this->assertSame(
+                3,
+                $response->viewData('karyawans')->total(),
+                "Parameter {$name} tidak boleh lagi memengaruhi hasil pencarian."
+            );
+        }
+    }
+
+    public function test_filter_bar_only_offers_nid_name_and_bidang_search(): void
+    {
+        $html = $this->actingAs($this->hrUser())
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->getContent();
+
+        // Baris pencarian hanya 3 kontrol input: NID/NAMA, BIDANG, per_page.
+        $this->assertMatchesRegularExpression('/<form class="dk-filter-bar"[\s\S]*?<\/form>/', $html);
+        preg_match('/<form class="dk-filter-bar"([\s\S]*?)<\/form>/', $html, $bar);
+
+        preg_match_all('/<(?:input|select)[^>]*name="([^"]+)"/', $bar[1], $controls);
+
+        $this->assertSame(['q', 'bidang', 'per_page'], $controls[1]);
+        $this->assertStringContainsString('Cari NID atau NAMA', $bar[1]);
+        $this->assertStringContainsString('Semua Bidang', $bar[1]);
+
+        // Filter lain sudah dihapus dari halaman ini.
+        foreach (['jabatan', 'grade', 'gender', 'status_kawin', 'unit'] as $removed) {
+            $this->assertStringNotContainsString('name="'.$removed.'"', $html);
+        }
+
+        // Ekspor ikut hanya 2 parameter pencarian yang tersisa.
+        preg_match('/href="([^"]*data-karyawan\/export[^"]*)"/', $html, $export);
+        $this->assertNotEmpty($export);
+        $this->assertStringNotContainsString('gender=', $export[1]);
+        $this->assertStringNotContainsString('grade=', $export[1]);
     }
 
     public function test_pagination_respects_per_page(): void
@@ -870,5 +1010,267 @@ class DataKaryawanTest extends TestCase
 
         $this->assertSame(1, Karyawan::query()->count());
         $this->assertSame('00555', Karyawan::first()->nid);
+    }
+
+    /* =========================================================
+       7. PENDAFTARAN AKUN PENGGUNA DARI DATA KARYAWAN
+       ========================================================= */
+
+    /**
+     * Admin pengelola akun: akses modul Data Karyawan + permission
+     * users.create (permission pengelolaan akun yang sudah ada).
+     */
+    private function accountManager(): User
+    {
+        return $this->hrUser(['karyawan_data.view', 'users.create']);
+    }
+
+    public function test_register_account_requires_account_management_permission(): void
+    {
+        $karyawan = Karyawan::factory()->create(['email' => 'calon@example.com']);
+        $registerUrl = route('admin.karyawan_data.register-account', $karyawan);
+
+        // Tanpa users.create: tombol pendaftaran tidak dirender…
+        $html = $this->actingAs($this->hrUser(['karyawan_data.view']))
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringNotContainsString($registerUrl, $html);
+
+        // …dan endpoint menolak akses langsung di backend (bukan hanya UI).
+        $this->actingAs($this->hrUser(['karyawan_data.view']))
+            ->post($registerUrl)
+            ->assertForbidden();
+
+        $this->assertFalse(User::where('email', 'calon@example.com')->exists());
+        $this->assertSame(0, EmployeeProfile::query()->count());
+    }
+
+    public function test_register_account_creates_karyawan_account_from_master_data(): void
+    {
+        $department = Department::firstOrCreate(['code' => 'operasi'], ['name' => 'Operasi']);
+        $bidang = Bidang::create([
+            'nama' => 'PROD A',
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_a',
+        ]);
+        $jabatan = Jabatan::create(['nama' => 'ASMAN PROD A', 'bidang_id' => $bidang->id]);
+
+        $karyawan = Karyawan::factory()->create([
+            'nid' => '00501',
+            'nama' => 'Siti Aminah',
+            'email' => 'siti.aminah@example.com',
+            'hp' => '0812000111222',
+            'bidang_id' => $bidang->id,
+            'jabatan_id' => $jabatan->id,
+        ]);
+
+        $response = $this->actingAs($this->accountManager())
+            ->post(route('admin.karyawan_data.register-account', $karyawan));
+
+        $response->assertRedirect(route('admin.karyawan_data.index'));
+
+        $user = User::where('email', 'siti.aminah@example.com')->firstOrFail();
+        $this->assertSame('Siti Aminah', $user->name);
+        $this->assertSame('siti.aminah@example.com', $user->email);
+        $this->assertSame('0812000111222', $user->no_hp);
+        $this->assertTrue($user->must_change_password, 'Akun baru wajib mengganti kata sandi saat login pertama.');
+
+        // Role awal HANYA Karyawan (bukan Super Admin / Admin Bidang).
+        $this->assertTrue($user->isKaryawan());
+        $this->assertTrue($user->roleNames()->contains('Karyawan'));
+        $this->assertFalse($user->hasPermission('users.create'));
+
+        // Bidang/sub-bidang/jabatan mengikuti master + aturan scoping lama.
+        $this->assertSame($bidang->id, $user->bidang_id);
+        $this->assertSame($jabatan->id, $user->jabatan_id);
+        $this->assertSame('operasi', $user->department);
+        $this->assertSame($department->id, $user->department_id);
+        $this->assertSame('asmen_prod_a', $user->sub_department);
+        $this->assertSame('asisten_manager', $user->level_jabatan);
+
+        // Relasi resmi karyawan ↔ akun (employee_profiles, NID sebagai identitas).
+        $profile = EmployeeProfile::where('user_id', $user->id)->first();
+        $this->assertNotNull($profile);
+        $this->assertSame($karyawan->id, $profile->karyawan_id);
+        $this->assertSame('00501', $profile->nid);
+        $this->assertSame('Siti Aminah', $profile->nama);
+        $this->assertSame('siti.aminah@example.com', $profile->email);
+    }
+
+    public function test_temporary_password_is_hashed_and_shown_only_once(): void
+    {
+        $karyawan = Karyawan::factory()->create([
+            'nid' => '00502',
+            'nama' => 'Budi Santoso',
+            'email' => 'budi.santoso@example.com',
+        ]);
+
+        $this->actingAs($this->accountManager())
+            ->post(route('admin.karyawan_data.register-account', $karyawan))
+            ->assertRedirect(route('admin.karyawan_data.index'))
+            ->assertSessionHas('new_account_credentials');
+
+        $credentials = session('new_account_credentials');
+        $plainPassword = $credentials['password'];
+
+        $this->assertSame('budi.santoso@example.com', $credentials['email']);
+        $this->assertGreaterThanOrEqual(12, strlen($plainPassword), 'Kata sandi sementara harus acak & cukup panjang.');
+
+        $user = User::where('email', 'budi.santoso@example.com')->firstOrFail();
+        $this->assertNotSame($plainPassword, $user->password, 'Kata sandi asli tidak boleh tersimpan di database.');
+        $this->assertTrue(Hash::check($plainPassword, $user->password), 'Kata sandi sementara harus tersimpan sebagai hash Laravel.');
+
+        // Tampil SEKALI di halaman hasil redirect…
+        $html = $this->actingAs($this->accountManager())
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString($plainPassword, $html);
+        $this->assertStringContainsString('Akun Pengguna Berhasil Dibuat', $html);
+
+        // …dan tidak muncul lagi saat halaman dimuat ulang (flash habis).
+        $this->actingAs($this->accountManager())
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->assertDontSee($plainPassword)
+            ->assertSessionMissing('new_account_credentials');
+    }
+
+    public function test_register_account_disabled_and_rejected_when_email_missing_or_invalid(): void
+    {
+        $tanpaEmail = Karyawan::factory()->create(['nid' => '00601', 'nama' => 'Tanpa Email', 'email' => null]);
+        $emailRusak = Karyawan::factory()->create(['nid' => '00602', 'nama' => 'Email Rusak', 'email' => 'bukan-email']);
+
+        $html = $this->actingAs($this->accountManager())
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->getContent();
+
+        // Pesan jelas + tombol nonaktif (tidak ada form yang bisa dikirim).
+        $this->assertStringContainsString('Email tidak valid', $html);
+        $this->assertSame(2, substr_count($html, 'Email tidak valid'));
+        $this->assertStringNotContainsString(route('admin.karyawan_data.register-account', $tanpaEmail), $html);
+        $this->assertStringNotContainsString(route('admin.karyawan_data.register-account', $emailRusak), $html);
+
+        foreach ([$tanpaEmail, $emailRusak] as $karyawan) {
+            $this->actingAs($this->accountManager())
+                ->from(route('admin.karyawan_data.index'))
+                ->post(route('admin.karyawan_data.register-account', $karyawan))
+                ->assertSessionHasErrors('akun');
+        }
+
+        // Tidak ada akun/profil baru yang terbentuk untuk kedua baris itu.
+        $this->assertSame(0, EmployeeProfile::query()->count());
+    }
+
+    public function test_register_account_rejects_email_already_used_by_another_account(): void
+    {
+        User::factory()->create(['email' => 'dipakai@example.com']);
+
+        $karyawan = Karyawan::factory()->create(['nid' => '00610', 'email' => 'dipakai@example.com']);
+
+        $this->actingAs($this->accountManager())
+            ->from(route('admin.karyawan_data.index'))
+            ->post(route('admin.karyawan_data.register-account', $karyawan))
+            ->assertSessionHasErrors('akun');
+
+        $this->assertSame(1, User::where('email', 'dipakai@example.com')->count(), 'Email duplikat tidak boleh membuat akun baru.');
+        $this->assertSame(0, EmployeeProfile::query()->count());
+    }
+
+    public function test_new_account_must_change_temporary_password_before_portal_access(): void
+    {
+        $karyawan = Karyawan::factory()->create([
+            'nid' => '00612',
+            'nama' => 'Dewi Lestari',
+            'email' => 'dewi.lestari@example.com',
+        ]);
+
+        $this->actingAs($this->accountManager())
+            ->post(route('admin.karyawan_data.register-account', $karyawan))
+            ->assertRedirect(route('admin.karyawan_data.index'));
+
+        $tempPassword = session('new_account_credentials')['password'];
+        $user = User::where('email', 'dewi.lestari@example.com')->firstOrFail();
+
+        // Sebelum kata sandi diganti, portal/internal ditahan middleware
+        // must.password meskipun password sementaranya valid.
+        $this->actingAs($user)
+            ->get(route('karyawan.dashboard'))
+            ->assertRedirect(route('account.password-notice'));
+
+        // Setelah diganti, penanda dilepas dan pengguna boleh lanjut.
+        $this->actingAs($user)
+            ->post(route('account.password-update'), [
+                'current_password' => $tempPassword,
+                'password' => 'passwordbaru99',
+                'password_confirmation' => 'passwordbaru99',
+            ])
+            ->assertRedirect(route('karyawan.dashboard'));
+
+        $this->assertFalse($user->fresh()->must_change_password);
+        $this->assertTrue(Hash::check('passwordbaru99', $user->fresh()->password));
+    }
+
+    public function test_karyawan_with_account_shows_registered_status_and_cannot_register_twice(): void
+    {
+        $karyawan = Karyawan::factory()->create([
+            'nid' => '00611',
+            'nama' => 'Andi Wijaya',
+            'email' => 'andi.wijaya@example.com',
+        ]);
+
+        $this->actingAs($this->accountManager())
+            ->post(route('admin.karyawan_data.register-account', $karyawan))
+            ->assertRedirect(route('admin.karyawan_data.index'));
+
+        // Percobaan kedua (mis. klik ganda / request manual) ditolak.
+        $this->actingAs($this->accountManager())
+            ->from(route('admin.karyawan_data.index'))
+            ->post(route('admin.karyawan_data.register-account', $karyawan))
+            ->assertSessionHasErrors('akun');
+
+        $this->assertSame(1, User::where('email', 'andi.wijaya@example.com')->count());
+        $this->assertSame(1, EmployeeProfile::query()->count());
+
+        // Daftar menampilkan status, bukan tombol pendaftaran ulang.
+        $html = $this->actingAs($this->accountManager())
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('Sudah Terdaftar', $html);
+        $this->assertStringNotContainsString(route('admin.karyawan_data.register-account', $karyawan), $html);
+    }
+
+    public function test_register_account_is_atomic_when_profile_save_fails(): void
+    {
+        $karyawan = Karyawan::factory()->create([
+            'nid' => '00620',
+            'nama' => 'Nama Bentrok',
+            'email' => 'bentrok@example.com',
+        ]);
+
+        // Paksa kegagalan SETELAH akun & pivot role dibuat (di tengah
+        // transaksi) — akun tidak boleh tersisa setengah jadi.
+        EmployeeProfile::creating(function (): void {
+            throw new \RuntimeException('Simulasi kegagalan penyimpanan profil kepegawaian.');
+        });
+
+        try {
+            $this->actingAs($this->accountManager())
+                ->from(route('admin.karyawan_data.index'))
+                ->post(route('admin.karyawan_data.register-account', $karyawan))
+                ->assertSessionHasErrors('akun');
+        } finally {
+            EmployeeProfile::flushEventListeners();
+        }
+
+        // Rollback penuh: tidak ada akun, pivot role, atau profil tersisa.
+        $this->assertFalse(User::where('email', 'bentrok@example.com')->exists());
+        $this->assertSame(0, EmployeeProfile::query()->count());
     }
 }

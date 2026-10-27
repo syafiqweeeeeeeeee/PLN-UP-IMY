@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bidang;
+use App\Models\EmployeeProfile;
 use App\Models\Jabatan;
 use App\Models\Karyawan;
+use App\Models\Role;
+use App\Models\User;
 use App\Services\ActivityLogger;
 use App\Services\MasterOrgMatcher;
 use App\Services\XlsxReader;
@@ -15,9 +18,13 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 /**
  * DATA KARYAWAN — CRUD + impor/ekspor CSV dari PANEL ADMIN.
@@ -50,15 +57,28 @@ class DataKaryawanController extends Controller
 
     private const PER_PAGE_OPTIONS = [25, 50, 100];
 
+    /**
+     * Filter daftar/ekspor yang masih berlaku — PENCARIAN TERBATAS:
+     * NID/NAMA (parameter `q`) + BIDANG saja.
+     *
+     * Filter JABATAN, GRADE, GENDER, STATUS KAWIN, dan UNIT sudah
+     * dihapus dari halaman ini; parameter lama yang dikirim lewat URL
+     * diabaikan sepenuhnya sehingga tidak ada "parameter tersembunyi"
+     * yang masih memengaruhi hasil (lihat filteredQuery()).
+     *
+     * @var array<int, string>
+     */
+    private const INDEX_FILTERS = ['bidang'];
+
     /* =========================================================
-       DAFTAR — pencarian NID/NAMA, filter dropdown, pagination
+       DAFTAR — pencarian NID/NAMA + filter BIDANG, pagination
        ========================================================= */
 
     public function index(Request $request)
     {
         Gate::authorize('karyawan_data.view');
 
-        $filters = $request->only(array_keys(Karyawan::FILTERS));
+        $filters = $request->only(self::INDEX_FILTERS);
 
         $perPage = (int) $request->input('per_page', self::PER_PAGE);
         if (! in_array($perPage, self::PER_PAGE_OPTIONS, true)) {
@@ -73,14 +93,55 @@ class DataKaryawanController extends Controller
         return view('admin.data-karyawan.index', [
             'karyawans' => $karyawans,
             'filters' => $filters,
-            'filterOptions' => Karyawan::filterOptions(),
-            'master' => $this->masterOptions(),
+            // Halaman daftar hanya punya pencarian NID/NAMA + BIDANG,
+            // jadi hanya itu yang di-query (dropdown grade/gender/unit/
+            // status kawin & master jabatan tidak lagi dimuat di sini).
+            'master' => $this->masterFilterOptions(),
             'totalAll' => Karyawan::query()->count(),
             'perPage' => $perPage,
             'perPageOptions' => self::PER_PAGE_OPTIONS,
-            'genders' => Karyawan::GENDERS,
-            'statusesKawin' => Karyawan::STATUSES_KAWIN,
+            'akunByKaryawanId' => $this->accountsFor($karyawans),
         ]);
+    }
+
+    /**
+     * Peta akun pengguna untuk baris yang sedang tampil: [karyawan_id => User].
+     *
+     * Sumber relasi: tabel `employee_profiles` (user_id unik, karyawan_id
+     * soft-link ke master HR). Cadangan: pencocokan NID untuk profil lama
+     * yang sudah berisi NID tetapi belum sempat menautkan karyawan_id —
+     * NID adalah identitas karyawan pada mekanisme relasi yang ada.
+     *
+     * @return array<int, User>
+     */
+    private function accountsFor($karyawans): array
+    {
+        $ids = $karyawans->pluck('id')->all();
+        $nids = $karyawans->pluck('nid')->filter()->unique()->all();
+
+        $profiles = EmployeeProfile::query()
+            ->with('user')
+            ->where(function ($query) use ($ids, $nids): void {
+                $query->whereIn('karyawan_id', $ids);
+
+                if ($nids !== []) {
+                    $query->orWhereIn('nid', $nids);
+                }
+            })
+            ->get()
+            ->filter(fn (EmployeeProfile $profile) => $profile->user !== null);
+
+        $byKaryawanId = $profiles->whereNotNull('karyawan_id')->keyBy('karyawan_id');
+        $byNid = $profiles->whereNotNull('nid')->keyBy('nid');
+
+        $accounts = [];
+
+        foreach ($karyawans as $karyawan) {
+            $profile = $byKaryawanId->get($karyawan->id) ?? $byNid->get($karyawan->nid);
+            $accounts[$karyawan->id] = $profile?->user;
+        }
+
+        return $accounts;
     }
 
     /**
@@ -91,7 +152,7 @@ class DataKaryawanController extends Controller
     {
         return Karyawan::query()
             ->search($request->input('q'))
-            ->filtered($request->only(array_keys(Karyawan::FILTERS)));
+            ->filtered($request->only(self::INDEX_FILTERS));
     }
 
     /* =========================================================
@@ -181,6 +242,168 @@ class DataKaryawanController extends Controller
 
         return redirect()->route('admin.karyawan_data.index')
             ->with('success', 'Data karyawan berhasil dihapus.');
+    }
+
+    /* =========================================================
+       PENDAFTARAN AKUN PENGGUNA DARI DATA KARYAWAN
+       ------------------------------------------------------------
+       Admin TIDAK mengisi ulang data: nama, email, kontak, bidang, dan
+       jabatan diambil dari baris karyawans yang dipilih. Akun dibuat
+       dengan role "Karyawan" (baseline role yang sudah ada), ditautkan
+       ke master lewat employee_profiles (NID + karyawan_id), dan diberi
+       kata sandi sementara acak SEKALI PAKAI + penanda
+       must_change_password sehingga middleware must.password memaksa
+       penggantian sebelum masuk portal.
+       ========================================================= */
+
+    public function registerAccount(Request $request, Karyawan $karyawan)
+    {
+        // Otorisasi backend: hanya pemegang permission pengelolaan akun
+        // (users.create) yang boleh mendaftarkan akun. Route juga dijaga
+        // middleware permission:users.create (defense in depth).
+        Gate::authorize('users.create');
+
+        $email = trim((string) $karyawan->email);
+
+        if ($email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            return back()->withErrors([
+                'akun' => "Akun tidak dapat didaftarkan: email karyawan \"{$karyawan->nama}\" kosong atau formatnya tidak valid. Perbaiki email lewat tombol Edit terlebih dahulu.",
+            ]);
+        }
+
+        $role = Role::query()
+            ->where('name', 'Karyawan')
+            ->where('status', true)
+            ->first();
+
+        if ($role === null) {
+            return back()->withErrors([
+                'akun' => 'Role "Karyawan" tidak tersedia atau tidak aktif — hubungi Super Admin.',
+            ]);
+        }
+
+        // Kata sandi sementara: Str::random memakai CSPRNG (huruf+angka,
+        // 12 karakter) — cukup kuat dan praktis disampaikan sekali.
+        $plainPassword = Str::random(12);
+
+        try {
+            // Seluruh penulisan (akun, role pivot, profil kepegawaian)
+            // dalam SATU transaksi: gagal di tengah jalan = tidak ada akun
+            // atau relasi setengah jadi.
+            $user = DB::transaction(function () use ($karyawan, $email, $role, $plainPassword): User {
+                // Kunci baris master agar dua klik beruntun tidak membuat
+                // dua akun untuk karyawan yang sama.
+                $karyawan = Karyawan::query()->lockForUpdate()->findOrFail($karyawan->id);
+
+                $sudahTerdaftar = EmployeeProfile::query()
+                    ->where('karyawan_id', $karyawan->id)
+                    ->when($karyawan->nid, fn ($query) => $query->orWhere('nid', $karyawan->nid))
+                    ->exists();
+
+                if ($sudahTerdaftar) {
+                    throw ValidationException::withMessages([
+                        'akun' => "Karyawan \"{$karyawan->nama}\" (NID {$karyawan->nid}) sudah memiliki akun pengguna.",
+                    ]);
+                }
+
+                if (User::query()->where('email', $email)->exists()) {
+                    throw ValidationException::withMessages([
+                        'akun' => "Email \"{$email}\" sudah digunakan akun pengguna lain. Perbarui email karyawan terlebih dahulu.",
+                    ]);
+                }
+
+                $data = [
+                    'name' => $karyawan->nama,
+                    'email' => $email,
+                    'no_hp' => $karyawan->hp,
+                    // Hash::make → kata sandi asli tidak pernah tersimpan.
+                    'password' => Hash::make($plainPassword),
+                    'must_change_password' => true,
+                    'role' => $role->name,
+                    'role_id' => $role->id,
+                    'bidang_id' => $karyawan->bidang_id,
+                    'jabatan_id' => $karyawan->jabatan_id,
+                ];
+
+                // Aturan yang SAMA dengan form Pengguna: department /
+                // sub_department / level_jabatan diturunkan dari master
+                // bidang & jabatan (tanpa memberi role admin apa pun).
+                UserController::applyOrgScoping($data, $role->name);
+
+                $user = User::create($data);
+
+                // Pivot role_user: @can, middleware permission:, dan
+                // pembatasan bidang membaca role aktif dari sini.
+                $user->roles()->sync([$role->id]);
+
+                // Tautan resmi karyawan ↔ akun lewat employee_profiles
+                // (NID sebagai identitas + karyawan_id sebagai soft-link).
+                $user->employeeProfile()->create($this->employeeProfileData($karyawan, $email));
+
+                return $user;
+            });
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()->withErrors([
+                'akun' => "Akun untuk \"{$karyawan->nama}\" gagal dibuat. Tidak ada data yang tersimpan — silakan coba lagi.",
+            ]);
+        }
+
+        ActivityLogger::log('create', null, [
+            'module' => 'pengguna',
+            'description' => "mendaftarkan akun pengguna role Karyawan untuk \"{$user->name}\" (NID {$karyawan->nid}) dari Data Karyawan",
+            'subject' => $user,
+        ]);
+
+        // Kata sandi sementara HANYA dikirim lewat session flash sekali
+        // tampil — tidak masuk URL, log aplikasi, maupun activity log.
+        return redirect()->route('admin.karyawan_data.index')
+            ->with('success', "Akun pengguna untuk \"{$user->name}\" berhasil dibuat dengan role Karyawan.")
+            ->with('new_account_credentials', [
+                'name' => $user->name,
+                'email' => $user->email,
+                'password' => $plainPassword,
+            ]);
+    }
+
+    /**
+     * Salinan data kepegawaian master → employee_profiles. Kolom mengikuti
+     * 24 kolom spesifikasi; tidak ada data yang perlu diisi ulang admin.
+     *
+     * @return array<string, mixed>
+     */
+    private function employeeProfileData(Karyawan $karyawan, string $email): array
+    {
+        return [
+            'karyawan_id' => $karyawan->id,
+            'nid' => $karyawan->nid,
+            'nama' => $karyawan->nama,
+            'unit' => $karyawan->unit,
+            'bidang' => $karyawan->bidangLabel(),
+            'jabatan' => $karyawan->jabatanLabel(),
+            'jenjang_jabatan' => $karyawan->jenjang_jabatan,
+            'grade' => $karyawan->grade,
+            'organik' => $karyawan->organik,
+            'institusi' => $karyawan->institusi,
+            'fte' => $karyawan->fte,
+            'mims' => $karyawan->mims,
+            'service_date' => $karyawan->service_date?->format('Y-m-d'),
+            'hire_date' => $karyawan->hire_date?->format('Y-m-d'),
+            'retire_date' => $karyawan->retire_date?->format('Y-m-d'),
+            'grade_date' => $karyawan->grade_date?->format('Y-m-d'),
+            'tgl_jab' => $karyawan->tgl_jab?->format('Y-m-d'),
+            'tanggal_lahir' => $karyawan->tanggal_lahir?->format('Y-m-d'),
+            'telp' => $karyawan->telp,
+            'hp' => $karyawan->hp,
+            'email' => $email,
+            'tempat_lahir' => $karyawan->tempat_lahir,
+            'agama' => $karyawan->agama,
+            'gender' => $karyawan->gender,
+            'status_kawin' => $karyawan->status_kawin,
+        ];
     }
 
     /**
@@ -353,6 +576,21 @@ class DataKaryawanController extends Controller
             'jabatans' => Jabatan::cachedList(),
             'legacyBidang' => $this->legacyValues('bidang', Bidang::query()->pluck('nama')->all()),
             'legacyJabatan' => $this->legacyValues('jabatan', Jabatan::query()->pluck('nama')->all()),
+        ];
+    }
+
+    /**
+     * Master untuk halaman DAFTAR — hanya BIDANG (dropdown pencarian
+     * satu-satunya di halaman ini, selain input NID/NAMA). Master
+     * jabatan beserta nilai teks lamanya tidak ikut di-query.
+     *
+     * @return array{bidangRows: Collection, legacyBidang: array<int, string>}
+     */
+    private function masterFilterOptions(): array
+    {
+        return [
+            'bidangRows' => Bidang::treeOrdered(),
+            'legacyBidang' => $this->legacyValues('bidang', Bidang::query()->pluck('nama')->all()),
         ];
     }
 
@@ -1090,7 +1328,7 @@ class DataKaryawanController extends Controller
                 if (strcasecmp($date->format($format), $value) === 0) {
                     return $date;
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 continue;
             }
         }

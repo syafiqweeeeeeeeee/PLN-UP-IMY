@@ -113,7 +113,9 @@
         white-space: nowrap;
     }
 
-    /* Table — 24 kolom: scroll horizontal + 2 kolom identitas sticky */
+    /* Table ringkas — 4 kolom (NID, Nama, Bidang, Aksi):
+       tetap punya lebar minimum agar layar sempit menggeser
+       horizontal, tapi lebar normalnya mengikuti container. */
     .dk-table-wrap {
         background: var(--bg-card);
         border: 1px solid var(--border-color);
@@ -123,7 +125,7 @@
     .dk-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 2600px;
+        min-width: 720px;
     }
     .dk-table thead th {
         text-align: left;
@@ -150,7 +152,7 @@
     .dk-table tbody tr:hover { background: #e6f2fb; }
 
     /* Kolom identitas (NID & NAMA) sticky di kiri agar tetap terlihat
-       saat scroll horizontal 24 kolom.
+       saat layar sempit digeser horizontal.
 
        Penting:
        - left sticky-2 memakai variabel --dk-sticky-2-left yang diukur
@@ -190,6 +192,73 @@
     .dk-action-btn.detail { background: #e6f2fb; color: var(--pln-cyan); }
     .dk-action-btn.edit   { background: #fef3c7; color: #b45309; }
     .dk-action-btn.delete { background: #fef2f2; color: #dc2626; }
+    .dk-action-btn.account { background: #e0f2fe; color: #0369a1; }
+    .dk-action-btn.account:hover { background: #bae6fd; }
+    .dk-action-btn:disabled {
+        background: #f1f5f9; color: #94a3b8;
+        cursor: not-allowed; opacity: 0.85;
+    }
+
+    /* Status akun pada kolom aksi */
+    .dk-account-badge {
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        background: #dcfce7; color: #15803d;
+        border: 1px solid #bbf7d0; border-radius: 999px;
+        padding: 0.22rem 0.55rem;
+        font-size: 0.68rem; font-weight: 700; white-space: nowrap;
+    }
+    .dk-account-note {
+        font-size: 0.66rem; font-weight: 600; color: #b45309;
+        white-space: nowrap;
+    }
+
+    /* Kartu kata sandi sementara (tampil SEKALI setelah akun dibuat) */
+    .dk-credential-card {
+        background: #fffbeb; border: 1px solid #fde68a;
+        border-radius: 14px; padding: 1.25rem 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+    .dk-credential-card h6 {
+        font-size: 0.95rem; font-weight: 800; color: var(--pln-text);
+        margin: 0 0 0.35rem;
+    }
+    .dk-credential-card p { font-size: 0.8rem; color: #6b7280; margin: 0; }
+    .dk-credential-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.6rem; margin: 0.9rem 0 0.6rem;
+    }
+    .dk-credential-item {
+        background: #fff; border: 1px solid #fde68a;
+        border-radius: 10px; padding: 0.6rem 0.8rem;
+    }
+    .dk-credential-item small {
+        display: block; font-size: 0.66rem; font-weight: 700;
+        color: #6b7280; text-transform: uppercase; letter-spacing: 0.4px;
+        margin-bottom: 0.2rem;
+    }
+    .dk-credential-item .value {
+        font-size: 0.85rem; font-weight: 700; color: var(--pln-text);
+        word-break: break-all;
+    }
+    .dk-credential-password {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 0.5rem;
+    }
+    .dk-credential-password code {
+        font-size: 0.95rem; font-weight: 800; letter-spacing: 1px;
+        color: #92400e; background: #fef3c7; border-radius: 6px;
+        padding: 0.15rem 0.45rem;
+    }
+    .dk-copy-btn {
+        border: 1px solid #fcd34d; background: #fff; color: #92400e;
+        border-radius: 8px; padding: 0.25rem 0.5rem;
+        font-size: 0.7rem; font-weight: 700; cursor: pointer;
+        white-space: nowrap;
+    }
+    .dk-credential-warning {
+        font-size: 0.75rem; font-weight: 600; color: #b45309;
+        margin: 0.5rem 0 0;
+    }
 
     .dk-empty-state { text-align: center; padding: 3.5rem 1rem; }
     .dk-empty-state .empty-icon {
@@ -251,14 +320,18 @@
     }
 
     /* ============================================
-       CUSTOM DROPDOWN FILTER (scrollable) — SEMUA filter di bar
-       (bidang, jabatan, grade, gender, status kawin, unit)
+       CUSTOM DROPDOWN FILTER (scrollable) — BIDANG satu-satunya filter
+       di bar ini (pencarian hanya NID/NAMA + BIDANG; JABATAN, GRADE,
+       GENDER, STATUS KAWIN, dan UNIT sudah dihapus — lihat
+       DataKaryawanController::INDEX_FILTERS).
        Menggantikan <select> bawaan browser:
        - daftar maksimal max-height 220px + overflow-y auto,
        - sudut panel membulat (8px / rounded-3) + bayangan halus,
        - item padding 8px 12px + hover highlight lembut,
        - TANPA kotak pencarian.
-       Value filter tetap dikirim via <input type="hidden" name="jabatan">.
+       Value filter tetap dikirim via <input type="hidden"> dengan name
+       sama dengan parameter GET (mis. bidang), sehingga filter, ekspor
+       & pagination menerima parameter yang sama.
        ============================================ */
     .dk-dd { position: relative; flex: 0 1 200px; min-width: 150px; }
     .dk-dd-trigger {
@@ -314,7 +387,7 @@
         border: 1px solid var(--border-color);
         border-radius: 8px;                     /* sudut membulat (rounded-3) */
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        max-height: 220px;                      /* daftar jabatan panjang tidak meluber */
+        max-height: 220px;                      /* daftar bidang panjang tidak meluber */
         overflow-y: auto;
         overscroll-behavior: contain;
         scrollbar-width: thin;
@@ -420,7 +493,7 @@
                 <i class="fas fa-file-csv me-1"></i> Template
             </a>
             @endcan
-            <a href="{{ route('admin.karyawan_data.export', request()->only(['q', 'bidang', 'jabatan', 'grade', 'gender', 'status_kawin', 'unit'])) }}"
+            <a href="{{ route('admin.karyawan_data.export', request()->only(['q', 'bidang'])) }}"
                class="btn-corp btn-corp-soft" title="Ekspor data sesuai filter aktif ke CSV (Excel-ready)">
                 <i class="fas fa-file-export me-1"></i> Ekspor
             </a>
@@ -538,53 +611,78 @@
     </div>
 @endif
 
-{{-- ============ FILTER BAR ============ --}}
+{{-- ============ KATA SANDI SEMENTARA (SEKALI TAMPIL) ============
+     Dikirim lewat session flash setelah akun berhasil dibuat. Flash
+     habis setelah halaman ini dimuat, jadi kata sandi TIDAK muncul lagi
+     saat halaman di-refresh dan tidak pernah masuk URL/log.
+     ===== --}}
+@php $newAccount = session('new_account_credentials'); @endphp
+@if ($newAccount)
+    <div class="dk-credential-card" role="status">
+        <h6><i class="fas fa-key" style="color:#b45309; margin-right:0.4rem;"></i>Akun Pengguna Berhasil Dibuat</h6>
+        <p>Sampaikan kata sandi sementara berikut kepada karyawan. Kata sandi ini hanya ditampilkan sekali.</p>
+        <div class="dk-credential-grid">
+            <div class="dk-credential-item">
+                <small>Nama</small>
+                <div class="value">{{ $newAccount['name'] }}</div>
+            </div>
+            <div class="dk-credential-item">
+                <small>Email (untuk login)</small>
+                <div class="value">{{ $newAccount['email'] }}</div>
+            </div>
+            <div class="dk-credential-item">
+                <small>Kata Sandi Sementara</small>
+                <div class="dk-credential-password">
+                    <code id="dkTempPassword">{{ $newAccount['password'] }}</code>
+                    <button type="button" class="dk-copy-btn" id="dkCopyTempPassword">
+                        <i class="fas fa-copy"></i> Salin
+                    </button>
+                </div>
+            </div>
+        </div>
+        <p class="dk-credential-warning">
+            <i class="fas fa-triangle-exclamation"></i>
+            Pengguna wajib mengganti kata sandi ini saat login pertama sebelum dapat mengakses portal.
+        </p>
+    </div>
+@endif
+
+{{-- ============ FILTER BAR — PENCARIAN TERBATAS ============
+     Pencarian hanya 3 cara: NID/NAMA (input teks) + BIDANG (dropdown
+     master) + per_page. Filter lain (JABATAN, GRADE, GENDER, STATUS
+     KAWIN, UNIT) dihapus dari halaman ini DAN diabaikan backend
+     (lihat DataKaryawanController::INDEX_FILTERS), sehingga tidak ada
+     parameter tersembunyi; ekspor mengikuti q & bidang saja.
+     ===== --}}
 <form class="dk-filter-bar" method="GET" action="{{ route('admin.karyawan_data.index') }}">
     <div class="search-wrapper">
         <i class="fas fa-search"></i>
         <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari NID atau NAMA...">
     </div>
 
-    {{-- Nilai `#id` = filter lewat relasi master; nilai teks = data lama
-         yang belum terpetakan (tetap bisa difilter & diekspor).
-         Sufiks "(teks lama)" tidak ditampilkan lagi di daftar pilihan —
-         hanya label tampilan yang dibersihkan, value tetap teks aslinya
-         supaya data lama tetap bisa difilter & diekspor. --}}
+    {{-- Nilai `#id` = filter lewat relasi master (ikut menampilkan
+         seluruh sub-bidang di bawahnya, termasuk data lama yang belum
+         terpetakan); nilai teks = data lama yang belum ada di master.
+         Sufiks "(teks lama)" tidak ditampilkan lagi — value tetap teks
+         aslinya supaya data lama tetap bisa difilter & diekspor.
+
+         HANYA BIDANG yang dipakai sebagai pencarian dropdown: JABATAN,
+         GRADE, GENDER, STATUS KAWIN, dan UNIT dihapus (lihat
+         DataKaryawanController::INDEX_FILTERS). --}}
     @php
         $bidangOptions = [];
         foreach (($master['bidangRows'] ?? []) as $row) {
             $bidangOptions[] = [
                 'value'  => '#'.$row['node']->id,
                 'name'   => $row['node']->nama,
-                // Penanda hierarki (— / — — ) untuk sub-bidang.
-                'prefix' => str_repeat('— ', $row['depth']),
+                // Indentasi hierarki memakai NBSP (bukan tanda —) supaya
+                // nama bidang tidak terlihat ber-awalan strip.
+                'prefix' => str_repeat("\u{00A0}\u{00A0}\u{00A0}", $row['depth']),
             ];
         }
         foreach (($master['legacyBidang'] ?? []) as $txt) {
             $bidangOptions[] = ['value' => $txt, 'name' => $txt];
         }
-
-        $jabatanOptions = [];
-        foreach (($master['jabatans'] ?? []) as $j) {
-            $jabatanOptions[] = [
-                'value' => '#'.$j->id,
-                'name'  => $j->nama,
-                // Dipakai filter dependent: jabatan hanya tampil pada bidangnya.
-                'data'  => ['bidang' => $j->bidang_id],
-            ];
-        }
-        foreach (($master['legacyJabatan'] ?? []) as $txt) {
-            $jabatanOptions[] = ['value' => $txt, 'name' => $txt];
-        }
-
-        $gradeOptions  = collect($filterOptions['grade'] ?? [])
-            ->map(fn ($v) => ['value' => $v, 'name' => $v])->values()->all();
-        $genderOptions = collect($genders)
-            ->map(fn ($label, $key) => ['value' => $key, 'name' => $label])->values()->all();
-        $statusOptions = collect($statusesKawin)
-            ->map(fn ($label, $key) => ['value' => $key, 'name' => $label])->values()->all();
-        $unitOptions   = collect($filterOptions['unit'] ?? [])
-            ->map(fn ($v) => ['value' => $v, 'name' => $v])->values()->all();
     @endphp
 
     @include('admin.data-karyawan._filter-dropdown', [
@@ -593,41 +691,6 @@
         'placeholder' => 'Semua Bidang',
         'value'       => request('bidang'),
         'options'     => $bidangOptions,
-    ])
-    @include('admin.data-karyawan._filter-dropdown', [
-        'name'        => 'jabatan',
-        'title'       => 'Filter JABATAN',
-        'placeholder' => 'Semua Jabatan',
-        'value'       => request('jabatan'),
-        'options'     => $jabatanOptions,
-    ])
-    @include('admin.data-karyawan._filter-dropdown', [
-        'name'        => 'grade',
-        'title'       => 'Filter GRADE',
-        'placeholder' => 'Semua Grade',
-        'value'       => request('grade'),
-        'options'     => $gradeOptions,
-    ])
-    @include('admin.data-karyawan._filter-dropdown', [
-        'name'        => 'gender',
-        'title'       => 'Filter GENDER',
-        'placeholder' => 'Semua Gender',
-        'value'       => request('gender'),
-        'options'     => $genderOptions,
-    ])
-    @include('admin.data-karyawan._filter-dropdown', [
-        'name'        => 'status_kawin',
-        'title'       => 'Filter STATUS KAWIN',
-        'placeholder' => 'Semua Status Kawin',
-        'value'       => request('status_kawin'),
-        'options'     => $statusOptions,
-    ])
-    @include('admin.data-karyawan._filter-dropdown', [
-        'name'        => 'unit',
-        'title'       => 'Filter UNIT',
-        'placeholder' => 'Semua Unit',
-        'value'       => request('unit'),
-        'options'     => $unitOptions,
     ])
     <select name="per_page" title="Baris per halaman">
         @foreach ($perPageOptions as $option)
@@ -638,7 +701,7 @@
     <button type="submit" class="btn-corp btn-corp-primary" style="padding:0.5rem 1rem; font-size:0.8rem;">
         <i class="fas fa-filter me-1"></i> Terapkan
     </button>
-    @if (request()->anyFilled(['q', 'bidang', 'jabatan', 'grade', 'gender', 'status_kawin', 'unit']))
+    @if (request()->anyFilled(['q', 'bidang']))
         <a href="{{ route('admin.karyawan_data.index') }}" class="btn-corp btn-corp-soft" style="padding:0.5rem 1rem; font-size:0.8rem;">
             <i class="fas fa-rotate-left"></i>
         </a>
@@ -646,15 +709,20 @@
     <span class="filter-count">{{ $karyawans->total() }} karyawan</span>
 </form>
 
-{{-- ============ TABEL 24 KOLOM ============ --}}
+{{-- ============ TABEL 4 KOLOM (NID, NAMA, BIDANG, AKSI) ============
+     Kolom detail (jabatan, jenjang, grade, tanggal kepegawaian, telp,
+     email, dll.) TIDAK ditampilkan di daftar — datanya tetap lengkap
+     dan bisa dilihat lewat tombol Detail / form Edit. Filtering &
+     pencarian tetap bekerja karena dilakukan server-side (lihat
+     Karyawan::search() / Karyawan::filtered()).
+     ===== --}}
 <div class="dk-table-wrap">
     <table class="dk-table">
         <thead>
             <tr>
-                @php $labels = array_values(\App\Models\Karyawan::COLUMNS_LABELS); @endphp
-                @foreach ($labels as $i => $label)
-                    <th class="{{ $i === 0 ? 'sticky-1' : ($i === 1 ? 'sticky-2' : '') }}">{{ $label }}</th>
-                @endforeach
+                <th class="sticky-1">NID</th>
+                <th class="sticky-2">Nama</th>
+                <th>Bidang</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -664,27 +732,6 @@
                 <td class="sticky-1"><span class="dk-nid">{{ $karyawan->nid }}</span></td>
                 <td class="sticky-2"><span class="dk-nama">{{ $karyawan->nama }}</span></td>
                 <td>{{ $karyawan->bidangLabel() ?? '—' }}</td>
-                <td>{{ $karyawan->jabatanLabel() ?? '—' }}</td>
-                <td>{{ $karyawan->jenjang_jabatan ?? '—' }}</td>
-                <td>{{ $karyawan->grade ?? '—' }}</td>
-                <td>{{ $karyawan->institusi ?? '—' }}</td>
-                <td>{{ $karyawan->organik ?? '—' }}</td>
-                <td>{{ $karyawan->formatTanggal('tanggal_lahir') ?? '—' }}</td>
-                <td>{{ $karyawan->formatTanggal('service_date') ?? '—' }}</td>
-                <td>{{ $karyawan->formatTanggal('hire_date') ?? '—' }}</td>
-                <td>{{ $karyawan->formatTanggal('retire_date') ?? '—' }}</td>
-                <td>{{ $karyawan->formatTanggal('grade_date') ?? '—' }}</td>
-                <td>{{ $karyawan->formatTanggal('tgl_jab') ?? '—' }}</td>
-                <td>{{ $karyawan->telp ?? '—' }}</td>
-                <td>{{ $karyawan->hp ?? '—' }}</td>
-                <td>{{ $karyawan->email ?? '—' }}</td>
-                <td>{{ $karyawan->fte !== null ? number_format($karyawan->fte, 2) : '—' }}</td>
-                <td>{{ $karyawan->mims ?? '—' }}</td>
-                <td>{{ $karyawan->tempat_lahir ?? '—' }}</td>
-                <td>{{ $karyawan->agama ?? '—' }}</td>
-                <td>{{ $karyawan->genderLabel() ?? '—' }}</td>
-                <td>{{ $karyawan->statusKawinLabel() ?? '—' }}</td>
-                <td>{{ $karyawan->unit ?? '—' }}</td>
                 <td>
                     <div class="dk-actions">
                         <a href="{{ route('admin.karyawan_data.show', $karyawan) }}" class="dk-action-btn detail" title="Lihat Detail">
@@ -705,12 +752,42 @@
                                 </button>
                             </form>
                         @endcan
+
+                        {{-- Pendaftaran akun — hanya untuk pemegang permission
+                             pengelolaan akun (users.create). Tanpa permission,
+                             status akun pun tidak ditampilkan di sini. --}}
+                        @can('users.create')
+                            @php
+                                $akun = $akunByKaryawanId[$karyawan->id] ?? null;
+                                $emailKaryawan = trim((string) $karyawan->email);
+                                $emailValid = filter_var($emailKaryawan, FILTER_VALIDATE_EMAIL) !== false;
+                            @endphp
+                            @if ($akun !== null)
+                                <span class="dk-account-badge" title="Data karyawan ini sudah terhubung dengan akun pengguna">
+                                    <i class="fas fa-circle-check"></i> Sudah Terdaftar
+                                </span>
+                            @elseif (! $emailValid)
+                                <button type="button" class="dk-action-btn account" disabled
+                                        title="Email karyawan kosong atau tidak valid. Perbaiki lewat tombol Edit sebelum mendaftarkan akun.">
+                                    <i class="fas fa-user-plus"></i>
+                                </button>
+                                <span class="dk-account-note">Email tidak valid</span>
+                            @else
+                                <form method="POST" action="{{ route('admin.karyawan_data.register-account', $karyawan) }}"
+                                      onsubmit="return confirm('Daftarkan akun pengguna untuk {{ addslashes($karyawan->nama) }} (NID {{ $karyawan->nid }}) dengan email {{ addslashes($emailKaryawan) }}? Kata sandi sementara akan dibuat otomatis dan hanya ditampilkan sekali.')">
+                                    @csrf
+                                    <button type="submit" class="dk-action-btn account" title="Daftarkan Akun" aria-label="Daftarkan Akun">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+                                </form>
+                            @endif
+                        @endcan
                     </div>
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="26">
+                <td colspan="4">
                     <div class="dk-empty-state">
                         <div class="empty-icon"><i class="fas fa-users"></i></div>
                         <h6>Belum ada data karyawan</h6>
@@ -835,11 +912,11 @@
     })();
 
     // ===== CUSTOM DROPDOWN FILTER (Data Karyawan) =====
-    // Semua filter di bar (bidang, jabatan, grade, gender, status kawin,
-    // unit) memakai daftar opsi scrollable (max-height 220px) — pengganti
-    // <select> bawaan browser. Tiap value tetap dikirim lewat
-    // <input type="hidden" name="..."> sehingga filter, ekspor & pagination
-    // menerima parameter yang sama seperti sebelumnya.
+    // Pencarian bar ini hanya memuat BIDANG (lihat INDEX_FILTERS) — opsi
+    // memakai daftar scrollable (max-height 220px) pengganti <select>
+    // bawaan browser. Value tetap dikirim lewat <input type="hidden"
+    // name="..."> sehingga filter, ekspor & pagination menerima parameter
+    // yang sama.
     (function () {
         var bar = document.querySelector('.dk-filter-bar');
         if (!bar || bar.dataset.dkDdBound === '1') return;
@@ -967,33 +1044,46 @@
                 if (!api.menu.hidden && !api.wrap.contains(e.target)) closeDropdown(api);
             });
         });
+    })();
 
-        // ===== Filter JABATAN mengikuti BIDANG master yang sedang dipilih =====
-        // (nilai teks lama tetap tampil agar data belum terpetakan bisa dicari.)
-        var bidang  = registry['bidang'];
-        var jabatan = registry['jabatan'];
+    // Salin kata sandi sementara (kartu sekali tampil setelah akun dibuat).
+    (function () {
+        var copyBtn = document.getElementById('dkCopyTempPassword');
+        var passwordEl = document.getElementById('dkTempPassword');
 
-        if (bidang && jabatan) {
-            var syncJabatanFilter = function () {
-                var value = bidang.hidden.value;
-                var bidangId = /^#[0-9]+$/.test(value) ? value.slice(1) : null;
+        if (!copyBtn || !passwordEl) return;
 
-                jabatan.options.forEach(function (opt) {
-                    var bid = opt.dataset.bidang;
-                    if (!bid) return;              // placeholder & nilai teks lama selalu tampil
-                    opt.hidden = bidangId !== null && bid !== bidangId;
-                });
+        copyBtn.addEventListener('click', function () {
+            var password = passwordEl.textContent.trim();
 
-                // Pilihan yang tersaring oleh bidang terpilih → "Semua Jabatan".
-                var selected = jabatan.options.filter(function (o) {
-                    return o.classList.contains('is-selected');
-                })[0];
-                if (selected && selected.hidden) jabatan.setValue(jabatan.placeholder);
-            };
+            function markCopied() {
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Tersalin';
+            }
 
-            bidang.hidden.addEventListener('change', syncJabatanFilter);
-            syncJabatanFilter();
-        }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(password).then(markCopied, function () {});
+
+                return;
+            }
+
+            // Fallback browser lama / konteks non-secure.
+            var area = document.createElement('textarea');
+            area.value = password;
+            area.setAttribute('readonly', 'readonly');
+            area.style.position = 'fixed';
+            area.style.opacity = '0';
+            document.body.appendChild(area);
+            area.select();
+
+            try {
+                document.execCommand('copy');
+                markCopied();
+            } catch (e) {
+                // Diamkan — admin tetap bisa menyalin manual.
+            }
+
+            document.body.removeChild(area);
+        });
     })();
 </script>
 @endsection

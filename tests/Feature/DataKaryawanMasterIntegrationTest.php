@@ -291,23 +291,38 @@ class DataKaryawanMasterIntegrationTest extends TestCase
        3. FILTER, PENCARIAN, TAMPILAN
        ========================================================= */
 
-    public function test_filter_uses_master_relation_and_legacy_text(): void
+    public function test_filter_uses_master_relation_legacy_text_and_subtree(): void
     {
         $operasi = $this->bidang('BIDANG OPERASI');
         $logistik = $this->bidang('BIDANG LOGISTIK');
+        $produkA = $this->bidang('SUB BIDANG PRODUKSI A', $operasi);
 
         Karyawan::factory()->create(['nid' => '801', 'bidang_id' => $operasi->id, 'bidang' => 'BIDANG OPERASI']);
+        // Data lama: kolom bidang_id masih NULL, hanya teks yang sama
+        // dengan master (kondisi dominan di database produksi).
         Karyawan::factory()->create(['nid' => '802', 'bidang' => 'BIDANG OPERASI']);
+        Karyawan::factory()->create(['nid' => '804', 'bidang' => 'SUB BIDANG PRODUKSI A']);
+        Karyawan::factory()->create(['nid' => '805', 'bidang_id' => $produkA->id, 'bidang' => 'SUB BIDANG PRODUKSI A']);
         Karyawan::factory()->create(['nid' => '803', 'bidang' => 'TEKS LAMA KHUSUS']);
 
-        // Filter master: hanya baris yang benar-benar terhubung ke id tersebut.
+        // Pilih bidang induk → node + seluruh sub-bidang, lewat kolom id
+        // MAUPUN teks lama (sebelumnya baris id-NULL tidak pernah muncul).
         $response = $this->actingAs($this->user())
             ->get(route('admin.karyawan_data.index', ['bidang' => '#'.$operasi->id]));
 
         $response->assertOk();
-        $this->assertSame(['801'], $response->viewData('karyawans')->pluck('nid')->all());
+        $this->assertSame(
+            ['801', '802', '804', '805'],
+            $response->viewData('karyawans')->pluck('nid')->sort()->values()->all()
+        );
 
-        // Filter teks lama tetap menemukan data yang belum terpetakan.
+        // Bidang lain tidak menarik baris di luar sub-pohonnya.
+        $response = $this->actingAs($this->user())
+            ->get(route('admin.karyawan_data.index', ['bidang' => '#'.$logistik->id]));
+
+        $this->assertSame([], $response->viewData('karyawans')->pluck('nid')->all());
+
+        // Filter teks lama tetap menemukan data yang belum ada di master.
         $response = $this->actingAs($this->user())
             ->get(route('admin.karyawan_data.index', ['bidang' => 'TEKS LAMA KHUSUS']));
 
@@ -320,7 +335,26 @@ class DataKaryawanMasterIntegrationTest extends TestCase
             ->assertSee('TEKS LAMA KHUSUS');
     }
 
-    public function test_filter_by_master_jabatan_only_returns_that_master(): void
+    public function test_bidang_dropdown_uses_indentation_without_dash_prefix(): void
+    {
+        $operasi = $this->bidang('BIDANG OPERASI');
+        $this->bidang('SUB BIDANG PRODUKSI A', $operasi);
+
+        $html = $this->actingAs($this->user())
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->getContent();
+
+        $nbsp = "\u{00A0}";
+
+        // Level 1 ditandai indentasi NBSP — bukan strip "—" yang terbaca
+        // seperti sebagian nama bidang.
+        $this->assertStringContainsString($nbsp.$nbsp.$nbsp.'SUB BIDANG PRODUKSI A', $html);
+        $this->assertStringNotContainsString('— SUB BIDANG PRODUKSI A', $html);
+        $this->assertStringNotContainsString('— BIDANG OPERASI', $html);
+    }
+
+    public function test_removed_jabatan_filter_is_ignored(): void
     {
         $bidang = $this->bidang('BIDANG OPERASI');
         $jabatan = $this->jabatan('MANAGER OPERASI', $bidang);
@@ -328,10 +362,17 @@ class DataKaryawanMasterIntegrationTest extends TestCase
         Karyawan::factory()->create(['nid' => '811', 'jabatan_id' => $jabatan->id, 'jabatan' => 'MANAGER OPERASI']);
         Karyawan::factory()->create(['nid' => '812', 'jabatan' => 'MANAGER OPERASI']);
 
+        // Filter JABATAN sudah dihapus dari halaman daftar (pencarian
+        // hanya NID/NAMA + BIDANG) — parameter lama diabaikan backend.
         $response = $this->actingAs($this->user())
             ->get(route('admin.karyawan_data.index', ['jabatan' => '#'.$jabatan->id]));
 
-        $this->assertSame(['811'], $response->viewData('karyawans')->pluck('nid')->all());
+        $response->assertOk();
+        $this->assertSame(
+            ['811', '812'],
+            $response->viewData('karyawans')->pluck('nid')->sort()->values()->all(),
+            'Parameter jabatan tidak boleh lagi menyaring baris.'
+        );
     }
 
     public function test_legacy_rows_stay_searchable_and_visible(): void
@@ -347,7 +388,25 @@ class DataKaryawanMasterIntegrationTest extends TestCase
             ->get(route('admin.karyawan_data.index', ['q' => 'Data Lama']))
             ->assertOk()
             ->assertSee('BIDANG TIDAK DIKENAL')
-            ->assertSee('JABATAN TIDAK DIKENAL');
+            // Dropdown JABATAN sudah dihapus dari halaman daftar (pencarian
+            // kini hanya NID/NAMA + BIDANG)…
+            ->assertDontSee('name="jabatan"');
+
+        // …namun teks lamanya tetap tampil utuh di halaman Detail, dan
+        // parameter `jabatan` (filter yang sudah dihapus) kini DIABAIKAN —
+        // baris lain tetap ikut tampil.
+        Karyawan::factory()->create([
+            'nid' => '9002',
+            'nama' => 'Data Baru',
+            'bidang' => 'BIDANG LAIN',
+            'jabatan' => 'JABATAN LAIN',
+        ]);
+
+        $this->actingAs($this->user())
+            ->get(route('admin.karyawan_data.index', ['jabatan' => 'JABATAN TIDAK DIKENAL']))
+            ->assertOk()
+            ->assertSee('Data Lama')
+            ->assertSee('Data Baru');
 
         $this->actingAs($this->user())
             ->get(route('admin.karyawan_data.show', $karyawan))

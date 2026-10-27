@@ -534,6 +534,16 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             Route::delete('data-karyawan/{karyawan}', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'destroy'])->whereNumber('karyawan')->name('karyawan_data.destroy');
         });
 
+        // Daftarkan akun pengguna dari satu baris Data Karyawan.
+        // Dijaga permission pengelolaan akun yang sudah ada (users.create)
+        // — bukan sekadar tombol yang disembunyikan; akses langsung ke
+        // endpoint tetap divalidasi backend (middleware + Gate).
+        Route::middleware('permission:users.create')->group(function () {
+            Route::post('data-karyawan/{karyawan}/register-account', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'registerAccount'])
+                ->whereNumber('karyawan')
+                ->name('karyawan_data.register-account');
+        });
+
         // ==========================================================
         // MASTER BIDANG & MASTER JABATAN (master data hierarki) —
         // bersebelahan dengan Data Karyawan di sidebar. Gate per aksi

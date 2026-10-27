@@ -6,13 +6,16 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * DATA KARYAWAN — master data ±300 karyawan UP Indramayu.
  *
- * Sengaja TIDAK berelasi dengan `users` (akun login): tabel ini adalah
- * data profil karyawan (HR), bukan akun autentikasi. Kolom mengikuti 24
- * kolom spesifikasi; label dipertahankan lewat COLUMNS_LABELS.
+ * BUKAN tabel akun autentikasi: akun login tetap di `users`. Tautan ke
+ * akun pengguna memakai tabel yang sudah ada (`employee_profiles`,
+ * relasi `employeeProfile()`), sehingga tidak ada kolom/relasi baru di
+ * `users`. Kolom mengikuti 24 kolom spesifikasi; label dipertahankan
+ * lewat COLUMNS_LABELS.
  *
  * Kolom yang wajib diisi hanya `nid` (unik) dan `nama` — sisanya
  * nullable agar impor data historis yang lengkap sebagian tidak gagal.
@@ -135,13 +138,16 @@ class Karyawan extends Model
     }
 
     /**
-     * Terapkan filter dropdown (BIDANG, JABATAN, GRADE, dst.).
+     * Terapkan filter dropdown — saat ini hanya BIDANG (lihat
+     * DataKaryawanController::INDEX_FILTERS). Dua bentuk nilai:
      *
-     * BIDANG & JABATAN menerima dua bentuk nilai:
-     * - `#<id>`  → filter lewat relasi master (khusus data yang sudah
-     *   terpetakan; nama jabatan bisa sama di beberapa bidang).
-     * - teks     → filter lewat kolom teks lama (data yang belum
-     *   terpetakan tetap bisa dicari).
+     * - `#<id>`  → filter lewat relasi master: baris yang sudah
+     *   terhubung ke id TERSEBUT ATAU baris teks lama yang namanya
+     *   sama dengan node master (termasuk seluruh anak/cucunya).
+     *   Sebelumnya hanya `bidang_id = id` — padahal hampir semua
+     *   data lama kolom id-nya NULL sehingga filter selalu kosong.
+     * - teks     → filter persis lewat kolom teks lama (data yang
+     *   belum terpetakan tetap bisa dicari).
      */
     public function scopeFiltered(Builder $query, array $filters): Builder
     {
@@ -155,7 +161,12 @@ class Karyawan extends Model
             $idColumn = $this->masterIdColumn($column);
 
             if ($idColumn !== null && str_starts_with($value, self::FILTER_ID_PREFIX)) {
-                $query->where($idColumn, (int) substr($value, strlen(self::FILTER_ID_PREFIX)));
+                $this->applyMasterFilter(
+                    $query,
+                    $column,
+                    $idColumn,
+                    (int) substr($value, strlen(self::FILTER_ID_PREFIX)),
+                );
 
                 continue;
             }
@@ -176,6 +187,99 @@ class Karyawan extends Model
         };
     }
 
+    /**
+     * Filter satu node master beserta seluruh keturunannya.
+     *
+     * Baris cocok bila salah satu dari keduanya terpenuhi:
+     * 1. Kolom FK (`bidang_id`/`jabatan_id`) menunjuk salah satu id
+     *    di dalam sub-pohon (data yang sudah terpetakan).
+     * 2. Kolom teks lama (`bidang`/`jabatan`) sama persis dengan nama
+     *    node di sub-pohon (data yang belum dipetakan — kolom id NULL,
+     *    isi tabel karyawans saat ini didominasi kondisi ini).
+     *
+     * Sub-pohon dihitung lewat `parent_id` (bidangs & jabatans sama),
+     * di-cache per-request agar tidak query berulang.
+     */
+    private function applyMasterFilter(
+        Builder $query,
+        string $column,
+        string $idColumn,
+        int $id,
+    ): Builder {
+        [$ids, $names] = static::masterSubtree($column, $id);
+
+        return $query->where(function (Builder $q) use ($column, $idColumn, $ids, $names): void {
+            $q->whereIn($idColumn, $ids);
+
+            if ($names !== []) {
+                $q->orWhereIn($column, $names);
+            }
+        });
+    }
+
+    /**
+     * [ids, nama] sub-pohon master: node $id + seluruh keturunannya.
+     * Id tidak dikenal → tetap dipakai (tanpa nama) supaya filter tetap
+     * berperilaku seperti `whereIn($idColumn, [$id])`.
+     *
+     * @return array{0: array<int, int>, 1: array<int, string>}
+     */
+    private static function masterSubtree(string $column, int $id): array
+    {
+        /** @var array<string, array{0: array<int, int>, 1: array<int, string>}> */
+        static $cache = [];
+
+        if (isset($cache[$column][$id])) {
+            return $cache[$column][$id];
+        }
+
+        /** @var class-string<Bidang|Jabatan> $modelClass */
+        $modelClass = $column === 'bidang' ? Bidang::class : Jabatan::class;
+
+        $rows = $modelClass::query()->get(['id', 'nama', 'parent_id']);
+        $root = $rows->firstWhere('id', $id);
+
+        if ($root === null) {
+            return $cache[$column][$id] = [[$id], []];
+        }
+
+        $children = $rows->groupBy(fn ($row): string => (string) $row->parent_id);
+
+        $ids = [];
+        $names = [];
+        $queue = [$id];
+        $seen = [];
+
+        while ($queue !== []) {
+            $current = (int) array_shift($queue);
+
+            if (isset($seen[$current])) {
+                continue;
+            }
+            $seen[$current] = true;
+
+            $node = $rows->firstWhere('id', $current);
+
+            if ($node === null) {
+                continue;
+            }
+
+            $ids[] = (int) $node->id;
+
+            $name = trim((string) $node->nama);
+
+            if ($name !== '') {
+                $names[$name] = $name;
+            }
+
+            foreach ($children->get((string) $current, collect()) as $child) {
+                $queue[] = (int) $child->id;
+            }
+        }
+
+        return $cache[$column][$id] = [$ids, array_values($names)];
+    }
+
     /* =========================================================
        RELASI MASTER (opsional — boleh NULL untuk data lama)
        ========================================================= */
@@ -193,6 +297,22 @@ class Karyawan extends Model
     public function jabatanMaster(): BelongsTo
     {
         return $this->belongsTo(Jabatan::class, 'jabatan_id');
+    }
+
+    /* =========================================================
+       AKUN PENGGUNA (relasi yang sudah ada: employee_profiles)
+       ------------------------------------------------------------
+       Satu data karyawan paling banyak terhubung ke satu akun
+       pengguna. Penghubungnya adalah tabel `employee_profiles`
+       (karyawan_id = soft-link ke master HR, user_id = akun login),
+       bukan relasi baru di tabel `users` — struktur lama tidak
+       diubah.
+       ========================================================= */
+
+    /** Profil kepegawaian yang menautkan data ini ke akun pengguna. */
+    public function employeeProfile(): HasOne
+    {
+        return $this->hasOne(EmployeeProfile::class, 'karyawan_id');
     }
 
     /** Daftar nilai unik per kolom filter (untuk mengisi dropdown). */

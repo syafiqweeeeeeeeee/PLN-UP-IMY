@@ -43,8 +43,13 @@ class UserController extends Controller
      *
      * Senior Manager & Manager Bidang membawahi seluruh sub-bidang,
      * jadi sub_department dikosongkan agar scope memakai level bidang.
+     *
+     * Public static: dipakai juga oleh pendaftaran akun dari Data
+     * Karyawan (DataKaryawanController) supaya aturan penurunan
+     * bidang/sub-bidang/level TIDAK diduplikasi dan selalu konsisten
+     * dengan form Pengguna.
      */
-    private static function applyOrgScoping(array &$data, string $roleName): void
+    public static function applyOrgScoping(array &$data, string $roleName): void
     {
         $bidangId  = self::normalizeIdInput($data['bidang_id'] ?? null);
         $jabatanId = self::normalizeIdInput($data['jabatan_id'] ?? null);
