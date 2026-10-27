@@ -105,23 +105,54 @@ class MenuBuilderService
 
     public function treeFor(?User $user): array
     {
-        $menus = Menu::query()
-            ->active()
-            ->ordered()
-            ->with(['page', 'children' => fn ($q) => $q->active()->ordered()->with('page')])
-            ->whereNull('parent_id')
-            ->get();
+        // Cache per-user TTL 5 menit — navbar publik sama untuk setiap pengunjung
+        // & akun; dibuang otomatis saat menu diubah (flushTree()).
+        $id = $user?->id ?? 0;
 
-        // Database belum di-seed → struktur default (navbar lama).
-        if ($menus->isEmpty()) {
-            return $this->defaultTree();
+        return \Illuminate\Support\Facades\Cache::remember(
+            "menu.tree.u{$id}",
+            now()->addMinutes(5),
+            function () use ($user) {
+                $menus = Menu::query()
+                    ->active()
+                    ->ordered()
+                    ->with(['page', 'children' => fn ($q) => $q->active()->ordered()->with('page')])
+                    ->whereNull('parent_id')
+                    ->get();
+
+                // Database belum di-seed → struktur default (navbar lama).
+                if ($menus->isEmpty()) {
+                    return $this->defaultTree();
+                }
+
+                return $menus
+                    ->map(fn (Menu $menu) => $this->mapMenu($menu, $user))
+                    ->filter()
+                    ->values()
+                    ->all();
+            }
+        );
+    }
+
+    /** Buang cache tree menu — dipanggil saat CRUD Menu di panel admin. */
+    public static function flushTree(): void
+    {
+        \Illuminate\Support\Facades\Cache::forget('menu.tree.u0');
+
+        foreach (\App\Models\User::query()->pluck('id') as $userId) {
+            \Illuminate\Support\Facades\Cache::forget("menu.tree.u{$userId}");
         }
+    }
 
-        return $menus
-            ->map(fn (Menu $menu) => $this->mapMenu($menu, $user))
-            ->filter()
-            ->values()
-            ->all();
+    /**
+     * Memoizasi `Schema::hasTable('menus')` — nilai ini TIDAK berubah
+     * sepanjang hidup proses, jadi tidak perlu query informs tiap request.
+     */
+    public static function menusTableExists(): bool
+    {
+        static $exists = null;
+
+        return $exists ??= \Illuminate\Support\Facades\Schema::hasTable('menus');
     }
 
     /* =========================================================

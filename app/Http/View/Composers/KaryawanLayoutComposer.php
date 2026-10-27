@@ -18,6 +18,12 @@ class KaryawanLayoutComposer
 {
     public function compose(View $view): void
     {
+        // RESPONS PARTIAL di level router (header X-Partial — layout karyawan):
+        // branch partial tidak merender topbar, jadi data header tidak diperlukan.
+        if (request()?->header('X-Partial') === '1') {
+            return;
+        }
+
         $user = auth()->user();
 
         $view->with('karyawanUser', [

@@ -1,3 +1,32 @@
+<!-- ============================================================
+     RESPONS PARTIAL untuk CLIENT-SIDE ROUTER (public/js/router.js)
+     ------------------------------------------------------------
+     Router admin mengirim header `X-Partial: 1` + XMLHttpRequest saat
+     prefetch hover / klik navigasi. Bila header itu ada, server hanya
+     membalas dokumen MINIMAL (judul + style halaman + isi konten) —
+     sidebar, topbar, skrip & CSS CDN tidak di-render ulang sehingga
+     perpindahan halaman admin jauh lebih ringan. Komposer Topbar
+     juga di-skip atas dasar header yang sama (TopbarComposer).
+
+     Script halaman (@push('scripts')) ikut di dalam <main> agar
+     router.js mengeksekusi ulang setelah swap (reexecuteScripts).
+     ============================================================ -->
+@if(request()->header('X-Partial') === '1' && request()->header('X-Requested-With') === 'XMLHttpRequest')
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="utf-8">
+        <title>@yield('title', 'Admin — E-PPID PLN')</title>
+        @stack('styles')
+    </head>
+    <body data-partial-content=".admin-content">
+        <main class="admin-content" data-pt-animate>
+            @yield('content')
+            @stack('scripts')
+        </main>
+    </body>
+</html>
+@else
 <!DOCTYPE html>
 <html lang="id">
     <head>
@@ -153,6 +182,15 @@
             html.theme-dark .news-delete-title-preview { background: var(--panel); border-color: var(--line); color: var(--ink-heading); }
         </style>
 
+        <style>
+            .url-preview, .link-tooltip, #instantclick-bar, .status-bar, [id^="status-bar"], .preview-url {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+        </style>
+ 
         @stack('styles')
     </head>
     <body data-partial-content=".admin-content">
@@ -198,7 +236,6 @@
                 @can('dashboard.view')
                 <a href="{{ route('admin.dashboard') }}"
                    class="sidebar-link @if(request()->routeIs('admin.dashboard')) active @endif"
-                   data-no-router>
                     <span class="link-icon"><i class="fas fa-th-large"></i></span>
                     <span class="link-text">Dashboard</span>
                 </a>
@@ -207,7 +244,6 @@
                 @can('news.view')
                 <a href="{{ route('admin.news.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.news.*')) active @endif"
-                   data-no-router>
                     <span class="link-icon"><i class="fas fa-newspaper"></i></span>
                     <span class="link-text">Berita</span>
                 </a>
@@ -216,7 +252,6 @@
                 @can('tamu.view')
                 <a href="{{ route('admin.tamu.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.tamu.*')) active @endif"
-                   data-no-router>
                     <span class="link-icon"><i class="fas fa-id-card"></i></span>
                     <span class="link-text">Data Tamu</span>
                 </a>
@@ -225,7 +260,6 @@
                 @can('announcements.view')
                 <a href="{{ route('admin.announcements.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.announcements.*')) active @endif"
-                   data-no-router>
                     <span class="link-icon"><i class="fas fa-bullhorn"></i></span>
                     {{-- Label kosmetik saja — kontrol akses tetap dari permission. --}}
                     <span class="link-text">{{ $authUserSidebar?->isDepartmentAdmin() ? 'Pengumuman Internal' : 'Pengumuman' }}</span>
@@ -262,7 +296,6 @@
                 @can('users.view')
                 <a href="{{ route('admin.users.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.users.*') && !($isOwnProfilePage ?? false)) active @endif"
-                   data-no-router>
                     <span class="link-icon"><i class="fas fa-users"></i></span>
                     <span class="link-text">Pengguna</span>
                 </a>
@@ -271,7 +304,6 @@
                 @can('galleries.view')
                 <a href="{{ route('admin.galeri.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.galeri.*')) active @endif"
-                   data-no-router>
                     <span class="link-icon"><i class="fas fa-images"></i></span>
                     <span class="link-text">Galeri</span>
                 </a>
@@ -280,7 +312,6 @@
                 @can('work_links.view')
                 <a href="{{ route('admin.work-links.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.work-links.*')) active @endif"
-                   data-no-router>
                     <span class="link-icon"><i class="fas fa-link"></i></span>
                     <span class="link-text">Link Kerja</span>
                 </a>
@@ -292,7 +323,6 @@
                 @can('karyawan_data.view')
                 <a href="{{ route('admin.karyawan_data.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.karyawan_data.*')) active @endif"
-                   data-no-router>
                     <span class="link-icon"><i class="fas fa-users-gear"></i></span>
                     <span class="link-text">Data Karyawan</span>
                 </a>
@@ -307,7 +337,6 @@
                 @can('master_bidang.view')
                 <a href="{{ route('admin.master_bidang.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.master_bidang.*')) active @endif"
-                   data-no-router>
                     <span class="link-icon"><i class="fas fa-sitemap"></i></span>
                     <span class="link-text">Master Bidang</span>
                 </a>
@@ -316,7 +345,6 @@
                 @can('master_jabatan.view')
                 <a href="{{ route('admin.master_jabatan.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.master_jabatan.*')) active @endif"
-                   data-no-router>
                     <span class="link-icon"><i class="fas fa-user-tie"></i></span>
                     <span class="link-text">Master Jabatan</span>
                 </a>
@@ -328,7 +356,6 @@
 
                     <a href="{{ route('admin.activity-logs.index') }}"
                        class="sidebar-link @if(request()->routeIs('admin.activity-logs.*')) active @endif"
-                       data-no-router>
                         <span class="link-icon"><i class="fas fa-clipboard-list"></i></span>
                         <span class="link-text">Log Aktivitas</span>
                     </a>
@@ -340,7 +367,6 @@
 
                     <a href="{{ route('admin.roles.index') }}"
                        class="sidebar-link @if(request()->routeIs('admin.roles.*')) active @endif"
-                       data-no-router>
                         <span class="link-icon"><i class="fas fa-user-tag"></i></span>
                         <span class="link-text">Role</span>
                     </a>
@@ -742,7 +768,7 @@
                 var POLL_URL  = '{{ route('admin.notifications.poll') }}';
                 var SEEN_URL  = '{{ route('admin.notifications.seen') }}';
                 var CSRF      = document.querySelector('meta[name="csrf-token"]')?.content || '';
-                var INTERVAL  = 30000; // 30 detik
+                var INTERVAL  = 60000; // 60 detik
                 var lastKnownTamuId = {{ (int) ($topbarNotifs['latest_tamu_id'] ?? 0) }};
                 var seenTamuId      = {{ (int) ($topbarNotifs['seen_tamu_id'] ?? 0) }};
                 var timer = null;
@@ -1020,3 +1046,4 @@
         @stack('scripts')
     </body>
 </html>
+@endif

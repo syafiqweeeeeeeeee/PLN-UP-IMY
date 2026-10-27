@@ -20,6 +20,13 @@ class TopbarComposer
 
     public function compose(View $view): void
     {
+        // RESPONS PARTIAL di level router (header X-Partial: 1 — public/js/router.js):
+        // branch partial di layouts/admin tidak merender topbar, jadi query
+        // notifikasi & profil tidak perlu dijalankan di sini.
+        if (request()?->header('X-Partial') === '1') {
+            return;
+        }
+
         $user = auth()->user();
 
         $topbarUser = [

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -48,13 +49,38 @@ class NotificationService
     {
         $items = [];
 
-        $latestTamu = DB::table('tamus')->orderByDesc('id')->first();
-        $latestTamuId = $latestTamu?->id;
+        // BAGIAN GLOBAL (sama untuk semua admin) — snapshot di-cache TTL 10 detik.
+        // Dulu: setiap render halaman admin (plus poll tiap 30 detik per akun)
+        // menjalankan 6 query baru di sini.
+        // PENTING: id tamu terakhir TIDAK di-cache saat tabel masih kosong
+        // (Cache::remember dengan 0 akan menyembunyikan tamu baru hingga
+        // TTL kadaluarsa) — hanya nilai > 0 yang disimpan.
+        $latestTamuId = (int) (Cache::get('admin.notifs.latest-tamu-id') ?? (int) DB::table('tamus')->max('id'));
+        if ($latestTamuId > 0) {
+            Cache::put('admin.notifs.latest-tamu-id', $latestTamuId, now()->addSeconds(10));
+        }
+
+        $draftNews          = (int) Cache::remember('admin.notifs.draft-news', now()->addSeconds(10), fn () =>
+            (int) DB::table('news')->where('is_published', false)->count()
+        );
+        $draftAnnouncements = (int) Cache::remember('admin.notifs.draft-announcements', now()->addSeconds(10), fn () =>
+            (int) DB::table('announcements')->where('is_published', false)->count()
+        );
+        $draftPages         = (int) Cache::remember('admin.notifs.draft-pages', now()->addSeconds(10), fn () =>
+            (int) DB::table('pages')->where('status', 'draft')->count()
+        );
+
         $seenTamuId = $this->seenTamuId();
 
         $newTamuCount = 0;
-        if ($latestTamuId !== null) {
-            $newTamuCount = max(0, (int) DB::table('tamus')->where('id', '>', $seenTamuId)->count());
+        if ($latestTamuId > 0) {
+            // PER USER — key menyertakan id akun + seen terkini; kadaluarsa
+            // 10 detik (poll UI sendiri berjalan tiap 30 detik).
+            $newTamuCount = (int) Cache::remember(
+                "admin.notifs.count.u{$this->userId()}.seen{$seenTamuId}",
+                now()->addSeconds(10),
+                fn () => max(0, DB::table('tamus')->where('id', '>', $seenTamuId)->count())
+            );
 
             if ($newTamuCount > 0) {
                 $items[] = [
@@ -70,10 +96,7 @@ class NotificationService
         }
 
         // Draft gabungan berita + pengumuman + halaman (pasif, tidak dihitung unread)
-        $draftNews          = DB::table('news')->where('is_published', false)->count();
-        $draftAnnouncements = DB::table('announcements')->where('is_published', false)->count();
-        $draftPages         = DB::table('pages')->where('status', 'draft')->count();
-        $totalDraft         = $draftNews + $draftAnnouncements + $draftPages;
+        $totalDraft = $draftNews + $draftAnnouncements + $draftPages;
 
         if ($totalDraft > 0) {
             $items[] = [
@@ -89,9 +112,15 @@ class NotificationService
         return [
             'items'          => $items,
             'unread_count'   => $newTamuCount,
-            'latest_tamu_id' => $latestTamuId !== null ? (int) $latestTamuId : null,
+            'latest_tamu_id' => $latestTamuId > 0 ? $latestTamuId : null,
             'seen_tamu_id'   => $seenTamuId,
         ];
+    }
+
+    /** Id akun login (0 bila tamu) — untuk key cache per user. */
+    private function userId(): int
+    {
+        return (int) (auth()->id() ?? 0);
     }
 
     /**
@@ -110,5 +139,9 @@ class NotificationService
         $latestId = (int) DB::table('tamus')->max('id');
 
         $user->forceFill([self::SEEN_COLUMN => $latestId])->save();
+
+        // Cache hitung unread akun ini tidak valid setelah seen — key
+        // menyertakan nilai seen terkini, jadi cache lama dibiarkan kadaluarsa
+        // sendiri dan key baru akan dihitung ulang pada poll berikutnya.
     }
 }

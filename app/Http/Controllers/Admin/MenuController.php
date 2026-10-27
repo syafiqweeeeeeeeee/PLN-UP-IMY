@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\ActivityLogger;
+use App\Services\MenuBuilderService;
 use App\Models\Menu;
 use App\Models\Page;
 use Illuminate\Http\RedirectResponse;
@@ -68,6 +69,8 @@ class MenuController extends Controller
 
         $menu = Menu::create($validated);
 
+        MenuBuilderService::flushTree(); // navbar publik ikut refresh
+
         ActivityLogger::log('create', null, [
             'module'      => 'menu',
             'description' => "menambah menu \"{$menu->label}\"",
@@ -104,6 +107,8 @@ class MenuController extends Controller
 
         $menu->update($validated);
 
+        MenuBuilderService::flushTree(); // navbar publik ikut refresh
+
         ActivityLogger::log('update', null, [
             'module'      => 'menu',
             'description' => "mengubah menu \"{$menu->label}\"",
@@ -118,6 +123,8 @@ class MenuController extends Controller
     {
         $label = $menu->label;
         $menu->delete(); // submenunya ikut terhapus oleh FK cascade
+
+        MenuBuilderService::flushTree(); // navbar publik ikut refresh
 
         ActivityLogger::log('delete', null, [
             'module'      => 'menu',
@@ -165,6 +172,8 @@ class MenuController extends Controller
                 $menu->update(['sort_order' => $b]);
                 $neighbor->update(['sort_order' => $a]);
             });
+
+            MenuBuilderService::flushTree(); // urutan navbar ikut refresh
         }
 
         return redirect()->route('admin.menus.index');

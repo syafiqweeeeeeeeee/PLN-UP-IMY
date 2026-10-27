@@ -1,3 +1,43 @@
+<!-- ============================================================
+     RESPONS PARTIAL untuk CLIENT-SIDE ROUTER (public/js/router.js)
+     ------------------------------------------------------------
+     Router mengirim header `X-Partial: 1` + XMLHttpRequest saat
+     prefetch hover / klik navigasi. Bila header itu ada, server hanya
+     membalas dokumen MINIMAL (judul + style halaman + isi konten) —
+     topbar portal, footer & script CDN tidak di-render ulang sehingga
+     perpindahan halaman portal instan tanpa reload penuh.
+     Komposer KaryawanLayoutComposer juga di-skip (header sama).
+     Script halaman (@push('scripts')) ikut di dalam <main> agar
+     router.js mengeksekusi ulang setelah swap.
+     ============================================================ -->
+@if(request()->header('X-Partial') === '1' && request()->header('X-Requested-With') === 'XMLHttpRequest')
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <title>@yield('title', 'Portal Karyawan — PLN Nusantara Power')</title>
+    @stack('styles')
+</head>
+<body class="kry-body" data-partial-content=".kry-main">
+    <main class="kry-main" data-pt-animate>
+        <div class="kry-container">
+            @if (session('success'))
+                <div class="kry-alert kry-alert-success" role="status">
+                    <i class="fas fa-circle-check"></i> {{ session('success') }}
+                </div>
+            @endif
+            @if (session('warning'))
+                <div class="kry-alert kry-alert-warning" role="status">
+                    <i class="fas fa-circle-info"></i> {{ session('warning') }}
+                </div>
+            @endif
+            @yield('content')
+            @stack('scripts')
+        </div>
+    </main>
+</body>
+</html>
+@else
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -415,7 +455,7 @@
     @endpush
     @stack('styles')
 </head>
-<body class="kry-body">
+<body class="kry-body" data-partial-content=".kry-main">
 
     {{-- ================= TOPBAR ================= --}}
     <header class="kry-topbar">
@@ -645,6 +685,11 @@
         })();
     </script>
 
+    {{-- Client-side router: pindah halaman tanpa reload layout,
+         cache memori per halaman, micro-transition 60ms --}}
+    <script src="{{ asset('js/router.js') }}" defer></script>
+
     @stack('scripts')
 </body>
 </html>
+@endif

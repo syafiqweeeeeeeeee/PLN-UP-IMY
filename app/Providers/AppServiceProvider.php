@@ -48,7 +48,9 @@ class AppServiceProvider extends ServiceProvider
         // Menu ber-target halaman CMS disaring sesuai visibilitas per role;
         // fallback ke struktur default bila DB belum di-seed.
         View::composer('layouts.navbar', function ($view) {
-            $menuTree = Schema::hasTable('menus')
+            // hasTable dimemoisasi + tree di-cache (TTL 5 menit, flush saat
+            // menu diubah) — dulu: query informs + tree baru tiap request.
+            $menuTree = MenuBuilderService::menusTableExists()
                 ? app(MenuBuilderService::class)->treeFor(auth()->user())
                 : [];
 

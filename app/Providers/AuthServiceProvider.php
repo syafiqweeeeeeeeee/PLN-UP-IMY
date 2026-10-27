@@ -124,6 +124,11 @@ class AuthServiceProvider extends ServiceProvider
     public static function flushPermissionGateCache(): void
     {
         app('cache')->store()->forget('permission.gates.registered');
+
+        // Snapshot RBAC per-request (User::permissionState) ikut dibersihkan
+        // agar perubahan pivot (role permission / direct permission) tetap
+        // berlaku real-time dalam request yang sama.
+        \App\Models\User::flushPermissionStateCache();
     }
 
     protected function registerPermissionGate(string $permission): void

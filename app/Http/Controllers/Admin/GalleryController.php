@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\ActivityLogger;
 use App\Models\Gallery;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class GalleryController extends Controller
@@ -38,16 +39,24 @@ class GalleryController extends Controller
             ->withQueryString();
 
         // Nama pembuat tiap foto (dari file log aktivitas aksi 'create' modul 'galeri')
-        $galleryIds = $galleries->getCollection()->pluck('id')->all();
-        $creatorNames = collect(ActivityLogger::readEntries())
-            ->filter(fn (array $e) => ($e['event_type'] ?? '') === 'create'
-                && ($e['module'] ?? '') === 'galeri'
-                && ($e['payload']['subject_type'] ?? null) === Gallery::class
-                && in_array($e['payload']['subject_id'] ?? null, $galleryIds))
-            ->groupBy(fn (array $e) => $e['payload']['subject_id'])
-            // readEntries urut terbaru → terlama; balik agar pembuat
+        // Peta creator Smithsonian subject_id → nama di-cache TTL 10 menit:
+        // readEntries membaca SELURUH file log JSONL (bisa ribuan baris) dan
+        // dulu di-hit setiap kali halaman galeri dibuka. Cache dibuang saat
+        // galeri baru tersimpan agar nama pembuatnya langsung muncul.
+        $creatorMap = Cache::remember('admin.galeri.creator-names', now()->addMinutes(10), function () {
+            // readEntries urut terbaru → terlama; reverse agar pembuat
             // ter pertama yang tercatat (kakak lama dulu, seperti ORDER BY id).
-            ->map(fn ($logs) => $logs->reverse()->first()['actor_name'] ?? 'Sistem')
+            return collect(ActivityLogger::readEntries())
+                ->filter(fn (array $e) => ($e['event_type'] ?? '') === 'create'
+                    && ($e['module'] ?? '') === 'galeri'
+                    && ($e['payload']['subject_type'] ?? null) === Gallery::class)
+                ->groupBy(fn (array $e) => $e['payload']['subject_id'])
+                ->map(fn ($logs) => $logs->reverse()->first()['actor_name'] ?? 'Sistem')
+                ->all();
+        });
+
+        $creatorNames = collect($creatorMap)
+            ->filter(fn ($name, $id) => in_array((int) $id, $galleries->getCollection()->pluck('id')->all(), true))
             ->all();
 
         return view('admin.galeri.index', compact('galleries', 'creatorNames'));
@@ -87,6 +96,8 @@ class GalleryController extends Controller
         $validated['file_gambar'] = $request->file('file_gambar')->store('galeri', 'public');
 
         $gallery = Gallery::create($validated);
+
+        Cache::forget('admin.galeri.creator-names'); // peta pembuat ikut segar
 
         ActivityLogger::log('create', null, [
             'module'      => 'galeri',
@@ -202,7 +213,9 @@ class GalleryController extends Controller
             Storage::disk('public')->delete($gallery->file_gambar);
         }
 
-        $gallery->delete();        return redirect()->route('admin.galeri.index')
+        $gallery->delete();
+
+        return redirect()->route('admin.galeri.index')
             ->with('success', 'Foto galeri berhasil dihapus.');
     }
 }

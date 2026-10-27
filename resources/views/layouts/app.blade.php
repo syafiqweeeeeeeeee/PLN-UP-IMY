@@ -673,6 +673,14 @@
             }
         </style>
 
+        <style>
+            .url-preview, .link-tooltip, #instantclick-bar, .status-bar, [id^="status-bar"], .preview-url {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+        </style>
         @stack('styles')
     </head>
     <body>

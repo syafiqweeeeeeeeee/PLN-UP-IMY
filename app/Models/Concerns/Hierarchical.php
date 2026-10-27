@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Hierarki parent-child lewat self-FK `parent_id` — dipakai model
@@ -23,6 +24,58 @@ use Illuminate\Support\Collection;
  */
 trait Hierarchical
 {
+    /* =========================================================
+       CACHE DAFTAR MASTER — bidang & jabatan jarang berubah
+       ------------------------------------------------------------
+       Dropdown/filter yang dipakai di banyak halaman (Data Karyawan,
+       form Pengguna, form master, Tamu) tidak meng-query tabel master
+       pada setiap render halaman. Cache TTL 10 menit dan DIBUANG
+       otomatis setiap kali baris master dibuat/diubah/dihapus
+       (bootHierarchical di bawah), sehingga data selalu segar.
+       ========================================================= */
+
+    /** Prefix key cache master untuk model ini. */
+    protected static function masterCacheKey(string $suffix): string
+    {
+        return 'master.' . static::class . '.' . $suffix;
+    }
+
+    /** Daftar rata urut nama, hasil cache — dropdown pilihan. */
+    public static function cachedList(): Collection
+    {
+        return Cache::remember(
+            static::masterCacheKey('list'),
+            now()->addMinutes(10),
+            fn () => static::query()->orderBy('nama')->get()
+        );
+    }
+
+    /** Daftar berjenjang (root → child), hasil cache — filter & form. */
+    public static function cachedTreeOrdered(): Collection
+    {
+        return Cache::remember(
+            static::masterCacheKey('tree'),
+            now()->addMinutes(10),
+            fn () => static::treeOrdered()
+        );
+    }
+
+    /** Buang cache master model ini — dipanggil oleh event CRUD. */
+    public static function flushMasterCache(): void
+    {
+        Cache::forget(static::masterCacheKey('tree'));
+        Cache::forget(static::masterCacheKey('list'));
+        // Key cache turunan yang bergantung daftar master ini.
+        Cache::forget('master.user-form-bidangs');
+    }
+
+    /** Auto-flush cache master saat baris dibuat/diubah/dihapus. */
+    public static function bootHierarchical(): void
+    {
+        static::saved(fn () => static::flushMasterCache());
+        static::deleted(fn () => static::flushMasterCache());
+    }
+
     /** Parent sesama tabel (NULL = tingkat teratas). */
     public function parent(): BelongsTo
     {

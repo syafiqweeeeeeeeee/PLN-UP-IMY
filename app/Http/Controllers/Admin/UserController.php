@@ -120,12 +120,18 @@ class UserController extends Controller
         // bisa dipakai sebagai unit kerja akun — baris unit induk (mis.
         // "PLTU INDRAMAYU") tanpa kode tidak boleh menghasilkan akun tanpa
         // pengikatan bidang (yang berarti melihat seluruh data).
-        return Bidang::query()
-            ->with('parent')
-            ->orderBy('nama')
-            ->get(['id', 'nama', 'parent_id', 'department_code', 'sub_department_code'])
-            ->filter(fn (Bidang $bidang) => $bidang->hasLegacyScope())
-            ->values();
+        // Hasil filter jarang berubah — cache dengan key khusus;
+        // invalidasi memakai FlushHook trait Bidang (CRUD Bidang).
+        return \Illuminate\Support\Facades\Cache::remember(
+            'master.user-form-bidangs',
+            now()->addMinutes(10),
+            fn () => Bidang::query()
+                ->with('parent')
+                ->orderBy('nama')
+                ->get(['id', 'nama', 'parent_id', 'department_code', 'sub_department_code'])
+                ->filter(fn (Bidang $bidang) => $bidang->hasLegacyScope())
+                ->values()
+        );
     }
 
     /**
@@ -136,7 +142,8 @@ class UserController extends Controller
      */
     private static function masterJabatansForForm(): \Illuminate\Support\Collection
     {
-        return Jabatan::query()->orderBy('nama')->get(['id', 'nama', 'bidang_id']);
+        // Daftar master jarang berubah — cache (invalidated saat CRUD Jabatan).
+        return Jabatan::cachedList();
     }
 
     /**

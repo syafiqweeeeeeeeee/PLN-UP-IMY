@@ -346,8 +346,11 @@ class DataKaryawanController extends Controller
     private function masterOptions(): array
     {
         return [
-            'bidangRows' => Bidang::treeOrdered(),
-            'jabatans' => Jabatan::query()->orderBy('nama')->get(['id', 'nama', 'bidang_id']),
+            // Daftar master jarang berubah — baca dari cache (TTL 10 menit,
+            // dibuang otomatis saat CRUD master). Sebelumnya setiap render
+            // halaman menjalankan 2 query master di sini.
+            'bidangRows' => Bidang::cachedTreeOrdered(),
+            'jabatans' => Jabatan::cachedList(),
             'legacyBidang' => $this->legacyValues('bidang', Bidang::query()->pluck('nama')->all()),
             'legacyJabatan' => $this->legacyValues('jabatan', Jabatan::query()->pluck('nama')->all()),
         ];

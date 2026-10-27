@@ -570,7 +570,9 @@ class User extends Authenticatable
             return false;
         }
 
-        return $this->permissions()->where('permissions.name', $permission)->exists();
+        // Memoized snapshot (lihat permissionState()) — dulu setiap panggilan
+        // menjalankan query `exists()` baru.
+        return in_array($permission, $this->permissionState()['direct'], true);
     }
 
     /**
@@ -597,6 +599,9 @@ class User extends Authenticatable
     public function syncPermissions(array $permissionIds): void
     {
         $this->permissions()->sync(array_map('intval', $permissionIds));
+
+        // Snapshot RBAC akun ini tidak valid setelah pivot diubah.
+        static::flushPermissionStateCache($this->id);
     }
 
     /**
@@ -617,10 +622,25 @@ class User extends Authenticatable
      * Nama-nama seluruh role aktif milik user ini (pivot role_user
      * + kolom fallback role_id), sudah unik & tanpa nilai kosong.
      *
+     * MEMOISASI PER-REQUEST — pivot roles + kolom role_id dibaca SEKALI
+     * per akun per request, lalu dipakai ulang oleh middleware role/access
+     * (isDepartmentAdmin/isKaryawan/isSuperAdmin) yang memanggil ini berulang
+     * kali tiap request.
+     *
      * @return Collection<int, string>
      */
     public function roleNames(): Collection
     {
+        if (! $this->exists) {
+            return collect();
+        }
+
+        $key = (string) $this->getKey();
+
+        if (isset(static::$rbacSnapshotCache[$key]['roleNames']) && static::$rbacSnapshotCache[$key]['roleNames'] !== null) {
+            return static::$rbacSnapshotCache[$key]['roleNames'];
+        }
+
         $names = $this->relationLoaded('roles')
             ? $this->roles->pluck('name')
             : $this->roles()->pluck('roles.name');
@@ -633,7 +653,82 @@ class User extends Authenticatable
             }
         }
 
-        return $names->filter()->unique()->values();
+        $names = $names->filter()->unique()->values();
+
+        static::$rbacSnapshotCache[$key]['roleNames'] = $names;
+
+        return $names;
+    }
+
+    /** Cache snapshot RBAC per-request — key id akun, di-reset tiap request (FPM). */
+    protected static array $rbacSnapshotCache = [];
+
+    /**
+     * Snapshot RBAC akun — DIRECT permission (pivot user_has_permissions)
+     * + permission seluruh role aktif (pivot role_permission) dibaca
+     * SEKALI per akun per request, lalu dipakai ulang oleh seluruh
+     * pengecekan hak akses (middleware permission:, Gate @can, cek menu
+     * & tombol). Sebelum optimasi: setiap cek menjalankan query baru → puluhan
+     * query DB per render halaman.
+     *
+     * @return array{direct: array<int,string>, rolePerms: array<int,string>, rolesEmpty: bool}
+     */
+    private function permissionState(): array
+    {
+        $key = (string) $this->getKey();
+
+        if (isset(static::$rbacSnapshotCache[$key]['permissions'])) {
+            return static::$rbacSnapshotCache[$key]['permissions'];
+        }
+
+        // 1) DIRECT PERMISSION — satu query untuk seluruh cek direct.
+        $direct = $this->permissions()->pluck('permissions.name')->values()->all();
+
+        // 2) ROLE — relasi roles + permissions dimuat SEKALI: sebelumnya
+        //    setiap hasPermission() memanggil roles()->with('permissions')
+        //    baru, dan setiap Role::hasPermission() menjalankan exists().
+        $roles = $this->relationLoaded('roles') && ! $this->roles->contains(fn ($role) => ! $role->relationLoaded('permissions'))
+            ? $this->roles
+            : $this->roles()->with('permissions')->get();
+
+        $rolePerms = [];
+
+        foreach ($roles as $role) {
+            if ($role->isInactive()) {
+                continue;
+            }
+
+            foreach ($role->permissions as $permission) {
+                $rolePerms[$permission->name] = true;
+            }
+        }
+
+        $state = [
+            'direct'     => $direct,
+            'rolePerms'  => array_keys($rolePerms),
+            'rolesEmpty' => $roles->isEmpty(),
+        ];
+
+        static::$rbacSnapshotCache[$key]['permissions'] = $state;
+
+        return $state;
+    }
+
+    /**
+     * Bersihkan cache snapshot RBAC — dipanggil setiap kali pivot
+     * permission/role akun berubah dalam request yang sama agar semantik
+     * real-time RBAC tetap berlaku (disingkat menyertai
+     * flushPermissionGateCache() di AuthServiceProvider).
+     */
+    public static function flushPermissionStateCache(?int $userId = null): void
+    {
+        if ($userId !== null) {
+            unset(static::$rbacSnapshotCache[(string) $userId]);
+
+            return;
+        }
+
+        static::$rbacSnapshotCache = [];
     }
 
     /**
@@ -772,99 +867,42 @@ class User extends Authenticatable
             return false;
         }
 
-        // 0) ALIAS AKSI EKSTRA — aksi non-CRUD yang aktif (news.publish,
-        //    tamu.checkout, dst.) menyatu dengan hak akses matriks induknya
-        //    (lihat Permission::ACTION_ALIASES). Barisnya tidak lagi ada di
-        //    tabel permissions, jadi seluruh pengecekan dilakukan menggunakan
-        //    permission induknya agar @can & middleware permission: tetap
-        //    berjalan tanpa error 403.
-        $base = Permission::resolveAlias($permission);
+        // Snapshot RBAC per-request: direct permission + permission role aktif
+        // dibaca SEKALI per akun per request (lihat permissionState) — dulu
+        // setiap cek memicu query baru (middleware permission:, Gate @can,
+        // cek sidebar/menu → puluhan query per render halaman).
+        $name  = Permission::resolveAlias($permission);
+        $state = $this->permissionState();
 
-        if ($base !== $permission) {
-            // Aksi ekstra = kemampuan aksi induk: ALLOW jika user punya
-            // permission induk (direct maupun role). Baris permission
-            // legacy yang masih tersimpan (jika ada) juga tetap dihormati.
-            if ($this->hasDirectPermission($permission) || $this->hasDirectPermission($base)) {
-                return true;
-            }
-
-            if ($this->roleHasPermissionName($permission)) {
-                return true;
-            }
-
-            return $this->hasPermission($base);
+        // 0) ALIAS AKSI EKSTRA (news.publish, tamu.checkout, ...) — menyatu
+        //    dengan hak akses induknya (Permission::ACTION_ALIASES). Baris
+        //    permission legacy yang masih tersimpan juga tetap dihormati.
+        if ($name !== $permission
+            && (in_array($permission, $state['direct'], true)
+                || in_array($permission, $state['rolePerms'], true))) {
+            return true;
         }
 
         // 1) DIRECT PERMISSION — hak ekstra per akun (form Pengguna),
         //    SEMANTIK SPATIE: direct permission HANYA MENAMBAH (union).
-        //    Ia tidak pernah memblokir/meng-override role, sehingga setiap
-        //    perubahan centang di Kelola Role langsung berlaku ke SELURUH
-        //    akun pemegang role tanpa harus edit akun satu per satu.
-        if ($this->hasDirectPermission($permission)) {
+        if (in_array($name, $state['direct'], true)) {
             return true;
         }
 
-        // 2) BASELINE ROLE — permission yang melekat pada role aktif,
-        //    dibaca DINAMIS dari pivot role_permission setiap pengecekan
-        //    (bukan disalin saat akun dibuat), sehingga edit Role selalu
-        //    ter-propagasi real-time ke seluruh akun pemegangnya.
-        $roles = $this->relationLoaded('roles')
-            ? $this->roles
-            : $this->roles()->with('permissions')->get();
-
-        foreach ($roles as $role) {
-            if ($role->isInactive()) {
-                continue;
-            }
-
-            if ($role->hasPermission($permission)) {
-                return true;
-            }
+        // 2) BASELINE ROLE — permission role aktif, dibaca dinamis dari
+        //    pivot role_permission (snapshot per-request).
+        if (in_array($name, $state['rolePerms'], true)) {
+            return true;
         }
 
         // Fallback kompatibilitas: akun lama yang dibuat lewat UI hanya punya
         // kolom users.role_id tanpa baris pivot role_user.
-        if ($roles->isEmpty() && $this->role_id) {
+        if ($state['rolesEmpty'] && $this->role_id) {
             $role = $this->relationLoaded('role') ? $this->role : $this->role()->first();
 
             return $role !== null
                 && ! $role->isInactive()
-                && $role->hasPermission($permission);
-        }
-
-        return false;
-    }
-
-    /**
-     * Apakah salah satu role AKTIF milik akun memiliki permission bername
-     * tertentu (baris pivot Role Has Permissions). Dipakai jalur alias aksi
-     * ekstra untuk menghormati baris legacy yang masih tersimpan.
-     */
-    private function roleHasPermissionName(string $permission): bool
-    {
-        if (! $this->exists) {
-            return false;
-        }
-
-        $roles = $this->relationLoaded('roles')
-            ? $this->roles
-            : $this->roles()->with('permissions')->get();
-
-        foreach ($roles as $role) {
-            if ($role->isInactive()) {
-                continue;
-            }
-
-            if ($role->permissions->contains('name', $permission)) {
-                return true;
-            }
-        }
-
-        // Fallback akun legacy via kolom users.role_id.
-        if ($roles->isEmpty() && $this->role_id) {
-            $role = $this->relationLoaded('role') ? $this->role : $this->role()->first();
-
-            return $role !== null && ! $role->isInactive() && $role->hasPermission($permission);
+                && $role->hasPermission($name);
         }
 
         return false;

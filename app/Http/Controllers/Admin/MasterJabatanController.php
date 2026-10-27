@@ -53,8 +53,8 @@ class MasterJabatanController extends Controller
     {
         return view('admin.master.jabatan.form', [
             'jabatan' => null,
-            'bidangs' => Bidang::orderBy('nama')->get(),
-            'parents' => Jabatan::treeOrdered(),
+            'bidangs' => Bidang::cachedList(),
+            'parents' => Jabatan::cachedTreeOrdered(),
         ]);
     }
 
@@ -79,13 +79,13 @@ class MasterJabatanController extends Controller
         // Opsi parent: kecualikan diri sendiri + seluruh keturunan
         // (pencegah siklus di sisi tampilan; server tetap validasi ulang).
         $excluded = array_merge([(int) $jabatan->id], $jabatan->descendantIds());
-        $parents = Jabatan::treeOrdered()
+        $parents = Jabatan::cachedTreeOrdered()
             ->reject(fn (array $row) => in_array((int) $row['node']->id, $excluded, true))
             ->values();
 
         return view('admin.master.jabatan.form', [
             'jabatan' => $jabatan,
-            'bidangs' => Bidang::orderBy('nama')->get(),
+            'bidangs' => Bidang::cachedList(),
             'parents' => $parents,
         ]);
     }

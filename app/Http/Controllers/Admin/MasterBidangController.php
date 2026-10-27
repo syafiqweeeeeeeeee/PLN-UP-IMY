@@ -56,7 +56,7 @@ class MasterBidangController extends Controller
     {
         return view('admin.master.bidang.form', [
             'bidang'  => null,
-            'parents' => Bidang::treeOrdered(),
+            'parents' => Bidang::cachedTreeOrdered(),
         ]);
     }
 
@@ -82,7 +82,7 @@ class MasterBidangController extends Controller
         // keturunan (supaya siklus tak bisa dipilih dari UI; server
         // tetap memvalidasi ulang).
         $excluded = array_merge([(int) $bidang->id], $bidang->descendantIds());
-        $parents = Bidang::treeOrdered()
+        $parents = Bidang::cachedTreeOrdered()
             ->reject(fn (array $row) => in_array((int) $row['node']->id, $excluded, true))
             ->values();
 
