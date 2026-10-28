@@ -177,7 +177,7 @@
 <div class="dt-card">
     <div class="dt-head">
         <div class="dt-head-left">
-            <span class="tamu-badge {{ $badgeKey }}">
+            <span class="tamu-badge {{ $badgeKey }}" id="detailBadge" data-tamu-id="{{ $tamu->id }}">
                 <i class="fas fa-circle"></i> {{ $badgeLabel }}
             </span>
             <div>
@@ -208,6 +208,16 @@
             @endif
         </div>
     </div>
+
+    {{-- ===== CHECK-IN / CHECK-OUT — kartu minimalis, satu tombol, real-time =====
+         Tombol Check-Out hanya tampil bila tamu SEDANG berkunjung
+         (sudah check-in, belum check-out) dan langsung memperbarui
+         jam Check-Out tanpa reload halaman. --}}
+    @include('admin.tamu._checkinout', [
+        'co'          => $tamu->kunjunganState(),
+        'checkinUrl'  => route('admin.tamu.checkin', $tamu),
+        'checkoutUrl' => route('admin.tamu.checkout', $tamu),
+    ])
 
     {{-- ===== TOMBOL AKSI — mengikuti status saat ini ===== --}}
     @can('tamu.checkout')

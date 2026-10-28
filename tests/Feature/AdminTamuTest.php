@@ -246,14 +246,24 @@ class AdminTamuTest extends TestCase
     public function test_checkout_sets_checked_out_at(): void
     {
         $admin = $this->adminWithPermissions(['tamu.view', 'tamu.checkout']);
-        $tamu = $this->createTamu();
+        $tamu = $this->createTamu(['status_verifikasi' => Tamu::STATUS_DISETUJUI]);
+
+        // Prasyarat alur: tamu tiba di front office -> check-in dulu,
+        // baru check-out boleh dilakukan.
+        $this->actingAs($admin)
+            ->patch(route('admin.tamu.checkin', $tamu))
+            ->assertRedirect(route('admin.tamu.index'))
+            ->assertSessionHas('success');
 
         $this->actingAs($admin)
             ->patch(route('admin.tamu.checkout', $tamu))
             ->assertRedirect(route('admin.tamu.index'))
             ->assertSessionHas('success');
 
-        $this->assertNotNull($tamu->fresh()->checked_out_at);
+        $fresh = $tamu->fresh();
+        $this->assertNotNull($fresh->checked_in_at);
+        $this->assertNotNull($fresh->checked_out_at);
+        $this->assertSame('Selesai', $fresh->kunjunganState()['label']);
     }
 
     public function test_checkout_is_idempotent_guarded(): void
@@ -445,7 +455,7 @@ class AdminTamuTest extends TestCase
         // Baris data juga hanya 5 sel (identitas, kontak, tujuan & dokumen
         // sudah pindah ke popup detail).
         $this->assertSame(1, preg_match('/<tbody>(.*?)<\/tbody>/s', $html, $body));
-        $this->assertSame(1, preg_match('/<tr>(.*?)<\/tr>/s', $body[1], $row));
+        $this->assertSame(1, preg_match('/<tr[^>]*>(.*?)<\/tr>/s', $body[1], $row));
         $this->assertSame(5, substr_count($row[1], '<td'));
 
         // Payload popup tetap memuat identitas + kontak (WA & email).

@@ -270,7 +270,12 @@ Route::middleware(['auth', 'karyawan.access'])->prefix('karyawan')->name('karyaw
         Route::put('/data-tamu/{tamu}', [\App\Http\Controllers\Karyawan\TamuController::class, 'update'])->name('tamu.update');
     });
     Route::middleware('permission:tamu.checkout')->group(function () {
-        Route::patch('/data-tamu/{tamu}/checkout', [\App\Http\Controllers\Karyawan\TamuController::class, 'checkout'])->name('tamu.checkout');
+        // Check-in front office (tamu tiba) — prasyarat check-out.
+        // Param {id} (bukan {tamu}) sengaja: TANPA route model binding,
+        // sehingga ID invalid diproses controller via Tamu::find($id)
+        // dan dibalas pesan ramah, bukan exception "No query results...".
+        Route::patch('/data-tamu/{id}/checkin', [\App\Http\Controllers\Karyawan\TamuController::class, 'checkin'])->name('tamu.checkin');
+        Route::patch('/data-tamu/{id}/checkout', [\App\Http\Controllers\Karyawan\TamuController::class, 'checkout'])->name('tamu.checkout');
         Route::post('/data-tamu/{tamu}/verifikasi', [\App\Http\Controllers\Karyawan\TamuController::class, 'verifikasi'])->name('tamu.verifikasi');
     });
     Route::middleware('permission:tamu.delete')->group(function () {
@@ -456,7 +461,14 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
                 Route::put('tamu/{tamu}', [\App\Http\Controllers\Admin\TamuController::class, 'update'])->name('tamu.update');
             });
             Route::middleware('permission:tamu.checkout')->group(function () {
-                Route::patch('tamu/{tamu}/checkout', [\App\Http\Controllers\Admin\TamuController::class, 'checkout'])->name('tamu.checkout');
+                // Check-in front office (tamu tiba) — prasyarat check-out,
+                // satu gerbang dgn check-out karena sama-sama keputusan satpam.
+                // Param {id} (bukan {tamu}) sengaja: TANPA route model
+                // binding, supaya ID invalid diproses controller lewat
+                // Tamu::find($id) + flash error, bukan exception
+                // "No query results for model [App\Models\Tamu] ...".
+                Route::patch('tamu/{id}/checkin', [\App\Http\Controllers\Admin\TamuController::class, 'checkin'])->name('tamu.checkin');
+                Route::patch('tamu/{id}/checkout', [\App\Http\Controllers\Admin\TamuController::class, 'checkout'])->name('tamu.checkout');
 
                 // Verifikasi kunjungan (setuju / tolak) — satu gate dengan
                 // check-out karena keduanya keputusan front office.

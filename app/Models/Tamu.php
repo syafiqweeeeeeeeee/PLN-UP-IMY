@@ -30,6 +30,19 @@ class Tamu extends Model
     /** Durasi kunjungan standar (jam) — rentang waktu yang diblokir tiap pengajuan. */
     public const DURASI_KUNJUNGAN_JAM = 3;
 
+    /*
+     * STATUS KUNJUNGAN (alur check-in / check-out) — DITURUNKAN dari
+     * timestamp `checked_in_at` / `checked_out_at`, bukan kolom baru,
+     * supaya tidak ada data status yang redundan / bisa tidak sinkron:
+     *
+     *   belum_checkin  kunjungan disetujui, tamu belum tiba
+     *   berkunjung     sudah check-in, belum check-out
+     *   selesai        sudah check-out
+     */
+    public const KUNJUNGAN_BELUM       = 'belum_checkin';
+    public const KUNJUNGAN_BERKUNJUNG  = 'berkunjung';
+    public const KUNJUNGAN_SELESAI     = 'selesai';
+
     /**
      * Pilihan jam mulai kunjungan (dropdown form).
      * Sesi pagi 08:00–11:30 & sesi siang 13:00–16:00;
@@ -289,6 +302,96 @@ class Tamu extends Model
         }
 
         return (int) round($this->checked_in_at->diffInMinutes($this->checked_out_at));
+    }
+
+    /* =========================================================
+       STATUS KUNJUNGAN — turunan dari check-in / check-out
+       ========================================================= */
+
+    /** Kunjungan sudah SELESAI (sudah check-out). */
+    public function isSelesai(): bool
+    {
+        return $this->checked_out_at !== null;
+    }
+
+    /** Sedang BERKUNJUNG: sudah check-in, belum check-out. */
+    public function isBerkunjung(): bool
+    {
+        return $this->checked_in_at !== null && $this->checked_out_at === null;
+    }
+
+    /** Boleh check-in: kunjungan disetujui & belum pernah check-in/check-out. */
+    public function canCheckin(): bool
+    {
+        return $this->status_verifikasi === self::STATUS_DISETUJUI
+            && $this->checked_in_at === null
+            && $this->checked_out_at === null;
+    }
+
+    /** Boleh check-out: SEDANG berkunjung (sudah check-in, belum check-out). */
+    public function canCheckout(): bool
+    {
+        return $this->checked_in_at !== null && $this->checked_out_at === null;
+    }
+
+    /**
+     * Snapshot state kunjungan — SATU sumber kebenaran untuk handler
+     * check-in/check-out (payload JSON), modal daftar & halaman detail,
+     * sehingga tampilan selalu sinkron dengan database.
+     *
+     * @return array{
+     *   status: string, label: string, badge: string, badge_label: string,
+     *   checkin: string|null, checkout: string|null,
+     *   durasi: int|null, durasi_label: string,
+     *   can_checkin: bool, can_checkout: bool, selesai: bool
+     * }
+     */
+    public function kunjunganState(): array
+    {
+        $selesai   = $this->isSelesai();
+        $berkunjung = $this->isBerkunjung();
+
+        [$badge, $badgeLabel] = match (true) {
+            $this->status_verifikasi === self::STATUS_DITOLAK  => ['ditolak', 'Dibatalkan'],
+            $selesai                                            => ['selesai', 'Selesai'],
+            $this->status_verifikasi === self::STATUS_DISETUJUI => ['disetujui', 'Disetujui'],
+            default                                             => ['menunggu', 'Menunggu'],
+        };
+
+        $status = match (true) {
+            $selesai   => self::KUNJUNGAN_SELESAI,
+            $berkunjung => self::KUNJUNGAN_BERKUNJUNG,
+            default     => self::KUNJUNGAN_BELUM,
+        };
+
+        $label = match (true) {
+            $selesai                                            => 'Selesai',
+            $berkunjung                                         => 'Berkunjung',
+            $this->status_verifikasi === self::STATUS_DISETUJUI => 'Belum Check-In',
+            default                                             => $this->verifikasi_label,
+        };
+
+        $durasi = $this->durasiKunjungan();
+
+        $durasiLabel = match (true) {
+            $durasi === null  => '—',
+            $durasi >= 60     => intdiv($durasi, 60) . ' jam ' . ($durasi % 60) . ' menit',
+            default           => $durasi . ' menit',
+        };
+
+        return [
+            'status'       => $status,
+            'label'        => $label,
+            'badge'        => $badge,
+            'badge_label'  => $badgeLabel,
+            'checkin'      => $this->checked_in_at?->format('d M Y, H:i'),
+            'checkout'     => $this->checked_out_at?->format('d M Y, H:i'),
+            'durasi'       => $durasi,
+            'durasi_label' => $durasiLabel,
+            'can_checkin'  => $this->canCheckin(),
+            'can_checkout' => $this->canCheckout(),
+            'selesai'      => $selesai,
+        ];
     }
 
     /* =========================================================

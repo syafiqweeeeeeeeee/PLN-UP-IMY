@@ -938,7 +938,7 @@
         </thead>
         <tbody>
             @forelse ($tamus as $tamu)
-            <tr>
+            <tr data-tamu-id="{{ $tamu->id }}">
                 <td class="tamu-waktu">
                     <div class="tamu-waktu-row">
                         <span class="tamu-no-badge">{{ ($tamus->currentPage() - 1) * $tamus->perPage() + $loop->iteration }}</span>
@@ -1172,16 +1172,32 @@
 </div>
 
 {{-- ============================================
-     MODAL: DETAIL TAMU
+     MODAL: DETAIL TAMU — parsial bersama (shell, diisi JS openDetailModal)
+     Portal karyawan tidak punya halaman detail -> detailUrl null.
      ============================================ --}}
-<div class="tamu-modal-overlay" id="detailModal" onclick="if(event.target===this) closeTamuModal('detailModal')">
-    <div class="tamu-modal modal-lg">
-        <div class="tamu-modal-header">
-            <h6><i class="fas fa-user" style="color: var(--kry-teal);"></i> Detail Tamu</h6>
-            <button type="button" class="tamu-modal-close" onclick="closeTamuModal('detailModal')"><i class="fas fa-xmark"></i></button>
-        </div>
-        <div class="tamu-modal-body" id="detailModalBody"><!-- diisi via JS --></div>
-    </div>
+@include('admin.tamu.detail-tamu-modal', [
+    // 'tamu' => NULL sengaja eksplisit: variabel $tamu dari @foreach
+    // tabel di atas BOCOR ke include ini — tanpa ini, modal langsung
+    // ter-render mode lengkap pakai tamu terakhir dalam loop.
+    'tamu'        => null,
+    'accentColor' => 'var(--kry-teal)',
+    'detailUrl'   => null,
+    'checkinUrl'  => route('karyawan.tamu.checkin', ':id'),
+    'checkoutUrl' => route('karyawan.tamu.checkout', ':id'),
+])
+
+{{-- ============================================
+     TEMPLATE: KARTU CHECK-IN / CHECK-OUT (minimalis)
+     Di-clone JS ke dalam modal Detail — hanya dirender sekali,
+     tombol Check-Out aktif saat tamu sedang berkunjung dan jam
+     Check-Out ter-update real-time tanpa reload.
+     ============================================ --}}
+<div id="coTemplate" hidden>
+    @include('admin.tamu._checkinout', [
+        'co'          => null,
+        'checkinUrl'  => route('karyawan.tamu.checkin', ':id'),
+        'checkoutUrl' => route('karyawan.tamu.checkout', ':id'),
+    ])
 </div>
 
 {{-- ============================================
@@ -1646,35 +1662,86 @@
             ['Jumlah Tamu', (t.jumlah || 1) + ' orang'],
             ['Tanggal Kunjungan', t.tanggal || '-'],
             ['Waktu Pendaftaran', t.daftar || '-'],
-            ['Check-In', t.checkin || '-'],
-            ['Check-Out', t.checkout || '-'],
-            ['Status', t.status || '-'],
+            // Baris Check-In / Check-Out / Status DIHAPUS — redundan,
+            // ketiganya pindah ke kartu dinamis di bawah (3 kondisi).
         ];
 
-        var html = '<div class="detail-list">';
-        rows.forEach(function (row) {
-            if (!row) return;
-            html += '<div class="detail-row"><dt>' + row[0] + '</dt><dd>' + String(row[1]).replace(/</g, '&lt;') + '</dd></div>';
-        });
-        html += '</div>';
+        var body = document.getElementById('detailModalBody');
+        var esc = function (s) { return String(s).replace(/</g, '&lt;'); };
 
-        if (t.keperluan) {
-            html += '<div style="margin-top:1rem;"><div style="font-size:0.72rem; font-weight:700; color:var(--kry-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">Maksud & Keperluan</div>'
-                 + '<div style="background:var(--kry-bg); border:1px solid var(--kry-line); border-radius:10px; padding:0.75rem 0.9rem; font-size:0.83rem; color:var(--kry-text);">'
-                 + String(t.keperluan).replace(/</g, '&lt;').replace(/\n/g, '<br>')
-                 + '</div></div>';
+        // 1) Daftar informasi utama (identitas + jadwal pendaftaran)
+        var info = body.querySelector('[data-role="info"]');
+        if (info) {
+            var infoHtml = '';
+            rows.forEach(function (row) {
+                if (!row) return;
+                infoHtml += '<div class="detail-row"><dt>' + esc(row[0]) + '</dt><dd>' + esc(String(row[1])) + '</dd></div>';
+            });
+            info.innerHTML = infoHtml;
         }
 
-        if (t.dokumen) {
-            var namaSafe = String(t.nama || '-').replace(/'/g, "\\'");
-            var dokumenUrl = String(t.dokumen).replace(/'/g, "\\'");
-            html += '<div style="margin-top:1rem;"><div style="font-size:0.72rem; font-weight:700; color:var(--kry-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">Dokumen Pendukung</div>'
-                 + '<a href="javascript:void(0)" onclick="openDokumenModal(\'' + dokumenUrl + '\', \'' + namaSafe + '\')" style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.8rem; font-weight:600; color:var(--kry-teal-dark); background:var(--kry-teal-soft); border:1px solid #bfe3ea; border-radius:9px; padding:0.5rem 0.9rem; text-decoration:none; cursor:pointer;">'
-                 + '<i class="fas fa-paperclip" style="color:#dc2626;"></i> Buka / Unduh Dokumen</a></div>';
+        // 2) Maksud & Keperluan
+        var keperluanWrap = body.querySelector('[data-role="keperluan-wrap"]');
+        if (keperluanWrap) {
+            keperluanWrap.hidden = !t.keperluan;
+            if (t.keperluan) {
+                body.querySelector('[data-role="keperluan"]').innerHTML =
+                    esc(String(t.keperluan)).replace(/\n/g, '<br>');
+            }
         }
 
-        document.getElementById('detailModalBody').innerHTML = html;
+        // 3) Dokumen Pendukung
+        var dokumenWrap = body.querySelector('[data-role="dokumen-wrap"]');
+        if (dokumenWrap) {
+            dokumenWrap.hidden = !t.dokumen;
+            if (t.dokumen) {
+                var namaSafe = String(t.nama || '-').replace(/'/g, "\\'");
+                var dokumenUrl = String(t.dokumen).replace(/'/g, "\\'");
+                body.querySelector('[data-role="dokumen"]').innerHTML =
+                    '<a href="javascript:void(0)" onclick="openDokumenModal(\'' + dokumenUrl + '\', \'' + namaSafe + '\')" class="dtm-doc-btn" title="Buka / unduh dokumen (tab baru)">'
+                    + '<i class="fas fa-paperclip"></i> Buka / Unduh Dokumen</a>';
+            }
+        }
+
+        // 4) Card dinamis (badge + jam + aksi check-in/out) ke slot bawah
+        appendCoCard(t);
         openTamuModal('detailModal');
+    }
+
+    /* ===== Kartu CHECK-IN / CHECK-OUT di modal Detail =====
+       Diklone dari #coTemplate lalu disinkronkan dengan state
+       kunjungan tamu (jam check-in/out, tombol aksi, badge). */
+    function appendCoCard(t) {
+        var tpl  = document.getElementById('coTemplate');
+        var card = tpl && tpl.querySelector('[data-co-card]');
+        if (!card || !t || !t.kunjungan || t.id == null || t.id === '') return;
+
+        var clone = card.cloneNode(true);
+        clone.hidden = false;
+        clone.dataset.id = String(t.id);
+        clone.dataset.checkinUrl  = String(card.dataset.checkinUrl  || '').replace(':id', t.id);
+        clone.dataset.checkoutUrl = String(card.dataset.checkoutUrl || '').replace(':id', t.id);
+
+        // URL pada tombol masih membawa placeholder ':id' dari template —
+        // ganti juga, supaya fetch tidak pernah mengirim '/data-tamu/:id/checkout'.
+        Array.prototype.forEach.call(clone.querySelectorAll('[data-url]'), function (el) {
+            el.dataset.url = String(el.dataset.url || '').replace(':id', t.id);
+        });
+
+        var msg = clone.querySelector('[data-role="msg"]');
+        if (msg) msg.hidden = true;
+
+        var slot = document.querySelector('[data-role="co-slot"]');
+        if (slot) {
+            slot.innerHTML = '';              // buang kartu tamu sebelumnya
+            slot.appendChild(clone);
+        } else {
+            document.getElementById('detailModalBody').appendChild(clone);
+        }
+
+        if (window.tamuCoSync) {
+            window.tamuCoSync(clone, Object.assign({}, t.kunjungan, { id: t.id }));
+        }
     }
 
     /* ===== Modal Hapus ===== */

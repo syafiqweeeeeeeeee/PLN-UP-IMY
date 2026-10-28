@@ -22,6 +22,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *              admin diarahkan ke WhatsApp tamu (wa.me click-to-chat)
  *              dengan pesan konfirmasi yang sudah terisi otomatis.
  * checkout() : tandai tamu selesai berkunjung (isi checked_out_at).
+ * checkin()  : tandai tamu tiba di front office (isi checked_in_at) —
+ *              prasyarat check-out agar status "Berkunjung" valid.
  * destroy()  : hapus data tamu beserta file dokumennya.
  * export()   : unduh CSV sesuai filter yang sedang aktif.
  * print()    : halaman cetak di bawah tabel (dua gaya: "excel" = look
@@ -138,8 +140,10 @@ class TamuController extends Controller
             'checkin'   => $t->checked_in_at?->format('d M Y, H:i'),
             'checkout'  => $t->checked_out_at?->format('d M Y, H:i'),
             'status'    => $t->verifikasi_label === 'Disetujui'
-                ? ($t->checked_out_at ? 'Selesai' : 'Berkunjung')
+                ? ($t->checked_out_at ? 'Selesai' : ($t->checked_in_at ? 'Berkunjung' : 'Belum Check-In'))
                 : $t->verifikasi_label,
+            // State kunjungan lengkap utk kartu check-in/out di modal detail
+            'kunjungan' => $t->kunjunganState(),
             'verifikasi' => $t->status_verifikasi,
             // Nilai mentah utk <input type="datetime-local"> pada modal edit
             'tanggal_input' => $t->tanggal_kunjungan?->format('Y-m-d\\TH:i'),
@@ -472,11 +476,74 @@ class TamuController extends Controller
        jadwal bentrok, pencatatan verified_by/verified_at & log aktivitas
        dipakai bersama oleh panel Admin dan Portal Karyawan. */
 
-    public function checkout(Tamu $tamu)
+    /*
+     * CHECK-IN / CHECK-OUT — alur front office (satpam).
+     *
+     * Keduanya satu gerbang permission (tamu.checkout) dan satu kartu UI
+     * minimalis (partial admin.tamu._checkinout): satu tombol, tanpa foto
+     * & tanpa halaman tambahan. Bila request datang dari AJAX (Accept:
+     * json) handler mengembalikan JSON berisi state terbaru sehingga jam
+     * check-in/out di layar langsung ter-update TANPA reload halaman.
+     */
+    public function checkin(Request $request, $id)
     {
+        // Lookup eksplisit (BUKAN route model binding) — ID yang tidak
+        // cocok dengan data mana pun tidak membuat exception/404, tapi
+        // kembali ke halaman sebelumnya dengan pesan error yang jelas.
+        $tamu = Tamu::find($id);
+
+        if (!$tamu) {
+            return $this->tamuTidakDitemukan($request);
+        }
+
+        if ($tamu->status_verifikasi !== Tamu::STATUS_DISETUJUI) {
+            return $this->kunjunganResult($request, $tamu, 'error',
+                "Kunjungan tamu \"{$tamu->nama}\" belum disetujui — check-in hanya untuk kunjungan yang sudah disetujui.");
+        }
+
         if ($tamu->checked_out_at !== null) {
-            return redirect()->route($this->indexRouteName())
-                ->with('error', "Tamu \"{$tamu->nama}\" sudah check-out sebelumnya.");
+            return $this->kunjunganResult($request, $tamu, 'error',
+                "Tamu \"{$tamu->nama}\" sudah check-out sebelumnya.");
+        }
+
+        if ($tamu->checked_in_at !== null) {
+            return $this->kunjunganResult($request, $tamu, 'error',
+                "Tamu \"{$tamu->nama}\" sudah check-in pada {$tamu->checked_in_at->format('d M Y, H:i')}.");
+        }
+
+        $tamu->update(['checked_in_at' => now()]);
+
+        ActivityLogger::log('checkin', null, [
+            'module'      => 'tamu',
+            'description' => "check-in tamu \"{$tamu->nama}\" (NIK {$tamu->nik})",
+            'subject'     => $tamu,
+        ]);
+
+        return $this->kunjunganResult($request, $tamu, 'success',
+            "Tamu \"{$tamu->nama}\" ditandai tiba (check-in).");
+    }
+
+    public function checkout(Request $request, $id)
+    {
+        // Lookup eksplisit — ID null/kosong/tidak valid -> pesan error,
+        // bukan "No query results for model [App\Models\Tamu] ...".
+        $tamu = Tamu::find($id);
+
+        if (!$tamu) {
+            return $this->tamuTidakDitemukan($request);
+        }
+
+        // Validasi anti dobel: data yang sudah check-out tidak bisa diklik ulang.
+        if ($tamu->checked_out_at !== null) {
+            return $this->kunjunganResult($request, $tamu, 'error',
+                "Tamu \"{$tamu->nama}\" sudah check-out sebelumnya.");
+        }
+
+        // Tombol check-out hanya untuk tamu yang SEDANG berkunjung
+        // (sudah check-in) — dijaga di server, bukan hanya di tampilan.
+        if ($tamu->checked_in_at === null) {
+            return $this->kunjunganResult($request, $tamu, 'error',
+                "Tamu \"{$tamu->nama}\" belum check-in — lakukan check-in dulu sebelum check-out.");
         }
 
         $tamu->update(['checked_out_at' => now()]);
@@ -487,8 +554,45 @@ class TamuController extends Controller
             'subject' => $tamu,
         ]);
 
-        return redirect()->route($this->indexRouteName())
-            ->with('success', "Tamu \"{$tamu->nama}\" ditandai selesai berkunjung.");
+        return $this->kunjunganResult($request, $tamu, 'success',
+            "Tamu \"{$tamu->nama}\" ditandai selesai berkunjung.");
+    }
+
+    /**
+     * Respons saat ID tidak ditemukan / tidak valid.
+     *
+     * Tidak pernah melempar 404/500: request AJAX (kartu check-in/out)
+     * menerima JSON { ok:false, message }, request biasa kembali ke
+     * halaman sebelumnya dengan flash 'error'.
+     */
+    protected function tamuTidakDitemukan(Request $request)
+    {
+        $pesan = 'Data tamu tidak ditemukan atau ID tidak valid.';
+
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => false, 'message' => $pesan], 404);
+        }
+
+        return redirect()->back()->with('error', $pesan);
+    }
+
+    /**
+     * Respons aksi check-in/check-out: JSON untuk AJAX (tampilan
+     * real-time tanpa reload) atau redirect + flash untuk form biasa.
+     *
+     * @param  string  $type  'success' | 'error'
+     */
+    protected function kunjunganResult(Request $request, Tamu $tamu, string $type, string $message)
+    {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok'      => $type === 'success',
+                'message' => $message,
+                'tamu'    => $tamu->kunjunganState() + ['id' => $tamu->id],
+            ], $type === 'success' ? 200 : 422);
+        }
+
+        return redirect()->route($this->indexRouteName())->with($type, $message);
     }
 
     public function destroy(Tamu $tamu)
