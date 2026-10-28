@@ -204,9 +204,9 @@
         });
     }
 
-    /* Sinkronkan active state sidebar/topbar tanpa reload layout —
-       menghapus kebingungan "menu tidak ikut berpindah" dan
-       re-render layout yang tidak perlu.
+    /* Sinkronkan active state sidebar / navbar publik / topbar portal
+       tanpa reload layout — menghapus kebingungan "menu tidak ikut
+       berpindah" dan re-render layout yang tidak perlu.
        v3 fix (highlight sidebar):
        - Dipanggil dengan URL TUJUAN setelah pushState — sebelumnya
          dipanggil dengan window.location.href LAMA, sehingga menu
@@ -214,15 +214,30 @@
        - Link dummy href="#" di-skip — sebelumnya match dengan
          pathname halaman mana pun sehingga menu dummy ikut menyala.
        - Prefix match: menu index (mis. /admin/news) tetap aktif
-         untuk sub-halamannya (mis. /admin/news/3/edit). */
+         untuk sub-halamannya (mis. /admin/news/3/edit).
+       v4 (SPA lintas layout):
+       - Cakupan ditambah: navbar situs publik (.navbar-pln) & topbar
+         portal karyawan (.kry-nav-link) — keduanya berada DI LUAR
+         container swap, jadi harus di-sync manual agar penanda menu
+         aktif ikut berpindah (sama seperti sidebar admin).
+       - Cocokkan hanya PATHNAMA (abaikan query string) — sebelumnya
+         ?page=2 pada paginasi membuat menu Berita/Galeri kehilangan
+         tanda aktif, padahal server menghitung menu aktif tanpa query. */
     function syncActiveState(url) {
         var target;
         try { target = new URL(url, window.location.href); }
         catch (e) { return; }
         var path   = target.pathname;
-        var search = target.search;
 
-        Array.prototype.forEach.call(document.querySelectorAll('.sidebar-nav a[href], .admin-sidebar a[href]'), function (a) {
+        var NAV_SELECTOR = [
+            '.sidebar-nav a[href]',                            // sidebar admin
+            '.admin-sidebar a[href]',                          // sidebar admin (varian)
+            '.navbar-pln a.nav-link[href]',                    // menu navbar situs publik
+            '.navbar-pln .dropdown-menu a.dropdown-item[href]',// submenu navbar publik
+            '.kry-nav-link[href]'                              // topbar portal karyawan
+        ].join(', ');
+
+        Array.prototype.forEach.call(document.querySelectorAll(NAV_SELECTOR), function (a) {
             var href = a.getAttribute('href');
             if (!href || href === '#') {           // menu dummy → jangan pernah menyala
                 a.classList.remove('active');
@@ -232,17 +247,25 @@
             try { linkUrl = new URL(a.href, window.location.href); }
             catch (e) { return; }
 
-            var isActive = linkUrl.pathname === path && linkUrl.search === search;
+            var isActive = linkUrl.pathname === path;
             if (!isActive && linkUrl.search === '') {
                 isActive = path !== linkUrl.pathname &&
                            path.indexOf(linkUrl.pathname + '/') === 0;
             }
             a.classList.toggle('active', isActive);
         });
+
+        /* Dropdown Bootstrap navbar publik (href="#") menyala bila
+           salah satu submenu-nya aktif — meniru $isGroupActive di
+           layouts/navbar.blade.php. */
+        Array.prototype.forEach.call(document.querySelectorAll('.navbar-pln .nav-link.dropdown-toggle'), function (toggle) {
+            var scope = toggle.closest('li') || toggle.parentNode;
+            toggle.classList.toggle('active', !!(scope && scope.querySelector('.dropdown-menu .dropdown-item.active')));
+        });
     }
 
     /* ============== SWAP KONTEN MAIN ============== */
-    function swapContent(entry) {
+    function swapContent(entry, url) {
         var container = getContainer();
         container.innerHTML = entry.html;
         reexecuteScripts(container);
@@ -278,8 +301,12 @@
 
         // Beri tahu handler lain (mis. sidebar active handler di layout)
         // bahwa swap konten telah selesai untuk URL ini.
+        /* `url` = URL TUJUAN (parameter). Sebelumnya variabel ini tidak
+           didefinisikan di scope fungsi → ReferenceError saat konstruksi
+           event → event TIDAK PERNAH terkirim, sehingga listener
+           pt:after-swap (sinkronisasi menu admin) tidak pernah jalan. */
         try {
-            document.dispatchEvent(new CustomEvent('pt:after-swap', { detail: { url: url } }));
+            document.dispatchEvent(new CustomEvent('pt:after-swap', { detail: { url: url || window.location.href } }));
         } catch (e) { /* browser lama tanpa CustomEvent → abaikan */ }
     }
 
@@ -292,7 +319,7 @@
         if (cached) {
             // Cache hit → INSTAN, tanpa network sama sekali
             try {
-                swapContent(cached);
+                swapContent(cached, url);
                 if (push) history.pushState({}, '', url);
                 syncActiveState(url); // sync ke URL TUJUAN, setelah pushState
             } finally {
@@ -304,7 +331,7 @@
         fetchPartial(url)
             .then(function (entry) {
                 cacheSet(url, entry);
-                swapContent(entry);
+                swapContent(entry, url);
                 if (push) history.pushState({}, '', url);
                 syncActiveState(url); // sync ke URL TUJUAN, setelah pushState
             })

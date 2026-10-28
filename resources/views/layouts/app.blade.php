@@ -1,3 +1,32 @@
+{{-- ============================================================
+     RESPONS PARTIAL untuk CLIENT-SIDE ROUTER (public/js/router.js)
+     ------------------------------------------------------------
+     Saat menu/link diklik, router mengirim fetch dengan header
+     `X-Partial: 1` + `X-Requested-With: XMLHttpRequest`. Bila kedua
+     header itu ada, server hanya membalas dokumen MINIMAL (judul +
+     style halaman + isi konten) — navbar, footer, CDN, dan skrip
+     layout TIDAK dirender ulang, sehingga perpindahan halaman publik
+     terasa instan tanpa full page reload. Komposer `layouts.navbar`
+     (query Menu Builder) juga ikut tidak dijalankan di mode ini.
+     Script halaman (@push('scripts')) diletakkan DI DALAM container
+     agar ikut terbawa dan dieksekusi ulang router setelah swap.
+     ============================================================ --}}
+@if(request()->header('X-Partial') === '1' && request()->header('X-Requested-With') === 'XMLHttpRequest')
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="utf-8" />
+        <title>@yield('title', 'PLN Nusantara Power')</title>
+        @stack('styles')
+    </head>
+    <body data-partial-content=".pt-main">
+        <div class="pt-main" data-pt-container data-pt-animate>
+            @yield('content')
+            @stack('scripts')
+        </div>
+    </body>
+</html>
+@else
 <!DOCTYPE html>
 <html lang="id">
     <head>
@@ -19,12 +48,19 @@
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
         </noscript>
 
-        {{-- Google fonts: Inter --}}
+        {{-- Google fonts: Inter — dimuat NON-BLOCKING (media="print" + onload)
+             agar render pertama tidak menunggu CSS pihak ketiga;
+             <noscript> sebagai fallback, dan display=swap tetap menjaga
+             teks langsung tampil dengan font sistem sebelum Inter siap. --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="dns-prefetch" href="https://fonts.googleapis.com">
         <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" media="print" onload="this.media='all'"
+              href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap">
+        <noscript>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap">
+        </noscript>
 
         {{-- Bootstrap 5 CSS --}}
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -683,10 +719,12 @@
         </style>
         @stack('styles')
     </head>
-    <body>
+    <body data-partial-content=".pt-main">
         @include('layouts.navbar')
 
-        <div class="pt-main">
+        {{-- data-pt-container = jangkar konten untuk router.js (swap hanya
+             bagian ini); data-pt-animate = micro-transition 60ms. --}}
+        <div class="pt-main" data-pt-container data-pt-animate>
             @yield('content')
         </div>
 
@@ -714,6 +752,11 @@
 
         <script src="{{ asset('js/i18n.js') }}"></script>
 
+        {{-- Client-side router (AJAX/SPA): klik link internal hanya menukar
+             konten halaman — navbar & footer tetap utuh, tanpa reload. --}}
+        <script src="{{ asset('js/router.js') }}" defer></script>
+
         @stack('scripts')
     </body>
 </html>
+@endif

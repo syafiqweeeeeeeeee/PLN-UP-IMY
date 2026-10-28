@@ -168,9 +168,13 @@
                         <p class="dash-card-subtitle">Akses cepat ke fitur yang sering digunakan</p>
                     </div>
                 </div>
-                <div class="row g-2">
+                {{-- Grid adaptif (lihat CSS .quick-actions-grid pada style section
+                     halaman ini): jumlah kolom mengikuti jumlah kotak yang lolos
+                     gate permission, jadi baris selalu terisi penuh — tanpa slot
+                     kosong di kanan. --}}
+                <div class="quick-actions-grid">
                     @can('news.create')
-                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                    <div>
                         <a href="{{ route('admin.news.create') }}" class="quick-action-btn h-100">
                             <div class="quick-action-icon" style="background: #dbeafe; color: #1d4ed8;">
                                 <i class="fas fa-plus"></i>
@@ -184,7 +188,7 @@
                     @endcan
 
                     @can('announcements.create')
-                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                    <div>
                         <a href="{{ route('admin.announcements.create') }}" class="quick-action-btn h-100">
                             <div class="quick-action-icon" style="background: #fef3c7; color: #92400e;">
                                 <i class="fas fa-plus"></i>
@@ -198,7 +202,7 @@
                     @endcan
 
                     @can('users.create')
-                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                    <div>
                         <a href="{{ route('admin.users.create') }}" class="quick-action-btn h-100">
                             <div class="quick-action-icon" style="background: #f3e8ff; color: #7c3aed;">
                                 <i class="fas fa-user-plus"></i>
@@ -206,6 +210,24 @@
                             <div style="min-width: 0;">
                                 <div style="font-weight: 600;">Tambah Pengguna</div>
                                 <div style="font-size: 0.72rem; color: #9ca3af; font-weight: 400;">Daftarkan akun baru</div>
+                            </div>
+                        </a>
+                    </div>
+                    @endcan
+
+                    {{-- Kotak ke-4 — melengkapi satu baris penuh (4 kotak) untuk
+                         akun yang punya work_links.view (Super Admin / Admin
+                         Bidang). Akun tanpa permission itu tetap melihat 3 kotak
+                         yang terbagi rata berkat grid adaptif. --}}
+                    @can('work_links.view')
+                    <div>
+                        <a href="{{ route('admin.work-links.index') }}" class="quick-action-btn h-100">
+                            <div class="quick-action-icon" style="background: #e0e7ff; color: #4338ca;">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <div style="min-width: 0;">
+                                <div style="font-weight: 600;">Kelola Link Kerja</div>
+                                <div style="font-size: 0.72rem; color: #9ca3af; font-weight: 400;">Atur tautan portal karyawan</div>
                             </div>
                         </a>
                     </div>
@@ -388,5 +410,25 @@
          membengkak sendiri karena semua kartu ikut setinggi itu. */
     .stat-card { min-height: 100px; }
     .quick-action-btn { min-height: 92px; }
+
+    /* ===== GRID AKSI CEPAT (adaptif) =====
+       Sebelumnya memakai kolom Bootstrap tetap (col-xl-3 = 4 kolom di layar
+       lebar) padahal hanya ada 3 kotak → menyisakan 1 slot kosong yang janggal
+       di kanan; col-md-6 menyisakan kotak ke-3 sendirian setengah baris.
+
+       repeat(auto-fit, minmax(...)) menghitung kolom dari lebar kontainer,
+       lalu men-collapse kolom yang kosong — kotak yang tersisa meregang rata
+       mengisi seluruh lebar baris. Berapa pun jumlah kotak yang lolos gate
+       permission (1/2/3/4), baris selalu penuh dan simetris; di layar sempit kolom
+       turun otomatis (min(100%, 210px) mencegah overflow di bawah 210px).
+       Catatan: nama direktif Blade TIDAK boleh ditulis apa adanya di dalam
+       komentar CSS — Blade tetap mengompilasinya menjadi kode PHP sungguhan. */
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+        gap: 0.5rem; /* setara g-2 Bootstrap */
+    }
+    .quick-actions-grid > div { min-width: 0; }
+    .quick-actions-grid .quick-action-btn { height: 100%; }
 </style>
 @endpush

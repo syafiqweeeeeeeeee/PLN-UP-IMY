@@ -4,12 +4,16 @@ namespace App\Providers;
 
 use App\Http\View\Composers\KaryawanLayoutComposer;
 use App\Http\View\Composers\TopbarComposer;
+use App\Models\Announcement;
+use App\Models\Gallery;
+use App\Models\News;
 use App\Models\Page;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use App\Observers\NameMarkerObserver;
 use App\Services\MenuBuilderService;
+use App\Services\PublicPageCache;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -43,6 +47,14 @@ class AppServiceProvider extends ServiceProvider
         // (markup Bootstrap — layout app & admin memuat Bootstrap 5).
         Paginator::defaultView('pagination::bootstrap-5');
         Paginator::defaultSimpleView('pagination::simple-bootstrap-5');
+
+        // Cache halaman publik (PublicPageCache) — buang versi lama setiap
+        // kali konten yang tampil di website publik disimpan/dihapus,
+        // sehingga perubahan langsung terlihat tanpa menunggu TTL.
+        foreach ([News::class, Announcement::class, Gallery::class, Page::class] as $publicContent) {
+            $publicContent::saved(fn () => PublicPageCache::flush());
+            $publicContent::deleted(fn () => PublicPageCache::flush());
+        }
 
         // Navbar publik dirender dinamis dari Menu Builder.
         // Menu ber-target halaman CMS disaring sesuai visibilitas per role;

@@ -96,13 +96,28 @@ class Menu extends Model
        URL & LABEL
        ========================================================= */
 
+    /**
+     * URL target menu.
+     *
+     * Route internal SELALU dikembalikan RELATIF (`/informasi/berita`),
+     * bukan absolut (`http://127.0.0.1:8000/informasi/berita`).
+     *
+     * Alasan: tree menu di-cache (MenuBuilderService, TTL 5 menit).
+     * Bila URL absolut yang dibangun dari request saat cache dibuat,
+     * host:port itu terkunci di cache — saat server dijalankan ulang di
+     * port lain (mis. 8123 → 8000), semua link navbar menunjuk port mati
+     * dan klik menu menghasilkan ERR_CONNECTION_REFUSED. URL relatif
+     * selalu mengikuti origin yang sedang dibuka pengunjung, sekaligus
+     * membuatnya same-origin sehingga navigasi SPA (router.js) ikut jalan
+     * (dulu localhost vs 127.0.0.1 dianggap lintas origin → full reload).
+     * Tipe TYPE_URL (tautan eksternal) TIDAK diubah — tetap absolut. */
     public function resolvedUrl(): ?string
     {
         return match ($this->type) {
             self::TYPE_ROUTE => $this->route_name && \Illuminate\Support\Facades\Route::has($this->route_name)
-                ? route($this->route_name)
+                ? route($this->route_name, [], false)
                 : null,
-            self::TYPE_PAGE  => $this->page?->exists ? route('pages.show', $this->page) : null,
+            self::TYPE_PAGE  => $this->page?->exists ? route('pages.show', $this->page, false) : null,
             self::TYPE_URL   => $this->url ?: null,
             default          => null,
         };

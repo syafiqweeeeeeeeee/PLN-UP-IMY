@@ -38,41 +38,64 @@ Route::get('/tentang-kami/struktur-organisasi', function () {
     return view('tentang_kami.struktur_organisasi');
 })->name('struktur-organisasi');
 Route::get('/informasi/galeri', function () {
-    $galleries = Gallery::published()
-        ->latest('tanggal_kegiatan')
-        ->orderByDesc('id')
-        ->paginate(9);
+    // Query + pemetaan konten di-cache per halaman (PublicPageCache,
+    // TTL 10 menit + flush saat galeri diubah admin) agar halaman statis
+    // ini tidak query database di setiap kunjungan.
+    [$galleries, $galleryData] = App\Services\PublicPageCache::remember(
+        'galeri.page.'.request()->query('page', 1),
+        function () {
+            $galleries = Gallery::published()
+                ->latest('tanggal_kegiatan')
+                ->orderByDesc('id')
+                ->paginate(9);
 
-    $galleryData = $galleries->getCollection()
-        ->map(fn ($g) => [
-            'src'      => $g->image_url,
-            'title'    => $g->judul,
-            'date'     => $g->tanggal_kegiatan->translatedFormat('d F Y'),
-            'desc'     => $g->deskripsi ?? '',
-            'kategori' => strtolower($g->kategori),
-        ])
-        ->values();
+            $galleryData = $galleries->getCollection()
+                ->map(fn ($g) => [
+                    'src'      => $g->image_url,
+                    'title'    => $g->judul,
+                    'date'     => $g->tanggal_kegiatan->translatedFormat('d F Y'),
+                    'desc'     => $g->deskripsi ?? '',
+                    'kategori' => strtolower($g->kategori),
+                ])
+                ->values();
+
+            return [$galleries, $galleryData];
+        }
+    );
 
     return view('informasi.galeri', compact('galleries', 'galleryData'));
 })->name('galeri');
 
 Route::get('/informasi/berita', function () {
-    $news = News::where('is_published', true)
-        ->forPublic()
-        ->latest('published_at')
-        ->paginate(9);
+    // Cache per halaman: listing berita hanya membaca DB saat cache
+    // hangus (TTL 10 menit / flush saat konten berubah).
+    $news = App\Services\PublicPageCache::remember(
+        'berita.page.'.request()->query('page', 1),
+        fn () => News::where('is_published', true)
+            ->forPublic()
+            ->latest('published_at')
+            ->paginate(9)
+    );
     return view('informasi.berita', compact('news'));
 })->name('berita');
 
 Route::get('/informasi/berita/{slug}', function ($slug) {
-    $news = News::where('slug', $slug)->where('is_published', true)->forPublic()->firstOrFail();
-    $related = News::where('is_published', true)
-        ->forPublic()
-        ->where('id', '!=', $news->id)
-        ->where('category', $news->category)
-        ->latest()
-        ->take(3)
-        ->get();
+    // firstOrFail tetap dijalankan setiap request (404 tidak boleh
+    // datang dari cache basi); hanya data berita + terkait yang di-cache.
+    News::where('slug', $slug)->where('is_published', true)->forPublic()->firstOrFail();
+
+    [$news, $related] = App\Services\PublicPageCache::remember('berita.detail.'.$slug, function () use ($slug) {
+        $news = News::where('slug', $slug)->where('is_published', true)->forPublic()->firstOrFail();
+        $related = News::where('is_published', true)
+            ->forPublic()
+            ->where('id', '!=', $news->id)
+            ->where('category', $news->category)
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return [$news, $related];
+    });
     return view('informasi.berita_detail', compact('news', 'related'));
 })->name('berita.detail');
 
@@ -80,30 +103,46 @@ Route::get('/informasi/pengumuman', function () {
     // Landing page PUBLIK: data scoping per bidang TIDAK berlaku —
     // konten dikurasi target_publication ('public'/'all'), bukan bidang
     // pengunjung. Global scope dinonaktifkan eksplisit di sini.
-    $pengumuman = App\Models\Announcement::withoutGlobalScope(App\Models\Scopes\ScopedToUserDepartment::class)
-        ->where('is_published', true)
-        ->forPublic()
-        ->latest('published_at')
-        ->paginate(8);
+    // Cache per halaman (PublicPageCache) — flush saat pengumuman diubah.
+    $pengumuman = App\Services\PublicPageCache::remember(
+        'pengumuman.page.'.request()->query('page', 1),
+        fn () => App\Models\Announcement::withoutGlobalScope(App\Models\Scopes\ScopedToUserDepartment::class)
+            ->where('is_published', true)
+            ->forPublic()
+            ->latest('published_at')
+            ->paginate(8)
+    );
 
     return view('informasi.pengumuman', compact('pengumuman'));
 })->name('pengumuman');
 
 Route::get('/informasi/pengumuman/{slug}', function ($slug) {
-    $pengumuman = App\Models\Announcement::withoutGlobalScope(App\Models\Scopes\ScopedToUserDepartment::class)
+    // Cek keberadaan slug dulu setiap request (404 tidak dari cache basi),
+    // lalu data detail + terkait di-cache.
+    App\Models\Announcement::withoutGlobalScope(App\Models\Scopes\ScopedToUserDepartment::class)
         ->where('slug', $slug)
         ->where('is_published', true)
         ->forPublic()
         ->firstOrFail();
 
-    $related = App\Models\Announcement::withoutGlobalScope(App\Models\Scopes\ScopedToUserDepartment::class)
-        ->where('is_published', true)
-        ->forPublic()
-        ->where('id', '!=', $pengumuman->id)
-        ->where('category', $pengumuman->category)
-        ->latest('published_at')
-        ->take(3)
-        ->get();
+    [$pengumuman, $related] = App\Services\PublicPageCache::remember('pengumuman.detail.'.$slug, function () use ($slug) {
+        $pengumuman = App\Models\Announcement::withoutGlobalScope(App\Models\Scopes\ScopedToUserDepartment::class)
+            ->where('slug', $slug)
+            ->where('is_published', true)
+            ->forPublic()
+            ->firstOrFail();
+
+        $related = App\Models\Announcement::withoutGlobalScope(App\Models\Scopes\ScopedToUserDepartment::class)
+            ->where('is_published', true)
+            ->forPublic()
+            ->where('id', '!=', $pengumuman->id)
+            ->where('category', $pengumuman->category)
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        return [$pengumuman, $related];
+    });
 
     return view('informasi.pengumuman_detail', compact('pengumuman', 'related'));
 })->name('pengumuman.detail');

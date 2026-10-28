@@ -211,12 +211,19 @@
     <section class="org-chart-image">
         <div class="container px-4 px-lg-5">
             <div class="image-wrapper">
-                <img
-                    src="{{ asset('assets/images/struktur/struktural_organisasi.png') }}"
-                    alt="Bagan Struktur Organisasi UP Indramayu"
-                    draggable="false"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-                />
+                <picture>
+                    <source type="image/webp" srcset="{{ asset('assets/images/struktur/struktural_organisasi.webp') }}" width="1600" height="1131" loading="lazy" decoding="async">
+                    <img
+                        src="{{ asset('assets/images/struktur/struktural_organisasi.png') }}"
+                        alt="Bagan Struktur Organisasi UP Indramayu"
+                        width="1600"
+                        height="1131"
+                        loading="lazy"
+                        decoding="async"
+                        draggable="false"
+                        onerror="this.style.display='none'; this.closest('.image-wrapper').querySelector('.fallback-box').style.display='block';"
+                    />
+                </picture>
                 <div class="fallback-box">
                     <i class="fas fa-sitemap"></i>
                     <p data-i18n="struktur.fallback">Bagan Struktur Organisasi UP Indramayu</p>

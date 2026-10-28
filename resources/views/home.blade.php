@@ -493,7 +493,10 @@
 
                         {{-- Slide 1: Wilayah Operasional 1 --}}
                         <div class="carousel-item banner-slide active" data-bs-interval="5000">
-                            <img src="{{ asset('assets/halaman_utama/wilayah operasional1.png') }}" alt="Wilayah Operasional 1" decoding="async" draggable="false" ondragstart="return false;">
+                            <picture>
+                                <source type="image/webp" srcset="{{ asset('assets/halaman_utama/wilayah operasional1.webp') }}" width="1440" height="1018">
+                                <img src="{{ asset('assets/halaman_utama/wilayah operasional1.png') }}" alt="Wilayah Operasional 1" width="1440" height="1018" decoding="async" draggable="false" ondragstart="return false;">
+                            </picture>
                             <div class="banner-caption">
                                 <span class="banner-line" data-i18n="banner.line_scope">Cakupan Area Pembangkitan</span>
                                 <span class="banner-highlight" data-i18n="banner.wilayah1">Wilayah Operasional 1</span>
@@ -502,7 +505,10 @@
 
                         {{-- Slide 2: Wilayah Operasional 2 --}}
                         <div class="carousel-item banner-slide" data-bs-interval="5000">
-                            <img src="{{ asset('assets/halaman_utama/wilayah operasional2.png') }}" alt="Wilayah Operasional 2" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
+                            <picture>
+                                <source type="image/webp" srcset="{{ asset('assets/halaman_utama/wilayah operasional2.webp') }}" width="1440" height="1018" loading="lazy">
+                                <img src="{{ asset('assets/halaman_utama/wilayah operasional2.png') }}" alt="Wilayah Operasional 2" width="1440" height="1018" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
+                            </picture>
                             <div class="banner-caption">
                                 <span class="banner-line" data-i18n="banner.line_scope">Cakupan Area Pembangkitan</span>
                                 <span class="banner-highlight" data-i18n="banner.wilayah2">Wilayah Operasional 2</span>
@@ -511,7 +517,10 @@
 
                         {{-- Slide 3: Sistem Interkoneksi --}}
                         <div class="carousel-item banner-slide" data-bs-interval="5000">
-                            <img src="{{ asset('assets/halaman_utama/sistem interkoneksi.png') }}" alt="Sistem Interkoneksi" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
+                            <picture>
+                                <source type="image/webp" srcset="{{ asset('assets/halaman_utama/sistem interkoneksi.webp') }}" width="1440" height="1018" loading="lazy">
+                                <img src="{{ asset('assets/halaman_utama/sistem interkoneksi.png') }}" alt="Sistem Interkoneksi" width="1440" height="1018" loading="lazy" decoding="async" draggable="false" ondragstart="return false;">
+                            </picture>
                             <div class="banner-caption">
                                 <span class="banner-line" data-i18n="banner.line_network">Diagram Jaringan Kelistrikan</span>
                                 <span class="banner-highlight" data-i18n="banner.interkoneksi">Sistem Interkoneksi</span>
@@ -643,16 +652,21 @@
             {{-- Kolom kanan: mockup HP (gambar aplikasi) — tampil di SEMUA
                  ukuran layar, bukan hanya desktop (d-none d-lg-block) --}}
             <div class="col-lg-5">
-                <img
-                    src="{{ asset('assets/images/mobile-pln.png') }}"
-                    alt="Tampilan aplikasi PLN Mobile"
-                    class="phone-img"
-                    loading="lazy"
-                    decoding="async"
-                    draggable="false"
-                    ondragstart="return false;"
-                    onerror="this.style.display='none';"
-                >
+                <picture>
+                    <source type="image/webp" srcset="{{ asset('assets/images/mobile-pln.webp') }}" width="415" height="601" loading="lazy">
+                    <img
+                        src="{{ asset('assets/images/mobile-pln.png') }}"
+                        alt="Tampilan aplikasi PLN Mobile"
+                        class="phone-img"
+                        width="415"
+                        height="601"
+                        loading="lazy"
+                        decoding="async"
+                        draggable="false"
+                        ondragstart="return false;"
+                        onerror="this.style.display='none';"
+                    >
+                </picture>
             </div>
         </div>
     </div>

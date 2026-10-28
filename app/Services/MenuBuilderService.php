@@ -211,9 +211,11 @@ class MenuBuilderService
         return collect(self::DEFAULT_TREE)
             ->map(function (array $group) {
                 // Grup daun (mis. Beranda) punya route sendiri; grup dropdown tidak.
+                // URL RELATIF (argumen $absolute = false) — jangan pernah
+                // mem-bake host:port ke cache (lihat catatan di Menu::resolvedUrl).
                 $ownUrl = isset($group['route']) && Route::has($group['route'])
-                    ? route($group['route'])
-                    : null;
+                        ? route($group['route'], [], false)
+                        : null;
 
                 return [
                     'menu'     => null,
@@ -229,7 +231,7 @@ class MenuBuilderService
                             'label'    => $child['label'],
                             'icon'     => null,
                             'i18n'     => $child['i18n'] ?? null,
-                            'url'      => route($child['route']),
+                            'url'      => route($child['route'], [], false),
                             'target'   => null,
                             'children' => [],
                         ])

@@ -19,8 +19,14 @@ class KaryawanLayoutComposer
     public function compose(View $view): void
     {
         // RESPONS PARTIAL di level router (header X-Partial — layout karyawan):
-        // branch partial tidak merender topbar, jadi data header tidak diperlukan.
-        if (request()?->header('X-Partial') === '1') {
+        // branch partial tidak merender topbar, jadi data header TIDAK
+        // diperlukan oleh layout-nya. Pengecualian: view anak (karyawan.*)
+        // tetap membutuhkan $karyawanUser — mis. karyawan/profil memakai
+        // $karyawanUser['initials']. Karena itu skip-nya dibatasi hanya
+        // untuk view layout-nya sendiri; kalau semua view di-skip, halaman
+        // profil akan 500 (undefined variable) dan router terpaksa fallback
+        // ke full reload — membatalkan navigasi SPA di halaman itu.
+        if (request()?->header('X-Partial') === '1' && $view->name() === 'layouts.karyawan') {
             return;
         }
 
