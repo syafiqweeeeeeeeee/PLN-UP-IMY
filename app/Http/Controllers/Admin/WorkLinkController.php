@@ -221,6 +221,16 @@ class WorkLinkController extends Controller
     /**
      * Opsi Bidang untuk form & modal edit — sumber tunggal MASTER BIDANG.
      *
+     * FIX (dropdown kosong): dulu tiap baris wajib `hasLegacyScope()`
+     * (punya kode legacy `department_code`). Baris Master Bidang yang
+     * dibuat lewat form admin TIDAK punya kode sama sekali (form tidak
+     * punya field itu) → seluruh opsi terbuang dan panel menampilkan
+     * "Tidak ada pilihan". Target link disimpan sebagai `bidang_id`
+     * (bukan kode legacy), jadi pemilihan TIDAK boleh bergantung pada
+     * kode — sekarang semua baris master tampil. Kode legacy tetap
+     * diisi lewat Master Bidang (field manual / tombol "Petakan Kode
+     * Legacy") supaya visibilitas Portal Karyawan ikut terpetakan.
+     *
      * @return array{bidangOptions: \Illuminate\Support\Collection, lockedBidangId: ?int, lockedBidangLabel: ?string}
      */
     private function bidangOptionsForUser(): array
@@ -233,8 +243,7 @@ class WorkLinkController extends Controller
             ? Bidang::query()->find($user->bidang_id)
             : null;
 
-        $rows = Bidang::treeOrdered(Bidang::query()->with('parent'), ['parent'])
-            ->filter(fn (array $row) => $row['node']->hasLegacyScope());
+        $rows = Bidang::treeOrdered(Bidang::query()->with('parent'), ['parent']);
 
         if ($ownBidang !== null) {
             $allowedIds = array_merge([(int) $ownBidang->id], $ownBidang->descendantIds());

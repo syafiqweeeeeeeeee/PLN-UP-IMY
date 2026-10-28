@@ -242,16 +242,85 @@ class DataKaryawanController extends Controller
     {
         Gate::authorize('karyawan_data.delete');
 
+        /* AKUN PENGGUNA IKUT TERHAPUS — permintaan spesifikasi:
+           menghapus baris Data Karyawan menghapus akun pengguna yang
+           terhubung dengannya (TIDAK sebaliknya: menghapus akun pengguna
+           lewat manajemen Pengguna TIDAK menghapus data karyawannya).
+
+           Tautan: tabel `employee_profiles` — `karyawan_id` (soft-link)
+           dengan NID sebagai cadangan untuk profil lama, aturan yang SAMA
+           dengan badge "Sudah Terdaftar" di halaman daftar (accountsFor). */
+        $akunTerkait = $this->linkedAccounts($karyawan);
+
         ActivityLogger::log('delete', null, [
             'module' => 'karyawan',
-            'description' => "menghapus data karyawan \"{$karyawan->nama}\" (NID {$karyawan->nid})",
+            'description' => "menghapus data karyawan \"{$karyawan->nama}\" (NID {$karyawan->nid})"
+                . ($akunTerkait->isNotEmpty()
+                    ? ' beserta ' . $akunTerkait->count() . ' akun pengguna terkait (' . $akunTerkait->pluck('email')->implode(', ') . ')'
+                    : ''),
             'subject' => $karyawan,
         ]);
 
-        $karyawan->delete();
+        foreach ($akunTerkait as $akun) {
+            ActivityLogger::log('delete', null, [
+                'module'      => 'pengguna',
+                'description' => "menghapus akun pengguna \"{$akun->name}\" ({$akun->email}) — mengikuti penghapusan data karyawan \"{$karyawan->nama}\" (NID {$karyawan->nid})",
+                'subject'     => $akun,
+            ]);
+        }
+
+        DB::transaction(function () use ($karyawan, $akunTerkait): void {
+            // FK employee_profiles.karyawan_id = nullOnDelete → penghapusan
+            // baris karyawan tidak diblokir; baris profil ikut hilang saat
+            // akunnya dihapus (user_id = cascadeOnDelete).
+            $karyawan->delete();
+
+            foreach ($akunTerkait as $akun) {
+                $akun->delete();
+            }
+        });
+
+        $message = 'Data karyawan berhasil dihapus.';
+
+        if ($akunTerkait->isNotEmpty()) {
+            $message .= ' Akun pengguna terkait (' . $akunTerkait->pluck('email')->implode(', ') . ') juga ikut dihapus.';
+        }
 
         return redirect()->route('admin.karyawan_data.index')
-            ->with('success', 'Data karyawan berhasil dihapus.');
+            ->with('success', $message);
+    }
+
+    /**
+     * Akun pengguna yang terhubung dengan SATU baris karyawan.
+     *
+     * Aturan yang SAMA dengan accountsFor() (badge "Sudah Terdaftar"):
+     * kecocokan `employee_profiles.karyawan_id`, lalu NID sebagai
+     * cadangan untuk profil yang belum punya soft-link. Semua akun yang
+     * cocok diambil — tidak ada akun yang tertinggal masih mengklaim
+     * baris yang sudah dihapus.
+     *
+     * @return Collection<int, User>
+     */
+    private function linkedAccounts(Karyawan $karyawan): Collection
+    {
+        $nid = trim((string) $karyawan->nid);
+
+        $profiles = EmployeeProfile::query()
+            ->with('user')
+            ->where(function ($query) use ($karyawan, $nid): void {
+                $query->where('karyawan_id', $karyawan->id);
+
+                if ($nid !== '') {
+                    $query->orWhere('nid', $nid);
+                }
+            })
+            ->get();
+
+        return $profiles
+            ->map(fn (EmployeeProfile $profile) => $profile->user)
+            ->filter()
+            ->unique('id')
+            ->values();
     }
 
     /* =========================================================

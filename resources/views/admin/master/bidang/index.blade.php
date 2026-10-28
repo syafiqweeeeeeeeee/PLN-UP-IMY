@@ -87,6 +87,51 @@
     .mb-empty i { font-size: 1.8rem; color: #cbd5e1; display: block; margin-bottom: 0.5rem; }
     .mb-empty h6 { font-size: 0.95rem; font-weight: 700; color: #6b7280; margin: 0 0 0.25rem; }
     .mb-empty p { font-size: 0.8rem; margin: 0; }
+
+    /* ==== MODAL "PETAKAN KODE LEGACY" (pola modal Data Karyawan) ==== */
+    .mb-modal-overlay {
+        position: fixed; inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(2px);
+        display: none; align-items: center; justify-content: center;
+        z-index: 1055; padding: 1.25rem;
+    }
+    .mb-modal-overlay.show { display: flex; }
+    .mb-modal {
+        background: #fff; border-radius: 16px; width: 100%; max-width: 620px;
+        max-height: 90vh; overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    .mb-modal-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color, #e5e7eb);
+    }
+    .mb-modal-header h6 { font-weight: 700; font-size: 0.92rem; color: var(--pln-text, #1f2937); margin: 0; }
+    .mb-modal-close {
+        background: #f1f5f9; border: none; width: 30px; height: 30px;
+        border-radius: 8px; color: #64748b; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .mb-modal-body { padding: 1.25rem; font-size: 0.85rem; }
+    .mb-summary-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem; margin: 0.75rem 0;
+    }
+    .mb-summary-item {
+        background: #f8fafc; border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 10px; padding: 0.6rem; text-align: center;
+    }
+    .mb-summary-item b { display: block; font-size: 1.15rem; color: var(--pln-text, #1f2937); }
+    .mb-summary-item small { font-size: 0.68rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.4px; }
+    .mb-code-list {
+        max-height: 190px; overflow-y: auto; margin: 0.5rem 0 0;
+        padding-left: 1.1rem; font-size: 0.76rem; color: #4b5563;
+    }
+    .mb-code-list li + li { margin-top: 0.15rem; }
+    .mb-note { font-size: 0.75rem; color: #b45309; font-weight: 600; margin: -0.3rem 0 0.8rem; }
+    @media (max-width: 767.98px) {
+        .mb-summary-grid { grid-template-columns: repeat(2, 1fr); }
+    }
 </style>
 @endpush
 
@@ -102,6 +147,23 @@
     </div>
 @endif
 
+{{-- ============ RINGKASAN PENERAPAN "PETAKAN KODE LEGACY" ============ --}}
+@if (session('map_summary'))
+@php $mbSummary = session('map_summary'); @endphp
+<div class="mb-summary-grid" role="status" style="max-width: 760px;">
+    <div class="mb-summary-item"><b style="color:#15803d;">{{ $mbSummary['rows_updated'] }}</b><small>Baris Diperbarui</small></div>
+    <div class="mb-summary-item"><b>{{ $mbSummary['dept_filled'] }}</b><small>Kode Bidang</small></div>
+    <div class="mb-summary-item"><b>{{ $mbSummary['sub_filled'] }}</b><small>Kode Sub-Bidang</small></div>
+    <div class="mb-summary-item"><b>{{ $mbSummary['already_coded'] + $mbSummary['inherited'] }}</b><small>Sudah / Mewarisi</small></div>
+</div>
+@if ($mbSummary['no_code_total'] > 0)
+<p style="font-size:0.76rem; color:#b45309; font-weight:600; margin:-0.3rem 0 1rem;">
+    <i class="fas fa-circle-exclamation me-1"></i>{{ $mbSummary['no_code_total'] }} baris masih tanpa kode bidang —
+    isi lewat form <b>Edit Bidang</b> bila baris itu perlu jadi target Link Kerja / unit akun.
+</p>
+@endif
+@endif
+
 {{-- ============ PAGE HEADER + AKSI ============ --}}
 <div class="mb-head">
     <div class="header-row">
@@ -110,6 +172,11 @@
             <p>Daftar bidang berhirarki — induk dan sub-bidang. Kolom <b>Parent</b> menunjukkan induk tiap baris, indentasi menunjukkan tingkat.</p>
         </div>
         <div class="header-actions">
+            @can('master_bidang.edit')
+            <button type="button" id="mbMapLegacyBtn" class="btn-corp btn-corp-soft" style="margin-right: 0.5rem;">
+                <i class="fas fa-code-branch me-1"></i> Petakan Kode Legacy
+            </button>
+            @endcan
             @can('master_bidang.create')
             <a href="{{ route('admin.master_bidang.create') }}" class="btn-corp btn-corp-primary">
                 <i class="fas fa-plus me-1"></i> Tambah Bidang
@@ -213,4 +280,111 @@
     </table>
     @endif
 </div>
+
+{{-- ============ MODAL PETAKAN KODE LEGACY ============ --}}
+@can('master_bidang.edit')
+<div class="mb-modal-overlay" id="mbMapLegacyModal" onclick="if(event.target===this) this.classList.remove('show')">
+    <div class="mb-modal">
+        <div class="mb-modal-header">
+            <h6><i class="fas fa-code-branch" style="color: var(--pln-blue, #0056a3);"></i> Petakan Kode Legacy</h6>
+            <button type="button" class="mb-modal-close" onclick="document.getElementById('mbMapLegacyModal').classList.remove('show')"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="mb-modal-body">
+            <p style="color:#6b7280; font-size:0.8rem; margin:0 0 0.8rem;">
+                Mengisi <b>department_code</b> &amp; <b>sub_department_code</b> yang masih kosong dari nama baris:
+                pemetaan nama persis dulu, lalu pencocokan terhadap daftar kode legacy (hanya bila hasilnya tunggal —
+                tidak menebak). Kode yang <b>sudah ada tidak ditimpa</b>, baris yang tidak cocok <b>tidak diubah</b>,
+                dan sub-bidang tetap mewarisi kode induknya. Aman dijalankan berulang.
+            </p>
+
+            <div id="mbMapLegacyPreview" class="mb-summary-grid">
+                <div class="mb-summary-item"><small>Memuat pratinjau…</small></div>
+            </div>
+            <div id="mbMapLegacyLists" style="font-size:0.76rem; color:#4b5563;"></div>
+            <div id="mbMapLegacyNote" class="mb-note"></div>
+
+            <form action="{{ route('admin.master_bidang.map-legacy') }}" method="POST">
+                @csrf
+                <div style="display:flex; gap:0.6rem; justify-content:flex-end;">
+                    <button type="button" class="btn-corp btn-corp-soft" onclick="document.getElementById('mbMapLegacyModal').classList.remove('show')">Batal</button>
+                    <button type="submit" class="btn-corp btn-corp-primary">
+                        <i class="fas fa-wand-magic-sparkles me-1"></i> Terapkan Pemetaan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endcan
+
+{{-- ============================================================
+     Pratinjau pemetaan kode legacy — diambil saat modal dibuka
+     (GET JSON, TANPA menulis apa pun). Script INLINE di dalam
+     content agar router.js mengeksekusinya ulang setelah navigasi
+     SPA (konsisten dengan halaman Data Karyawan).
+     ============================================================ --}}
+<script>
+    (function () {
+        var openBtn  = document.getElementById('mbMapLegacyBtn');
+        var modal    = document.getElementById('mbMapLegacyModal');
+        var preview  = document.getElementById('mbMapLegacyPreview');
+        var lists    = document.getElementById('mbMapLegacyLists');
+        var note     = document.getElementById('mbMapLegacyNote');
+        if (!openBtn || !modal || !preview || openBtn.dataset.mbDdBound === '1') return;
+        openBtn.dataset.mbDdBound = '1';
+
+        var previewUrl = @json(route('admin.master_bidang.map-legacy-preview'));
+
+        function item(value, label) {
+            return '<div class="mb-summary-item"><b>' + value + '</b><small>' + label + '</small></div>';
+        }
+
+        function render(data) {
+            preview.innerHTML =
+                item(data.rows_updated, 'Baris Akan Diperbarui') +
+                item(data.dept_filled, 'Kode Bidang Terisi') +
+                item(data.sub_filled, 'Kode Sub-Bidang Terisi') +
+                item(data.already_coded + data.inherited + data.root_no_code, 'Sudah / Mewarisi');
+
+            var parts = [];
+            if (data.items.length) {
+                parts.push('<b>Akan diubah:</b><ul class="mb-code-list">' + data.items.map(function (row) {
+                    var target = row.department_code ? 'bidang=' + row.department_code : '';
+                    if (row.sub_department_code) target += (target ? ', ' : '') + 'sub=' + row.sub_department_code;
+                    return '<li>' + row.nama + ' → ' + target + '</li>';
+                }).join('') + '</ul>');
+            }
+            lists.innerHTML = parts.join('');
+
+            note.innerHTML = data.no_code_total > 0
+                ? '<i class="fas fa-circle-exclamation me-1"></i>' + data.no_code_total
+                    + ' baris tetap tanpa kode bidang (tidak diubah): ' + data.no_code.join(' · ')
+                    + ' — isi manual lewat form Edit Bidang bila perlu.'
+                : (data.rows_updated === 0
+                    ? '<i class="fas fa-circle-check me-1" style="color:#15803d;"></i>Semua kode sudah terisi — tidak ada perubahan.'
+                    : '');
+        }
+
+        function load() {
+            preview.innerHTML = '<div class="mb-summary-item"><small>Memuat pratinjau…</small></div>';
+            lists.innerHTML = '';
+            note.innerHTML = '';
+
+            fetch(previewUrl, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin'
+            })
+                .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+                .then(render)
+                .catch(function () {
+                    preview.innerHTML = '<div class="mb-summary-item"><small style="color:#dc2626;">Pratinjau gagal dimuat — tutup lalu buka lagi.</small></div>';
+                });
+        }
+
+        openBtn.addEventListener('click', function () {
+            modal.classList.add('show');
+            load();
+        });
+    })();
+</script>
 @endsection

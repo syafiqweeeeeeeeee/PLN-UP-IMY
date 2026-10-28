@@ -630,6 +630,13 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
                 ->whereNumber('bidang')->name('master_bidang.show');
         });
         Route::middleware('permission:master_bidang.edit')->group(function () {
+            // FITUR "Petakan Kode Legacy" — pratinjau (JSON, tanpa tulis) +
+            // penerapan pemetaan massal department_code/sub_department_code.
+            // Route statis sebelum wildcard {bidang}, pola sama dengan create.
+            Route::get('master-bidang/map-legacy-codes', [\App\Http\Controllers\Admin\MasterBidangController::class, 'mapLegacyCodesPreview'])
+                ->name('master_bidang.map-legacy-preview');
+            Route::post('master-bidang/map-legacy-codes', [\App\Http\Controllers\Admin\MasterBidangController::class, 'mapLegacyCodes'])
+                ->name('master_bidang.map-legacy');
             Route::get('master-bidang/{bidang}/edit', [\App\Http\Controllers\Admin\MasterBidangController::class, 'edit'])
                 ->whereNumber('bidang')->name('master_bidang.edit');
             Route::put('master-bidang/{bidang}', [\App\Http\Controllers\Admin\MasterBidangController::class, 'update'])

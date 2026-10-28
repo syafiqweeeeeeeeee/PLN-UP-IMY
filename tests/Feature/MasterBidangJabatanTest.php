@@ -703,4 +703,186 @@ class MasterBidangJabatanTest extends TestCase
             'jabatan' => 'Jabatan Lama',
         ]);
     }
+
+    /* =========================================================
+       8. KODE LEGACY (department_code / sub_department_code)
+       ------------------------------------------------------------
+       - Dropdown Link Kerja menampilkan SEMUA baris Master Bidang,
+         termasuk yang belum punya kode legacy (fix dropdown kosong).
+       - Form Master Bidang bisa mengisi kode legacy & validasi kode
+         tidak sah ditolak server-side.
+       - Fitur "Petakan Kode Legacy": pratinjau tidak menulis apa pun,
+         penerapan mengisi kode yang masih kosong, tidak menimpa kode
+         lama, tidak menebak baris yang tidak cocok, dan idempoten.
+       ========================================================= */
+
+    public function test_work_link_form_lists_master_bidangs_without_legacy_codes(): void
+    {
+        $bidang = Bidang::create(['nama' => 'BIDANG UJI LINK KERJA']);
+        $sub    = Bidang::create(['nama' => 'SUB BIDANG UJI', 'parent_id' => $bidang->id]);
+
+        // Keduanya sengaja TANPA kode legacy — tetap harus tampil.
+        $this->assertNull($bidang->departmentCode());
+        $this->assertNull($sub->departmentCode());
+
+        $user = $this->masterUser(array_merge(self::ALL_PERMISSIONS, ['work_links.create']));
+
+        $this->actingAs($user)
+            ->get(route('admin.work-links.create'))
+            ->assertOk()
+            ->assertSee('BIDANG UJI LINK KERJA')
+            ->assertSee('SUB BIDANG UJI');
+    }
+
+    public function test_master_bidang_form_accepts_and_validates_legacy_codes(): void
+    {
+        $user = $this->masterUser(['master_bidang.view', 'master_bidang.create', 'master_bidang.edit']);
+
+        $this->actingAs($user)
+            ->get(route('admin.master_bidang.create'))
+            ->assertOk()
+            ->assertSee('Kode Legacy', false);
+
+        $this->actingAs($user)
+            ->post(route('admin.master_bidang.store'), [
+                'nama'                 => 'BIDANG UJI KODE',
+                'parent_id'            => '',
+                'department_code'      => 'operasi',
+                'sub_department_code'  => 'asmen_prod_a',
+            ])
+            ->assertRedirect(route('admin.master_bidang.index'));
+
+        $this->assertDatabaseHas('bidangs', [
+            'nama'                => 'BIDANG UJI KODE',
+            'department_code'     => 'operasi',
+            'sub_department_code' => 'asmen_prod_a',
+        ]);
+
+        // Kode di luar daftar legacy ditolak — tidak ada baris tersimpan.
+        $this->actingAs($user)
+            ->post(route('admin.master_bidang.store'), [
+                'nama'            => 'BIDANG UJI KODE TOLAK',
+                'department_code' => 'kode_ngawur',
+            ])
+            ->assertSessionHasErrors('department_code');
+
+        $this->assertDatabaseMissing('bidangs', ['nama' => 'BIDANG UJI KODE TOLAK']);
+
+        // Mengosongkan field saat EDIT → kode ikut dikosongkan (explicit clear).
+        $bidang = Bidang::create(['nama' => 'BIDANG UJI KOSONG', 'department_code' => 'operasi']);
+
+        $this->actingAs($user)
+            ->put(route('admin.master_bidang.update', $bidang), [
+                'nama'                 => 'BIDANG UJI KOSONG',
+                'parent_id'            => '',
+                'department_code'      => '',
+                'sub_department_code'  => '',
+            ])
+            ->assertSessionHas('success');
+
+        $this->assertNull($bidang->fresh()->department_code);
+    }
+
+    public function test_map_legacy_codes_preview_writes_nothing(): void
+    {
+        $this->seedLegacyFixture();
+
+        $json = $this->actingAs($this->masterUser())
+            ->getJson(route('admin.master_bidang.map-legacy-preview'))
+            ->assertOk()
+            ->json();
+
+        $this->assertSame(5, $json['rows']);
+        $this->assertSame(3, $json['rows_updated'], 'Induk Operasi + sub Prod A + fuzzy Business Support.');
+        $this->assertSame(2, $json['dept_filled']);
+        $this->assertSame(1, $json['sub_filled']);
+        $this->assertSame(1, $json['root_no_code'], 'Induk umum sengaja tanpa kode.');
+        $this->assertSame(1, $json['no_code_total'], 'Nama tanpa padanan TIDAK ditebak.');
+        $this->assertContains('BIDANG NAMA BEBAS TANPA PADANAN', $json['no_code']);
+
+        // Pratinjau TIDAK menulis apa pun.
+        $this->assertSame(0, Bidang::query()->whereNotNull('department_code')->count());
+        $this->assertSame(0, Bidang::query()->whereNotNull('sub_department_code')->count());
+    }
+
+    public function test_map_legacy_codes_apply_fills_codes_without_overwriting_and_is_idempotent(): void
+    {
+        $rows = $this->seedLegacyFixture();
+
+        // Baris yang SUDAH punya kode — nilainya tidak boleh berubah.
+        $sudah = Bidang::create([
+            'nama'             => 'BIDANG SUDAH BERKODE',
+            'department_code'  => 'engineering',
+            'sub_department_code' => 'asmen_so',
+        ]);
+
+        $this->actingAs($this->masterUser())
+            ->post(route('admin.master_bidang.map-legacy'))
+            ->assertRedirect(route('admin.master_bidang.index'))
+            ->assertSessionHas('map_summary.rows_updated', 3)
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('bidangs', ['id' => $rows['operasi']->id, 'department_code' => 'operasi']);
+        $this->assertDatabaseHas('bidangs', ['id' => $rows['sub']->id, 'department_code' => null, 'sub_department_code' => 'asmen_prod_a']);
+        $this->assertDatabaseHas('bidangs', ['id' => $rows['fuzzy']->id, 'department_code' => 'business_support']);
+
+        // Induk umum tetap tanpa kode; nama tanpa padanan TIDAK ditebak.
+        $this->assertNull($rows['root']->fresh()->department_code);
+        $this->assertNull($rows['bebas']->fresh()->department_code);
+
+        // Kode lama tidak ditimpa.
+        $sudah->refresh();
+        $this->assertSame('engineering', $sudah->department_code);
+        $this->assertSame('asmen_so', $sudah->sub_department_code);
+
+        // Warisan: sub bidang tanpa kode sendiri mewarisi induknya.
+        $this->assertSame('operasi', $rows['sub']->fresh()->departmentCode());
+
+        // Dijalankan ulang → idempoten, tidak ada baris yang berubah lagi.
+        $this->actingAs($this->masterUser())
+            ->getJson(route('admin.master_bidang.map-legacy-preview'))
+            ->assertOk()
+            ->assertJsonPath('rows_updated', 0);
+
+        $this->actingAs($this->masterUser())
+            ->post(route('admin.master_bidang.map-legacy'))
+            ->assertSessionHas('map_summary.rows_updated', 0);
+    }
+
+    public function test_map_legacy_codes_requires_edit_permission(): void
+    {
+        $viewOnly = User::factory()->create();
+        $viewOnly->syncPermissions(
+            Permission::whereIn('name', ['master_bidang.view'])->pluck('id')->all()
+        );
+
+        $this->actingAs($viewOnly)
+            ->get(route('admin.master_bidang.map-legacy-preview'))
+            ->assertForbidden();
+
+        $this->actingAs($viewOnly)
+            ->post(route('admin.master_bidang.map-legacy'))
+            ->assertForbidden();
+    }
+
+    /**
+     * Fixture 5 baris tanpa kode legacy — dipakai test pratinjau/penerapan:
+     * - PLTU INDRAMAYU → pemetaan nama bilang "sengaja tanpa kode".
+     * - BIDANG OPERASI → pemetaan nama persis (department_code).
+     * - SUB BIDANG PRODUKSI A → kode sub persis + department warisan.
+     * - BIDANG BUSINES SUPPORT → pencocokan nama (levenshtein) ke business_support.
+     * - BIDANG NAMA BEBAS TANPA PADANAN → tidak ada padanan, tidak ditebak.
+     *
+     * @return array<string, Bidang>
+     */
+    private function seedLegacyFixture(): array
+    {
+        $root    = Bidang::create(['nama' => 'PLTU INDRAMAYU']);
+        $operasi = Bidang::create(['nama' => 'BIDANG OPERASI']);
+        $sub     = Bidang::create(['nama' => 'SUB BIDANG PRODUKSI A', 'parent_id' => $operasi->id]);
+        $fuzzy   = Bidang::create(['nama' => 'BIDANG BUSINES SUPPORT']);
+        $bebas   = Bidang::create(['nama' => 'BIDANG NAMA BEBAS TANPA PADANAN']);
+
+        return compact('root', 'operasi', 'sub', 'fuzzy', 'bebas');
+    }
 }

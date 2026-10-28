@@ -192,6 +192,106 @@ class DataKaryawanTest extends TestCase
         $this->assertDatabaseMissing('karyawans', ['id' => $karyawan->id]);
     }
 
+    /* =========================================================
+       HAPUS DATA KARYAWAN → AKUN PENGGUNA IKUT TERHAPUS
+       (dan sebaliknya: hapus akun TIDAK menghapus data karyawan)
+       ========================================================= */
+
+    public function test_destroy_also_deletes_linked_user_account(): void
+    {
+        $karyawan = Karyawan::factory()->create(['nid' => '9001', 'nama' => 'Siti Aminah']);
+
+        $akun = User::factory()->create(['email' => 'siti.aminah@example.test']);
+        $akun->employeeProfile()->create([
+            'karyawan_id' => $karyawan->id,
+            'nid'         => $karyawan->nid,
+            'nama'        => $karyawan->nama,
+        ]);
+
+        $this->actingAs($this->hrUser())
+            ->delete(route('admin.karyawan_data.destroy', $karyawan))
+            ->assertRedirect(route('admin.karyawan_data.index'))
+            ->assertSessionHas('success');
+
+        // Data karyawan, akun pengguna, dan profil kepegawaian ikut hilang.
+        $this->assertDatabaseMissing('karyawans', ['id' => $karyawan->id]);
+        $this->assertDatabaseMissing('users', ['id' => $akun->id]);
+        $this->assertDatabaseMissing('employee_profiles', ['user_id' => $akun->id]);
+
+        // Flash sukses menyebutkan penghapusan akunnya.
+        $this->assertStringContainsString('juga ikut dihapus', (string) session('success'));
+        $this->assertStringContainsString('siti.aminah@example.test', (string) session('success'));
+    }
+
+    public function test_destroy_matches_linked_account_by_nid_for_profile_without_soft_link(): void
+    {
+        $karyawan = Karyawan::factory()->create(['nid' => '9002']);
+
+        // Profil lama: NID terisi tetapi karyawan_id belum ditautkan —
+        // aturan pencocokan yang sama dengan badge "Sudah Terdaftar".
+        $akun = User::factory()->create(['email' => 'nid.lama@example.test']);
+        $akun->employeeProfile()->create([
+            'karyawan_id' => null,
+            'nid'         => $karyawan->nid,
+            'nama'        => 'Nama Profil Lama',
+        ]);
+
+        $this->actingAs($this->hrUser())
+            ->delete(route('admin.karyawan_data.destroy', $karyawan))
+            ->assertRedirect(route('admin.karyawan_data.index'));
+
+        $this->assertDatabaseMissing('karyawans', ['id' => $karyawan->id]);
+        $this->assertDatabaseMissing('users', ['id' => $akun->id]);
+    }
+
+    public function test_destroy_without_linked_account_still_succeeds(): void
+    {
+        $karyawan = Karyawan::factory()->create(['nid' => '9003']);
+        $lain     = Karyawan::factory()->create(['nid' => '9004']);
+        $akunLain = User::factory()->create(['email' => 'lain@example.test']);
+        $akunLain->employeeProfile()->create([
+            'karyawan_id' => $lain->id,
+            'nid'         => $lain->nid,
+            'nama'        => 'Karyawan Lain',
+        ]);
+
+        $this->actingAs($this->hrUser())
+            ->delete(route('admin.karyawan_data.destroy', $karyawan))
+            ->assertRedirect(route('admin.karyawan_data.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('karyawans', ['id' => $karyawan->id]);
+
+        // Karyawan & akun yang TIDAK terhubung tidak tersentuh.
+        $this->assertDatabaseHas('karyawans', ['id' => $lain->id]);
+        $this->assertDatabaseHas('users', ['id' => $akunLain->id]);
+        $this->assertStringNotContainsString('juga ikut dihapus', (string) session('success'));
+    }
+
+    public function test_deleting_user_account_keeps_karyawan_data(): void
+    {
+        $karyawan = Karyawan::factory()->create(['nid' => '9005', 'nama' => 'Budi Dwi']);
+
+        $akun = User::factory()->create(['email' => 'budi.dwi@example.test']);
+        $akun->employeeProfile()->create([
+            'karyawan_id' => $karyawan->id,
+            'nid'         => $karyawan->nid,
+            'nama'        => $karyawan->nama,
+        ]);
+
+        // Hapus akun lewat manajemen Pengguna — data karyawan TIDAK ikut hilang.
+        $this->actingAs($this->superAdmin())
+            ->delete(route('admin.users.destroy', $akun))
+            ->assertRedirect(route('admin.users.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('users', ['id' => $akun->id]);
+        $this->assertDatabaseMissing('employee_profiles', ['user_id' => $akun->id]);
+
+        $this->assertDatabaseHas('karyawans', ['id' => $karyawan->id]);
+        $this->assertSame('Budi Dwi', Karyawan::query()->find($karyawan->id)->nama);
+    }
+
     public function test_show_and_forms_render(): void
     {
         $karyawan = Karyawan::factory()->create();

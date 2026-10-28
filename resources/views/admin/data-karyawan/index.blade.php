@@ -793,8 +793,19 @@
                             </a>
                         @endcan
                         @can('karyawan_data.delete')
+                            @php
+                                /* Konfirmasi menyebutkan akun pengguna terkait bila ada —
+                                   menghapus baris ini ikut menghapus akun tersebut. */
+                                $akunHapus  = $akunByKaryawanId[$karyawan->id] ?? null;
+                                $pesanHapus = 'Hapus data karyawan ' . addslashes($karyawan->nama)
+                                    . ' (NID ' . $karyawan->nid . ')?'
+                                    . ($akunHapus !== null
+                                        ? ' Akun pengguna ' . $akunHapus->email . ' yang terhubung juga ikut dihapus.'
+                                        : '')
+                                    . ' Data yang dihapus tidak dapat dikembalikan.';
+                            @endphp
                             <form method="POST" action="{{ route('admin.karyawan_data.destroy', $karyawan) }}"
-                                  onsubmit="return confirm('Hapus data karyawan {{ addslashes($karyawan->nama) }} (NID {{ $karyawan->nid }})? Data yang dihapus tidak dapat dikembalikan.')">
+                                  onsubmit="return confirm('{{ addslashes($pesanHapus) }}')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="dk-action-btn delete" title="Hapus">

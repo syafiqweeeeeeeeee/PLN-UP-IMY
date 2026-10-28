@@ -28,6 +28,73 @@ class Bidang extends Model
     ];
 
     /**
+     * Pemetaan nama Master Bidang → [department_code, sub_department_code]
+     * untuk kolom legacy (`users.department` / `users.sub_department`).
+     *
+     * Daftar yang sama dengan migrasi add_legacy_codes_to_bidangs_table
+     * (di sini dipakai ulang oleh fitur "Petakan Kode Legacy" pada panel
+     * Master Bidang — baris yang dibuat MANUAL lewat form admin tidak
+     * pernah dilewati migrasi itu, jadi kodenya masih NULL).
+     *
+     * - `null` pada department_code berarti baris itu MEMANG sengaja
+     *   tanpa kode (induk umum seperti "PLTU INDRAMAYU") — jangan
+     *   menebak kode untuk baris ini.
+     * - Baris yang tidak ada di daftar ini diwarisi otomatis dari induk
+     *   lewat departmentCode(); hanya baris tanpa induk berkode yang
+     *   butuh pemetaan sendiri.
+     *
+     * @var array<string, array{0: string|null, 1: string|null}>
+     */
+    public const LEGACY_NAME_CODES = [
+        'PLTU INDRAMAYU' => [null, null],
+
+        // ── Engineering ────────────────────────────────────────────
+        'BIDANG ENJINIRING' => ['engineering', null],
+        'SUB BIDANG  SYSTEM OWNER TURBINE & AUX' => ['engineering', 'asmen_so'],
+        'SUB BIDANG SYSTEM OWNER BOILER & AUX' => ['engineering', 'asmen_so'],
+        'SUB BIDANG SYSTEM OWNER COMMON AUX' => ['engineering', 'asmen_so'],
+        'SUB BIDANG COMPONENT ANALYST' => ['engineering', 'asmen_cbm'],
+        'SUB BIDANG CONDITION BASED MAINTENANCE' => ['engineering', 'asmen_cbm'],
+        'SUB BIDANG MANAJEMEN MUTU & KINERJA' => ['engineering', 'asmen_mmrk'],
+        'SUB BIDANG MANAJEMEN RISIKO & KEPATUHAN' => ['engineering', 'asmen_mmrk'],
+
+        // ── Operasi ────────────────────────────────────────────────
+        'BIDANG OPERASI' => ['operasi', null],
+        'SUB BIDANG RENDAL OPERASI' => ['operasi', 'asmen_renops'],
+        'SUB BIDANG PRODUKSI A' => ['operasi', 'asmen_prod_a'],
+        'SUB BIDANG PRODUKSI B' => ['operasi', 'asmen_prod_b'],
+        'SUB BIDANG PRODUKSI C' => ['operasi', 'asmen_prod_c'],
+        'SUB BIDANG PRODUKSI D' => ['operasi', 'asmen_prod_d'],
+        'SUB BIDANG KIMIA & LABORATORIUM' => ['operasi', 'asmen_kimia_lab'],
+        'SUB BIDANG BAHAN BAKAR' => ['operasi', 'asmen_niaga_bb'],
+        'SUB BIDANG COAL & ASH HANDLING A' => ['operasi', 'spv_chcb_a'],
+        'SUB BIDANG COAL & ASH HANDLING B' => ['operasi', 'spv_chcb_b'],
+        'SUB BIDANG COAL & ASH HANDLING C' => ['operasi', 'spv_chcb_c'],
+        'SUB BIDANG COAL & ASH HANDLING D' => ['operasi', 'spv_chcb_d'],
+
+        // ── Pemeliharaan ──────────────────────────────────────────
+        'BIDANG PEMELIHARAAN' => ['pemeliharaan', null],
+        'SUB BIDANG RENDAL PEMELIHARAAN' => ['pemeliharaan', 'asmen_rendal_har'],
+        'SUB BIDANG OUTAGE MANAGEMENT' => ['pemeliharaan', 'asmen_mo'],
+        'SUB BIDANG LISTRIK' => ['pemeliharaan', 'asmen_listrik'],
+        'SUB BIDANG KONTROL & INSTRUMEN' => ['pemeliharaan', 'asmen_konin'],
+        'SUB BIDANG MESIN 1 BOILER, TURBIN & AAB' => ['pemeliharaan', 'asmen_mesin_1'],
+        'SUB BIDANG MESIN 2 SISTEM BAHAN BAKAR & ABU' => ['pemeliharaan', 'asmen_mesin_2'],
+        'SUB BIDANG SARANA' => ['pemeliharaan', null],
+        'SUB BIDANG LINGKUNGAN' => ['lingkungan', 'lingkungan'],
+        'SUB BIDANG K3' => ['k3_kam', 'k3_kam'],
+        'SUB BIDANG SUMBER DAYA MANUSIA' => ['business_support', 'asmen_sdm_umum_csr'],
+        'SUB BIDANG KEUANGAN' => ['business_support', 'asmen_keuangan'],
+        'SUB BIDANG UMUM & CSR' => ['business_support', 'asmen_sdm_umum_csr'],
+
+        // ── Logistik ──────────────────────────────────────────────
+        'BIDANG LOGISTIK' => ['business_support', null],
+        'SUB BIDANG INVENTORI KONTROL & KATALOGER' => ['pemeliharaan', 'asmen_inventori'],
+        'SUB BIDANG PENGADAAN' => ['business_support', 'asmen_pengadaan'],
+        'SUB BIDANG ADMINISTRASI GUDANG' => ['pemeliharaan', 'asmen_inventori'],
+    ];
+
+    /**
      * Kode Bidang Utama legacy (`users.department`) untuk baris ini.
      *
      * Master Bidang adalah sumber tunggal unit kerja pada form Pengguna;

@@ -68,8 +68,15 @@ class TamuController extends Controller
     /**
      * Setelah approve()/reject() dari halaman DETAIL, kembali ke halaman
      * itu (bukan ke daftar) supaya admin langsung melihat status & log baru.
+     *
+     * FIX: atribut #[\Override] DIHAPUS — method ini meng-override method
+     * bawaan TRAIT VerifiesTamu (bukan method parent class/interface), dan
+     * PHP 8.3+ menolak atribut itu dengan FATAL compile error
+     * ("no matching parent method exists") sehingga kelas gagal dimuat —
+     * halaman admin/tamu maupun seluruh suite test yang menyentuhnya ikut
+     * mati. Kelas Karyawan\TamuController tetap memakai #[\Override]
+     * karena parent-nya (kelas ini) benar-benar punya method-nya.
      */
-    #[\Override]
     protected function aksiStatusRedirect(Request $request, Tamu $tamu): RedirectResponse
     {
         return redirect()->route('admin.tamu.detail', $tamu);

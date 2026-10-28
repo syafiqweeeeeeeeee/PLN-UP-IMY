@@ -300,6 +300,96 @@
         </div>
     </div>
 
+    {{-- ============================================
+         SECTION: KODE LEGACY (opsional)
+         Jembatan baris ini ke scoping data lama: dropdown Link Kerja &
+         form Pengguna menyaring baris ber-kode, dan Portal Karyawan
+         mencocokkan link khusus lewat department/sub_department.
+         Sub-bidang TANPA kode sub tetap mewarisi kode bidang induknya.
+         ============================================ --}}
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon cyan">
+                <i class="fas fa-code-branch"></i>
+            </div>
+            <div>
+                <h6 class="form-section-title">Kode Legacy (Pemetaan Scoping)</h6>
+                <p class="form-section-desc">Kode bidang lama yang menghubungkan baris ini ke filter data — opsional</p>
+            </div>
+        </div>
+
+        @php
+            $mbDepartments    = \App\Models\User::DEPARTMENTS;
+            $mbSubCodes       = collect(\App\Models\User::SUB_DEPARTMENTS)
+                ->flatMap(fn ($group) => array_keys($group))
+                ->unique()->sort()->values();
+            $mbCurrentDept    = old('department_code', $bidang?->department_code);
+            $mbCurrentSub     = old('sub_department_code', $bidang?->sub_department_code);
+        @endphp
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="department_code">
+                        Kode Bidang Utama <span style="color:#9ca3af; font-weight:500;">(opsional)</span>
+                    </label>
+                    <select id="department_code"
+                            name="department_code"
+                            class="form-input @error('department_code') is-invalid @enderror">
+                        <option value="">— kosong (belum dipetakan) —</option>
+                        @foreach ($mbDepartments as $code => $label)
+                            <option value="{{ $code }}" {{ (string) $mbCurrentDept === (string) $code ? 'selected' : '' }}>
+                                {{ $label }} ({{ $code }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('department_code')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                    <div class="mb-parent-hint">
+                        Dibutuhkan oleh dropdown <b>Link Kerja</b> & <b>Pengguna</b> serta filter Portal Karyawan.
+                        Baris tanpa kode tetap tampil di Link Kerja, tetapi link khususnya belum terfilter ke akun karyawan.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-group-label" for="sub_department_code">
+                        Kode Sub-Bidang <span style="color:#9ca3af; font-weight:500;">(opsional)</span>
+                    </label>
+                    <input type="text"
+                           id="sub_department_code"
+                           name="sub_department_code"
+                           list="mb-sub-code-options"
+                           value="{{ $mbCurrentSub ?? '' }}"
+                           class="form-input @error('sub_department_code') is-invalid @enderror"
+                           placeholder="Kosongkan bila hanya level bidang"
+                           maxlength="50">
+                    <datalist id="mb-sub-code-options">
+                        @foreach ($mbSubCodes as $mbSubCode)
+                            <option value="{{ $mbSubCode }}"></option>
+                        @endforeach
+                    </datalist>
+                    @error('sub_department_code')
+                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                    @enderror
+                    <div class="mb-parent-hint">
+                        Diisi hanya bila baris ini benar-benar sub-bidang; hanya kode dari daftar yang diterima.
+                        Baris tanpa kode ini otomatis mewarisi Kode Bidang Utama induknya.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-parent-hint" style="margin-top:0.2rem;">
+            <i class="far fa-lightbulb"></i>
+            Untuk mengisi banyak baris sekaligus, gunakan tombol
+            <b>Petakan Kode Legacy</b> di halaman daftar Master Bidang
+            (pratinjau dulu, baru diterapkan — kode yang sudah ada tidak ditimpa).
+        </div>
+    </div>
+
     <div class="form-footer">
         <div class="form-footer-info">
             <i class="fas fa-circle-info"></i>
