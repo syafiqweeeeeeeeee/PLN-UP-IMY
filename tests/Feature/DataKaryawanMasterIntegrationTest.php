@@ -26,6 +26,9 @@ use Tests\TestCase;
  * - Impor memetakan nama ke id (normalisasi spasi & huruf besar/kecil),
  *   tidak menebak saat ambigu, dan tidak membuat master baru.
  * - Backfill aman dijalankan ulang & tidak menimpa relasi yang sudah ada.
+ * - Fitur "Petakan ke Master" (UI): pratinjau tidak menulis apa pun,
+ *   penerapan mengisi id yang masih NULL, menyamakan teks dengan nama
+ *   master, mempertahankan nama yang belum ada di master, dan idempoten.
  */
 class DataKaryawanMasterIntegrationTest extends TestCase
 {
@@ -558,6 +561,114 @@ class DataKaryawanMasterIntegrationTest extends TestCase
 
         $this->assertSame($terpetakan, Karyawan::whereNotNull('bidang_id')->count());
         $this->assertSame(1, Karyawan::where('nid', '5001')->count());
+    }
+
+    /* =========================================================
+       6b. FITUR "PETAKAN KE MASTER" — PRATINJAU & PENERAPAN
+       ========================================================= */
+
+    public function test_map_master_preview_requires_edit_permission_and_writes_nothing(): void
+    {
+        $bidang = $this->bidang('BIDANG OPERASI');
+        $this->jabatan('MANAGER OPERASI', $bidang);
+
+        Karyawan::factory()->create([
+            'nid' => '7001',
+            'bidang' => 'bidang operasi',
+            'jabatan' => 'Manager Operasi',
+        ]);
+
+        // Permission karyawan_data.view SAJA (tanpa edit) → 403 di kedua endpoint.
+        $viewOnly = User::factory()->create();
+        $viewOnly->syncPermissions(
+            Permission::whereIn('name', ['karyawan_data.view'])->pluck('id')->all()
+        );
+
+        $this->actingAs($viewOnly)
+            ->get(route('admin.karyawan_data.map-master-preview'))
+            ->assertForbidden();
+
+        $this->actingAs($viewOnly)
+            ->post(route('admin.karyawan_data.map-master'))
+            ->assertForbidden();
+
+        $json = $this->actingAs($this->user())
+            ->getJson(route('admin.karyawan_data.map-master-preview'))
+            ->assertOk()
+            ->json();
+
+        $this->assertSame(1, $json['rows']);
+        $this->assertSame(1, $json['rows_updated']);
+        $this->assertSame(1, $json['bidang']['matched']);
+        $this->assertSame(1, $json['bidang']['linked']);
+        $this->assertSame(1, $json['jabatan']['linked']);
+
+        // Pratinjau TIDAK menulis apa pun — id tetap NULL, teks tetap.
+        $karyawan = Karyawan::where('nid', '7001')->firstOrFail();
+
+        $this->assertNull($karyawan->bidang_id);
+        $this->assertNull($karyawan->jabatan_id);
+        $this->assertSame('bidang operasi', $karyawan->bidang);
+        $this->assertSame('Manager Operasi', $karyawan->jabatan);
+    }
+
+    public function test_map_master_fills_ids_and_syncs_text_to_master_names(): void
+    {
+        $bidang = $this->bidang('BIDANG OPERASI');
+        $jabatan = $this->jabatan('MANAGER OPERASI', $bidang);
+
+        // Nama teks lama (bukan format master) → id diisi + teks disamakan.
+        $baru = Karyawan::factory()->create([
+            'nid' => '7101',
+            'bidang' => 'bidang operasi',
+            'jabatan' => 'Manager Operasi',
+        ]);
+
+        // Nama yang tidak ada di master → TIDAK disentuh.
+        $asing = Karyawan::factory()->create([
+            'nid' => '7102',
+            'bidang' => 'BIDANG TIDAK ADA',
+            'jabatan' => 'JABATAN TIDAK ADA',
+        ]);
+
+        // Sudah terpetakan & teksnya sudah sesuai → tidak berubah.
+        $sudah = Karyawan::factory()->create([
+            'nid' => '7103',
+            'bidang_id' => $bidang->id,
+            'bidang' => 'BIDANG OPERASI',
+            'jabatan' => null,
+            'jabatan_id' => null,
+        ]);
+
+        $this->actingAs($this->user())
+            ->post(route('admin.karyawan_data.map-master'))
+            ->assertRedirect(route('admin.karyawan_data.index'))
+            ->assertSessionHas('map_summary');
+
+        $baru->refresh();
+        $this->assertSame($bidang->id, $baru->bidang_id);
+        $this->assertSame($jabatan->id, $baru->jabatan_id);
+        $this->assertSame('BIDANG OPERASI', $baru->bidang, 'Teks harus disamakan dengan nama master.');
+        $this->assertSame('MANAGER OPERASI', $baru->jabatan, 'Teks harus disamakan dengan nama master.');
+
+        $asing->refresh();
+        $this->assertNull($asing->bidang_id);
+        $this->assertNull($asing->jabatan_id);
+        $this->assertSame('BIDANG TIDAK ADA', $asing->bidang, 'Nama yang belum ada di master tidak boleh diubah.');
+        $this->assertSame('JABATAN TIDAK ADA', $asing->jabatan);
+
+        $sudah->refresh();
+        $this->assertSame($bidang->id, $sudah->bidang_id);
+        $this->assertSame('BIDANG OPERASI', $sudah->bidang);
+
+        // Dijalankan ulang → idempoten, tidak ada baris yang berubah lagi.
+        $this->actingAs($this->user())
+            ->post(route('admin.karyawan_data.map-master'))
+            ->assertRedirect(route('admin.karyawan_data.index'))
+            ->assertSessionHas('map_summary.updated', 0);
+
+        $this->assertSame(3, Karyawan::count());
+        $this->assertSame(2, Karyawan::whereNotNull('bidang_id')->count());
     }
 
     /* =========================================================

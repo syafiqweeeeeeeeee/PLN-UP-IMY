@@ -541,6 +541,13 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             Route::post('data-karyawan/import', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'import'])->name('karyawan_data.import');
         });
         Route::middleware('permission:karyawan_data.edit')->group(function () {
+            // FITUR "Petakan ke Master" — pratinjau (JSON, tanpa tulis) +
+            // penerapan pemetaan massal bidang/jabatan. Route statis dulu
+            // sebelum wildcard {karyawan}, pola sama dengan create/import.
+            Route::get('data-karyawan/map-master', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'mapMasterPreview'])
+                ->name('karyawan_data.map-master-preview');
+            Route::post('data-karyawan/map-master', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'mapMaster'])
+                ->name('karyawan_data.map-master');
             Route::get('data-karyawan/{karyawan}/edit', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'edit'])->whereNumber('karyawan')->name('karyawan_data.edit');
             Route::put('data-karyawan/{karyawan}', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'update'])->whereNumber('karyawan')->name('karyawan_data.update');
         });

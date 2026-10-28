@@ -161,7 +161,19 @@
        Sekarang: (1) atribut `type` dipreservasi dan script
        non-javascript di-skip sepenuhnya; (2) setiap script
        dibungkus try/catch agar satu script yang gagal tidak
-       memblokir script lainnya. */
+       memblokir script lainnya.
+
+       FIX (eksekusi dobel — dropdown Parent Master Bidang tidak
+       pernah terbuka setelah navigasi SPA): elemen <script> yang
+       DISISIPKAN ke DOM lewat replaceChild() SUDAH dieksekusi oleh
+       browser sendiri (diverifikasi: innerHTML = 0 kali,
+       replaceChild = 1 kali). Karena itu fallback `eval()` lama
+       (untuk pola IIFE yang diawali '(' / 'function' / '!' / ';')
+       menjalankan script halaman DUA KALI → dua listener click pada
+       pemicu dropdown: listener pertama membuka panel, listener
+       kedua langsung menutupnya lagi → panel tak pernah muncul,
+       pengguna harus refresh manual. eval() DIHAPUS; cukup sisipkan
+       elemennya, eksekusi terjadi tepat satu kali. */
     function reexecuteScripts(container) {
         Array.prototype.forEach.call(container.querySelectorAll('script'), function (old) {
             try {
@@ -178,13 +190,11 @@
                     // tapi beri flag agar handler cls ketik sejarah eksekusi
                     s.setAttribute('data-reexec-src', '1');
                 } else {
-                    // Inline script: inject then invoke via IIFE pattern jika berisi saya-executing
+                    // Inline script: cukup tempel isinya — begitu node
+                    // disisipkan ke DOM, browser mengeksekusinya SATU kali.
+                    // Jangan eval() lagi (lihat komentar di atas): eval itu
+                    // yang membuat listener terpasang ganda.
                     s.textContent = old.textContent;
-                    // Coba jalankan script inline yang mengandung pola IIFE atau function declaration
-                    // yang diharapkan dieksekusi segera setelah swap
-                    if (old.textContent.trim().startsWith('(') || old.textContent.trim().startsWith('function') || old.textContent.trim().startsWith('!') || old.textContent.trim().startsWith(';')) {
-                        try { eval(s.textContent); } catch (e) { /* log error tapi jangan hentikan navigasi */ }
-                    }
                 }
                 old.parentNode.replaceChild(s, old);
             } catch (e) {

@@ -497,6 +497,12 @@
                class="btn-corp btn-corp-soft" title="Ekspor data sesuai filter aktif ke CSV (Excel-ready)">
                 <i class="fas fa-file-export me-1"></i> Ekspor
             </a>
+            @can('karyawan_data.edit')
+            <button type="button" id="dkMapMasterBtn" class="btn-corp btn-corp-soft"
+                    title="Isi kolom BIDANG & JABATAN dari Master Bidang/Jabatan (ada pratinjau sebelum diterapkan)">
+                <i class="fas fa-sitemap me-1"></i> Petakan ke Master
+            </button>
+            @endcan
         </div>
     </div>
 
@@ -608,6 +614,50 @@
                 </ol>
             @endif
         @endif
+    </div>
+@endif
+
+{{-- ============ RINGKASAN PETAKAN KE MASTER ============
+     Flash dari POST karyawan_data.map-master — muncul sekali setelah
+     penerapan, lalu hilang saat halaman dimuat ulang.
+     ===== --}}
+@php $mapSummary = session('map_summary'); @endphp
+@if ($mapSummary)
+    <div class="dk-page-header" style="border-color:#c7d2fe; background:#eef2ff;">
+        <h6 style="font-weight:700; color:var(--pln-text); margin:0;">
+            <i class="fas fa-sitemap me-1"></i> Ringkasan Pemetaan ke Master Bidang &amp; Jabatan
+        </h6>
+        <div class="dk-summary-grid" style="max-width:620px;">
+            <div class="dk-summary-item"><b>{{ $mapSummary['rows'] }}</b><small>Total Karyawan</small></div>
+            <div class="dk-summary-item"><b style="color:#15803d;">{{ $mapSummary['updated'] }}</b><small>Baris Diperbarui</small></div>
+            <div class="dk-summary-item"><b style="color:#15803d;">{{ $mapSummary['bidang']['linked'] }}</b><small>Bidang Baru Terpetakan</small></div>
+            <div class="dk-summary-item"><b style="color:#15803d;">{{ $mapSummary['jabatan']['linked'] }}</b><small>Jabatan Baru Terpetakan</small></div>
+            <div class="dk-summary-item"><b style="color:#0b5394;">{{ $mapSummary['text_synced'] }}</b><small>Teks Disamakan ke Master</small></div>
+            <div class="dk-summary-item">
+                <b style="color:#b45309;">{{ $mapSummary['bidang']['unmapped'] + $mapSummary['bidang']['ambiguous'] + $mapSummary['jabatan']['unmapped'] + $mapSummary['jabatan']['ambiguous'] }}</b>
+                <small>Belum Ada di Master</small>
+            </div>
+        </div>
+        @if ($mapSummary['bidang']['unmapped_names'] !== [])
+            <p style="font-size:0.75rem; font-weight:700; color:#b45309; margin:0.5rem 0 0;">
+                <i class="fas fa-circle-exclamation me-1"></i>Bidang belum ada di master (teks lama dipertahankan):
+                @foreach ($mapSummary['bidang']['unmapped_names'] as $i => $item)
+                    {{ $i ? ' · ' : '' }}{{ $item['nama'] }} ({{ $item['jumlah'] }})
+                @endforeach
+            </p>
+        @endif
+        @if ($mapSummary['jabatan']['unmapped_names'] !== [])
+            <p style="font-size:0.75rem; font-weight:700; color:#b45309; margin:0.35rem 0 0;">
+                <i class="fas fa-circle-exclamation me-1"></i>Jabatan belum ada di master (teks lama dipertahankan):
+                @foreach ($mapSummary['jabatan']['unmapped_names'] as $i => $item)
+                    {{ $i ? ' · ' : '' }}{{ $item['nama'] }} ({{ $item['jumlah'] }})
+                @endforeach
+            </p>
+        @endif
+        <p style="font-size:0.75rem; color:#6b7280; margin:0.5rem 0 0;">
+            Tambahkan nama yang kurang lewat <b>Master Bidang</b> / <b>Master Jabatan</b>, lalu jalankan tombol
+            <b>Petakan ke Master</b> lagi — fitur ini aman dijalankan berulang.
+        </p>
     </div>
 @endif
 
@@ -866,6 +916,113 @@
     </div>
 </div>
 @endcan
+
+{{-- ============ MODAL PETAKAN KE MASTER ============ --}}
+@can('karyawan_data.edit')
+<div class="dk-modal-overlay" id="mapMasterModal" onclick="if(event.target===this) this.classList.remove('show')">
+    <div class="dk-modal">
+        <div class="dk-modal-header">
+            <h6><i class="fas fa-sitemap" style="color: var(--pln-blue);"></i> Petakan ke Master Bidang &amp; Jabatan</h6>
+            <button type="button" class="dk-modal-close" onclick="document.getElementById('mapMasterModal').classList.remove('show')"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="dk-modal-body">
+            <p style="color:#6b7280; font-size:0.8rem; margin:0 0 0.8rem;">
+                Mengisi kolom <b>BIDANG</b> &amp; <b>JABATAN</b> data karyawan dari <b>Master Bidang</b> dan <b>Master Jabatan</b>:
+                relasi <code>bidang_id</code>/<code>jabatan_id</code> diisi dari nama yang <b>tepat cocok</b>, lalu isi kolom teks
+                disamakan dengan nama master. Nama yang belum ada di master <b>tidak diubah</b> — tidak ada master baru
+                yang dibuat otomatis, dan relasi yang sudah ada tidak ditimpa. Aman dijalankan berulang.
+            </p>
+
+            <div id="dkMapMasterPreview" class="dk-summary-grid" style="max-width:620px; margin-bottom:0.8rem;">
+                <div class="dk-summary-item"><small>Memuat pratinjau…</small></div>
+            </div>
+            <div id="dkMapMasterNotes" style="font-size:0.75rem; color:#b45309; font-weight:600; margin:-0.4rem 0 0.8rem;"></div>
+
+            <form action="{{ route('admin.karyawan_data.map-master') }}" method="POST">
+                @csrf
+                <div style="display:flex; gap:0.6rem; justify-content:flex-end;">
+                    <button type="button" class="btn-corp btn-corp-soft" onclick="document.getElementById('mapMasterModal').classList.remove('show')">Batal</button>
+                    <button type="submit" class="btn-corp btn-corp-primary">
+                        <i class="fas fa-wand-magic-sparkles me-1"></i> Terapkan Pemetaan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endcan
+
+{{-- ============================================================
+     Pratinjau pemetaan — diambil saat modal dibuka (GET JSON,
+     tanpa menulis apa pun). Script INLINE di dalam content agar
+     router.js mengeksekusinya ulang setelah navigasi SPA.
+     ============================================================ --}}
+<script>
+    (function () {
+        var openBtn = document.getElementById('dkMapMasterBtn');
+        var modal   = document.getElementById('mapMasterModal');
+        var preview = document.getElementById('dkMapMasterPreview');
+        var notes   = document.getElementById('dkMapMasterNotes');
+        if (!openBtn || !modal || !preview) return;
+
+        var previewUrl = @json(route('admin.karyawan_data.map-master-preview'));
+
+        function item(value, label) {
+            return '<div class="dk-summary-item"><b>' + value + '</b><small>' + label + '</small></div>';
+        }
+
+        function names(list) {
+            return list.map(function (row) { return row.nama + ' (' + row.jumlah + ')'; }).join(' · ');
+        }
+
+        function render(data) {
+            var bidangSisa = data.bidang.unmapped + data.bidang.ambiguous;
+            var jabatanSisa = data.jabatan.unmapped + data.jabatan.ambiguous;
+
+            preview.innerHTML =
+                item(data.rows, 'Total Karyawan') +
+                item(data.rows_updated, 'Baris Akan Diperbarui') +
+                item(data.bidang.linked, 'Bidang Baru Terpetakan') +
+                item(data.jabatan.linked, 'Jabatan Baru Terpetakan') +
+                item(data.text_synced, 'Teks Disamakan ke Master') +
+                item(bidangSisa + jabatanSisa, 'Belum Ada di Master');
+
+            var parts = [];
+            if (data.bidang.unmapped_names.length) {
+                parts.push('Bidang: ' + names(data.bidang.unmapped_names));
+            }
+            if (data.jabatan.unmapped_names.length) {
+                parts.push('Jabatan: ' + names(data.jabatan.unmapped_names));
+            }
+            notes.innerHTML = parts.length
+                ? '<i class="fas fa-circle-exclamation me-1"></i>Nama berikut tetap sebagai teks lama — tambahkan ke master lalu jalankan ulang: '
+                    + parts.join('<br>')
+                : (data.rows_updated === 0
+                    ? '<i class="fas fa-circle-check me-1" style="color:#15803d;"></i>Semua data sudah sesuai master — tidak ada perubahan.'
+                    : '');
+        }
+
+        function load() {
+            preview.innerHTML = '<div class="dk-summary-item"><small>Memuat pratinjau…</small></div>';
+            notes.innerHTML = '';
+
+            fetch(previewUrl, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin'
+            })
+                .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+                .then(render)
+                .catch(function () {
+                    preview.innerHTML = '<div class="dk-summary-item"><small style="color:#dc2626;">Pratinjau gagal dimuat — tutup lalu buka lagi.</small></div>';
+                });
+        }
+
+        openBtn.addEventListener('click', function () {
+            modal.classList.add('show');
+            load();
+        });
+    })();
+</script>
 
 {{-- ============================================================
      Script INLINE offset kolom sticky — WAJIB di dalam content

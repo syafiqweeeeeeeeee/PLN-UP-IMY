@@ -13,6 +13,8 @@ use App\Services\ActivityLogger;
 use App\Services\MasterOrgMatcher;
 use App\Services\XlsxReader;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
@@ -49,6 +51,14 @@ use Throwable;
  * AMAN (tepat satu kandidat, jabatan berada di bidang yang sama). Nama
  * yang tidak ditemukan/ambigu dibiarkan NULL tanpa membuat master baru
  * dan dilaporkan di ringkasan impor.
+ *
+ * FITUR "PETAKAN KE MASTER" (tombol di halaman daftar): memetakan data
+ * lama ke master secara massal lewat UI — pratinjau dulu (GET, tanpa
+ * menulis), baru diterapkan (POST, satu transaksi). Selain mengisi
+ * bidang_id/jabatan_id yang masih NULL, fitur ini juga MENYAMAKAN isi
+ * kolom teks `bidang`/`jabatan` dengan nama master (keputusan produk:
+ * tampilan & filter harus memakai data master). Nama yang belum ada di
+ * master tidak diubah — tidak ada master baru yang dibuat otomatis.
  */
 class DataKaryawanController extends Controller
 {
@@ -617,6 +627,189 @@ class DataKaryawanController extends Controller
             ->reject(fn ($value) => isset($masterKeys[MasterOrgMatcher::normalize((string) $value)]))
             ->values()
             ->all();
+    }
+
+    /* =========================================================
+       FITUR "PETAKAN KE MASTER" — pemetaan massal via UI
+       =========================================================
+       Dua endpoint di halaman daftar:
+       - GET  → JSON pratinjau: berapa baris/id/teks yang Akan berubah,
+         daftar nama yang belum ada di master. TIDAK menulis apa pun.
+       - POST → menerapkan rencana yang sama dalam SATU transaksi,
+         mencatat aktivitas, lalu kembali dengan ringkasan.
+
+       Dua langkah per baris:
+       1. ID   — bidang_id/jabatan_id yang masih NULL diisi dari nama
+          teks lama lewat MasterOrgMatcher (aturan sama dengan impor &
+          perintah karyawan:backfill-master: tepat satu kandidat, tidak
+          pernah menebak, tidak pernah menimpa relasi yang sudah ada).
+       2. TEKS — kolom `bidang`/`jabatan` disamakan dengan nama master
+          bila baris punya relasi id (id menjadi sumber kebenaran, sama
+          seperti resolveMasterChoice() pada form simpan). Teks baris
+          yang TIDAK terpetakan dibiarkan persis seperti semula. */
+
+    /** Pratinjau pemetaan — JSON, tanpa menulis data. */
+    public function mapMasterPreview(): JsonResponse
+    {
+        Gate::authorize('karyawan_data.edit');
+
+        return response()->json($this->masterMappingPlan());
+    }
+
+    /** Terapkan pemetaan ke master — satu transaksi + log aktivitas. */
+    public function mapMaster(): RedirectResponse
+    {
+        Gate::authorize('karyawan_data.edit');
+
+        $plan = $this->masterMappingPlan();
+
+        if ($plan['updates'] !== []) {
+            DB::transaction(function () use ($plan): void {
+                foreach ($plan['updates'] as $id => $data) {
+                    Karyawan::query()->whereKey($id)->update($data);
+                }
+            });
+        }
+
+        ActivityLogger::log('update', null, [
+            'module'      => 'karyawan',
+            'description' => "memetakan data karyawan ke master bidang & jabatan ("
+                . $plan['rows_updated'] . ' baris diperbarui, '
+                . $plan['text_synced'] . ' teks disamakan dengan nama master)',
+        ]);
+
+        $bidangBaru    = $plan['bidang']['linked'];
+        $jabatanBaru   = $plan['jabatan']['linked'];
+        $bidangSisa    = $plan['bidang']['unmapped'] + $plan['bidang']['ambiguous'];
+        $jabatanSisa   = $plan['jabatan']['unmapped'] + $plan['jabatan']['ambiguous'];
+
+        if ($plan['rows_updated'] === 0) {
+            $message = 'Tidak ada perubahan — semua data karyawan sudah sesuai master bidang & jabatan.';
+        } else {
+            $message = "Pemetaan selesai: {$plan['rows_updated']} baris diperbarui ("
+                . "{$bidangBaru} bidang & {$jabatanBaru} jabatan baru terhubung ke master"
+                . ($plan['text_synced'] > 0 ? ", {$plan['text_synced']} teks disamakan dengan nama master" : '')
+                . ').';
+
+            if ($bidangSisa > 0 || $jabatanSisa > 0) {
+                $message .= " Masih ada nama yang belum ada di master ({$bidangSisa} bidang, {$jabatanSisa} jabatan) — "
+                    . 'teks lama dipertahankan. Tambahkan dulu di Master Bidang/Jabatan lalu jalankan ulang fitur ini.';
+            }
+        }
+
+        return redirect()->route('admin.karyawan_data.index')
+            ->with('success', $message)
+            ->with('map_summary', [
+                'rows'          => $plan['rows'],
+                'updated'       => $plan['rows_updated'],
+                'text_synced'   => $plan['text_synced'],
+                'bidang'        => $plan['bidang'],
+                'jabatan'       => $plan['jabatan'],
+            ]);
+    }
+
+    /**
+     * Rencana pemetaan — dihitung ulang tiap panggilan (pratinjau maupun
+     * penerapan), sehingga preview dan hasil apply tidak mungkin beda.
+     *
+     * @return array<string, mixed>
+     */
+    private function masterMappingPlan(): array
+    {
+        $matcher    = new MasterOrgMatcher;
+        $bidangNames = Bidang::query()->pluck('nama', 'id');
+        $jabatanNames = Jabatan::query()->pluck('nama', 'id');
+
+        $plan = [
+            'rows'         => 0,
+            'bidang'       => [
+                MasterOrgMatcher::MATCHED   => 0,
+                MasterOrgMatcher::UNMAPPED  => 0,
+                MasterOrgMatcher::AMBIGUOUS => 0,
+                'linked'        => 0,
+                'unmapped_names'=> [],
+            ],
+            'jabatan'      => [
+                MasterOrgMatcher::MATCHED   => 0,
+                MasterOrgMatcher::UNMAPPED  => 0,
+                MasterOrgMatcher::AMBIGUOUS => 0,
+                'linked'        => 0,
+                'unmapped_names'=> [],
+            ],
+            'text_synced'  => 0,
+            'rows_updated' => 0,
+            'updates'      => [],
+        ];
+
+        Karyawan::query()
+            ->orderBy('id')
+            ->chunkById(200, function ($rows) use (&$plan, $matcher, $bidangNames, $jabatanNames): void {
+                foreach ($rows as $karyawan) {
+                    $plan['rows']++;
+
+                    $match = $matcher->match($karyawan->bidang, $karyawan->jabatan);
+                    $data  = [];
+
+                    foreach (['bidang', 'jabatan'] as $field) {
+                        $status = $match[$field.'_status'];
+
+                        if (isset($plan[$field][$status])) {
+                            $plan[$field][$status]++;
+                        }
+
+                        // 1) ID — hanya mengisi yang masih NULL.
+                        $id = $karyawan->{$field.'_id'};
+
+                        if ($id === null && $match[$field.'_id'] !== null) {
+                            $id = $match[$field.'_id'];
+                            $data[$field.'_id'] = $id;
+                            $plan[$field]['linked']++;
+                        }
+
+                        // 2) TEKS — samakan dengan nama master bila baris
+                        //    punya relasi (id = sumber kebenaran).
+                        $names = $field === 'bidang' ? $bidangNames : $jabatanNames;
+
+                        if ($id !== null && isset($names[$id])) {
+                            $namaMaster = (string) $names[$id];
+
+                            if (trim((string) $karyawan->{$field}) !== $namaMaster) {
+                                $data[$field] = $namaMaster;
+                                $plan['text_synced']++;
+                            }
+                        }
+
+                        // Nama yang tetap tidak terpetakan (untuk laporan).
+                        if ($id === null && $status === MasterOrgMatcher::UNMAPPED) {
+                            $nama = trim((string) $karyawan->{$field});
+
+                            if ($nama !== '') {
+                                $plan[$field]['unmapped_names'][$nama] = ($plan[$field]['unmapped_names'][$nama] ?? 0) + 1;
+                            }
+                        }
+                    }
+
+                    if ($data !== []) {
+                        $plan['updates'][$karyawan->id] = $data;
+                        $plan['rows_updated']++;
+                    }
+                }
+            });
+
+        // Nama belum terpetakan: urutkan dari yang paling banyak dipakai,
+        // tampilkan maksimal 15 per kolom (pratinjau di modal).
+        foreach (['bidang', 'jabatan'] as $field) {
+            $names = $plan[$field]['unmapped_names'];
+            arsort($names);
+
+            $plan[$field]['unmapped_names'] = collect($names)
+                ->map(fn (int $jumlah, string $nama): array => ['nama' => $nama, 'jumlah' => $jumlah])
+                ->take(15)
+                ->values()
+                ->all();
+        }
+
+        return $plan;
     }
 
     /* =========================================================
