@@ -29,6 +29,9 @@ use Tests\TestCase;
  *   kolom ORGANIK, file rusak; penulis arsip ZIP diuji langsung.
  * - Pencarian NID/NAMA, filter dropdown, pagination, ekspor mengikuti
  *   filter aktif.
+ * - Status karyawan aktif/nonaktif: daftar default hanya aktif,
+ *   daftar nonaktif punya pencarian sendiri, aksi Nonaktifkan /
+ *   Aktifkan Kembali tidak menghapus data.
  */
 class DataKaryawanTest extends TestCase
 {
@@ -489,6 +492,192 @@ class DataKaryawanTest extends TestCase
         $response = $this->actingAs($this->hrUser())
             ->get(route('admin.karyawan_data.index', ['per_page' => 7]));
         $this->assertCount(25, $response->viewData('karyawans')->items());
+    }
+
+    /* =========================================================
+       3b. STATUS AKTIF / NONAKTIF
+       ========================================================= */
+
+    public function test_index_defaults_to_active_only(): void
+    {
+        Karyawan::factory()->create(['nid' => '9101', 'nama' => 'Karyawan Aktif']);
+        Karyawan::factory()->create(['nid' => '9102', 'nama' => 'Karyawan Nonaktif', 'status' => 'nonaktif']);
+
+        $response = $this->actingAs($this->hrUser())
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk();
+
+        $page = $response->viewData('karyawans');
+
+        // Tampilan default: hanya aktif; data nonaktif tidak bocor ke
+        // tabel utama, pagination, maupun jumlah data.
+        $this->assertSame(['9101'], $page->pluck('nid')->all());
+        $this->assertSame(1, $page->total());
+        $this->assertSame(1, $response->viewData('totalAll'));
+        $this->assertSame('aktif', $response->viewData('status'));
+        $response->assertSee('9101')->assertDontSee('9102');
+
+        // Parameter status sampah jatuh ke aktif (tidak ada jalan pintas
+        // untuk menampilkan data lain).
+        $response = $this->actingAs($this->hrUser())
+            ->get(route('admin.karyawan_data.index', ['status' => 'sembarang']))
+            ->assertOk();
+        $this->assertSame(['9101'], $response->viewData('karyawans')->pluck('nid')->all());
+    }
+
+    public function test_nonaktif_list_can_search_by_nid_and_nama(): void
+    {
+        Karyawan::factory()->create(['nid' => '9201', 'nama' => 'Karyawan Aktif']);
+        Karyawan::factory()->create(['nid' => '9202', 'nama' => 'Siti Aminah', 'status' => 'nonaktif']);
+        Karyawan::factory()->create(['nid' => '9203', 'nama' => 'Rina Marlina', 'status' => 'nonaktif']);
+
+        $user = $this->hrUser();
+
+        $response = $this->actingAs($user)
+            ->get(route('admin.karyawan_data.index', ['status' => 'nonaktif']))
+            ->assertOk();
+
+        $this->assertSame('nonaktif', $response->viewData('status'));
+        $this->assertSame(
+            ['9202', '9203'],
+            $response->viewData('karyawans')->pluck('nid')->sort()->values()->all(),
+            'Daftar nonaktif hanya berisi karyawan nonaktif.'
+        );
+        $this->assertSame(2, $response->viewData('totalAll'));
+
+        // Pencarian NID dan NAMA bekerja di dalam daftar nonaktif.
+        $response = $this->actingAs($user)
+            ->get(route('admin.karyawan_data.index', ['status' => 'nonaktif', 'q' => '9202']));
+        $this->assertSame(['9202'], $response->viewData('karyawans')->pluck('nid')->all());
+
+        $response = $this->actingAs($user)
+            ->get(route('admin.karyawan_data.index', ['status' => 'nonaktif', 'q' => 'Rina']));
+        $this->assertSame(['9203'], $response->viewData('karyawans')->pluck('nid')->all());
+    }
+
+    public function test_pagination_and_export_follow_status(): void
+    {
+        Karyawan::factory()->count(30)->create();
+        Karyawan::factory()->count(5)->create(['status' => 'nonaktif']);
+
+        $user = $this->hrUser();
+
+        // Pagination dihitung dari baris aktif saja.
+        $page = $this->actingAs($user)
+            ->get(route('admin.karyawan_data.index', ['per_page' => 25]))
+            ->assertOk()
+            ->viewData('karyawans');
+
+        $this->assertSame(30, $page->total());
+        $this->assertSame(2, $page->lastPage());
+
+        // Ekspor mengikuti status yang sedang dipakai (1 baris header).
+        $aktif = $this->actingAs($user)->get(route('admin.karyawan_data.export'))->streamedContent();
+        $this->assertSame(31, substr_count($aktif, "\n"));
+
+        $nonaktif = $this->actingAs($user)
+            ->get(route('admin.karyawan_data.export', ['status' => 'nonaktif']))
+            ->streamedContent();
+        $this->assertSame(6, substr_count($nonaktif, "\n"));
+    }
+
+    public function test_toggle_status_updates_status_without_deleting_and_keeps_filter(): void
+    {
+        $aktif = Karyawan::factory()->create(['nid' => '9301', 'nama' => 'Dedi Kurniawan']);
+
+        $user = $this->hrUser();
+
+        $response = $this->actingAs($user)->post(route('admin.karyawan_data.toggle-status', $aktif), [
+            'status' => 'nonaktif',
+            'q'      => 'Dedi',
+        ]);
+
+        // Kembali ke daftar dengan filter yang sedang dipakai.
+        $response->assertRedirect();
+        $location = $response->headers->get('Location');
+        $this->assertStringContainsString('status=nonaktif', $location);
+        $this->assertStringContainsString('q=Dedi', $location);
+
+        // Data TIDAK dihapus — hanya kolom status yang berubah.
+        $this->assertDatabaseHas('karyawans', ['id' => $aktif->id, 'status' => 'nonaktif']);
+        $this->assertSame('Dedi Kurniawan', $aktif->fresh()->nama);
+
+        // Baris langsung tampil pada daftar nonaktif sesuai filter.
+        $page = $this->actingAs($user)
+            ->get(route('admin.karyawan_data.index', ['status' => 'nonaktif', 'q' => 'Dedi']))
+            ->assertOk()
+            ->viewData('karyawans');
+        $this->assertSame(['9301'], $page->pluck('nid')->all());
+
+        // Dan tidak lagi muncul pada tampilan default.
+        $page = $this->actingAs($user)
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->viewData('karyawans');
+        $this->assertSame([], $page->pluck('nid')->all());
+
+        // Aktifkan kembali — baris kembali ke daftar default.
+        $response = $this->actingAs($user)
+            ->post(route('admin.karyawan_data.toggle-status', $aktif->fresh()));
+
+        $response->assertRedirect();
+        $this->assertStringNotContainsString('status=nonaktif', $response->headers->get('Location'));
+        $this->assertDatabaseHas('karyawans', ['id' => $aktif->id, 'status' => 'aktif']);
+
+        $page = $this->actingAs($user)
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->viewData('karyawans');
+        $this->assertSame(['9301'], $page->pluck('nid')->all());
+    }
+
+    public function test_toggle_status_requires_edit_permission(): void
+    {
+        $karyawan = Karyawan::factory()->create();
+
+        // Tamu → halaman login (sebelum actingAs apa pun).
+        $this->post(route('admin.karyawan_data.toggle-status', $karyawan))
+            ->assertRedirect(route('login'));
+
+        // Permission view saja → 403 di backend (route + Gate).
+        $viewer = $this->hrUser(['karyawan_data.view']);
+        $this->actingAs($viewer)
+            ->post(route('admin.karyawan_data.toggle-status', $karyawan))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('karyawans', ['id' => $karyawan->id, 'status' => 'aktif']);
+    }
+
+    public function test_list_renders_status_switch_and_row_actions(): void
+    {
+        Karyawan::factory()->create(['nid' => '9401']);
+        Karyawan::factory()->create(['nid' => '9402', 'status' => 'nonaktif']);
+
+        $html = $this->actingAs($this->hrUser())
+            ->get(route('admin.karyawan_data.index'))
+            ->assertOk()
+            ->getContent();
+
+        // Tampilan default: tombol ke daftar nonaktif + aksi Nonaktifkan.
+        $this->assertStringContainsString('Karyawan Nonaktif', $html);
+        $this->assertStringNotContainsString('Kembali ke Karyawan Aktif', $html);
+        $this->assertStringContainsString('title="Nonaktifkan"', $html);
+        $this->assertStringNotContainsString('title="Aktifkan Kembali"', $html);
+
+        $html = $this->actingAs($this->hrUser())
+            ->get(route('admin.karyawan_data.index', ['status' => 'nonaktif']))
+            ->assertOk()
+            ->getContent();
+
+        // Daftar nonaktif: tombol kembali + aksi Aktifkan Kembali.
+        $this->assertStringContainsString('Kembali ke Karyawan Aktif', $html);
+        $this->assertStringContainsString('title="Aktifkan Kembali"', $html);
+        $this->assertStringNotContainsString('title="Nonaktifkan"', $html);
+
+        // Pencarian & filter status ikut dalam form (filter server-side).
+        preg_match('/<form class="dk-filter-bar"([\s\S]*?)<\/form>/', $html, $bar);
+        preg_match_all('/<(?:input|select)[^>]*name="([^"]+)"/', $bar[1], $controls);
+        $this->assertSame(['status', 'q', 'bidang', 'per_page'], $controls[1]);
     }
 
     /* =========================================================

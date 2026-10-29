@@ -52,6 +52,19 @@ use Throwable;
  * yang tidak ditemukan/ambigu dibiarkan NULL tanpa membuat master baru
  * dan dilaporkan di ringkasan impor.
  *
+ * STATUS AKTIF / NONAKTIF (kolom `karyawans.status`):
+ * - Tampilan default halaman daftar HANYA karyawan AKTIF; tombol
+ *   "Karyawan Nonaktif" membuka daftar berstatus nonaktif
+ *   (?status=nonaktif) dan "Kembali ke Karyawan Aktif" mengembalikan
+ *   tampilan default.
+ * - Filter status diterapkan di filteredQuery() (satu sumber kebenaran)
+ *   sehingga berlaku untuk pencarian, filter bidang, pagination, jumlah
+ *   data, MAUPUN ekspor — data Nonaktif tidak pernah bocor ke tampilan
+ *   default. Pencarian NID/NAMA tetap memakai parameter `q` yang sama.
+ * - Aksi toggleStatus() hanya mengubah kolom `status` (aktif <->
+ *   nonaktif); baris karyawan TIDAK pernah dihapus dan redirect
+ *   mempertahankan filter yang sedang dipakai.
+ *
  * FITUR "PETAKAN KE MASTER" (tombol di halaman daftar): memetakan data
  * lama ke master secara massal lewat UI — pratinjau dulu (GET, tanpa
  * menulis), baru diterapkan (POST, satu transaksi). Selain mengisi
@@ -90,12 +103,18 @@ class DataKaryawanController extends Controller
 
         $filters = $request->only(self::INDEX_FILTERS);
 
+        // STATUS — tampilan default hanya karyawan AKTIF; daftar
+        // Nonaktif dibuka lewat tombol "Karyawan Nonaktif" (?status=nonaktif).
+        // Pencarian, filter, pagination, dan jumlah data semuanya
+        // mengikuti status ini (lihat filteredQuery()).
+        $status = $this->currentStatus($request);
+
         $perPage = (int) $request->input('per_page', self::PER_PAGE);
         if (! in_array($perPage, self::PER_PAGE_OPTIONS, true)) {
             $perPage = self::PER_PAGE;
         }
 
-        $karyawans = $this->filteredQuery($request)
+        $karyawans = $this->filteredQuery($request, $status)
             ->orderBy('nama')
             ->paginate($perPage)
             ->withQueryString();
@@ -107,7 +126,10 @@ class DataKaryawanController extends Controller
             // jadi hanya itu yang di-query (dropdown grade/gender/unit/
             // status kawin & master jabatan tidak lagi dimuat di sini).
             'master' => $this->masterFilterOptions(),
-            'totalAll' => Karyawan::query()->count(),
+            // Jumlah data mengikuti status yang sedang ditampilkan
+            // (default: aktif) — bukan seluruh baris tanpa filter.
+            'totalAll' => Karyawan::query()->withStatus($status)->count(),
+            'status' => $status,
             'perPage' => $perPage,
             'perPageOptions' => self::PER_PAGE_OPTIONS,
             'akunByKaryawanId' => $this->accountsFor($karyawans),
@@ -155,14 +177,76 @@ class DataKaryawanController extends Controller
     }
 
     /**
-     * Query dasar untuk daftar & ekspor — SATU sumber kebenaran supaya
-     * ekspor selalu mengikuti filter yang sedang aktif di halaman daftar.
+     * Status daftar yang sedang dipakai: `nonaktif` bila tombol
+     * "Karyawan Nonaktif" ditekan, selain itu `aktif` (tampilan default).
+     *
+     * Nilai di luar daftar tidak memengaruhi hasil — selalu jatuh ke
+     * aktif sehingga tidak ada "parameter tersembunyi" yang bisa
+     * menampilkan data lain di luar kehendak halaman.
      */
-    private function filteredQuery(Request $request)
+    private function currentStatus(Request $request): string
+    {
+        $status = trim((string) $request->input('status'));
+
+        return array_key_exists($status, Karyawan::STATUSES) ? $status : Karyawan::STATUS_AKTIF;
+    }
+
+    /**
+     * Query dasar untuk daftar & ekspor — SATU sumber kebenaran supaya
+     * ekspor selalu mengikuti filter yang sedang aktif di halaman daftar,
+     * TERMASUK status aktif/nonaktif (filter diterapkan di sisi server,
+     * sehingga data Nonaktif tidak ikut terhitung di pagination maupun
+     * ekspor tampilan Aktif).
+     */
+    private function filteredQuery(Request $request, ?string $status = null)
     {
         return Karyawan::query()
+            ->withStatus($status ?? $this->currentStatus($request))
             ->search($request->input('q'))
             ->filtered($request->only(self::INDEX_FILTERS));
+    }
+
+    /* =========================================================
+       AKTIFKAN / NONAKTIFKAN
+       ------------------------------------------------------------
+       Mengubah status BUKAN menghapus: baris karyawan tetap tersimpan
+       lengkap, hanya kolom `status` yang berpindah antara `aktif` dan
+       `nonaktif`. Aksi ini dijaga permission karyawan_data.edit (route
+       + Gate), dan redirect kembali ke daftar MEMPERTAHANKAN filter
+       yang sedang dipakai (status, q, bidang, per_page) sehingga tabel
+       langsung menampilkan baris sesuai filter tersebut.
+       ========================================================= */
+
+    public function toggleStatus(Request $request, Karyawan $karyawan)
+    {
+        Gate::authorize('karyawan_data.edit');
+
+        $statusBaru = $karyawan->isAktif()
+            ? Karyawan::STATUS_NONAKTIF
+            : Karyawan::STATUS_AKTIF;
+
+        $karyawan->update(['status' => $statusBaru]);
+
+        $kata = $statusBaru === Karyawan::STATUS_NONAKTIF ? 'menonaktifkan' : 'mengaktifkan kembali';
+
+        ActivityLogger::log('update', null, [
+            'module' => 'karyawan',
+            'description' => "{$kata} data karyawan \"{$karyawan->nama}\" (NID {$karyawan->nid})",
+            'subject' => $karyawan,
+        ]);
+
+        // Kembali ke daftar dengan filter yang sedang dipakai (page tidak
+        // ikut agar tidak jatuh ke halaman kosong setelah baris pindah
+        // status).
+        return redirect()->route(
+            'admin.karyawan_data.index',
+            $request->only(['status', 'q', 'bidang', 'per_page']),
+        )->with(
+            'success',
+            $statusBaru === Karyawan::STATUS_NONAKTIF
+                ? "Karyawan \"{$karyawan->nama}\" (NID {$karyawan->nid}) berhasil dinonaktifkan — datanya tetap tersimpan."
+                : "Karyawan \"{$karyawan->nama}\" (NID {$karyawan->nid}) berhasil diaktifkan kembali."
+        );
     }
 
     /* =========================================================

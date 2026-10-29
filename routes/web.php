@@ -601,6 +601,12 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
                 ->name('karyawan_data.map-master');
             Route::get('data-karyawan/{karyawan}/edit', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'edit'])->whereNumber('karyawan')->name('karyawan_data.edit');
             Route::put('data-karyawan/{karyawan}', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'update'])->whereNumber('karyawan')->name('karyawan_data.update');
+            // AKTIFKAN / NONAKTIFKAN — mengubah kolom `status` saja
+            // (data karyawan TIDAK dihapus). Route statis berakhir dengan
+            // "status" sehingga tidak bentrok dengan {karyawan} tunggal.
+            Route::post('data-karyawan/{karyawan}/status', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'toggleStatus'])
+                ->whereNumber('karyawan')
+                ->name('karyawan_data.toggle-status');
         });
         Route::middleware('permission:karyawan_data.delete')->group(function () {
             Route::delete('data-karyawan/{karyawan}', [\App\Http\Controllers\Admin\DataKaryawanController::class, 'destroy'])->whereNumber('karyawan')->name('karyawan_data.destroy');

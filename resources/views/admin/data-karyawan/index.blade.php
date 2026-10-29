@@ -102,6 +102,22 @@
         font-family: inherit;
     }
     .dk-filter-bar .search-wrapper input { width: 100%; padding-left: 2.4rem; }
+
+    /* Tombol alih daftar AKTIF <-> NONAKTIF — berdampingan dengan
+       kolom pencarian sesuai spesifikasi fitur status karyawan. */
+    .dk-status-btn {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        border: 1px solid transparent; border-radius: 10px;
+        padding: 0.5rem 0.9rem; font-size: 0.8rem; font-weight: 700;
+        font-family: inherit; text-decoration: none; white-space: nowrap;
+        cursor: pointer; transition: all 0.15s ease;
+    }
+    .dk-status-btn.nonaktif { background: #fef3c7; border-color: #fde68a; color: #b45309; }
+    .dk-status-btn.nonaktif:hover { background: #fde68a; }
+    .dk-status-btn.back { background: #e6f2fb; border-color: #bae6fd; color: var(--pln-blue); }
+    .dk-status-btn.back:hover { background: #bae6fd; }
+    html.theme-dark .dk-status-btn.nonaktif { background: rgba(245, 158, 11, 0.14); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; }
+    html.theme-dark .dk-status-btn.back { background: rgba(0, 143, 168, 0.16); border-color: rgba(0, 143, 168, 0.4); color: var(--pln-cyan); }
     .dk-filter-bar input:focus,
     .dk-filter-bar select:focus {
         border-color: var(--pln-blue);
@@ -194,6 +210,12 @@
     .dk-action-btn.delete { background: #fef2f2; color: #dc2626; }
     .dk-action-btn.account { background: #e0f2fe; color: #0369a1; }
     .dk-action-btn.account:hover { background: #bae6fd; }
+    /* Tombol alih status: Nonaktifkan (baris aktif) & Aktifkan Kembali
+       (baris nonaktif) — ditaruh bersama tombol aksi lainnya. */
+    .dk-action-btn.deactivate { background: #fef2f2; color: #dc2626; }
+    .dk-action-btn.deactivate:hover { background: #fee2e2; }
+    .dk-action-btn.activate { background: #ecfdf5; color: #15803d; }
+    .dk-action-btn.activate:hover { background: #d1fae5; }
     .dk-action-btn:disabled {
         background: #f1f5f9; color: #94a3b8;
         cursor: not-allowed; opacity: 0.85;
@@ -479,7 +501,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-users-gear" style="color: var(--pln-blue); margin-right: 0.5rem;"></i>Data Karyawan</h5>
-            <p>Master data karyawan UP Indramayu — {{ $totalAll }} karyawan terdaftar.</p>
+            <p>Master data karyawan UP Indramayu — {{ $totalAll }} karyawan {{ $status === 'nonaktif' ? 'nonaktif' : 'aktif' }}.</p>
         </div>
         <div class="header-actions">
             @can('karyawan_data.create')
@@ -493,7 +515,7 @@
                 <i class="fas fa-file-csv me-1"></i> Template
             </a>
             @endcan
-            <a href="{{ route('admin.karyawan_data.export', request()->only(['q', 'bidang'])) }}"
+            <a href="{{ route('admin.karyawan_data.export', request()->only(['q', 'bidang', 'status'])) }}"
                class="btn-corp btn-corp-soft" title="Ekspor data sesuai filter aktif ke CSV (Excel-ready)">
                 <i class="fas fa-file-export me-1"></i> Ekspor
             </a>
@@ -510,7 +532,7 @@
         <div class="dk-stat-card">
             <div class="stat-icon"><i class="fas fa-users"></i></div>
             <div>
-                <div class="stat-label">Total Karyawan</div>
+                <div class="stat-label">Total Karyawan {{ $status === 'nonaktif' ? 'Nonaktif' : 'Aktif' }}</div>
                 <div class="stat-value">{{ $totalAll }}</div>
             </div>
         </div>
@@ -705,10 +727,33 @@
      parameter tersembunyi; ekspor mengikuti q & bidang saja.
      ===== --}}
 <form class="dk-filter-bar" method="GET" action="{{ route('admin.karyawan_data.index') }}">
+    {{-- STATUS — tampilan default (tanpa parameter) = karyawan AKTIF.
+         Hanya daftar Nonaktif yang mengirim `status`, sehingga pencarian,
+         filter bidang, dan pagination tetap berada di daftar tersebut
+         (filter diterapkan di sisi server — lihat DataKaryawanController). --}}
+    @if ($status === 'nonaktif')
+        <input type="hidden" name="status" value="nonaktif">
+    @endif
+
     <div class="search-wrapper">
         <i class="fas fa-search"></i>
         <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari NID atau NAMA...">
     </div>
+
+    {{-- Tombol alih daftar — berdampingan dengan kolom pencarian.
+         Pindah daftar MEMBERSIHKAN pencarian/filter lama (hanya per_page
+         yang dipertahankan) agar admin langsung melihat daftar tujuan. --}}
+    @if ($status === 'nonaktif')
+        <a href="{{ route('admin.karyawan_data.index', request()->only(['per_page'])) }}"
+           class="dk-status-btn back" title="Kembali ke tampilan default (karyawan aktif)">
+            <i class="fas fa-arrow-left"></i> Kembali ke Karyawan Aktif
+        </a>
+    @else
+        <a href="{{ route('admin.karyawan_data.index', array_merge(request()->only(['per_page']), ['status' => 'nonaktif'])) }}"
+           class="dk-status-btn nonaktif" title="Tampilkan hanya karyawan berstatus Nonaktif">
+            <i class="fas fa-user-slash"></i> Karyawan Nonaktif
+        </a>
+    @endif
 
     {{-- Nilai `#id` = filter lewat relasi master (ikut menampilkan
          seluruh sub-bidang di bawahnya, termasuk data lama yang belum
@@ -752,11 +797,13 @@
         <i class="fas fa-filter me-1"></i> Terapkan
     </button>
     @if (request()->anyFilled(['q', 'bidang']))
-        <a href="{{ route('admin.karyawan_data.index') }}" class="btn-corp btn-corp-soft" style="padding:0.5rem 1rem; font-size:0.8rem;">
+        <a href="{{ $status === 'nonaktif' ? route('admin.karyawan_data.index', ['status' => 'nonaktif']) : route('admin.karyawan_data.index') }}" class="btn-corp btn-corp-soft" style="padding:0.5rem 1rem; font-size:0.8rem;">
             <i class="fas fa-rotate-left"></i>
         </a>
     @endif
-    <span class="filter-count">{{ $karyawans->total() }} karyawan</span>
+    <span class="filter-count">
+        {{ $karyawans->total() }} karyawan {{ $status === 'nonaktif' ? 'nonaktif' : 'aktif' }}
+    </span>
 </form>
 
 {{-- ============ TABEL 4 KOLOM (NID, NAMA, BIDANG, AKSI) ============
@@ -814,6 +861,56 @@
                             </form>
                         @endcan
 
+                        {{-- ALIH STATUS — aksi Nonaktifkan (daftar aktif) dan
+                             Aktifkan Kembali (daftar nonaktif). Hanya kolom
+                             `status` yang diubah; baris karyawan tetap ada,
+                             jadi tidak ada data yang hilang. Dijaga permission
+                             karyawan_data.edit (tombol + backend). --}}
+                        @can('karyawan_data.edit')
+                            @php
+                                $pesanAktif = 'Nonaktifkan karyawan ' . addslashes($karyawan->nama)
+                                    . ' (NID ' . $karyawan->nid . ')?'
+                                    . ' Datanya TIDAK dihapus — hanya statusnya menjadi Nonaktif sehingga tidak tampil pada daftar default.';
+                                $pesanNonaktif = 'Aktifkan kembali karyawan ' . addslashes($karyawan->nama)
+                                    . ' (NID ' . $karyawan->nid . ')?'
+                                    . ' Statusnya kembali Aktif dan langsung tampil pada daftar karyawan aktif.';
+                            @endphp
+                            @if ($status === 'nonaktif')
+                                <form method="POST" action="{{ route('admin.karyawan_data.toggle-status', $karyawan) }}"
+                                      onsubmit="return confirm('{{ addslashes($pesanNonaktif) }}')">
+                                    @csrf
+                                    {{-- Filter yang sedang dipakai ikut dikirim agar
+                                         daftar setelah perubahan status tetap sama. --}}
+                                    <input type="hidden" name="status" value="nonaktif">
+                                    @if (request()->filled('q'))
+                                        <input type="hidden" name="q" value="{{ request('q') }}">
+                                    @endif
+                                    @if (request()->filled('bidang'))
+                                        <input type="hidden" name="bidang" value="{{ request('bidang') }}">
+                                    @endif
+                                    <button type="submit" class="dk-action-btn activate" title="Aktifkan Kembali"
+                                            aria-label="Aktifkan Kembali">
+                                        <i class="fas fa-user-check"></i>
+                                    </button>
+                                </form>
+                            @else
+                                <form method="POST" action="{{ route('admin.karyawan_data.toggle-status', $karyawan) }}"
+                                      onsubmit="return confirm('{{ addslashes($pesanAktif) }}')">
+                                    @csrf
+                                    @if (request()->filled('q'))
+                                        <input type="hidden" name="q" value="{{ request('q') }}">
+                                    @endif
+                                    @if (request()->filled('bidang'))
+                                        <input type="hidden" name="bidang" value="{{ request('bidang') }}">
+                                    @endif
+                                    <button type="submit" class="dk-action-btn deactivate" title="Nonaktifkan"
+                                            aria-label="Nonaktifkan">
+                                        <i class="fas fa-user-slash"></i>
+                                    </button>
+                                </form>
+                            @endif
+                        @endcan
+
                         {{-- Pendaftaran akun — hanya untuk pemegang permission
                              pengelolaan akun (users.create). Tanpa permission,
                              status akun pun tidak ditampilkan di sini. --}}
@@ -850,10 +947,16 @@
             <tr>
                 <td colspan="4">
                     <div class="dk-empty-state">
-                        <div class="empty-icon"><i class="fas fa-users"></i></div>
-                        <h6>Belum ada data karyawan</h6>
-                        <p>Tambahkan manual lewat tombol <b>Tambah</b>, atau impor sekaligus lewat <b>Impor Data</b> (CSV maupun Excel .xlsx)
-                            (unduh <b>Template</b> terlebih dahulu).</p>
+                        <div class="empty-icon"><i class="fas fa-{{ $status === 'nonaktif' ? 'user-slash' : 'users' }}"></i></div>
+                        @if ($status === 'nonaktif')
+                            <h6>Belum ada data karyawan nonaktif</h6>
+                            <p>Semua karyawan pada daftar ini berstatus <b>Aktif</b>. Tekan
+                                <b>Kembali ke Karyawan Aktif</b> untuk kembali ke tampilan default.</p>
+                        @else
+                            <h6>Belum ada data karyawan</h6>
+                            <p>Tambahkan manual lewat tombol <b>Tambah</b>, atau impor sekaligus lewat <b>Impor Data</b> (CSV maupun Excel .xlsx)
+                                (unduh <b>Template</b> terlebih dahulu).</p>
+                        @endif
                     </div>
                 </td>
             </tr>

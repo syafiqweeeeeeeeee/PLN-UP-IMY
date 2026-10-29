@@ -37,7 +37,7 @@ class Karyawan extends Model
         'institusi', 'organik', 'tanggal_lahir', 'service_date', 'hire_date',
         'retire_date', 'grade_date', 'tgl_jab', 'telp', 'hp', 'email',
         'fte', 'mims', 'tempat_lahir', 'agama', 'gender', 'status_kawin',
-        'unit',
+        'unit', 'status',
     ];
 
     protected $casts = [
@@ -117,6 +117,62 @@ class Karyawan extends Model
         'TK' => 'Tidak Kawin',
         'K' => 'Kawin',
     ];
+
+    /**
+     * STATUS AKTIF / NONAKTIF (nilai DB => label tampilan).
+     *
+     * Hanya dua nilai yang sah. Data lama dianggap AKTIF (default kolom
+     * di database) dan menonaktifkan karyawan TIDAK menghapus barisnya.
+     */
+    public const STATUSES = [
+        'aktif' => 'Aktif',
+        'nonaktif' => 'Nonaktif',
+    ];
+
+    /** Nilai default status — dipakai bila nilai di luar daftar. */
+    public const STATUS_AKTIF = 'aktif';
+
+    /** Nilai status Nonaktif — baris tetap tersimpan, hanya disembunyikan. */
+    public const STATUS_NONAKTIF = 'nonaktif';
+
+    /* =========================================================
+       SCOPE — pencarian & filter dipakai halaman daftar & ekspor
+       ========================================================= */
+
+    /* =========================================================
+       SCOPE STATUS — filter server-side (daftar, ekspor, pagination)
+       ========================================================= */
+
+    /**
+     * Batasi ke satu status (`aktif` / `nonaktif`).
+     *
+     * Nilai kosong TIDAK dikirim (tautan bawaan) ATAU nilai di luar
+     * daftar semuanya jatuh ke AKTIF — tampilan default halaman
+     * Data Karyawan selalu karyawan aktif, sehingga data Nonaktif tidak
+     * pernah bocor ke tabel utama maupun pagination/ekspor.
+     */
+    public function scopeWithStatus(Builder $query, ?string $status): Builder
+    {
+        $status = trim((string) $status);
+
+        if (! array_key_exists($status, self::STATUSES)) {
+            $status = self::STATUS_AKTIF;
+        }
+
+        return $query->where('status', $status);
+    }
+
+    /** Karyawan ini berstatus Aktif (NULL/kosong = aktif, data lama aman). */
+    public function isAktif(): bool
+    {
+        $status = trim((string) $this->status);
+
+        if ($status === '') {
+            $status = self::STATUS_AKTIF;
+        }
+
+        return $status === self::STATUS_AKTIF;
+    }
 
     /* =========================================================
        SCOPE — pencarian & filter dipakai halaman daftar & ekspor
@@ -365,6 +421,12 @@ class Karyawan extends Model
     public function statusKawinLabel(): ?string
     {
         return self::STATUSES_KAWIN[$this->status_kawin] ?? $this->status_kawin;
+    }
+
+    /** Label status tampilan (Aktif / Nonaktif) — null dianggap Aktif. */
+    public function statusLabel(): string
+    {
+        return $this->isAktif() ? self::STATUSES[self::STATUS_AKTIF] : self::STATUSES[self::STATUS_NONAKTIF];
     }
 
     /** Format tanggal yang mudah dibaca (14 Mar 1985); null-safe. */
