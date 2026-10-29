@@ -117,6 +117,62 @@ class UserMasterBidangJabatanTest extends TestCase
             ->assertSee($jabatan->nama);
     }
 
+    public function test_create_form_shows_mapped_master_rows_even_before_legacy_codes_are_backfilled(): void
+    {
+        // Kondisi database lama/aktif: baris master ada, tetapi kolom
+        // department_code dan sub_department_code belum diisi.
+        $induk = Bidang::create(['nama' => 'BIDANG OPERASI']);
+        $sub = Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI A',
+            'parent_id' => $induk->id,
+        ]);
+        $unknown = Bidang::create(['nama' => 'BIDANG UJI TANPA PADANAN']);
+        $jabatanInduk = Jabatan::create(['nama' => 'MANAGER OPERASI', 'bidang_id' => $induk->id]);
+        $jabatanSub = Jabatan::create(['nama' => 'ASISTEN PRODUKSI A', 'bidang_id' => $sub->id]);
+
+        $response = $this->actingAs($this->admin())->get(route('admin.users.create'))->assertOk();
+        $html = $response->getContent();
+        $bidangOptions = $response->viewData('bidangs');
+        $jabatans = $response->viewData('jabatans');
+
+        $this->assertTrue($bidangOptions->contains('id', $induk->id));
+        $this->assertTrue($bidangOptions->contains('id', $sub->id));
+        $this->assertFalse($bidangOptions->contains('id', $unknown->id), 'Bidang akar tanpa pemetaan aman tidak boleh membuat akun tanpa scope.');
+        $this->assertStringContainsString('value="' . $induk->id . '"', $html);
+        $this->assertStringContainsString('value="' . $sub->id . '"', $html);
+        $this->assertTrue($jabatans->contains('id', $jabatanInduk->id));
+        $this->assertTrue($jabatans->contains('id', $jabatanSub->id));
+        $this->assertSame('operasi', $induk->fresh()->departmentCode());
+        $this->assertSame('operasi', $sub->fresh()->departmentCode());
+        $this->assertSame('asmen_prod_a', $sub->fresh()->subDepartmentCode());
+
+        // Form edit menggunakan provider opsi yang sama; data tersimpan
+        // tetap terlihat meskipun belum pernah di-backfill ke kolom kode.
+        $karyawanRole = $this->karyawanRole();
+        $target = User::factory()->create([
+            'role' => 'Karyawan',
+            'role_id' => $karyawanRole->id,
+            'bidang_id' => $sub->id,
+            'jabatan_id' => $jabatanSub->id,
+        ]);
+        $target->roles()->sync([$karyawanRole->id]);
+
+        $superAdminRole = $this->superAdminRole();
+        $superAdmin = User::factory()->create([
+            'role' => 'Super Admin',
+            'role_id' => $superAdminRole->id,
+        ]);
+        $superAdmin->roles()->sync([$superAdminRole->id]);
+
+        $editResponse = $this->actingAs($superAdmin)
+            ->get(route('admin.users.edit', $target))
+            ->assertOk();
+        $this->assertTrue($editResponse->viewData('bidangs')->contains('id', $sub->id));
+        $this->assertTrue($editResponse->viewData('jabatans')->contains('id', $jabatanSub->id));
+        $editResponse->assertSee('value="' . $sub->id . '"', false)
+            ->assertSee('value="' . $jabatanSub->id . '"', false);
+    }
+
     public function test_store_saves_master_bidang_and_jabatan_ids(): void
     {
         [$bidang, $jabatan] = $this->masterPair();

@@ -108,7 +108,84 @@ class Bidang extends Model
             return $this->department_code;
         }
 
-        return $this->parent?->departmentCode();
+        // Pemetaan eksplisit harus menang atas kode induk: beberapa
+        // sub-bidang memang sengaja diarahkan ke kode legacy berbeda dari
+        // induknya (mis. inventori berada di Pemeliharaan untuk scoping).
+        if (array_key_exists($this->nama, self::LEGACY_NAME_CODES)) {
+            return self::LEGACY_NAME_CODES[$this->nama][0];
+        }
+
+        // Baris master lama/manual tanpa pemetaan eksplisit mewarisi kode
+        // induk. Ini menjaga scope tetap berada pada unit yang dikenal.
+        $parentCode = $this->parent?->departmentCode();
+
+        if ($parentCode !== null) {
+            return $parentCode;
+        }
+
+        return self::inferDepartmentCodeFromName($this->nama);
+    }
+
+    /**
+     * Inferensi aman kode legacy dari label bidang: hanya mengembalikan
+     * kode jika satu kandidat cocok unik (identik, substring unik, atau
+     * maksimal dua karakter berbeda). Selaras dengan pratinjau "Petakan
+     * Kode Legacy"; nama ambigu/tidak dikenal tetap tanpa scope.
+     */
+    private static function inferDepartmentCodeFromName(string $nama): ?string
+    {
+        $normalize = static function (string $value): string {
+            $value = mb_strtolower(trim($value));
+            $value = preg_replace('/^(?:sub\\s+|bidang\\s+)+/u', '', $value) ?? $value;
+            $value = preg_replace('/[^a-z0-9]+/u', ' ', $value) ?? $value;
+
+            return trim(preg_replace('/\\s+/u', ' ', $value) ?? '');
+        };
+
+        $target = $normalize($nama);
+
+        if ($target === '') {
+            return null;
+        }
+
+        $candidates = [];
+
+        foreach (User::DEPARTMENTS as $code => $label) {
+            $candidates[(string) $code] = $normalize((string) $label);
+        }
+
+        $exact = array_keys(array_filter($candidates, fn (string $value): bool => $value === $target));
+
+        if (count($exact) === 1) {
+            return (string) $exact[0];
+        }
+
+        if (mb_strlen($target) >= 3) {
+            $contains = array_keys(array_filter(
+                $candidates,
+                fn (string $value): bool => str_contains($value, $target) || str_contains($target, $value)
+            ));
+
+            if (count($contains) === 1) {
+                return (string) $contains[0];
+            }
+        }
+
+        if (mb_strlen($target) >= 5) {
+            $close = [];
+
+            foreach ($candidates as $code => $value) {
+                if (levenshtein($target, $value) <= 2) {
+                    $close[] = $code;
+                }
+            }
+
+            if (count($close) === 1) {
+                return (string) $close[0];
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -117,9 +194,13 @@ class Bidang extends Model
      */
     public function subDepartmentCode(): ?string
     {
-        return $this->sub_department_code !== null && $this->sub_department_code !== ''
-            ? $this->sub_department_code
-            : null;
+        if ($this->sub_department_code !== null && $this->sub_department_code !== '') {
+            return $this->sub_department_code;
+        }
+
+        // Untuk nama yang sudah punya pemetaan eksplisit, baris lama
+        // tetap terscope per sub-bidang meski kolom kodenya belum diisi.
+        return self::LEGACY_NAME_CODES[$this->nama][1] ?? null;
     }
 
     /** Apakah baris ini merepresentasikan Sub-Bidang (punya kode sub)? */

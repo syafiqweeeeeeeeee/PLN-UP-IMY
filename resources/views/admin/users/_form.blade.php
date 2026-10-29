@@ -802,13 +802,17 @@
 
                 btn.addEventListener('click', function () {
                     if (opt.disabled) return;
-                    ownerSelect.value = opt.value;
+                    // Simpan select sebelum closePanel() membersihkan
+                    // referensi ownerSelect — diperlukan untuk fokus balik
+                    // setelah opsi dipilih.
+                    const selectedSelect = ownerSelect;
+                    selectedSelect.value = opt.value;
                     // Dispatch dua-duanya — konsumen yang listen 'change'
                     // atau 'input' tetap terpanggil (sama dengan native).
-                    ownerSelect.dispatchEvent(new Event('input', { bubbles: true }));
-                    ownerSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    selectedSelect.dispatchEvent(new Event('input', { bubbles: true }));
+                    selectedSelect.dispatchEvent(new Event('change', { bubbles: true }));
                     closePanel();
-                    ownerSelect.focus();
+                    selectedSelect.focus();
                 });
 
                 resultsBox.appendChild(btn);

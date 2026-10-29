@@ -121,14 +121,12 @@ class UserController extends Controller
      */
     private static function masterBidangsForForm(): \Illuminate\Support\Collection
     {
-        // Hanya bidang yang punya kode legacy (hasil pemetaan migrasi) yang
-        // bisa dipakai sebagai unit kerja akun — baris unit induk (mis.
-        // "PLTU INDRAMAYU") tanpa kode tidak boleh menghasilkan akun tanpa
-        // pengikatan bidang (yang berarti melihat seluruh data).
-        // Hasil filter jarang berubah — cache dengan key khusus;
-        // invalidasi memakai FlushHook trait Bidang (CRUD Bidang).
+        // Tampilkan master Bidang meski kode legacy lama belum di-backfill.
+        // departmentCode()/subDepartmentCode() menyediakan fallback aman
+        // berbasis nama dan kode induk; label yang ambigu tetap tidak cocok.
+        // Kunci cache khusus dibuang otomatis oleh event CRUD master.
         return \Illuminate\Support\Facades\Cache::remember(
-            'master.user-form-bidangs',
+            'master.user-form-bidangs.v2',
             now()->addMinutes(10),
             fn () => Bidang::query()
                 ->with('parent')

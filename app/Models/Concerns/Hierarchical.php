@@ -67,6 +67,7 @@ trait Hierarchical
         Cache::forget(static::masterCacheKey('list'));
         // Key cache turunan yang bergantung daftar master ini.
         Cache::forget('master.user-form-bidangs');
+        Cache::forget('master.user-form-bidangs.v2');
     }
 
     /** Auto-flush cache master saat baris dibuat/diubah/dihapus. */
