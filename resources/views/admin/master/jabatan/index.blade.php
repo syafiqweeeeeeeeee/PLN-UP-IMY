@@ -98,14 +98,12 @@
 
 @section('content')
 @if (session('success'))
-    <div class="alert alert-success py-2 px-3" role="status">
-        <i class="fas fa-circle-check"></i> {{ session('success') }}
-    </div>
+    {{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 @if (session('warning'))
-    <div class="alert alert-warning py-2 px-3" role="status">
-        <i class="fas fa-circle-info"></i> {{ session('warning') }}
-    </div>
+    {{-- Flash peringatan → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-warning="{{ session('warning') }}"></div>
 @endif
 
 {{-- ============ PAGE HEADER + AKSI ============ --}}
@@ -218,7 +216,8 @@
                         @endcan
                         @can('master_jabatan.delete')
                             <form method="POST" action="{{ route('admin.master_jabatan.destroy', $jabatan) }}"
-                                  onsubmit="return confirm('Hapus jabatan {{ addslashes($jabatan->nama) }}? Pastikan tidak memiliki jabatan anak maupun data karyawan.')">
+                                  data-swal-confirm-title="Hapus Jabatan?"
+                                  data-swal-confirm="Hapus jabatan {{ $jabatan->nama }}? Pastikan tidak memiliki jabatan anak maupun data karyawan.">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="mj-action-btn delete" title="Hapus">

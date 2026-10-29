@@ -93,9 +93,8 @@
     </div>
 
 @if (session('success'))
-<div class="form-alert success">
-    <i class="fas fa-check-circle"></i> {{ session('success') }}
-</div>
+{{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+<div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 
 @if ($errors->any())

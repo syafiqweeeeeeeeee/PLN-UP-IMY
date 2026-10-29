@@ -137,14 +137,12 @@
 
 @section('content')
 @if (session('success'))
-    <div class="alert alert-success py-2 px-3" role="status">
-        <i class="fas fa-circle-check"></i> {{ session('success') }}
-    </div>
+    {{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 @if (session('warning'))
-    <div class="alert alert-warning py-2 px-3" role="status">
-        <i class="fas fa-circle-info"></i> {{ session('warning') }}
-    </div>
+    {{-- Flash peringatan → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-warning="{{ session('warning') }}"></div>
 @endif
 
 {{-- ============ RINGKASAN PENERAPAN "PETAKAN KODE LEGACY" ============ --}}
@@ -264,7 +262,8 @@
                         @endcan
                         @can('master_bidang.delete')
                             <form method="POST" action="{{ route('admin.master_bidang.destroy', $bidang) }}"
-                                  onsubmit="return confirm('Hapus bidang {{ addslashes($bidang->nama) }}? Pastikan tidak memiliki sub-bidang, jabatan, maupun data karyawan.')">
+                                  data-swal-confirm-title="Hapus Bidang?"
+                                  data-swal-confirm="Hapus bidang {{ $bidang->nama }}? Pastikan tidak memiliki sub-bidang, jabatan, maupun data karyawan.">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="mb-action-btn delete" title="Hapus">

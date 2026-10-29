@@ -931,14 +931,12 @@
 </div>
 
 @if (session('success'))
-    <div class="alert alert-success py-2 px-3" style="border-radius:10px; font-size:0.83rem;">
-        <i class="fas fa-circle-check me-2"></i>{{ session('success') }}
-    </div>
+    {{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 @if (session('error'))
-    <div class="alert alert-danger py-2 px-3" style="border-radius:10px; font-size:0.83rem;">
-        <i class="fas fa-circle-exclamation me-2"></i>{{ session('error') }}
-    </div>
+    {{-- Flash gagal → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-error="{{ session('error') }}"></div>
 @endif
 @if ($errors->any())
     <div class="alert alert-danger py-2 px-3" style="border-radius:10px; font-size:0.83rem;">
@@ -1669,7 +1667,8 @@
         const el = document.getElementById(id);
         if (!el) {
             console.error('[Modal] Elemen tidak ditemukan:', id);
-            alert('[Modal] Elemen ' + id + ' tidak ditemukan!');
+            // Notifikasi lewat SweetAlert (AdminSwal) — tanpa alert bawaan browser.
+            if (window.AdminSwal) AdminSwal.error('Elemen modal "' + id + '" tidak ditemukan.');
             return;
         }
         el.classList.add('show');

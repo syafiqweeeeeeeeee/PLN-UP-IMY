@@ -76,7 +76,16 @@ class AdminUserShowCsrfTest extends TestCase
         $this->assertNotNull($form, 'Tombol Hapus harus berupa <form action=... method="POST">.');
         $this->assertStringContainsString('name="_token"', $form, 'Form Hapus wajib memuat @csrf.');
         $this->assertStringContainsString('name="_method" value="DELETE"', $form, 'Form Hapus wajib memuat @method(\'DELETE\').');
-        $this->assertStringContainsString('onsubmit="return confirm(', $form, 'Form Hapus wajib punya konfirmasi hapus.');
+        $this->assertStringContainsString(
+            'data-swal-confirm=',
+            $form,
+            'Form Hapus wajib punya konfirmasi SweetAlert (AdminSwal), bukan confirm() bawaan browser.'
+        );
+        $this->assertStringNotContainsString(
+            'onsubmit="return confirm(',
+            $form,
+            'Form Hapus tidak boleh memakai confirm() bawaan browser.'
+        );
         $this->assertStringContainsString('type="submit"', $form, 'Pemicu hapus harus <button type="submit">, bukan link.');
     }
 

@@ -124,6 +124,14 @@
 @endpush
 
 @section('content')
+{{-- Flash sukses (buat / ubah / hapus / publikasi pengumuman) → pop-up
+     SweetAlert tengah layar (AdminSwal di layout). --}}
+@if (session('success'))
+    <div hidden data-swal-success="{{ session('success') }}"></div>
+@endif
+@if (session('error'))
+    <div hidden data-swal-error="{{ session('error') }}"></div>
+@endif
 {{-- ============================================
      PAGE HEADER (pola /admin/news)
      ============================================ --}}

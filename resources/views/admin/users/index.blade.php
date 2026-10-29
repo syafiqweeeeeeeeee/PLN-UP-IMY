@@ -317,15 +317,13 @@
      Toggle Status / Reset Password pengguna (polo form-alert).
      ============================================ --}}
 @if (session('success'))
-<div class="form-alert success">
-    <i class="fas fa-check-circle"></i> {{ session('success') }}
-</div>
+{{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+<div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 
 @if (session('error'))
-<div class="form-alert danger">
-    <i class="fas fa-circle-exclamation"></i> {{ session('error') }}
-</div>
+{{-- Flash gagal → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+<div hidden data-swal-error="{{ session('error') }}"></div>
 @endif
 
 {{-- ============================================
@@ -653,7 +651,7 @@
             const verb = activate ? 'Aktifkan' : 'Nonaktifkan';
 
             // Popup konfirmasi SweetAlert2 — konsisten dengan design system
-            // (menggantikan confirm() bawaan browser).
+            // (menggantikan konfirmasi bawaan browser).
             Swal.fire({
                 title: activate ? 'Aktifkan Pengguna?' : 'Nonaktifkan Pengguna?',
                 html: `Akun <strong>"${userName}"</strong> akan ` +

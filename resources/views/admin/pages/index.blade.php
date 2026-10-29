@@ -56,9 +56,8 @@
 
 @section('content')
 @if (session('success'))
-    <div class="alert alert-success py-2 px-3" style="border-radius:10px; font-size:0.83rem;">
-        <i class="fas fa-circle-check me-2"></i>{{ session('success') }}
-    </div>
+    {{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 <div class="page-header-card">
     <div class="header-row">
@@ -133,7 +132,8 @@
                             @endcan
                             @can('pages.delete')
                             <form method="POST" action="{{ route('admin.pages.destroy', $page) }}"
-                                  onsubmit="return confirm('Hapus halaman \\'{{ $page->title }}\\'?')">
+                                  data-swal-confirm-title="Hapus Halaman?"
+                                  data-swal-confirm="Hapus halaman '{{ $page->title }}'? Data yang dihapus tidak dapat dikembalikan.">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-action danger">

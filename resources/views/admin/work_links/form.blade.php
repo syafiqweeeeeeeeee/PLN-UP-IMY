@@ -124,7 +124,8 @@
 </div>
 
 @if (session('success'))
-<div class="form-alert success" data-flash-success="{{ session('success') }}" style="display:none;"></div>
+{{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+<div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 
 @if ($errors->any())
@@ -677,26 +678,4 @@
     window.addEventListener('pagehide', closePanel);
 })();
 </script>
-@if (session('success'))
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var msg = document.querySelector('[data-flash-success]');
-        if (!msg) return;
-        var text = msg.getAttribute('data-flash-success');
-        if (!text) return;
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: text,
-                showConfirmButton: false,
-                timer: 1500,
-                customClass: {
-                    popup: 'rounded-4 shadow-lg'
-                }
-            });
-        }
-    });
-</script>
-@endif
 @endsection

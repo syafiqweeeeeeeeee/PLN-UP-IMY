@@ -307,14 +307,30 @@
     });
 
     // Toggle status role (fetch + reload, pola lama dipertahankan)
+    // Konfirmasi & notifikasi via SweetAlert (AdminSwal) — tanpa pop-up bawaan browser.
     function toggleRoleStatus(roleId, name, activate) {
         const verb = activate ? 'Aktifkan' : 'Nonaktifkan';
-        if (!confirm(`${verb} role "${name}"?`)) return;
-        fetch(`/admin/roles/${roleId}/toggle-status`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ status: activate ? 'active' : 'inactive' })
-        }).then(r => r.ok ? window.location.reload() : alert('Gagal memperbarui status.'));
+
+        AdminSwal.confirm({
+            title: `${verb} Role?`,
+            text: `${verb} role "${name}"?`,
+            confirmText: `Ya, ${verb}`,
+            tone: activate ? undefined : 'danger'
+        }).then(function (confirmed) {
+            if (!confirmed) return;
+
+            fetch(`/admin/roles/${roleId}/toggle-status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ status: activate ? 'active' : 'inactive' })
+            }).then(function (r) {
+                if (r.ok) {
+                    window.location.reload();
+                    return;
+                }
+                AdminSwal.error('Gagal memperbarui status. Silakan coba lagi.');
+            });
+        });
     }
 </script>
 @endsection

@@ -87,7 +87,8 @@
             @endcan
             @can('master_bidang.delete')
             <form method="POST" action="{{ route('admin.master_bidang.destroy', $bidang) }}"
-                  onsubmit="return confirm('Hapus bidang {{ addslashes($bidang->nama) }}? Pastikan tidak memiliki sub-bidang, jabatan, maupun data karyawan.')">
+                  data-swal-confirm-title="Hapus Bidang?"
+                  data-swal-confirm="Hapus bidang {{ $bidang->nama }}? Pastikan tidak memiliki sub-bidang, jabatan, maupun data karyawan.">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn-corp btn-corp-soft" style="color:#dc2626;">

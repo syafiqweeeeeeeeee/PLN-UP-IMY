@@ -269,9 +269,8 @@
 </div>
 
 @if (session('success'))
-    <div class="alert alert-success py-2 px-3" style="border-radius:10px; font-size:0.83rem;">
-        <i class="fas fa-circle-check me-2"></i>{{ session('success') }}
-    </div>
+    {{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 
 <div class="howto-box">
@@ -412,7 +411,9 @@
                             </form>
                             @endcan
                             @can('menus.delete')
-                            <form method="POST" action="{{ route('admin.menus.destroy', $menu) }}" onsubmit="return confirm('Hapus menu \\'{{ $menu->label }}\\'? Submenu di dalamnya ikut terhapus.')">
+                            <form method="POST" action="{{ route('admin.menus.destroy', $menu) }}"
+                                  data-swal-confirm-title="Hapus Menu?"
+                                  data-swal-confirm="Hapus menu '{{ $menu->label }}'? Submenu di dalamnya ikut terhapus.">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-action danger" title="Hapus"><i class="fas fa-trash"></i></button>

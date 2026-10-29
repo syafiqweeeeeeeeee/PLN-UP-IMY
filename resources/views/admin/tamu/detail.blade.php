@@ -145,14 +145,12 @@
 @section('content')
 {{-- Flash hasil aksi status (approve / reject / revisi) --}}
 @if (session('success'))
-    <div class="alert alert-success py-2 px-3" style="border-radius:10px; font-size:0.83rem;">
-        <i class="fas fa-circle-check me-2"></i>{{ session('success') }}
-    </div>
+    {{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 @if (session('error'))
-    <div class="alert alert-danger py-2 px-3" style="border-radius:10px; font-size:0.83rem;">
-        <i class="fas fa-circle-exclamation me-2"></i>{{ session('error') }}
-    </div>
+    {{-- Flash gagal → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-error="{{ session('error') }}"></div>
 @endif
 
 @php
@@ -325,40 +323,50 @@
         </a>
     @endif
 </div>
-@endsection
 
-@push('scripts')
+{{-- ==========================================================
+     KONFIRMASI AKSI STATUS — dialog SweetAlert dua tombol
+     (pengganti konfirmasi bawaan browser).
+
+     Diletakkan DI DALAM @section('content') — bukan @push('scripts')
+     — karena router.js hanya mengeksekusi ulang <script> yang berada
+     di dalam konten setelah navigasi SPA; script di stack layout tidak
+     pernah jalan lagi sehingga konfirmasi bisa hilang.
+     Listener tingkat document dipasang sekali (guard) supaya tahan
+     swap konten dan tidak terpasang ganda.
+     ========================================================== --}}
 <script>
-    /* =========================================================
-       KONFIRMASI AKSI STATUS
-       Setiap pengubahan status wajib lewat dialog konfirmasi
-       (SweetAlert2 bila tersedia, fallback ke confirm() biasa)
-       agar tidak ada perubahan status karena klik tak sengaja.
-       ========================================================= */
-    document.querySelectorAll('.dt-status-form').forEach(function (form) {
-        form.addEventListener('submit', function (e) {
+    if (!window.__dtStatusConfirmBound) {
+        window.__dtStatusConfirmBound = true;
+
+        document.addEventListener('submit', function (e) {
+            var form = e.target;
+            if (!form || !form.classList || !form.classList.contains('dt-status-form')) return;
+
+            /* Submit kedua setelah konfirmasi "Ya" → jalankan biasa. */
+            if (form.getAttribute('data-swal-confirmed') === '1') {
+                form.removeAttribute('data-swal-confirmed');
+                return;
+            }
+
             e.preventDefault();
 
-            const title = form.dataset.title || 'Ubah Status?';
-            const text = form.dataset.text || 'Lanjutkan perubahan status kunjungan ini?';
-            const danger = form.dataset.danger === '1';
-            const kirim = function () { form.submit(); }; // native submit, tanpa event ulang
+            var title   = form.dataset.title   || 'Ubah Status?';
+            var text    = form.dataset.text    || 'Lanjutkan perubahan status kunjungan ini?';
+            var danger  = form.dataset.danger  === '1';
 
-            if (window.Swal) {
-                Swal.fire({
-                    icon: 'question',
-                    title: title,
-                    text: text,
-                    showCancelButton: true,
-                    confirmButtonText: danger ? 'Ya, Batalkan' : 'Ya, Lanjutkan',
-                    cancelButtonText: 'Kembali',
-                    confirmButtonColor: danger ? '#dc2626' : '#16a34a',
-                    reverseButtons: true,
-                }).then(function (r) { if (r.isConfirmed) kirim(); });
-            } else if (window.confirm(title + '\n\n' + text)) {
-                kirim();
-            }
+            AdminSwal.confirm({
+                title: title,
+                text: text,
+                tone: danger ? 'danger' : undefined,
+                confirmText: danger ? 'Ya, Batalkan' : 'Ya, Lanjutkan',
+                cancelText: 'Kembali'
+            }).then(function (confirmed) {
+                if (!confirmed) return;
+                form.setAttribute('data-swal-confirmed', '1');
+                HTMLFormElement.prototype.submit.call(form);  // native submit, tanpa event ulang
+            });
         });
-    });
+    }
 </script>
-@endpush
+@endsection

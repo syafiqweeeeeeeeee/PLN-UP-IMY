@@ -50,14 +50,8 @@
     .detail-value.muted {
         color: #6b7280;
     }
-    /* Banner alert flash message */
-    .alert-show-success {
-        background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;
-        border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.85rem;
-        font-weight: 600; margin-bottom: 1rem;
-        display: flex; align-items: center; gap: 0.5rem;
-    }
-    html.theme-dark .alert-show-success { background: rgba(22,163,74,0.15); color: #86efac; border-color: rgba(22,163,74,0.35); }
+    /* Banner flash sukses kini tampil sebagai pop-up SweetAlert
+       (data-swal-success + AdminSwal di layout) — CSS banner lama dihapus. */
     /* ===== Action Buttons Layout =====
        Flexible action button group di header card.
        Gunakan flexbox dengan gap konsisten untuk tampilan rapi. ===== */
@@ -623,9 +617,8 @@
 
 @section('content')
 @if (session('success'))
-<div class="alert-show-success">
-    <i class="fas fa-circle-check"></i> {{ session('success') }}
-</div>
+{{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+<div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 <div class="row g-3 mb-4">
     <div class="col-12">
@@ -682,7 +675,11 @@
                     @endunless
                 @endif
                 {{-- Hapus --}}
-                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?');">
+                    {{-- Konfirmasi dua tombol via SweetAlert (AdminSwal di layout),
+                         bukan konfirmasi bawaan browser. --}}
+                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline"
+                          data-swal-confirm-title="Hapus Pengguna?"
+                          data-swal-confirm="Apakah Anda yakin ingin menghapus pengguna ini? Data yang dihapus tidak dapat dikembalikan.">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-sm btn-light border" title="Hapus Pengguna">
@@ -1483,13 +1480,28 @@
             </p>
             <div class="input-group rp-pass-group mx-auto mb-3">
                 <input type="text" class="form-control text-center" id="tempPasswordInput" value="{{ session('temporaryPassword') }}" readonly>
-                <button class="btn rp-copy-btn" type="button" onclick="navigator.clipboard.writeText(document.getElementById('tempPasswordInput').value); alert('Password disalin!');">Copy</button>
+                <button class="btn rp-copy-btn" type="button" onclick="copyTempPassword()">Copy</button>
             </div>
             <button type="button" class="btn rp-btn rp-btn-confirm w-100" onclick="document.getElementById('successResetModal').style.display='none'">Selesai</button>
         </div>
     </div>
 </div>
 <script>
+    /* Salin password sementara → notifikasi SweetAlert sukses/gagal
+       (pengganti alert bawaan browser). */
+    window.copyTempPassword = function () {
+        var input = document.getElementById('tempPasswordInput');
+        if (!input || !navigator.clipboard || !navigator.clipboard.writeText) {
+            if (window.AdminSwal) AdminSwal.error('Browser tidak mendukung penyalinan otomatis. Salin manual dari kolom di atas.');
+            return;
+        }
+        navigator.clipboard.writeText(input.value).then(function () {
+            if (window.AdminSwal) AdminSwal.success('Password berhasil disalin ke papan klip.');
+        }, function () {
+            if (window.AdminSwal) AdminSwal.error('Password gagal disalin. Salin manual dari kolom di atas.');
+        });
+    };
+
     /* Fallback tombol Copy — navigator.clipboard hanya tersedia pada
        konteks secure (https / localhost). Pada http murni properti ini
        tidak ada sehingga onclick tombol Copy melempar TypeError; sediakan

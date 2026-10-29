@@ -95,9 +95,8 @@
 </div>
 
 @if (session('success'))
-<div class="form-alert success">
-    <i class="fas fa-check-circle"></i> {{ session('success') }}
-</div>
+{{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+<div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 
 @if ($errors->any())
@@ -367,11 +366,19 @@
             }
 
             if (removeBtn) {
-                // Konfirmasi dulu — hindari terhapus saat admin sedang mengisi konten
-                if (confirm('Yakin ingin menghapus section ini? Perubahan berlaku setelah Simpan Halaman.')) {
+                // Konfirmasi dua tombol via SweetAlert (AdminSwal) — menggantikan
+                // konfirmasi bawaan browser; hindari terhapus saat admin sedang
+                // mengisi konten.
+                AdminSwal.confirm({
+                    title: 'Hapus Section Ini?',
+                    text: 'Yakin ingin menghapus section ini? Perubahan berlaku setelah Simpan Halaman.',
+                    tone: 'danger',
+                    confirmText: 'Ya, Hapus'
+                }).then(function (confirmed) {
+                    if (!confirmed) return;
                     block.remove();       // blok langsung hilang dari layar, tanpa reload
                     renumber();           // section 1, 2, 3 kembali berurutan rapi
-                }
+                });
                 return;
             }
 

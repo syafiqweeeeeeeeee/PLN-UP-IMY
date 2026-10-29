@@ -555,14 +555,12 @@
 
 {{-- ============ ALERT & RINGKASAN IMPOR ============ --}}
 @if (session('success'))
-    <div class="alert alert-success py-2 px-3" role="status">
-        <i class="fas fa-circle-check"></i> {{ session('success') }}
-    </div>
+    {{-- Flash sukses → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-success="{{ session('success') }}"></div>
 @endif
 @if (session('warning'))
-    <div class="alert alert-warning py-2 px-3" role="status">
-        <i class="fas fa-circle-info"></i> {{ session('warning') }}
-    </div>
+    {{-- Flash peringatan → pop-up SweetAlert tengah layar (AdminSwal di layout). --}}
+    <div hidden data-swal-warning="{{ session('warning') }}"></div>
 @endif
 @if ($errors->any())
     <div class="alert alert-danger py-2 px-3" style="background:#fef2f2; border:1px solid #fecaca; color:#dc2626;" role="alert">
@@ -851,8 +849,11 @@
                                         : '')
                                     . ' Data yang dihapus tidak dapat dikembalikan.';
                             @endphp
-                            <form method="POST" action="{{ route('admin.karyawan_data.destroy', $karyawan) }}"
-                                  onsubmit="return confirm('{{ addslashes($pesanHapus) }}')">
+                            {{-- Konfirmasi dua tombol via SweetAlert (AdminSwal di layout),
+                                 bukan konfirmasi bawaan browser. Judul & tombol merah
+                                 otomatis karena form memakai method spoofing DELETE — tag
+                                 dibuat satu baris agar ID form tetap ringkas. --}}
+                            <form method="POST" action="{{ route('admin.karyawan_data.destroy', $karyawan) }}" data-swal-confirm="{{ $pesanHapus }}">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="dk-action-btn delete" title="Hapus">
@@ -931,8 +932,10 @@
                                 </button>
                                 <span class="dk-account-note">Email tidak valid</span>
                             @else
+                                {{-- Konfirmasi dua tombol via SweetAlert (AdminSwal di layout). --}}
                                 <form method="POST" action="{{ route('admin.karyawan_data.register-account', $karyawan) }}"
-                                      onsubmit="return confirm('Daftarkan akun pengguna untuk {{ addslashes($karyawan->nama) }} (NID {{ $karyawan->nid }}) dengan email {{ addslashes($emailKaryawan) }}? Kata sandi sementara akan dibuat otomatis dan hanya ditampilkan sekali.')">
+                                      data-swal-confirm-title="Daftarkan Akun Pengguna?"
+                                      data-swal-confirm="Daftarkan akun pengguna untuk {{ $karyawan->nama }} (NID {{ $karyawan->nid }}) dengan email {{ $emailKaryawan }}? Kata sandi sementara akan dibuat otomatis dan hanya ditampilkan sekali.">
                                     @csrf
                                     <button type="submit" class="dk-action-btn account" title="Daftarkan Akun" aria-label="Daftarkan Akun">
                                         <i class="fas fa-user-plus"></i>
