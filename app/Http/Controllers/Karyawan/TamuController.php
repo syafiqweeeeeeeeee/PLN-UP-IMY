@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Karyawan;
 
 use App\Http\Controllers\Admin\TamuController as BaseTamuController;
 use App\Models\Tamu;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 /**
  * TamuController (Portal Karyawan) — konteks akses KARYAWAN untuk
@@ -43,13 +41,8 @@ class TamuController extends BaseTamuController
         return $tamu->dokumen_zip_url_karyawan;
     }
 
-    /**
-     * Konteks portal karyawan tidak punya halaman detail — aksi status
-     * (approve/reject) selalu kembali ke daftar, sesuai kontrak subclass.
-     */
-    #[\Override]
-    protected function aksiStatusRedirect(Request $request, Tamu $tamu): RedirectResponse
-    {
-        return redirect()->route($this->indexRouteName());
-    }
+    /* aksiStatusRedirect() TIDAK lagi di-override: halaman detail sudah
+       dihapus, sehingga semua konteks (admin & karyawan) memakai kontrak
+       yang sama — aksi status kembali ke halaman daftar masing-masing
+       (indexRouteName). */
 }

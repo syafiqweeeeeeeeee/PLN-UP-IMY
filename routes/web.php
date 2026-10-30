@@ -20,11 +20,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/layanan/form-registrasi-tamu', [\App\Http\Controllers\TamuController::class, 'create'])->name('layanan.registrasi-tamu');
 Route::post('/layanan/form-registrasi-tamu', [\App\Http\Controllers\TamuController::class, 'store'])->name('layanan.registrasi-tamu.store');
 
-// API slot kunjungan terblokir (dipakai fetch JS form registrasi):
-// ?divisi=...&tanggal=YYYY-MM-DD -> JSON daftar jam yang sudah penuh.
-Route::get('/api/booked-slots', [\App\Http\Controllers\TamuController::class, 'bookedSlots'])
-    ->name('layanan.registrasi-tamu.booked-slots');
-
 // API daftar pegawai (dipakai fetch JS dependent dropdown "Orang yang
 // Ditemui"): ?bidang=...&jabatan=... -> JSON daftar karyawan/staff pada
 // pasangan bidang & jabatan tersebut. Publik, tanpa auth — sama seperti
@@ -444,10 +439,9 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
                 Route::get('tamu/export', [\App\Http\Controllers\Admin\TamuController::class, 'export'])->name('tamu.export');
                 Route::get('tamu/print/{style?}', [\App\Http\Controllers\Admin\TamuController::class, 'print'])->name('tamu.print');
 
-                // Halaman DETAIL kunjungan tamu — badge status + kartu log
-                // aktivitas (siapa & kapan perubahan terakhir) + tombol
-                // revisi status. Gate sama dengan index (tamu.view).
-                Route::get('tamu/{tamu}/detail', [\App\Http\Controllers\Admin\TamuController::class, 'detail'])->name('tamu.detail');
+                // HALAMAN DETAIL (tamu/{tamu}/detail) DIHAPUS — seluruh
+                // isinya kini di modal pop-up parsial admin.tamu.
+                // detail-tamu-modal, dibuka dari baris tabel index.
 
                 // Dokumen privat tamu (satu arsip ZIP) — disajikan dari disk
                 // private, tidak bisa diakses via /storage. Wajib auth + tamu.view.
@@ -474,14 +468,39 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
                 // check-out karena keduanya keputusan front office.
                 Route::post('tamu/{tamu}/verifikasi', [\App\Http\Controllers\Admin\TamuController::class, 'verifikasi'])->name('tamu.verifikasi');
 
-                // Revisi status dari halaman detail — status boleh berpindah
-                // bolak-balik (Disetujui <-> Dibatalkan) berulang kali.
+                // Revisi status langsung dari daftar (modal verifikasi) —
+                // status boleh berpindah bolak-balik (Disetujui <->
+                // Dibatalkan) berulang kali.
                 Route::post('tamu/{tamu}/approve', [\App\Http\Controllers\Admin\TamuController::class, 'approve'])->name('tamu.approve');
                 Route::post('tamu/{tamu}/reject', [\App\Http\Controllers\Admin\TamuController::class, 'reject'])->name('tamu.reject');
             });
             Route::middleware('permission:tamu.delete')->group(function () {
                 Route::delete('tamu/{tamu}', [\App\Http\Controllers\Admin\TamuController::class, 'destroy'])->name('tamu.destroy');
             });
+        });
+
+        // ============================================================
+        // HARI LIBUR / TANGGAL MERAH — daftar tanggal yang DITOLAK pada
+        // form registrasi tamu publik (validasi backend + blokir UI).
+        // Modul Hari Libur — permission khusus hari_libur.* (ID Menu 13,
+        // ikut matriks hak akses). FALLBACK alias ke tamu.*
+        // (Permission::ACTION_ALIASES) menjaga role lama tetap berlaku.
+        // ============================================================
+        Route::middleware('permission:hari_libur.view')->group(function () {
+            Route::get('hari-libur', [\App\Http\Controllers\Admin\HariLiburController::class, 'index'])
+                ->name('hari-libur.index');
+        });
+        Route::middleware('permission:hari_libur.create')->group(function () {
+            Route::post('hari-libur', [\App\Http\Controllers\Admin\HariLiburController::class, 'store'])
+                ->name('hari-libur.store');
+        });
+        Route::middleware('permission:hari_libur.edit')->group(function () {
+            Route::put('hari-libur/{hariLibur}', [\App\Http\Controllers\Admin\HariLiburController::class, 'update'])
+                ->name('hari-libur.update');
+        });
+        Route::middleware('permission:hari_libur.delete')->group(function () {
+            Route::delete('hari-libur/{hariLibur}', [\App\Http\Controllers\Admin\HariLiburController::class, 'destroy'])
+                ->name('hari-libur.destroy');
         });
         Route::middleware('permission:news.view')->group(function () {
             Route::get('news/{news}', [NewsController::class, 'show'])->name('news.show');

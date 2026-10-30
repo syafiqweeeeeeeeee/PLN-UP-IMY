@@ -43,6 +43,15 @@ class Permission extends Model
         'tamu.checkout' => 'tamu.edit',
         'user.reset-password' => 'users.edit',
         'roles.assign_permission' => 'roles.edit',
+        // FALLBACK modul Hari Libur — modul ini dulu digate `tamu.*`.
+        // Role lama yang hanya memiliki tamu.* TETAP bisa mengelola hari
+        // libur (resolved name), sedangkan grant baru `hari_libur.*`
+        // tetap dihormati via cek permission mentah di User::hasPermission
+        // (rule 0) — jadi bisa dicentang mandiri maupun dicabut perlahan.
+        'hari_libur.view' => 'tamu.view',
+        'hari_libur.create' => 'tamu.create',
+        'hari_libur.edit' => 'tamu.edit',
+        'hari_libur.delete' => 'tamu.delete',
     ];
 
     /**

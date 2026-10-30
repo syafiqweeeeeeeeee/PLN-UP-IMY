@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Bidang;
+use App\Models\HariLibur;
+use App\Models\Jabatan;
 use App\Models\Tamu;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -12,9 +15,41 @@ class TamuTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * Master data minimal — validasi bertingkat form registrasi
+     * mewajibkan jabatan yang dipilih sesuai bidang tujuan.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $bidang = Bidang::firstOrCreate(['nama' => 'Divisi Humas']);
+        Jabatan::firstOrCreate([
+            'nama'      => 'Kepala Bagian Humas',
+            'bidang_id' => $bidang->id,
+        ]);
+    }
+
     /* =========================================================
        HELPERS
        ========================================================= */
+
+    /**
+     * Tanggal hari kerja (Senin–Jumat) minimal $hari hari dari hari ini.
+     * Form registrasi menolak akhir pekan, sehingga test yang HARUS
+     * diterima tidak boleh jatuh pada Sabtu/Minggu (tanggal uji tidak
+     * boleh bergantung pada hari test dijalankan).
+     */
+    private function hariKerja(int $hari = 1): string
+    {
+        $tanggal = now()->addDays($hari);
+
+        while ($tanggal->isWeekend()) {
+            $tanggal->addDay();
+        }
+
+        return $tanggal->format('Y-m-d');
+    }
 
     private function validPayload(array $overrides = []): array
     {
@@ -27,9 +62,14 @@ class TamuTest extends TestCase
             // Satu berkas pendukung (ZIP/RAR/PDF/JPG/JPEG/PNG), maks 10MB
             'dokumen'        => UploadedFile::fake()->create('dokumen.zip', 200, 'application/zip'),
             'tujuan_ditemui' => 'Divisi Humas',
+            // Jabatan wajib & harus terdaftar pada bidang tujuan;
+            // orang yang ditemui wajib (teks bebas / pilihan daftar)
+            'jabatan_ditemui' => 'Kepala Bagian Humas',
+            'orang_ditemui'   => 'Siti Aminah',
             'jumlah_tamu'    => '2',
-            // Penjadwalan: tanggal & jam dikirim terpisah dari form
-            'tanggal_kunjungan' => now()->addDay()->format('Y-m-d'),
+            // Penjadwalan: tanggal & jam dikirim terpisah dari form.
+            // Selalu hari kerja — akhir pekan ditolak validasi server.
+            'tanggal_kunjungan' => $this->hariKerja(),
             'jam_kunjungan'     => '09:00',
             'keperluan'      => 'Kunjungan industri dan wawancara.',
         ], $overrides);
@@ -71,7 +111,7 @@ class TamuTest extends TestCase
         $this->assertNull($tamu->checked_in_at);
         // Tanggal (input date) + jam (dropdown) digabung menjadi datetime
         $this->assertSame(
-            now()->addDay()->format('Y-m-d') . ' 09:00',
+            $this->hariKerja() . ' 09:00',
             $tamu->tanggal_kunjungan->format('Y-m-d H:i')
         );
 
@@ -219,110 +259,165 @@ class TamuTest extends TestCase
     }
 
     /* =========================================================
-       SLOT LOCKING — kunjungan disetujui memblokir 3 jam
-       untuk divisi yang sama (divisi berbeda tetap boleh)
+       HARI LIBUR — tanggal merah ditolak form registrasi publik
        ========================================================= */
 
-    private function buatTamuDisetujui(array $overrides = []): Tamu
+    private function daftarkanHariLibur(string $tanggal, string $tipe = HariLibur::TIPE_LIBUR): void
     {
-        return Tamu::create(array_merge([
-            'nik'               => '3201999000000099',
-            'nama'              => 'Pemesan Slot',
-            'no_hp'             => '081200000001',
-            'dokumen_zip'       => 'dokumen/slot.zip',
-            'tujuan_ditemui'    => 'Assisten Manajer SO',
-            'jumlah_tamu'       => 1,
-            'tanggal_kunjungan' => now()->addDays(3)->format('Y-m-d') . ' 09:00',
-            'keperluan'         => 'Kunjungan.',
-            'status_verifikasi' => Tamu::STATUS_DISETUJUI,
-        ], $overrides));
-    }
-
-    public function test_store_blocks_same_divisi_within_approved_range(): void
-    {
-        // Skenario 1: kunjungan 09:00 di-approve -> memblokir 09:00–12:00
-        $this->buatTamuDisetujui();
-        $tanggal = now()->addDays(3)->format('Y-m-d');
-
-        // Skenario 2: jam 10:00 jatuh di rentang sibuk divisi sama -> ditolak
-        $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
-            'nik'               => '3201123456780999',
-            'tujuan_ditemui'    => 'Assisten Manajer SO',
-            'tanggal_kunjungan' => $tanggal,
-            'jam_kunjungan'     => '10:00',
-        ]))->assertSessionHasErrors(['jam_kunjungan']);
-
-        // Jam 13:00 di luar rentang sibuk -> diterima
-        $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
-            'nik'               => '3201123456780998',
-            'tujuan_ditemui'    => 'Assisten Manajer SO',
-            'tanggal_kunjungan' => $tanggal,
-            'jam_kunjungan'     => '13:00',
-        ]))->assertRedirect(route('layanan.registrasi-tamu'));
-    }
-
-    public function test_store_allows_different_divisi_at_same_slot(): void
-    {
-        // Skenario 3: divisi berbeda pada tanggal & jam sama TETAP DIBOLEHKAN
-        $this->buatTamuDisetujui();
-
-        $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
-            'nik'               => '3201123456780977',
-            'tujuan_ditemui'    => 'Assisten Manajer CBM',
-            'tanggal_kunjungan' => now()->addDays(3)->format('Y-m-d'),
-            'jam_kunjungan'     => '10:00',
-        ]))->assertRedirect(route('layanan.registrasi-tamu'));
-    }
-
-    public function test_store_allows_same_divisi_while_still_menunggu(): void
-    {
-        // Kunjungan berstatus "menunggu" BELUM memblokir slot
-        $this->buatTamuDisetujui([
-            'nik'               => '3201999000000098',
-            'status_verifikasi' => Tamu::STATUS_MENUNGGU,
+        HariLibur::create([
+            'tanggal'    => $tanggal,
+            'tipe'       => $tipe,
+            'keterangan' => $tipe === HariLibur::TIPE_MASUK_KERJA
+                ? 'Hari Kerja Khusus' : 'Libur Uji Coba',
         ]);
+    }
+
+    public function test_store_rejects_tanggal_libur(): void
+    {
+        $tanggal = $this->hariKerja(5);
+        $this->daftarkanHariLibur($tanggal);
 
         $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
-            'nik'               => '3201123456780988',
-            'tujuan_ditemui'    => 'Assisten Manajer SO',
-            'tanggal_kunjungan' => now()->addDays(3)->format('Y-m-d'),
-            'jam_kunjungan'     => '09:00',
+            'tanggal_kunjungan' => $tanggal,
+        ]))->assertSessionHasErrors(['tanggal_kunjungan']);
+
+        $this->assertDatabaseMissing('tamus', ['nik' => '3201123456780001']);
+    }
+
+    public function test_store_accepts_tanggal_di_luar_daftar_libur(): void
+    {
+        $this->daftarkanHariLibur($this->hariKerja(5));
+
+        $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
+            'tanggal_kunjungan' => $this->hariKerja(6),
         ]))->assertRedirect(route('layanan.registrasi-tamu'));
+    }
+
+    public function test_form_memblokir_tanggal_libur_lewat_js(): void
+    {
+        $tanggal = $this->hariKerja(5);
+        $this->daftarkanHariLibur($tanggal);
+
+        $this->get(route('layanan.registrasi-tamu'))
+            ->assertOk()
+            ->assertSee('holiday-warning', false)
+            ->assertSee('TANGGAL_MERAH', false)
+            ->assertSee('TANGGAL_MASUK', false) // daftar override weekend terkirim ke JS
+            ->assertSee($tanggal, false); // daftar libur terkirim ke JS
+    }
+
+    /* =========================================================
+       AKHIR PEKAN — Sabtu & Minggu di-HARDCODE libur, KECUALI admin
+       mendaftarkannya sebagai tipe masuk_kerja (override weekend)
+       ========================================================= */
+
+    public function test_store_rejects_tanggal_akhir_pekan(): void
+    {
+        $kasus = [
+            'Sabtu'  => now()->next(\Carbon\Carbon::SATURDAY)->format('Y-m-d'),
+            'Minggu' => now()->next(\Carbon\Carbon::SUNDAY)->format('Y-m-d'),
+        ];
+
+        foreach ($kasus as $hari => $tanggal) {
+            $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
+                'tanggal_kunjungan' => $tanggal,
+            ]))->assertSessionHasErrors(['tanggal_kunjungan']);
+
+            $pesan = session('errors')->first('tanggal_kunjungan');
+            $this->assertStringContainsString('akhir pekan', $pesan,
+                "Tanggal {$hari} ({$tanggal}) harus ditolak sebagai akhir pekan.");
+        }
+
+        // Tidak ada satu pun data tersimpan dari percobaan di atas.
+        $this->assertDatabaseMissing('tamus', ['nik' => '3201123456780001']);
+    }
+
+    public function test_form_memblokir_akhir_pekan_lewat_js(): void
+    {
+        // Blokir UI (customValidity) mengikuti aturan yang sama dengan
+        // validasi server: 1 fungsi pemeriksaan untuk libur + akhir pekan.
+        $this->get(route('layanan.registrasi-tamu'))
+            ->assertOk()
+            ->assertSee('alasanTanggalLibur', false)
+            ->assertSee('getDay()', false)
+            ->assertSee('akhir pekan', false);
     }
 
     /* ---------------------------------------------------------
-       API /api/booked-slots — daftar jam terblokir per divisi
+       OVERRIDE WEEKEND — Sabtu/Minggu bertipe masuk_kerja DIIZINKAN
        --------------------------------------------------------- */
 
-    public function test_booked_slots_api_returns_blocked_hours_for_same_divisi(): void
+    public function test_store_menerima_akhir_pekan_yang_di_override(): void
     {
-        $this->buatTamuDisetujui(); // 09:00 disetujui -> blokir 09:00–12:00
+        // Dua hari kerja ke depan dijamin akhir pekan (Sabtu atau Minggu).
+        $akhirPekan = now()->addDays(2);
+        while (! $akhirPekan->isWeekend()) {
+            $akhirPekan->addDay();
+        }
+        $tanggal = $akhirPekan->format('Y-m-d');
 
-        $this->get(route('layanan.registrasi-tamu.booked-slots', [
-            'divisi'  => 'Assisten Manajer SO',
-            'tanggal' => now()->addDays(3)->format('Y-m-d'),
-        ]))->assertOk()
-            ->assertJson([
-                'divisi'        => 'Assisten Manajer SO',
-                'jam_terblokir' => ['09:00', '10:00', '11:00'],
-            ]);
+        // Tanpa override → tetap ditolak (bukti hardcode masih berlaku).
+        $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
+            'tanggal_kunjungan' => $tanggal,
+        ]))->assertSessionHasErrors(['tanggal_kunjungan']);
+
+        // Admin membuka tanggal itu sebagai hari kerja khusus.
+        $this->daftarkanHariLibur($tanggal, HariLibur::TIPE_MASUK_KERJA);
+
+        $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
+            'tanggal_kunjungan' => $tanggal,
+        ]))->assertRedirect(route('layanan.registrasi-tamu'));
+
+        $this->assertDatabaseHas('tamus', [
+            'nik'               => '3201123456780001',
+            'tanggal_kunjungan' => $tanggal . ' 09:00',
+        ]);
     }
 
-    public function test_booked_slots_api_returns_empty_for_different_divisi(): void
+    public function test_store_tetap_menolak_weekend_dengan_tipe_libur(): void
     {
-        $this->buatTamuDisetujui();
+        $akhirPekan = now()->addDays(2);
+        while (! $akhirPekan->isWeekend()) {
+            $akhirPekan->addDay();
+        }
+        $tanggal = $akhirPekan->format('Y-m-d');
+        $this->daftarkanHariLibur($tanggal, HariLibur::TIPE_LIBUR);
 
-        $this->get(route('layanan.registrasi-tamu.booked-slots', [
-            'divisi'  => 'Assisten Manajer CBM',
-            'tanggal' => now()->addDays(3)->format('Y-m-d'),
-        ]))->assertOk()
-            ->assertJson(['jam_terblokir' => []]);
+        $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
+            'tanggal_kunjungan' => $tanggal,
+        ]))->assertSessionHasErrors(['tanggal_kunjungan']);
+
+        $this->assertDatabaseMissing('tamus', ['nik' => '3201123456780001']);
     }
 
-    public function test_booked_slots_api_validates_parameters(): void
+    /* =========================================================
+       TANPA PEMBLOKIRAN JAM — kunjungan lain yang sudah disetujui
+       pada divisi & jam sama TIDAK lagi memblokir pendaftaran baru
+       ========================================================= */
+
+    public function test_store_menerima_jam_sama_dengan_kunjungan_disetujui_lain(): void
     {
-        $this->get(route('layanan.registrasi-tamu.booked-slots'))
-            ->assertSessionHasErrors(['divisi', 'tanggal']);
+        $tanggal = $this->hariKerja(3);
+
+        Tamu::create([
+            'nik'               => '3201999000000099',
+            'nama'              => 'Tamu Terdahulu',
+            'no_hp'             => '081200000001',
+            'dokumen_zip'       => 'dokumen/lama.zip',
+            'tujuan_ditemui'    => 'Divisi Humas',
+            'jumlah_tamu'       => 1,
+            'tanggal_kunjungan' => $tanggal . ' 09:00',
+            'keperluan'         => 'Kunjungan.',
+            'status_verifikasi' => Tamu::STATUS_DISETUJUI,
+        ]);
+
+        // Divisi & jam sama, jadwal sama — tetap diterima.
+        $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
+            'tanggal_kunjungan' => $tanggal,
+            'jam_kunjungan'     => '09:00',
+        ]))->assertRedirect(route('layanan.registrasi-tamu'));
+
+        $this->assertSame(2, Tamu::count());
     }
 
     /* ---------------------------------------------------------
@@ -331,12 +426,31 @@ class TamuTest extends TestCase
 
     public function test_form_renders_dynamic_jam_kunjungan_dropdown(): void
     {
-        // Form tidak lagi meng-embed daftar slot per tanggal;
-        // slot diambil via API saat divisi & tanggal dipilih.
+        // Opsi jam dibangun via JS (1:1 dengan Tamu::SLOT_JAM);
+        // jam istirahat 11:30–13:00 dinonaktifkan, tanpa fetch API.
         $this->get(route('layanan.registrasi-tamu'))
             ->assertOk()
             ->assertSee('id="jam_kunjungan"', false)
-            ->assertSee('type="date"', false)
+            ->assertSee('id="tanggal_kunjungan"', false)
             ->assertSee('08:00', false); // daftar slot operasional dari model
+    }
+
+    /* ---------------------------------------------------------
+       FORM — kalender KUSTOM (pengganti datepicker native) dengan
+       warna per-hari: merah = libur/weekend, hitam = override
+       --------------------------------------------------------- */
+
+    public function test_form_memakai_kalender_kustom_dengan_warna_per_hari(): void
+    {
+        // Datepicker native TIDAK bisa diwarnai per-hari, sehingga diganti
+        // widget kalender kustom yang bisa menandai tanggal libur/akhir
+        // pekan MERAH (disabled) & weekend yang di-override HITAM.
+        $this->get(route('layanan.registrasi-tamu'))
+            ->assertOk()
+            ->assertDontSee('type="date"', false)   // datepicker native sudah diganti
+            ->assertSee('id="tanggal-calendar"', false)
+            ->assertSee('statusHari', false)         // logika status per-hari
+            ->assertSee('is-red', false)             // kelas merah (libur/weekend)
+            ->assertSee('is-masuk', false);          // kelas hitam (override weekend)
     }
 }

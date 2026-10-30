@@ -596,15 +596,6 @@
         word-break: break-all;
     }
 
-    .tamu-jam-status {
-        display: block;
-        font-size: 0.7rem;
-        margin-top: 0.28rem;
-        color: #64748b;
-    }
-    .tamu-jam-status.blocked { color: #dc2626; font-weight: 600; }
-    .tamu-jam-status.ok { color: #16a34a; }
-
     /* Utilitas toggle sembunyikan elemen (dipakai modal edit) */
     .hidden { display: none !important; }
     .tamu-modal-body img.ktp-full {
@@ -626,15 +617,6 @@
     .detail-row:last-child { border-bottom: none; }
     .detail-row dt { color: #9ca3af; font-weight: 600; }
     .detail-row dd { margin: 0; color: var(--pln-text); font-weight: 500; word-break: break-word; }
-    /* Pintasan ke halaman detail di dalam popup */
-    .dt-page-link {
-        display: flex; align-items: center; justify-content: center; gap: 0.45rem;
-        margin-bottom: 0.9rem; padding: 0.55rem 0.9rem;
-        border: 1px dashed #bfdbfe; border-radius: 10px;
-        background: #eff6ff; color: #1d4ed8;
-        font-size: 0.78rem; font-weight: 700; text-decoration: none;
-    }
-    .dt-page-link:hover { background: #dbeafe; }
     html.theme-dark .detail-row { border-color: var(--line); }
     html.theme-dark .detail-row dd { color: var(--ink-heading); }
 
@@ -864,11 +846,6 @@
 
     /* Slot jam kunjungan dalam <select> jam */
     .tamu-modal select option:disabled { color: #94a3b8 !important; background: #f1f5f9 !important; }
-    .tamu-modal select option.slot-penuh {
-        color: #dc2626 !important;
-        background: #fef2f2 !important;
-        font-weight: 600;
-    }
 
     @media (max-width: 767.98px) {
         .tamu-page-header .header-row { flex-direction: column; align-items: flex-start; }
@@ -1204,7 +1181,6 @@
     // ter-render mode lengkap pakai tamu terakhir dalam loop.
     'tamu'        => null,
     'accentColor' => 'var(--pln-blue)',
-    'detailUrl'   => route('admin.tamu.detail', ['tamu' => ':id']),
     'checkinUrl'  => route('admin.tamu.checkin', ':id'),
     'checkoutUrl' => route('admin.tamu.checkout', ':id'),
 ])
@@ -1277,31 +1253,21 @@
      dan tombol lewati.
      ============================================ --}}
 @if (session('wa_konfirmasi'))
-@php $wa = session('wa_konfirmasi'); $waBentrok = ! empty($wa['bentrok']); @endphp
+@php $wa = session('wa_konfirmasi'); @endphp
 <div class="tamu-modal-overlay show" id="waKonfirmasiModal">
     <div class="tamu-modal">
         <div class="tamu-delete-dialog">
-            @if ($waBentrok)
-            <div class="del-icon" style="background:#fff7ed; color:#ea580c;"><i class="fas fa-calendar-xmark" style="font-size:1.5rem;"></i></div>
-            <h6>Jadwal Kunjungan Sudah Ada yang Diizinkan</h6>
-            <p>Kunjungan <b>{{ $wa['nama'] }}</b> ({{ $wa['no_wa'] }}) <b>TIDAK disetujui</b>:
-                jadwalnya bentrok — pada jadwal & divisi yang sama sudah ada kunjungan
-                <b>{{ $wa['bentrok_dengan'] }}</b> ({{ $wa['bentrok_jadwal'] }} WIB) yang diizinkan.
-                WhatsApp tamu ini akan terbuka dengan pesan pemberitahuan agar mengajukan
-                jadwal lain — cukup tekan <b>Kirim</b>.</p>
-            @else
             <div class="del-icon" style="background:#e7f9ee; color:#16a34a;"><i class="fab fa-whatsapp" style="font-size:1.5rem;"></i></div>
             <h6>Kirim Konfirmasi WhatsApp</h6>
             <p>Berbaskan tamu <b>{{ $wa['nama'] }}</b> ({{ $wa['no_wa'] }}) bahwa kunjungannya
                 <b>{{ $wa['status'] }}</b>. WhatsApp akan terbuka dengan pesan yang sudah terisi otomatis —
                 cukup tekan <b>Kirim</b>.</p>
-            @endif
             <div class="tamu-delete-actions">
                 <button type="button" class="cancel" onclick="closeTamuModal('waKonfirmasiModal')">Lewati</button>
                 <a href="{{ $wa['wa_url'] }}" target="_blank" rel="noopener" class="confirm"
-                   style="background:{{ $waBentrok ? '#ea580c' : '#25D366' }}; color:#fff; text-decoration:none; display:inline-flex; align-items:center;"
+                   style="background:#25D366; color:#fff; text-decoration:none; display:inline-flex; align-items:center;"
                    onclick="setTimeout(function(){ closeTamuModal('waKonfirmasiModal'); }, 300);">
-                    <i class="fab fa-whatsapp me-1"></i> {{ $waBentrok ? 'Beritahu via WhatsApp' : 'Buka WhatsApp' }}
+                    <i class="fab fa-whatsapp me-1"></i> Buka WhatsApp
                 </a>
             </div>
         </div>
@@ -1423,12 +1389,11 @@
                     <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jam Kunjungan <span class="text-danger">*</span></label>
                         {{-- Opsi jam dibangun via JS — selaras form registrasi publik:
-                             jam istirahat 11:30–13:00 netral, slot ter-approve merah --}}
+                             jam istirahat 11:30–13:00 dinonaktifkan --}}
                         <select name="jam_kunjungan" id="add-jam_kunjungan" required
                                 class="form-select @error('jam_kunjungan') is-invalid @enderror" style="font-size:0.85rem;">
                             <option value="">— Pilih Jam —</option>
                         </select>
-                        <small id="add-jam-status" class="tamu-jam-status" style="display:none;"></small>
                         @error('jam_kunjungan')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-4">
@@ -1602,7 +1567,6 @@
                         <select name="jam_kunjungan" id="edit-jam_kunjungan" required class="form-select" style="font-size:0.85rem;">
                             <option value="">— Pilih Jam —</option>
                         </select>
-                        <small id="edit-jam-status" class="tamu-jam-status" style="display:none;"></small>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jumlah Tamu <span class="text-danger">*</span></label>
@@ -1752,14 +1716,7 @@
 
         var body = document.getElementById('detailModalBody');
 
-        // 1) Pintasan ke HALAMAN DETAIL kunjungan
-        var pageLink = body.querySelector('[data-role="page-link"]');
-        if (pageLink) {
-            pageLink.href = String(pageLink.dataset.hrefTemplate || '').replace(':id', t.id);
-            pageLink.hidden = false;
-        }
-
-        // 2) Daftar informasi utama (identitas + jadwal pendaftaran)
+        // 1) Daftar informasi utama (identitas + jadwal pendaftaran)
         var info = body.querySelector('[data-role="info"]');
         if (info) {
             var infoHtml = '';
@@ -1769,6 +1726,17 @@
                 infoHtml += '<div class="detail-row"><dt>' + escHtml(row[0]) + '</dt><dd>' + value + '</dd></div>';
             });
             info.innerHTML = infoHtml;
+        }
+
+        // 2) Kartu LOG AKTIVITAS (pengganti halaman detail yang dihapus) —
+        //    siapa & kapan perubahan status terakhir, dari payload `log`.
+        var logCard = body.querySelector('[data-role="log"]');
+        if (logCard) {
+            var logText = body.querySelector('[data-role="log-text"]');
+            if (logText) {
+                logText.textContent = t.log || 'Belum ada perubahan status — kunjungan menunggu verifikasi.';
+            }
+            logCard.hidden = false;
         }
 
         // 3) Maksud & Keperluan
@@ -1878,7 +1846,7 @@
             ? 'Setujui Kunjungan?' : 'Tolak Kunjungan?';
 
         document.getElementById('verifikasiDesc').textContent = setuju
-            ? 'Kunjungan tamu ini akan disetujui & slot jadwalnya terkunci. Setelah itu Anda akan diarahkan ke WhatsApp tamu untuk mengirim konfirmasi.'
+            ? 'Kunjungan tamu ini akan disetujui. Setelah itu Anda akan diarahkan ke WhatsApp tamu untuk mengirim konfirmasi.'
             : 'Kunjungan tamu ini akan ditolak. Setelah itu Anda akan diarahkan ke WhatsApp tamu untuk memberitahukan penolakan.';
 
         document.getElementById('verifikasiTamuName').textContent =
@@ -1896,7 +1864,7 @@
     /* ===== Modal Tambah Manual ===== */
     function openAddModal() {
         openTamuModal('addModal');
-        refreshJam('add');
+        buildJamOptions('add');
 
         const ta = document.getElementById('add-keperluan');
         const count = document.getElementById('add-keperluan-count');
@@ -1985,7 +1953,7 @@
 
         updateEditCounter();
         openTamuModal('editModal');
-        refreshJam('edit'); // muat slot terblokir untuk divisi & tanggal ini
+        buildJamOptions('edit');
     }
 
     /* Counter karakter Maksud & Keperluan pada modal edit (0/2000) */
@@ -2331,32 +2299,21 @@
 
     /* ============================================================
        SLOT JAM KUNJUNGAN — modal Tambah & Edit
-       Selaras form registrasi publik: opsi jam dibangun via JS.
-       Slot yang sudah DISETUJUI admin untuk divisi + tanggal sama
-       ditandai MERAH dan tidak bisa dipilih (data dari
-       /api/booked-slots); jam istirahat 11:30–13:00 netral.
-       ============================================================ */
-    const bookedSlotsUrl = '{{ route('layanan.registrasi-tamu.booked-slots') }}';
-
-    function setJamStatus(el, text, kind) {
-        if (!el) return;
-        el.style.display = text ? 'block' : 'none';
-        el.textContent = text || '';
-        el.className = 'tamu-jam-status' + (kind ? ' ' + kind : '');
-    }
+       Opsi jam dibangun via JS (1:1 dengan Tamu::SLOT_JAM); jam
+       istirahat 11:30–13:00 dinonaktifkan. Tidak ada pemblokiran
+       jam akibat kunjungan lain. ============================================================ */
 
     function jamContext(prefix) {
         return {
             jam:     document.getElementById(prefix + '-jam_kunjungan'),
             tanggal: document.getElementById(prefix + '-tanggal_kunjungan'),
             divisi:  document.getElementById(prefix + '-tujuan_ditemui'),
-            status:  document.getElementById(prefix + '-jam-status'),
         };
     }
 
-    /* Bangun ulang opsi <select> jam — struktur & penandaan identik
-       dengan buildJamOptions() di form registrasi publik. */
-    function buildJamOptions(prefix, blocked) {
+    /* Bangun ulang opsi <select> jam — struktur identik dengan
+       buildJamOptions() di form registrasi publik. */
+    function buildJamOptions(prefix) {
         const c = jamContext(prefix);
         if (!c.jam) return;
 
@@ -2369,32 +2326,12 @@
 
         SLOT_OPSIONAL.forEach(function (opt) {
             const val = opt.jam;
-            let disabled = false;
-            let label = opt.label;
-            let isBlocked = false;
-
-            if (val >= JAM_ISTIRAHAT_AWAL && val < JAM_ISTIRAHAT_AKHIR) {
-                disabled = true;
-                label = opt.label + ' (Jam Istirahat)';
-            }
-
-            if (blocked.indexOf(val) !== -1) {
-                disabled = true;
-                isBlocked = true;
-                label = opt.label + ' (Terblokir)';
-                // Jam milik rekaman yang sedang diedit: merah sebagai
-                // penanda, tapi tetap aktif agar nilainya tidak hilang
-                // (server mengecualikan rekaman ini saat validasi).
-                if (jamAwal && val === jamAwal) disabled = false;
-            }
+            const disabled = val >= JAM_ISTIRAHAT_AWAL && val < JAM_ISTIRAHAT_AKHIR;
 
             const option = document.createElement('option');
             option.value = val;
-            option.textContent = label;
-            if (isBlocked) {
-                option.classList.add('slot-penuh');
-                option.title = 'Jam ini sudah di-approve admin dan tidak dapat dipilih.';
-            }
+            option.textContent = disabled ? opt.label + ' (Jam Istirahat)' : opt.label;
+            option.setAttribute('data-status', disabled ? 'istirahat' : 'tersedia');
             if (disabled) option.disabled = true;
 
             c.jam.appendChild(option);
@@ -2419,81 +2356,14 @@
         }
     }
 
-    const jamLoading = { add: false, edit: false };
-    const jamRefreshDirty = { add: false, edit: false };
-
-    function refreshJam(prefix) {
-        const c = jamContext(prefix);
-        if (!c.jam || !c.tanggal || !c.divisi) return;
-
-        const tanggal = c.tanggal.value;
-        const divisi = c.divisi.value;
-
-        if (!tanggal || !divisi) {
-            buildJamOptions(prefix, []);
-            setJamStatus(c.status, 'Pilih divisi & tanggal untuk melihat ketersediaan jam');
-            return;
-        }
-
-        // Ada request lain masih berjalan — jangan dibuang,
-        // tandai saja supaya diulang otomatis setelah selesai.
-        if (jamLoading[prefix]) {
-            jamRefreshDirty[prefix] = true;
-            return;
-        }
-        jamLoading[prefix] = true;
-
-        setJamStatus(c.status, 'Memuat ketersediaan jam...');
-
-        /* Modal Edit: blokir hanya SATU jam (jam booking itu sendiri),
-           bukan rentang 3 jam seperti form publik & modal Tambah —
-           supaya admin bebas mengubah jam ke slot lain. */
-        const qs = '?tanggal=' + encodeURIComponent(tanggal)
-                 + '&divisi=' + encodeURIComponent(divisi)
-                 + (prefix === 'edit' ? '&durasi=1' : '');
-
-        fetch(bookedSlotsUrl + qs)
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                jamLoading[prefix] = false;
-                if (jamRefreshDirty[prefix]) {
-                    jamRefreshDirty[prefix] = false;
-                    refreshJam(prefix); // parameternya sudah berubah — muat ulang
-                    return;
-                }
-                const blocked = Array.isArray(data.jam_terblokir) ? data.jam_terblokir : [];
-                buildJamOptions(prefix, blocked);
-
-                setJamStatus(
-                    c.status,
-                    blocked.length ? '\u26A0 Jam terblokir: ' + blocked.join(', ') : '\u2713 Semua slot tersedia',
-                    blocked.length ? 'blocked' : 'ok'
-                );
-            })
-            .catch(function () {
-                jamLoading[prefix] = false;
-                if (jamRefreshDirty[prefix]) {
-                    jamRefreshDirty[prefix] = false;
-                    refreshJam(prefix);
-                    return;
-                }
-                setJamStatus(c.status, 'Gagal memuat ketersediaan jam', 'blocked');
-                /* API gagal — tetap bangun opsi dasar: select jam itu
-                   WAJIB, dan select kosong membuat form edit mustahil
-                   disimpan. Slot tetap diverifikasi ulang oleh server. */
-                buildJamOptions(prefix, []);
-            });
-    }
-
     (function () {
         ['add', 'edit'].forEach(function (prefix) {
             const c = jamContext(prefix);
-            if (!c.jam || !c.tanggal || !c.divisi) return;
+            if (!c.jam) return;
 
-            c.tanggal.addEventListener('change', function () { refreshJam(prefix); });
-            c.divisi.addEventListener('change', function () { refreshJam(prefix); });
             c.jam.addEventListener('change', function () {
-                // Guard: slot terblokir/istirahat tidak boleh tersimpan
+                // Guard: slot istirahat tidak boleh tersimpan
+                // (bisa ter-set lewat manipulasi nilai programatis).
                 const opt = c.jam.selectedOptions && c.jam.selectedOptions[0];
                 if (opt && opt.disabled) c.jam.value = '';
             });
@@ -2553,7 +2423,7 @@
             }
 
             updateEditCounter();
-            refreshJam('edit');
+            buildJamOptions('edit');
         } else if (document.getElementById('addModal')) {
             /* Form Tambah Manual — isian sudah terisi old() di markup;
                dropdown divisi & jam disinkronkan dari old input. */

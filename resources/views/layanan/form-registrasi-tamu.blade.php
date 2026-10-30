@@ -180,8 +180,6 @@
             font-size: 0.6rem;
         }
 
-        .pln-input[type="date"] { padding-right: 1.6rem; }
-
         select.pln-input {
             padding-right: 1.6rem;
         }
@@ -396,23 +394,63 @@
         appearance: none;
     }
 
-    /* Input date: kotak menyerupai dropdown Divisi —
-       ruang kanan lega & indikator kalender bawaan browser disembunyikan
-       (klik area tersebut tetap membuka kalender). */
-    .pln-input[type="date"] {
-        padding-right: 1.6rem;
-        color-scheme: light;
+    /* ===== KALENDER KUSTOM TANGGAL KUNJUNGAN =====
+       Menggantikan datepicker native browser — hanya dengan widget ini
+       tanggal libur/akhir pekan bisa diwarnai MERAH (disabled) dan akhir
+       pekan yang di-override admin tampil HITAM (bisa dipilih). */
+    .pln-cal {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        z-index: 1050;
+        width: 288px;
+        background: var(--bg-card, #fff);
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 12px;
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16);
+        padding: 0.6rem;
     }
-    .pln-input[type="date"]::-webkit-calendar-picker-indicator {
-        opacity: 0;
-        cursor: pointer;
-        padding: 0.18rem;
-        border-radius: 5px;
-        transition: background 0.18s ease;
+    .pln-cal[hidden] { display: none; }
+    .pln-cal-head {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 0.4rem; margin-bottom: 0.45rem;
     }
-    .pln-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-        background: rgba(0, 0, 0, 0.03);
+    .pln-cal-title { font-size: 0.82rem; font-weight: 700; color: var(--pln-text, #1f2937); }
+    .pln-cal-nav {
+        width: 28px; height: 28px; border-radius: 8px;
+        border: 1px solid var(--border-color, #e5e7eb); background: #f8fafc;
+        color: #4b5563; cursor: pointer; font-size: 1rem; line-height: 1;
     }
+    .pln-cal-nav:hover { background: #e6f2fb; color: var(--pln-blue, #0056a3); }
+    .pln-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .pln-cal-dow span {
+        text-align: center; font-size: 0.64rem; font-weight: 700;
+        color: #9ca3af; padding: 0.25rem 0; text-transform: uppercase;
+    }
+    .pln-cal-day {
+        aspect-ratio: 1; border: none; border-radius: 8px; background: transparent;
+        font-size: 0.76rem; font-weight: 600; color: var(--pln-text, #1f2937); cursor: pointer;
+    }
+    .pln-cal-day:hover:not(:disabled) { background: #e6f2fb; }
+    .pln-cal-day.is-empty { visibility: hidden; pointer-events: none; }
+    .pln-cal-day.is-past { color: #cbd5e1; cursor: not-allowed; }
+    /* MERAH — tanggal libur (tipe libur) & akhir pekan tanpa override: disabled */
+    .pln-cal-day.is-red { background: #fee2e2; color: #b91c1c; cursor: not-allowed; }
+    /* HITAM — akhir pekan yang di-override admin (tipe masuk_kerja): BISA dipilih */
+    .pln-cal-day.is-masuk { background: #111827; color: #fff; }
+    .pln-cal-day.is-masuk:hover { background: #1f2937; }
+    .pln-cal-day.is-hari-ini { box-shadow: inset 0 0 0 2px rgba(0, 86, 163, 0.35); }
+    .pln-cal-day.is-terpilih { background: var(--pln-blue, #0056a3) !important; color: #fff !important; }
+    .pln-cal-foot {
+        display: flex; justify-content: flex-end; margin-top: 0.5rem;
+        border-top: 1px solid var(--border-color, #f1f5f9); padding-top: 0.4rem;
+    }
+    .pln-cal-today {
+        background: none; border: none; color: var(--pln-blue, #0056a3);
+        font-size: 0.74rem; font-weight: 700; cursor: pointer;
+        padding: 0.15rem 0.35rem; border-radius: 6px;
+    }
+    .pln-cal-today:hover { background: #e6f2fb; }
 
     /* Custom Dropdown Divisi */
     .custom-dropdown-input {
@@ -581,22 +619,12 @@
         background: #f1f5f9 !important;
     }
 
-    /* Opsi jam yang TERBLOKIR (sudah di-approve oleh admin):
-       teks & latar merah, disabled sehingga tidak bisa dipilih */
-    select.pln-input option.slot-penuh {
-        color: #dc2626 !important;
-        background: #fef2f2 !important;
-        font-weight: 600;
-    }
-    select.pln-input option.slot-penuh:checked {
-        color: #fff !important;
-        background: #dc2626 !important;
-    }
     select.pln-input optgroup { font-weight: 600; color: #475569; background: #f8fafc; }
     select.pln-input option { padding: 0.25rem 0.4rem; line-height: 1.25; }
 
-    /* Kotak peringatan jam terblokir */
-    .slot-warning {
+    /* Peringatan tanggal merah (hari libur) — kotak merah di bawah
+       input tanggal saat tanggal yang dipilih termasuk hari libur. */
+    .holiday-warning {
         display: none;
         align-items: flex-start;
         gap: 0.3rem;
@@ -609,8 +637,8 @@
         font-size: 0.66rem;
         line-height: 1.35;
     }
-    .slot-warning.show { display: flex; }
-    .slot-warning i { margin-top: 0.02rem; }
+    .holiday-warning.show { display: flex; }
+    .holiday-warning i { margin-top: 0.02rem; }
 
     .pln-field-error {
         display: flex;
@@ -1346,18 +1374,45 @@
                                 Tanggal Kunjungan <span class="required">*</span>
                             </label>
                             <div class="pln-input-icon" style="position: relative;">
-                                {{-- Dibatasi hari ini ke depan: attribute min = hari ini (server),
-                                     lalu disesuaikan lagi dengan tanggal lokal browser via JS. --}}
-                                <input type="date" id="tanggal_kunjungan" name="tanggal_kunjungan"
-                                       min="{{ now()->format('Y-m-d') }}"
+                                {{-- Kalender KUSTOM (bukan datepicker native) — nilai Y-m-d;
+                                     hari libur/akhir pekan tampil MERAH & disabled,
+                                     weekend yang di-override admin tampil HITAM. --}}
+                                <input type="text" id="tanggal_kunjungan" name="tanggal_kunjungan"
                                        value="{{ old('tanggal_kunjungan', today()->format('Y-m-d')) }}"
-                                       required aria-label="tanggal kunjungan"
-                                       title="Tanggal kunjungan minimal hari ini"
+                                       required readonly autocomplete="off" inputmode="none"
+                                       aria-label="tanggal kunjungan" aria-haspopup="dialog"
+                                       aria-expanded="false"
+                                       title="Klik untuk memilih tanggal kunjungan"
+                                       placeholder="Pilih tanggal"
                                        class="pln-input custom-dropdown-input @error('tanggal_kunjungan') has-error @enderror" />
                                 {{-- Panah persis seperti dropdown Divisi (ikon kiri, ruang kanan lega) --}}
                                 <i class="fas fa-chevron-down dropdown-arrow"></i>
+
+                                {{-- Widget kalender --}}
+                                <div class="pln-cal" id="tanggal-calendar" role="dialog"
+                                     aria-label="Kalender tanggal kunjungan" hidden>
+                                    <div class="pln-cal-head">
+                                        <button type="button" class="pln-cal-nav" id="cal-prev"
+                                                aria-label="Bulan sebelumnya">&lsaquo;</button>
+                                        <span class="pln-cal-title" id="cal-title" aria-live="polite"></span>
+                                        <button type="button" class="pln-cal-nav" id="cal-next"
+                                                aria-label="Bulan berikutnya">&rsaquo;</button>
+                                    </div>
+                                    <div class="pln-cal-grid pln-cal-dow" aria-hidden="true">
+                                        <span>Min</span><span>Sel</span><span>Rab</span><span>Kam</span>
+                                        <span>Jum</span><span>Sab</span><span>Min</span>
+                                    </div>
+                                    <div class="pln-cal-grid" id="cal-days"></div>
+                                    <div class="pln-cal-foot">
+                                        <button type="button" class="pln-cal-today" id="cal-today">Hari ini</button>
+                                    </div>
+                                </div>
                             </div>
-                            <p class="pln-hint" style="margin: 0.25rem 0 0;">Minimal hari ini — tanggal kemarin &amp; sebelumnya tidak dapat dipilih.</p>
+                            <p class="pln-hint" style="margin: 0.25rem 0 0;">Minimal hari ini — tanggal kemarin, akhir pekan (Sabtu/Minggu, kecuali dibuka admin), hari libur &amp; tanggal merah tidak dapat dipilih.</p>
+                            <div class="holiday-warning" id="holiday-warning" style="display: none;">
+                                <i class="fas fa-circle-exclamation"></i>
+                                <span id="holiday-warning-text">Tanggal ini adalah hari libur. Silakan pilih tanggal lain.</span>
+                            </div>
                             @error('tanggal_kunjungan')
                                 <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                             @enderror
@@ -1375,7 +1430,6 @@
                                 </select>
                                 <i class="fas fa-chevron-down dropdown-arrow"></i>
                             </div>
-                            <div id="jam-status" class="pln-hint" style="margin-top: 0.25rem; display: none;"></div>
                             @error('jam_kunjungan')
                                 <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                             @enderror
@@ -1394,11 +1448,6 @@
                                 <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                             @enderror
                         </div>
-                    </div>
-
-                    <div class="slot-warning" id="slot-warning" style="display: none;">
-                        <i class="fas fa-circle-exclamation"></i>
-                        <span data-i18n="form.slot_taken">Jam ini sudah penuh / sudah di-approve untuk divisi ini. Silakan pilih jam lain.</span>
                     </div>
 
                     {{-- Maksud & Keperluan — dengan counter karakter dinamis (0/2000) --}}
@@ -2435,17 +2484,20 @@
             });
         })();
 
+        /* Tanggal hari ini (Y-m-d) — dipakai pembatas tanggal lewat dan
+           render kalender kustom; dideklarasikan di luar IIFE agar bisa
+           dipakai semua blok pada skrip ini. */
+        function todayLocal() {
+            var d = new Date();
+            var mm = String(d.getMonth() + 1).padStart(2, '0');
+            var dd = String(d.getDate()).padStart(2, '0');
+            return d.getFullYear() + '-' + mm + '-' + dd;
+        }
+
         /* ===== TANGGAL KUNJUNGAN: blokir tanggal yang sudah lewat ===== */
         (function () {
             var tanggal = document.getElementById('tanggal_kunjungan');
             if (!tanggal) return;
-
-            function todayLocal() {
-                var d = new Date();
-                var mm = String(d.getMonth() + 1).padStart(2, '0');
-                var dd = String(d.getDate()).padStart(2, '0');
-                return d.getFullYear() + '-' + mm + '-' + dd;
-            }
 
             function batasiTanggal() {
                 var min = todayLocal();
@@ -2459,14 +2511,9 @@
             // Setelah lewat tengah malam, perbarui batasnya
             setInterval(batasiTanggal, 60000);
 
-            // Ikon kalender bawaan browser disembunyikan agar kotaknya
-            // seperti dropdown Divisi — kalender tetap terbuka saat field
-            // atau panahnya diklik.
-            tanggal.addEventListener('click', function () {
-                if (typeof tanggal.showPicker === 'function') {
-                    try { tanggal.showPicker(); } catch (e) { /* dibuka browser via klik biasa */ }
-                }
-            });
+            // Klik pada input dibuka oleh kalender KUSTOM (#tanggal-calendar)
+            // di blok "AKHIR PEKAN + TANGGAL MERAH" — datepicker native
+            // browser sudah tidak dipakai agar bisa diwarnai per-hari.
 
             tanggal.addEventListener('input', function () {
                 var min = tanggal.min || todayLocal();
@@ -2479,10 +2526,11 @@
             });
         })();
 
-        /* ===== JAM KUNJUNGAN ===== */
+        /* ===== JAM KUNJUNGAN =====
+           Opsi jam dibangun lokal (1:1 dengan Tamu::SLOT_JAM di server).
+           Jam istirahat 11:30–13:00 dinonaktifkan — tidak ada pemblokiran
+           jam akibat kunjungan lain. */
         (function () {
-            /* Slot harus 1:1 dengan Tamu::SLOT_JAM di server supaya jam yang
-               di-approve admin (jam_terblokir) bisa dicocokkan & ditandai merah. */
             var SLOT_OPSIONAL = [
                 { jam: '08:00', label: '08:00 – 09:00' },
                 { jam: '09:00', label: '09:00 – 10:00' },
@@ -2496,105 +2544,31 @@
             var JAM_ISTIRAHAT_AKHR = '13:00';
 
             var selectJam = document.getElementById('jam_kunjungan');
-            var slotWarning = document.getElementById('slot-warning');
             var tanggalInput = document.getElementById('tanggal_kunjungan');
-            var divisiInputDisplay = document.getElementById('tujuan_ditemui_display');
-            var divisiInputHidden = document.getElementById('tujuan_ditemui');
 
-            if (!selectJam || !tanggalInput || !divisiInputDisplay || !divisiInputHidden) {
+            if (!selectJam || !tanggalInput) {
                 console.error('[Jam] Elemen tidak ditemukan', {
                     selectJam: !!selectJam,
                     tanggalInput: !!tanggalInput,
-                    divisiInputDisplay: !!divisiInputDisplay,
-                    divisiInputHidden: !!divisiInputHidden,
                 });
                 return;
             }
 
-            var divisiInput = divisiInputHidden;
-            var jamStatus = document.getElementById('jam-status') || (function () {
-                var el = document.createElement('div');
-                el.id = 'jam-status';
-                el.className = 'pln-hint';
-                el.style.display = 'none';
-                if (selectJam && selectJam.parentElement) {
-                    selectJam.parentElement.appendChild(el);
-                }
-                return el;
-            })();
-
-            if (!jamStatus) {
-                console.error('[Jam] Elemen jam-status tidak ditemukan dan gagal dibuat');
-                return;
-            }
-
-            jamStatus.style.display = 'block';
-            jamStatus.textContent = 'Vacuum - tunggu divisi & tanggal';
-            jamStatus.style.color = '#64748b';
-
-            console.log('[Jam] Elemen OK', { selectJam: selectJam.id, tanggalInput: tanggalInput.id, divisiInput: divisiInput.id, jamStatus: jamStatus.id });
-
-            var renderCount = 0;
-            function safeRender() {
-                try {
-                    renderCount += 1;
-                    console.log('[Jam] renderCount:', renderCount);
-                    buildJamOptions([], JAM_ISTIRAHAT_AWAL, JAM_ISTIRAHAT_AKHR);
-                    jamStatus.textContent = 'Render manual berjalan. Pilih divisi & tanggal.';
-                    jamStatus.style.color = '#64748b';
-                } catch (err) {
-                    console.error('[Jam] Error saat render manual:', err);
-                }
-            }
-            safeRender();
-
-            console.log('[Jam] Divisi awal:', divisiInput.value);
-            console.log('[Jam] Tanggal awal:', tanggalInput.value);
-
-            var loading = false;
-            var refreshDirty = false;
-
-            function buildJamOptions(blocked, istirahatAwal, istirahatAkhr) {
-                // Pertahankan pilihan user bila masih valid (tidak disabled),
-                // supaya ganti tanggal/divisi tidak menghapus pilihan jamnya.
+            function buildJamOptions() {
+                // Pertahankan pilihan user bila masih valid (tidak disabled).
                 var previous = selectJam.value;
 
                 selectJam.innerHTML = '<option value="">— Pilih Jam —</option>';
 
-                var mulai = istirahatAwal ? istirahatAwal.trim() : '';
-                var akhir = istirahatAkhr ? istirahatAkhr.trim() : '';
-
                 SLOT_OPSIONAL.forEach(function (opt) {
                     var val = opt.jam;
-                    var disabled = false;
-                    var label = opt.label;
-                    var blockedReason = '';
-
-                    if (mulai && akhir && val >= mulai && val < akhir) {
-                        disabled = true;
-                        label = opt.label + ' (Jam Istirahat)';
-                    }
-
-                    if (blocked.indexOf(val) !== -1) {
-                        disabled = true;
-                        label = opt.label + ' (Terblokir)';
-                        blockedReason = 'terblokir';
-                    }
+                    var istirahat = val >= JAM_ISTIRAHAT_AWAL && val < JAM_ISTIRAHAT_AKHR;
 
                     var option = document.createElement('option');
                     option.value = val;
-                    option.textContent = label;
-                    if (blockedReason) {
-                        option.setAttribute('data-status', 'terblokir');
-                        // Slot yang sudah di-approve admin: merah + tidak bisa dipilih
-                        option.classList.add('slot-penuh');
-                        option.title = 'Jam ini sudah di-approve admin dan tidak dapat dipilih.';
-                    } else if (disabled && val >= mulai && val < akhir) {
-                        option.setAttribute('data-status', 'istirahat');
-                    } else {
-                        option.setAttribute('data-status', 'tersedia');
-                    }
-                    if (disabled) option.disabled = true;
+                    option.textContent = istirahat ? opt.label + ' (Jam Istirahat)' : opt.label;
+                    option.setAttribute('data-status', istirahat ? 'istirahat' : 'tersedia');
+                    if (istirahat) option.disabled = true;
 
                     selectJam.appendChild(option);
                 });
@@ -2608,152 +2582,252 @@
                 }
             }
 
-            function refreshJamSlot() {
-                var tanggal = tanggalInput.value.trim();
-                var divisi = divisiInput.value.trim();
+            buildJamOptions();
 
-                console.log('[Jam] refreshJamSlot()', { tanggal, divisi });
+            // Guard: slot istirahat tidak boleh tersimpan (bisa ter-set
+            // lewat manipulasi nilai programatis).
+            selectJam.addEventListener('change', function () {
+                var opt = selectJam.selectedOptions && selectJam.selectedOptions[0];
+                if (opt && opt.disabled) selectJam.value = '';
+            });
+        })();
 
-                if (!tanggal || !divisi) {
-                    buildJamOptions([], JAM_ISTIRAHAT_AWAL, JAM_ISTIRAHAT_AKHR);
-                    if (jamStatus) {
-                        jamStatus.style.display = 'block';
-                        jamStatus.textContent = 'Pilih divisi & tanggal terlebih dahulu';
-                        jamStatus.style.color = '#64748b';
+        /* ===== AKHIR PEKAN + TANGGAL MERAH / HARI LIBUR =====
+           Tiga sumber penolakan tanggal, DIVALIDASI ULANG oleh server
+           dengan urutan yang sama:
+             1. Hari Kerja Khusus — daftar dinamis dari tabel hari_liburs
+                (tipe = masuk_kerja, via $tanggalMasuk): Sabtu/Minggu
+                yang di-override admin menjadi BISA dipilih (hitam).
+             2. Tanggal Merah — tipe libur dari tabel hari_liburs
+                (via $tanggalMerah): merah/disabled.
+             3. Akhir pekan — Sabtu & Minggu di-HARDCODE libur
+                (hari kerja hanya Senin–Jumat) bila tidak di-override.
+           Input ditandai customValidity (submit browser ikut terblokir)
+           + kotak peringatan merah. */
+        (function () {
+            var tanggal = document.getElementById('tanggal_kunjungan');
+            var warning = document.getElementById('holiday-warning');
+            var warningText = document.getElementById('holiday-warning-text');
+            var TANGGAL_MERAH = @json((object) $tanggalMerah);
+            var TANGGAL_MASUK = @json((object) $tanggalMasuk);
+            var sedangSetLibur = false;
+
+            if (!tanggal) return;
+
+            /** Alasan penolakan tanggal (null = boleh dipilih). */
+            function alasanTanggalLibur(value) {
+                if (!value) return null;
+
+                // 1) Hari kerja khusus (override weekend) — selalu diizinkan
+                if (Object.prototype.hasOwnProperty.call(TANGGAL_MASUK, value)) {
+                    return null;
+                }
+
+                // 2) Tanggal merah dinamis (tipe libur, dikelola admin)
+                if (Object.prototype.hasOwnProperty.call(TANGGAL_MERAH, value)) {
+                    var keterangan = TANGGAL_MERAH[value];
+                    return {
+                        pesan: 'Tanggal ' + value + ' adalah hari libur'
+                            + (keterangan ? ' (' + keterangan + ')' : '')
+                            + ' dan tidak dapat dipilih untuk kunjungan.'
+                    };
+                }
+
+                // 3) Akhir pekan tanpa override — hardcode Sabtu (6) & Minggu (0)
+                var bagian = String(value).split('-');
+                var d = new Date(Number(bagian[0]), Number(bagian[1]) - 1, Number(bagian[2]));
+                if (isNaN(d.getTime())) return null;
+
+                var dow = d.getDay();
+                if (dow === 0 || dow === 6) {
+                    return {
+                        pesan: 'Tanggal ' + value + ' jatuh pada '
+                            + (dow === 0 ? 'Minggu' : 'Sabtu')
+                            + ' (akhir pekan) — kunjungan hanya dapat dijadwalkan pada hari kerja.'
+                    };
+                }
+
+                return null;
+            }
+
+            function cekTanggalLibur() {
+                var value = tanggal.value;
+                var alasan = alasanTanggalLibur(value);
+
+                if (alasan) {
+                    var pesan = alasan.pesan;
+                    tanggal.setCustomValidity(pesan);
+                    tanggal.classList.add('has-error'); // kotak merah
+                    sedangSetLibur = true;
+                    if (warningText) warningText.textContent = pesan;
+                    if (warning) warning.classList.add('show');
+                    try { tanggal.reportValidity(); } catch (e) {}
+                } else if (sedangSetLibur) {
+                    // Hapus hanya pesan milik kita — pesan validasi
+                    // tanggal lampau milik handler lain tidak diusik.
+                    tanggal.setCustomValidity('');
+                    tanggal.classList.remove('has-error');
+                    sedangSetLibur = false;
+                    if (warning) warning.classList.remove('show');
+                }
+            }
+
+            tanggal.addEventListener('change', cekTanggalLibur);
+            tanggal.addEventListener('input', cekTanggalLibur);
+            cekTanggalLibur();
+
+            /* ===== KALENDER KUSTOM (pengganti datepicker native) =====
+               Satu-satunya cara memberi warna per-hari di datepicker:
+                 MERAH  (.is-red)   — tanggal merah (tipe libur) & akhir pekan
+                                      tanpa override → DISABLED
+                 HITAM  (.is-masuk) — akhir pekan di-override admin
+                                      (tipe masuk_kerja) → BISA dipilih
+                 abu    (.is-past)  — tanggal lampau → DISABLED
+               Klik hari yang diizinkan → set value + dispatch input/change,
+               sehingga validasi ulang (cekTanggalLibur) ikut berjalan. */
+            var kalender = document.getElementById('tanggal-calendar');
+            var kalTitle = document.getElementById('cal-title');
+            var kalDays = document.getElementById('cal-days');
+            var kalToday = document.getElementById('cal-today');
+            var BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            var tampilTahun;
+            var tampilBulan;
+
+            if (kalender && kalTitle && kalDays) {
+                function pad2(n) { return String(n).padStart(2, '0'); }
+
+                function ymd(tahun, bulan, hari) {
+                    return tahun + '-' + pad2(bulan + 1) + '-' + pad2(hari);
+                }
+
+                /** Status satu tanggal: 'lampau' | 'libur' | 'masuk' | 'biasa'. */
+                function statusHari(str) {
+                    if (str < todayLocal()) return 'lampau';
+                    if (alasanTanggalLibur(str)) return 'libur';
+                    if (Object.prototype.hasOwnProperty.call(TANGGAL_MASUK, str)) return 'masuk';
+                    return 'biasa';
+                }
+
+                function renderKalender() {
+                    var totalHari = new Date(tampilTahun, tampilBulan + 1, 0).getDate();
+                    var hariPertama = new Date(tampilTahun, tampilBulan, 1).getDay(); // 0 = Min
+
+                    kalTitle.textContent = BULAN[tampilBulan] + ' ' + tampilTahun;
+                    kalDays.innerHTML = '';
+
+                    for (var i = 0; i < hariPertama; i++) {
+                        var kosong = document.createElement('button');
+                        kosong.type = 'button';
+                        kosong.className = 'pln-cal-day is-empty';
+                        kosong.tabIndex = -1;
+                        kosong.setAttribute('aria-hidden', 'true');
+                        kalDays.appendChild(kosong);
                     }
-                    if (slotWarning) slotWarning.style.display = 'none';
-                    return;
-                }
 
-                // Ada request lain masih berjalan — jangan dibuang,
-                // tandai saja supaya diulang otomatis setelah selesai.
-                if (loading) {
-                    refreshDirty = true;
-                    return;
-                }
-                loading = true;
+                    for (var tgl = 1; tgl <= totalHari; tgl++) {
+                        var str = ymd(tampilTahun, tampilBulan, tgl);
+                        var status = statusHari(str);
+                        var alasan = status === 'libur' ? alasanTanggalLibur(str) : null;
+                        var nama = tgl + ' ' + BULAN[tampilBulan] + ' ' + tampilTahun;
 
-                if (jamStatus) {
-                    jamStatus.style.display = 'block';
-                    jamStatus.textContent = 'Memuat ketersediaan jam...';
-                    jamStatus.style.color = '#64748b';
-                }
+                        var btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.dataset.tanggal = str;
+                        btn.textContent = tgl;
+                        btn.className = 'pln-cal-day'
+                            + (status === 'libur' ? ' is-red' : '')
+                            + (status === 'masuk' ? ' is-masuk' : '')
+                            + (status === 'lampau' ? ' is-past' : '')
+                            + (str === todayLocal() ? ' is-hari-ini' : '')
+                            + (str === tanggal.value ? ' is-terpilih' : '');
 
-                fetch('{{ route("layanan.registrasi-tamu.booked-slots") }}?tanggal=' + encodeURIComponent(tanggal) + '&divisi=' + encodeURIComponent(divisi))
-                    .then(function (r) { return r.json(); })
-                    .then(function (data) {
-                        loading = false;
-                        if (refreshDirty) {
-                            refreshDirty = false;
-                            refreshJamSlot(); // parameternya sudah berubah — muat ulang
-                            return;
+                        if (status === 'libur' || status === 'lampau') {
+                            btn.disabled = true;
+                            btn.title = alasan ? alasan.pesan : 'Tanggal sudah lewat.';
+                        } else if (status === 'masuk') {
+                            btn.title = 'Hari kerja khusus (override weekend) — bisa dipilih.';
                         }
-                        var blocked = Array.isArray(data.jam_terblokir) ? data.jam_terblokir : [];
-                        buildJamOptions(blocked, JAM_ISTIRAHAT_AWAL, JAM_ISTIRAHAT_AKHR);
+                        btn.setAttribute('aria-label', nama + (btn.title ? ' — ' + btn.title : ''));
+                        kalDays.appendChild(btn);
+                    }
+                }
 
-                        var selected = selectJam.value;
-                        var isBlocked = blocked.indexOf(selected) !== -1;
-                        if (isBlocked) {
-                            slotWarning.style.display = 'flex';
+                function bukaKalender() {
+                    var dasar = tanggal.value && tanggal.value >= todayLocal()
+                        ? tanggal.value : todayLocal();
+                    var bagian = dasar.split('-');
+                    tampilTahun = Number(bagian[0]);
+                    tampilBulan = Number(bagian[1]) - 1;
+                    renderKalender();
+                    kalender.hidden = false;
+                    tanggal.setAttribute('aria-expanded', 'true');
+                }
+
+                function tutupKalender() {
+                    kalender.hidden = true;
+                    tanggal.setAttribute('aria-expanded', 'false');
+                }
+
+                function setTanggal(str) {
+                    tanggal.value = str;
+                    tutupKalender();
+                    tanggal.dispatchEvent(new Event('input', { bubbles: true }));
+                    tanggal.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                tanggal.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    if (kalender.hidden) { bukaKalender(); } else { tutupKalender(); }
+                });
+
+                tanggal.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        if (kalender.hidden) bukaKalender(); else tutupKalender();
+                    }
+                });
+
+                // Klik di luar kalender / tombol Escape → tutup.
+                document.addEventListener('click', function (e) {
+                    if (!kalender.hidden && !kalender.contains(e.target)) tutupKalender();
+                });
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && !kalender.hidden) tutupKalender();
+                });
+                kalender.addEventListener('click', function (e) { e.stopPropagation(); });
+
+                kalDays.addEventListener('click', function (e) {
+                    var btn = e.target.closest('button[data-tanggal]');
+                    if (!btn || btn.disabled) return;
+                    setTanggal(btn.dataset.tanggal);
+                });
+
+                document.getElementById('cal-prev').addEventListener('click', function () {
+                    tampilBulan--;
+                    if (tampilBulan < 0) { tampilBulan = 11; tampilTahun--; }
+                    renderKalender();
+                });
+
+                document.getElementById('cal-next').addEventListener('click', function () {
+                    tampilBulan++;
+                    if (tampilBulan > 11) { tampilBulan = 0; tampilTahun++; }
+                    renderKalender();
+                });
+
+                if (kalToday) {
+                    kalToday.addEventListener('click', function () {
+                        var bagian = todayLocal().split('-');
+                        tampilTahun = Number(bagian[0]);
+                        tampilBulan = Number(bagian[1]) - 1;
+                        if (statusHari(todayLocal()) !== 'lampau'
+                            && statusHari(todayLocal()) !== 'libur') {
+                            setTanggal(todayLocal());
                         } else {
-                            slotWarning.style.display = 'none';
-                        }
-
-                        if (jamStatus) {
-                            jamStatus.style.display = 'block';
-                            jamStatus.textContent = blocked.length
-                                ? '⚠ Jam terblokir: ' + blocked.join(', ')
-                                : '✓ Semua tersedia';
-                            jamStatus.style.color = blocked.length ? '#dc2626' : '#16a34a';
-                        }
-                    })
-                    .catch(function (err) {
-                        loading = false;
-                        if (refreshDirty) {
-                            refreshDirty = false;
-                            refreshJamSlot();
-                            return;
-                        }
-                        console.error('[Jam] Error:', err);
-                        if (jamStatus) {
-                            jamStatus.style.display = 'block';
-                            jamStatus.textContent = 'Gagal memuat ketersediaan jam';
-                            jamStatus.style.color = '#dc2626';
+                            renderKalender();
                         }
                     });
-            }
-
-            refreshJamSlot();
-            console.log('[Jam] memanggil refreshJamSlot() saat init');
-            setTimeout(function () {
-                console.log('[Jam] cek ulang divisi setelah timeout 300ms:', divisiInput.value);
-                if (divisiInput.value) {
-                    refreshJamSlot();
                 }
-            }, 300);
-
-            console.log('[Jam] Elemen awal:', {
-                tanggalInput: !!tanggalInput,
-                divisiInput: !!divisiInput,
-                selectJam: !!selectJam,
-                tanggalValue: tanggalInput.value,
-                divisiValue: divisiInput.value,
-            });
-
-            tanggalInput.addEventListener('change', function () {
-                console.log('[Jam] tanggalInput change:', tanggalInput.value);
-                refreshJamSlot();
-            });
-            divisiInputDisplay.addEventListener('click', function () {
-                console.log('[Jam] divisi display clicked');
-            });
-            divisiInput.addEventListener('input', function () {
-                console.log('[Jam] divisi input:', divisiInput.value);
-            });
-            divisiInput.addEventListener('change', function () {
-                console.log('[Jam] divisi change:', divisiInput.value);
-                refreshJamSlot();
-            });
-            divisiInputDisplay.addEventListener('dropdown-change', function (e) {
-                console.log('[Jam] dropdown-change event:', e.detail);
-                refreshJamSlot();
-            });
-            document.addEventListener('dropdown-change', function (e) {
-                if (e.detail && e.detail.value) {
-                    console.log('[Jam] global dropdown-change:', e.detail.value);
-                    refreshJamSlot();
-                }
-            });
-            // fallback: jika ada elemen yang mendispatch change manual
-            if (window.CustomEvent) {
-                divisiInput.addEventListener('change', function () {
-                    refreshJamSlot();
-                });
-            }
-            selectJam.addEventListener('change', function () {
-                // Guard: slot terblokir/istirahat tidak boleh tersimpan
-                // (bisa ter-set lewat manipulasi nilai programatis).
-                var opt = selectJam.selectedOptions && selectJam.selectedOptions[0];
-                if (opt && opt.disabled) {
-                    selectJam.value = '';
-                    if (slotWarning && opt.getAttribute('data-status') === 'terblokir') {
-                        slotWarning.style.display = 'flex';
-                    }
-                }
-                refreshJamSlot();
-            });
-
-            console.log('[Jam] Inisialisasi selesai');
-
-            function debounce(fn, delay) {
-                var timer = null;
-                return function () {
-                    if (timer) clearTimeout(timer);
-                    timer = setTimeout(function () {
-                        timer = null;
-                        fn();
-                    }, delay);
-                };
             }
         })();
 

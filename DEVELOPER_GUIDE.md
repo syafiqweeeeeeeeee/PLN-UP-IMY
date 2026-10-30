@@ -326,7 +326,7 @@ tunggal** daftar menu sidebar admin untuk matriks hak akses (Form Role & Form Pe
 
 | Kolom | Tipe | Keterangan |
 |---|---|---|
-| `id` | PK | **ID menu FIXED** sesuai spec (1–11) |
+| `id` | PK | **ID menu FIXED** sesuai spec (1–11) + menu tambahan 13–16 |
 | `name` | string(100) unique | "Berita", "Data Tamu", dst. |
 | `route` | string(150) nullable | Nama route utama menu, mis. `admin.news.index` |
 | `icon` | string(100) nullable | Class FontAwesome, mis. `fa-newspaper` |
@@ -340,19 +340,24 @@ tunggal** daftar menu sidebar admin untuk matriks hak akses (Form Role & Form Pe
 | 1 | Dashboard | `admin.dashboard` | `dashboard` |
 | 2 | Berita | `admin.news.index` | `news` |
 | 3 | Data Tamu | `admin.tamu.index` | `tamu` |
+| 13 | Hari Libur | `admin.hari-libur.index` | `hari_libur` |
 | 4 | Pengumuman | `admin.announcements.index` | `announcements` |
 | 5 | Halaman | `admin.pages.index` | `pages` |
 | 6 | Menu | `admin.menus.index` | `menus` |
 | 7 | Pengguna | `admin.users.index` | `users` |
 | 8 | Galeri | `admin.galeri.index` | `galleries` |
 | 9 | Link Kerja | `admin.work-links.index` | `work_links` |
+| 14 | Data Karyawan | `admin.karyawan_data.index` | `karyawan_data` |
+| 15 | Master Bidang | `admin.master_bidang.index` | `master_bidang` |
+| 16 | Master Jabatan | `admin.master_jabatan.index` | `master_jabatan` |
 | 10 | Log Aktivitas | `admin.activity-logs.index` | `activity_logs` |
 | 11 | Role / Hak Akses | `admin.roles.index` | `roles` |
 
 Setiap menu dipecah jadi **4 permission granular** di tabel `permissions`:
 `<permission_key>.view` / `.create` / `.edit` / `.delete`
 (lihat `MasterMenu::CRUD_ACTIONS`). ⚠️ JANGAN mengubah id 1–11 — ID sudah
-dipakai hard-coded di banyak tempat.
+dipakai hard-coded di banyak tempat. Total matriks = **55 permission**
+(1 dashboard + 13 menu × 4 + 2 log) = PERSIS set permission Super Admin.
 
 ### 4.5 Tabel konten
 
@@ -423,8 +428,8 @@ permission di controller (atau GlobalScope trait ScopesToDepartment).
 | Seeder | Isi apa | Bisa dijalankan berulang? |
 |---|---|---|
 | `AdminUserSeeder` | Akun admin awal dari env `ADMIN_EMAIL`/`ADMIN_PASSWORD` | aman |
-| `PermissionSeeder` | Daftar ~57 permission → `firstOrCreate` ke tabel `permissions`; lalu `syncWithoutDetaching` ke role Super Admin, Admin Bidang, Karyawan | **idempotent** |
-| `MasterMenuSeeder` | Isi tabel `master_menus` dari konstanta `MasterMenu::MENUS` pakai `updateOrCreate(['id'=>…])` | **idempotent** |
+| `PermissionSeeder` | Daftar 55 permission → `firstOrCreate` ke tabel `permissions`; lalu `sync` ke role Super Admin (seluruh 55), `syncWithoutDetaching`/`sync` ke Admin Bidang & Karyawan | **idempotent** |
+| `MasterMenuSeeder` | Isi tabel `master_menus` dari konstanta `MasterMenu::MENUS` pakai `updateOrCreate(['id'=>…])` + hapus baris di luar `MENUS` | **idempotent** |
 
 Jalankan seeder hanya-satu:
 
@@ -456,7 +461,7 @@ php artisan db:seed
 | **Role** | Wadah/paket permission yang menempel ke user. Ada 3 role dasar + role kustom buatan admin. | `roles` |
 | **Direct Permission** | Permission yang menempel **langsung ke akun** (bukan via role). Berfungsi sebagai *white-list override* per modul — lihat 5.5. | `user_has_permissions` |
 | **Matriks Hak Akses** | UI checklist: baris = ID Menu sidebar, kolom = 4 aksi CRUD (`view / create / edit / delete`). Centang = memasang permission `<permission_key>.<aksi>`. | input form → pivot |
-| **Master Menu** | Master daftar menu sidebar (11 ID fixed) dengan `permission_key` per modul — sumber baris matriks. | `master_menus` + konstanta `MasterMenu::MENUS` |
+| **Master Menu** | Master daftar menu sidebar (15 menu: 11 ID fixed + 13–16) dengan `permission_key` per modul — sumber baris matriks. | `master_menus` + konstanta `MasterMenu::MENUS` |
 
 **3 Role Dasar** (`RoleController::BASE_ROLE_NAMES`) dibuat oleh seeder dan
 **tidak bisa dihapus** dari UI (nama terkunci di form Edit), namun admin
@@ -527,8 +532,8 @@ Aturan relasi yang WAJIB dipahami:
 |---|---|
 | `app/Models/User.php` | `hasPermission()` (lihat 5.5), `hasDirectPermission()`, `directPermissionIds()`, `syncPermissions()` (sync pivot `user_has_permissions`), `permissions()` / `roles()` / `role()`, `roleNames()` (pivot + fallback `role_id`), `isSuperAdmin()` / `isDepartmentAdmin()` / `isKaryawan()` / `isAdmin()`, `extraKaryawanPermissions()` / `hasExtraKaryawanPermission()`, konstanta `SUPER_ADMIN_ROLE`, `DEPARTMENT_ADMIN_ROLE`, `ASSIGNABLE_ROLE_NAMES`, `MAX_SUPER_ADMIN_ACCOUNTS`, `MAX_SENIOR_MANAGER_ACCOUNTS`, `KARYAWAN_BASELINE_PERMISSIONS` |
 | `app/Models/Role.php` | `permissions()` / `users()` (pivot), `isInactive()`, `hasPermission($name)` |
-| `app/Models/Permission.php` | `roles()` (pivot `role_permission`), `fill`: `name`, `display_name`, `module` |
-| `app/Models/MasterMenu.php` | `MENUS` (master 11 menu, id fixed; baris id 12 "contoh" di repo saat ini = data uji yang sebaiknya dihapus), `CRUD_ACTIONS` (4 aksi matriks), `permissionNamesFor()` / `matrixPermissionNames()` (daftar nama permission matriks), `matrixForRoleForm()` (matriks untuk form Role & form Pengguna — hanya permission yang benar-benar terdaftar di DB) |
+| `app/Models/Permission.php` | `roles()` (pivot `role_permission`), `fill`: `name`, `display_name`, `module`, `ACTION_ALIASES` (alias aksi + fallback `hari_libur.*` → `tamu.*`) |
+| `app/Models/MasterMenu.php` | `MENUS` (master 15 menu: id 1–11 fixed + 13 Hari Libur & 14–16 modul master; baris id 12 "contoh" sudah dihapus), `CRUD_ACTIONS` (4 aksi matriks), `permissionNamesFor()` / `matrixPermissionNames()` (daftar nama permission matriks), `matrixForRoleForm()` (matriks untuk form Role & form Pengguna — hanya permission yang benar-benar terdaftar di DB) |
 | `app/Providers/AuthServiceProvider.php` | `Gate::before` → semua ability dicek lewat `User::hasPermission()` inilah yang membuat `@can('news.edit')` bekerja; gate khusus `users.edit:self` & `users.delete` |
 | `app/Http/Middleware/PermissionMiddleware.php` | Alias `permission:xxx` — cek `hasPermission($permissions[0])`, gagal = `403` |
 | `app/Http/Middleware/RoleMiddleware.php` | Alias `role.scope:super_admin/department_admin/admin` |
@@ -542,7 +547,7 @@ Aturan relasi yang WAJIB dipahami:
 
 | File | Isinya |
 |---|---|
-| `app/Models/MasterMenu.php` | Daftar **konstanta** menu sidebar (`MENUS`, 11 id — baris id 12 "contoh" di repo saat ini adalah data uji yang sebaiknya dihapus) + `CRUD_ACTIONS` |
+| `app/Models/MasterMenu.php` | Daftar **konstanta** menu sidebar (`MENUS`, 15 id: 1–11 fixed + 13 Hari Libur & 14–16 modul master; baris id 12 "contoh" sudah dihapus) + `CRUD_ACTIONS` |
 | `database/seeders/MasterMenuSeeder.php` | Mengisi tabel `master_menus` dari konstanta di atas |
 | `database/seeders/PermissionSeeder.php` | Membuat daftar permission lalu memberikan ke role |
 
@@ -938,7 +943,7 @@ mencari "fitur X ada di file mana".
 | Menu navigasi dinamis | (view composer `layouts.navbar`) | `MenuBuilderService::treeFor(user)` | Navbar publik dibangun dari tabel `menus`; menu ber-target halaman CMS disaring sesuai visibilitas per role |
 | FAQ | `GET /layanan/faq` | View statis | |
 | **Registrasi tamu publik** | `GET/POST /layanan/form-registrasi-tamu` | `TamuController@create/store` | Buku tamu tanpa login: NIK, instansi, KTP (upload), tujuan ditemui (divisi), jumlah tamu, jadwal |
-| API slot tersibuk | `GET /api/booked-slots` | `TamuController@bookedSlots` | JSON daftar jam terblokir per divisi/tanggal — dipakai fetch JS form registrasi; backend validasi ulang via `Tamu::isJamTerblokir agar double booking sama divisi tidak lolos`
+| Hari libur / tanggal merah | `GET/POST/PUT/DELETE /admin/hari-libur` | `Admin\HariLiburController@index/store/update/destroy` | Master status tanggal ber-tipe `libur` (tanggal merah — DITOLAK form registrasi publik) & `masuk_kerja` (override weekend — Sabtu/Minggu jadi BISA dipilih). Divalidasi server di `TamuController@store` + diblokir UI lewat **kalender kustom** `#tanggal-calendar` (JS `$tanggalMerah` / `$tanggalMasuk`; datepicker native browser diganti agar tanggal bisa diwarnai per-hari: merah = libur/weekend, hitam = override weekend). Gate permission `hari_libur.*` (ID Menu 13, ikut matriks Tambah/Edit Role) dengan FALLBACK alias ke `tamu.*` agar role lama tetap berlaku
 
 ### 6.2 Modul Buku Tamu (positif lengkap — kolom penting)
 
@@ -946,7 +951,7 @@ Fitur paling kompleks di aplikasi. Model `app/Models/Tamu.php`:
 
 - **Siklus verifikasi:** `menunggu → disetujui\|ditolak` (`status_verifikasi`, `verified_at`, `verified_by`).
 - **Check-in/check-out front office:** `checked_in_at`, `checked_out_at`, durasi kunjungan otomatis (`durasiKunjungan()`).
-- **Slot locking:** setiap kunjungan disetujui memblokir rentang 3 jam (`Tamu::DURASI_KUNJUNGAN_JAM`) untuk `tujuan_ditemui` yang sama; divisi berbeda tetap boleh jam sama (`Tamu::jamTerblokir()`).
+- **Hari libur / tanggal merah:** tabel `hari_liburs` (kolom `tanggal` unik, `tipe` enum `libur|masuk_kerja`, `keterangan`) dikelola admin (route `admin/hari-libur.*`). Aturan form registrasi publik — urutan yang sama di JS & server: (1) `tipe=masuk_kerja` → DIIZINKAN (override akhir pekan), (2) `tipe=libur` → ditolak (tanggal merah), (3) Sabtu/Minggu tanpa baris → ditolak (hardcode). Tampilan di form memakai **kalender kustom** (`#tanggal-calendar`, menggantikan datepicker native yang tidak bisa diwarnai): merah `is-red` = libur/weekend (disabled), hitam `is-masuk` = override weekend (bisa dipilih). **Pemblokiran jam (slot locking 3 jam & API `/api/booked-slots`) DIHAPUS** — kunjungan pada divisi & jam yang sama kini diperbolehkan.
 - **Slot jam:** pagi 08–11 & siang 13–15 (`Tamu::SLOT_JAM`); 12:00–13:00 istirahat.
 - **Dokumen privat:** arsip ZIP di disk `private`, tidak bisa diakses via `/storage` — disajikan streaming lewat route ber-auth (`TamuDocumentController@dokumen`).
 - **Integrasi WhatsApp:** nomor HP dinormalisasi ke format 62 (`getWaNumberAttribute`), URL click-to-chat sudah terisi pesan disetujui/ditolak (`getWaApproveUrlAttribute`, `getWaRejectUrlAttribute`) — admin tinggal klik.

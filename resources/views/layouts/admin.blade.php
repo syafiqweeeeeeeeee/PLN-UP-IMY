@@ -257,6 +257,17 @@
                 </a>
                 @endcan
 
+                {{-- Hari Libur — permission khusus hari_libur.* (ID Menu 13,
+                     matriks hak akses Tambah/Edit Role). FALLBACK alias ke
+                     tamu.* menjaga role lama tetap bisa mengakses. --}}
+                @can('hari_libur.view')
+                <a href="{{ route('admin.hari-libur.index') }}"
+                   class="sidebar-link @if(request()->routeIs('admin.hari-libur.*')) active @endif"
+                    <span class="link-icon"><i class="fas fa-calendar-xmark"></i></span>
+                    <span class="link-text">Hari Libur</span>
+                </a>
+                @endcan
+
                 @can('announcements.view')
                 <a href="{{ route('admin.announcements.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.announcements.*')) active @endif"
@@ -318,8 +329,8 @@
                 @endcan
 
                 {{-- Data Karyawan — master data HR (24 kolom, NID unik).
-                     Permission karyawan_data.* — assign lewat Kelola
-                     Permission / Direct Permission. --}}
+                     Permission karyawan_data.* — matriks Tambah/Edit Role
+                     maupun Kelola Permission / Direct Permission. --}}
                 @can('karyawan_data.view')
                 <a href="{{ route('admin.karyawan_data.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.karyawan_data.*')) active @endif"
@@ -331,9 +342,9 @@
                 {{-- Master Bidang & Master Jabatan — master data hierarki
                      (bidang induk → sub-bidang; jabatan per bidang +
                      parent). Permission master_bidang.* /
-                     master_jabatan.* — assign lewat Kelola Permission /
-                     Direct Permission, pola sama dengan
-                     karyawan_data.*. --}}
+                     master_jabatan.* — matriks Tambah/Edit Role maupun
+                     Kelola Permission / Direct Permission, pola sama
+                     dengan karyawan_data.*. --}}
                 @can('master_bidang.view')
                 <a href="{{ route('admin.master_bidang.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.master_bidang.*')) active @endif"

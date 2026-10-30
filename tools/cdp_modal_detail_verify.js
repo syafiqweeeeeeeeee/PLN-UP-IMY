@@ -14,7 +14,7 @@
 
    PORTAL KARYAWAN
    6. Halaman karyawan memakai parsial yang sama: baris redundan hilang,
-      tanpa link halaman detail, kartu kondisi "Selesai" tampil. */
+      kartu log aktivitas tampil di modal, kartu kondisi "Selesai" tampil. */
 
 const BASE = 'http://127.0.0.1:8000';
 const TAMU_ID = process.env.TAMU_ID || '44';
@@ -82,7 +82,7 @@ async function main() {
     const dts = Array.prototype.map.call(body.querySelectorAll('[data-role="info"] .detail-row dt'),
       function (el) { return el.textContent.trim(); });
     const card = body.querySelector('[data-role="co-slot"] [data-co-card]');
-    const link = body.querySelector('[data-role="page-link"]');
+    const logCard = body.querySelector('[data-role="log"]');
     return {
       modalOpen: !!document.getElementById('detailModal') &&
                  document.getElementById('detailModal').classList.contains('show'),
@@ -91,8 +91,8 @@ async function main() {
       cardsInSlot: body.querySelectorAll('[data-role="co-slot"] [data-co-card]').length,
       status: card && card.querySelector('[data-role="status"]')?.textContent.trim(),
       btnInVisible: (function () { var b = card && card.querySelector('[data-action="checkin"]'); return !!b && !b.hidden; })(),
-      pageLinkHref: link ? link.href : null,
-      pageLinkShown: link ? !link.hidden : null,
+      logShown: !!logCard && !logCard.hidden,
+      logText: (logCard && logCard.querySelector('[data-role="log-text"]') || {}).textContent || '',
       fetches: window.__urls.slice(),
     };
   })())`));
@@ -108,7 +108,7 @@ async function main() {
   check('Admin: Jumlah Tamu, Tanggal Kunjungan, Waktu Pendaftaran ada', missing.length === 0, JSON.stringify(missing));
   check('Admin: kartu dinamis ada di slot bawah (tepat 1)', s0.cardInSlot && s0.cardsInSlot === 1, 'cards=' + s0.cardsInSlot);
   check('Admin: kondisi awal "Belum Check-In" + tombol Check-In', s0.status === 'Belum Check-In' && s0.btnInVisible, s0.status);
-  check('Admin: link halaman detail memakai ID asli', s0.pageLinkShown === true && !!s0.pageLinkHref && s0.pageLinkHref.indexOf('/' + TAMU_ID + '/') !== -1, s0.pageLinkHref);
+  check('Admin: kartu log aktivitas tampil di modal', s0.logShown && !!s0.logText.trim(), s0.logText);
 
   // ================= KLIK CHECK-IN (real-time) =================
   await evl(`document.querySelector('#detailModalBody [data-role="co-slot"] [data-action="checkin"]').click();`);
@@ -196,7 +196,7 @@ async function main() {
       dts: dts,
       cards: body.querySelectorAll('[data-role="co-slot"] [data-co-card]').length,
       status: card && card.querySelector('[data-role="status"]')?.textContent.trim(),
-      pageLink: !!body.querySelector('[data-role="page-link"]'),
+      logShown: !!(body.querySelector('[data-role="log"]') && !body.querySelector('[data-role="log"]').hidden),
       checkinUrl: card && card.querySelector('[data-action="checkin"]')?.dataset.url,
     };
   })())`));
@@ -205,7 +205,7 @@ async function main() {
   check('Karyawan: halaman portal siap (openDetailModal ada)', k0.ready === true, JSON.stringify(k0));
   check('Karyawan: bagian atas TANPA baris Check-In/Check-Out/Status', k1.ready && kLeaked.length === 0, JSON.stringify(k1.dts));
   check('Karyawan: kartu kondisi "Selesai" tampil (tepat 1)', k1.cards === 1 && k1.status === 'Selesai', 'cards=' + k1.cards + ' status=' + k1.status);
-  check('Karyawan: tanpa link halaman detail (portal)', k1.pageLink === false);
+  check('Karyawan: kartu log aktivitas tampil di modal', k1.logShown === true);
   check('Karyawan: URL aksi memakai route karyawan + ID asli',
     !!k1.checkinUrl && k1.checkinUrl.indexOf('/data-tamu/') !== -1 && k1.checkinUrl.indexOf(':id') === -1, k1.checkinUrl);
 

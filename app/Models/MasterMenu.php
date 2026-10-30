@@ -10,8 +10,12 @@ use Illuminate\Database\Eloquent\Model;
  *
  * Sumber tunggal struktur menu untuk matriks hak akses granular pada
  * Halaman Kelola Role (Tambah/Edit Role). ID 1–11 FIXED sesuai spec
- * RBAC; setiap ID Menu dipecah menjadi 4 hak akses granular CRUD pada
- * tabel permissions: [permission_key].view / .create / .edit / .delete.
+ * RBAC; ID 13–16 adalah menu sidebar tambahan (Hari Libur, Data
+ * Karyawan, Master Bidang, Master Jabatan) yang ikut matriks agar
+ * daftar hak akses PERSIS dengan set permission Super Admin di
+ * PermissionSeeder. Setiap ID Menu dipecah menjadi 4 hak akses
+ * granular CRUD pada tabel permissions: [permission_key].view /
+ * .create / .edit / .delete.
  */
 class MasterMenu extends Model
 {
@@ -34,22 +38,29 @@ class MasterMenu extends Model
     ];
 
     /**
-     * Master 11 ID Menu Sidebar (id FIXED sesuai spec):
+     * Master menu sidebar (id FIXED sesuai spec):
      * [id, name, route, icon, permission_key].
+     *
+     * Urutan array = urutan BARIS matriks hak akses di form
+     * Tambah/Edit Role — dikelompokkan mengikuti sidebar admin
+     * (Data Tamu berdampingan dengan Hari Libur, dst.).
      */
     public const MENUS = [
         ['id' => 1,  'name' => 'Dashboard',       'route' => 'admin.dashboard',           'icon' => 'fa-th-large',       'permission_key' => 'dashboard'],
         ['id' => 2,  'name' => 'Berita',          'route' => 'admin.news.index',          'icon' => 'fa-newspaper',      'permission_key' => 'news'],
         ['id' => 3,  'name' => 'Data Tamu',       'route' => 'admin.tamu.index',          'icon' => 'fa-id-card',        'permission_key' => 'tamu'],
+        ['id' => 13, 'name' => 'Hari Libur',      'route' => 'admin.hari-libur.index',    'icon' => 'fa-calendar-xmark', 'permission_key' => 'hari_libur'],
         ['id' => 4,  'name' => 'Pengumuman',      'route' => 'admin.announcements.index', 'icon' => 'fa-bullhorn',       'permission_key' => 'announcements'],
         ['id' => 5,  'name' => 'Halaman',         'route' => 'admin.pages.index',         'icon' => 'fa-file-lines',     'permission_key' => 'pages'],
         ['id' => 6,  'name' => 'Menu',            'route' => 'admin.menus.index',         'icon' => 'fa-bars',           'permission_key' => 'menus'],
         ['id' => 7,  'name' => 'Pengguna',        'route' => 'admin.users.index',         'icon' => 'fa-users',          'permission_key' => 'users'],
         ['id' => 8,  'name' => 'Galeri',          'route' => 'admin.galeri.index',        'icon' => 'fa-images',         'permission_key' => 'galleries'],
         ['id' => 9,  'name' => 'Link Kerja',      'route' => 'admin.work-links.index',    'icon' => 'fa-link',           'permission_key' => 'work_links'],
+        ['id' => 14, 'name' => 'Data Karyawan',   'route' => 'admin.karyawan_data.index', 'icon' => 'fa-users-gear',     'permission_key' => 'karyawan_data'],
+        ['id' => 15, 'name' => 'Master Bidang',   'route' => 'admin.master_bidang.index', 'icon' => 'fa-sitemap',        'permission_key' => 'master_bidang'],
+        ['id' => 16, 'name' => 'Master Jabatan',  'route' => 'admin.master_jabatan.index', 'icon' => 'fa-user-tie',      'permission_key' => 'master_jabatan'],
         ['id' => 10, 'name' => 'Log Aktivitas',   'route' => 'admin.activity-logs.index', 'icon' => 'fa-clipboard-list', 'permission_key' => 'activity_logs'],
         ['id' => 11, 'name' => 'Role / Hak Akses','route' => 'admin.roles.index',         'icon' => 'fa-user-tag',       'permission_key' => 'roles'],
-        ['id' => 12, 'name' => 'contoh',          'route' => 'admin.roles.index',         'icon' => 'fa-user-tag',       'permission_key' => 'roles'],
     ];
 
     /* =========================================================
@@ -73,7 +84,8 @@ class MasterMenu extends Model
     }
 
     /**
-     * Seluruh nama permission yang termasuk matriks (maks 4 × 11).
+     * Seluruh nama permission yang termasuk matriks (maks 4 × jumlah
+     * menu — lihat MENUS).
      *
      * @return array<int, string>
      */

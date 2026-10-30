@@ -234,7 +234,6 @@
             'form.btn_note': 'Wajib diisi. Data Anda aman & hanya untuk keperluan registrasi.',
             'form.footnote': 'Data Anda disimpan aman dan hanya digunakan untuk keperluan registrasi kunjungan.',
             'form.error_heading': 'Periksa kembali isian berikut:',
-            'form.slot_taken': 'Jam ini sudah penuh / sudah di-approve untuk divisi ini. Silakan pilih jam lain.',
             'form.success_title': 'Data Anda Berhasil Dikirim!',
             'form.success_text': 'Menunggu konfirmasi admin.<br>Silakan cek email / WhatsApp Anda untuk informasi selanjutnya.',
             'form.btn_done': 'Selesai'
@@ -454,7 +453,6 @@
             'form.btn_note': 'Required fields. Your data is safe & used only for registration.',
             'form.footnote': 'Your data is stored securely and used only for visit registration purposes.',
             'form.error_heading': 'Please review the following fields:',
-            'form.slot_taken': 'This time slot is full / already approved for this division. Please choose another time.',
             'form.success_title': 'Your Data Has Been Sent!',
             'form.success_text': 'Awaiting admin confirmation.<br>Please check your email / WhatsApp for further information.',
             'form.btn_done': 'Done'

@@ -3,14 +3,16 @@
 
   Satu berkas untuk semua pemakaian supaya markup modal tidak lagi
   diduplikasi antara halaman daftar admin dan portal karyawan.
+  Halaman detail TERPISAH (admin/tamu/detail) SUDAH DIHAPUS — modal ini
+  menjadi satu-satunya tampilan detail kunjungan.
 
   DUA MODE PAKAI
   --------------
   * SHELL (tanpa $tamu) — struktur + slot kosong. Halaman daftar mengisi
     tubuh modal dari payload tamuData lewat JS openDetailModal(t):
-        [data-role="page-link"]   pintasan ke halaman detail (bila ada)
         [data-role="info"]        daftar informasi utama
-        [data-role="keperluan-*"] Maksud & Keperluan
+        [data-role="log"]         kartu log aktivitas status
+        [data-role="keperluan-*"]  Maksud & Keperluan
         [data-role="dokumen-*"]   Dokumen Pendukung
         [data-role="co-slot"]     kartu dinamis check-in/out (di-clone)
   * LENGKAP ($tamu diisi) — tubuh modal dirender langsung oleh server.
@@ -31,11 +33,17 @@
   Aksi tetap memakai fetch PATCH (JSON) sehingga jam & badge berubah
   REAL-TIME tanpa reload halaman.
 
+  LOG AKTIVITAS (revisi — pengganti halaman detail yang DIHAPUS)
+  --------------------------------------------------------------
+  Kartu "Log Aktivitas Status" (siapa & kapan perubahan terakhir)
+  kini ikut di dalam modal:
+    * SHELL     — diisi JS dari payload tamuData[*].log (teks siap pakai)
+    * LENGKAP   — dirender server dari verified_at / verified_by
+
   PARAMETER (opsional)
   --------------------
     $tamu        \App\Models\Tamu  — diisi = mode lengkap
     $accentColor string            — warna aksen ikon header (tema halaman)
-    $detailUrl   string|null       — link "Buka Halaman Detail Kunjungan"
     $checkinUrl  string            — URL aksi check-in  (':id' saat shell)
     $checkoutUrl string            — URL aksi check-out (':id' saat shell)
     $dokumenUrl  string|null       — URL unduh dokumen privat (mode lengkap)
@@ -44,7 +52,6 @@
     $tamu        = $tamu ?? null;
     $isShell     = $tamu === null;
     $accentColor = $accentColor ?? 'var(--pln-blue)';
-    $detailUrl   = $detailUrl ?? null;
     $checkinUrl  = $checkinUrl ?? route('admin.tamu.checkin', $tamu ?? ':id');
     $checkoutUrl = $checkoutUrl ?? route('admin.tamu.checkout', $tamu ?? ':id');
     $dokumenUrl  = $dokumenUrl ?? null;
@@ -64,6 +71,15 @@
         ['Tanggal Kunjungan', $tamu->tanggal_kunjungan?->format('d M Y, H:i')],
         ['Waktu Pendaftaran', $tamu->created_at?->format('d M Y, H:i')],
     ], fn ($row) => (string) $row[1] !== ''));
+
+    /** Teks kartu LOG AKTIVITAS — sama dengan payload `log` di modal shell. */
+    $logAktivitas = $isShell ? null : (($tamu->verified_at && $tamu->verified_by)
+        ? 'Terakhir diperbarui oleh ' . $tamu->verifier_name
+            . ' (' . $tamu->verifier_role_label . ') pada '
+            . $tamu->verified_at->translatedFormat('d M Y')
+            . ' jam ' . $tamu->verified_at->format('H.i')
+            . ' — status saat ini ' . $tamu->kunjunganState()['badge_label'] . '.'
+        : 'Belum ada perubahan status — kunjungan menunggu verifikasi.');
 @endphp
 
 @once
@@ -105,6 +121,26 @@
     .dtm-doc-btn:hover { filter: brightness(0.97); }
     .dtm-doc-btn i { color: #dc2626; }
 
+    /* Kartu log aktivitas — pengganti kartu log di halaman detail lama. */
+    .dtm-log {
+        display: flex; align-items: flex-start; gap: 0.75rem;
+        margin-top: 1rem; padding: 0.8rem 0.95rem;
+        background: var(--dtm-bg, #f8fafc);
+        border: 1px solid var(--dtm-line, #eef2f7);
+        border-radius: 10px;
+    }
+    .dtm-log-icon {
+        width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: #e7f9ee; color: #16a34a; font-size: 0.82rem;
+    }
+    .dtm-log-title {
+        font-size: 0.66rem; font-weight: 700; color: #9ca3af;
+        text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.15rem;
+    }
+    .dtm-log-text { font-size: 0.8rem; color: var(--dtm-text, #374151); line-height: 1.5; }
+    html.theme-dark .dtm-log-icon { background: rgba(22,163,74,.18); color: #4ade80; }
+
     html.theme-dark .dtm-box {
         background: var(--panel);
         border-color: var(--line);
@@ -128,16 +164,18 @@
         <div class="tamu-modal-body" id="detailModalBody">
             @if($isShell)
                 {{-- ===== SHELL — diisi JS openDetailModal(t) ===== --}}
-                @if($detailUrl)
-                    <a href="#" class="dt-page-link" data-role="page-link" hidden
-                       data-href-template="{{ $detailUrl }}">
-                        <i class="fas fa-arrow-up-right-from-square"></i> Buka Halaman Detail Kunjungan
-                    </a>
-                @endif
-
                 {{-- Daftar informasi utama: identitas + jadwal pendaftaran.
                      Check-In / Check-Out / Status sengaja TIDAK ada di sini. --}}
                 <div class="detail-list" data-role="info"></div>
+
+                {{-- Kartu LOG AKTIVITAS — diisi JS dari payload `log`. --}}
+                <div class="dtm-log" data-role="log" hidden>
+                    <div class="dtm-log-icon"><i class="fas fa-clock-rotate-left"></i></div>
+                    <div>
+                        <div class="dtm-log-title">Log Aktivitas Status</div>
+                        <div class="dtm-log-text" data-role="log-text"></div>
+                    </div>
+                </div>
 
                 <div data-role="keperluan-wrap" hidden>
                     <div class="dtm-label">Maksud & Keperluan</div>
@@ -154,13 +192,6 @@
 
             @else
                 {{-- ===== MODE LENGKAP — dirender server dari $tamu ===== --}}
-                @if($detailUrl)
-                    <a href="{{ $detailUrl }}" class="dt-page-link"
-                       title="Buka halaman detail (status, log aktivitas & aksi revisi)">
-                        <i class="fas fa-arrow-up-right-from-square"></i> Buka Halaman Detail Kunjungan
-                    </a>
-                @endif
-
                 <div class="detail-list">
                     @foreach ($infoRows as [$label, $nilai])
                         <div class="detail-row">
@@ -168,6 +199,15 @@
                             <dd>{{ $nilai }}</dd>
                         </div>
                     @endforeach
+                </div>
+
+                {{-- Kartu LOG AKTIVITAS — siapa & kapan perubahan terakhir. --}}
+                <div class="dtm-log">
+                    <div class="dtm-log-icon"><i class="fas fa-clock-rotate-left"></i></div>
+                    <div>
+                        <div class="dtm-log-title">Log Aktivitas Status</div>
+                        <div class="dtm-log-text">{{ $logAktivitas }}</div>
+                    </div>
                 </div>
 
                 @if ($tamu->keperluan)

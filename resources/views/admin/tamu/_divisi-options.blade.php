@@ -13,8 +13,7 @@
     dimuat di dalam .tamu-dd-options / #divisi-options milik custom
     dropdown. Nilai yang dikirim tetap berupa NAMA bidang
     (data-value = bidangs.nama) — identik dengan kolom string
-    `tamus.tujuan_ditemui`, sehingga pemblokiran slot per divisi pada
-    Tamu::jamTerblokir() dan seluruh data lama tetap cocok.
+    `tamus.tujuan_ditemui`, sehingga seluruh data lama tetap cocok.
 
     Pengelompokan mengikuti hierarki master: tiap bidang tingkat
     teratas (parent_id NULL) menjadi judul optgroup, beserta semua

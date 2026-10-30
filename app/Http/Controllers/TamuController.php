@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HariLibur;
 use App\Models\Jabatan;
 use App\Models\Tamu;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -12,51 +12,34 @@ use Illuminate\Support\Facades\Log;
  * TamuController — pendaftaran tamu kantor/instansi.
  *
  * create()      : tampilkan form registrasi tamu (publik, tanpa auth).
- * bookedSlots() : API JSON daftar jam kunjungan yang TERBLOKIR untuk
- *                 satu divisi pada satu tanggal (dipakai dropdown jam
- *                 di form untuk menandai slot merah yang tak bisa
- *                 dipilih).
  * store()       : validasi input + upload SATU berkas pendukung
  *                 (multi-format: ZIP/RAR/PDF/JPG/JPEG/PNG — arsip KTP,
  *                 surat permohonan, dsb. disatukan dalam satu berkas,
- *                 maks 10MB), simpan ke disk private, lalu insert ke
- *                 tabel tamus. Validasi juga mencegah double booking
- *                 divisi yang sama pada rentang jam yang sudah
- *                 disetujui admin.
+ *                 maks 10MB), simpan ke disk private, lalu insert ke * tabel tamus. Status tanggal mengikuti master hari_liburs:
+ *                 akhir pekan (Sabtu/Minggu) default ditolak, kecuali
+ *                 terdaftar sebagai tipe masuk_kerja (override); tanggal
+ *                 bertipe libur selalu ditolak.
  */
 class TamuController extends Controller
 {
     public function create()
     {
-        return view('layanan.form-registrasi-tamu');
-    }
+        $semuaTanggal = HariLibur::query()->orderBy('tanggal')->get();
 
-    /**
-     * API slot terblokir — GET /api/booked-slots?divisi=...&tanggal=...
-     *
-     * Kunjungan berstatus "disetujui" untuk divisi yang sama memblokir
-     * rentang DURASI_KUNJUNGAN_JAM sejak jam mulainya; response berisi
-     * daftar jam slot (HH:MM) yang jatuh di dalam rentang tersebut.
-     * Parameter opsional `durasi` (jam) dipakai modal edit admin untuk
-     * menandai hanya SATU jam booking (durasi=1), bukan rentang penuh.
-     */
-    public function bookedSlots(Request $request): JsonResponse
-    {
-        $data = $request->validate([
-            'divisi'  => ['required', 'string', 'max:150'],
-            'tanggal' => ['required', 'date'],
-            'durasi'  => ['nullable', 'integer', 'min:1', 'max:' . Tamu::DURASI_KUNJUNGAN_JAM],
-        ]);
+        return view('layanan.form-registrasi-tamu', [
+            // Tanggal Merah (Y-m-d => keterangan) — tipe libur: diblokir
+            // di sisi klien (merah/disabled) + ditolak validasi server.
+            'tanggalMerah' => $semuaTanggal
+                ->filter(fn (HariLibur $h) => $h->isLibur())
+                ->mapWithKeys(fn (HariLibur $h) => [$h->tanggal->format('Y-m-d') => (string) $h->keterangan])
+                ->all(),
 
-        $durasi = isset($data['durasi']) ? (int) $data['durasi'] : null;
-
-        $terblokir = Tamu::jamTerblokir($data['tanggal'], $data['divisi'], null, $durasi);
-
-        return response()->json([
-            'divisi'        => $data['divisi'],
-            'tanggal'       => $data['tanggal'],
-            'durasi'        => $durasi ?? Tamu::DURASI_KUNJUNGAN_JAM,
-            'jam_terblokir' => $terblokir,
+            // Hari Kerja Khusus (Y-m-d => keterangan) — tipe masuk_kerja:
+            // override akhir pekan, tanggal ini DIIZINKAN dipilih pengunjung.
+            'tanggalMasuk' => $semuaTanggal
+                ->filter(fn (HariLibur $h) => $h->isMasukKerja())
+                ->mapWithKeys(fn (HariLibur $h) => [$h->tanggal->format('Y-m-d') => (string) $h->keterangan])
+                ->all(),
         ]);
     }
 
@@ -122,32 +105,46 @@ class TamuController extends Controller
             'orang_ditemui' => ['required', 'string', 'max:150'],
 
             // Penjadwalan: tanggal & jam dikirim terpisah dari form.
-            // Jam harus salah satu slot operasional (sesi pagi/siang),
-            // dan tidak boleh jatuh pada rentang yang sudah DISETUJUI
-            // untuk divisi yang sama (double booking diblokir server).
+            // Jam harus salah satu slot operasional (sesi pagi/siang).
+            // Aturan tanggal (SINKRON dgn JS datepicker):
+            //   1. Tercatat tipe masuk_kerja → DIIZINKAN (override weekend).
+            //   2. Tercatat tipe libur       → ditolak (tanggal merah).
+            //   3. Selain itu, Sabtu/Minggu  → ditolak (default hardcode).
             'tanggal_kunjungan' => [
                 'required',
                 'date',
                 'after_or_equal:today',
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    $tanggal = \Carbon\Carbon::parse((string) $value);
+                    $libur = HariLibur::whereDate('tanggal', (string) $value)->first();
+
+                    // 1. Override: akhir pekan yang dijadikan hari kerja khusus.
+                    if ($libur !== null && $libur->isMasukKerja()) {
+                        return;
+                    }
+
+                    // 2. Tanggal merah (tipe libur) — ditolak.
+                    if ($libur !== null) {
+                        $tgl = $tanggal->format('d F Y');
+                        $ket = $libur->keterangan !== '' ? ' — ' . $libur->keterangan : '';
+                        $fail("Tanggal {$tgl} adalah hari libur{$ket} dan tidak dapat dipilih untuk kunjungan.");
+
+                        return;
+                    }
+
+                    // 3. Akhir pekan tanpa override — hardcode libur.
+                    if ($tanggal->isWeekend()) {
+                        $fail("Tanggal {$tanggal->translatedFormat('d F Y')} adalah "
+                            . $tanggal->translatedFormat('l')
+                            . ' (akhir pekan) — kunjungan hanya dapat dijadwalkan pada hari kerja '
+                            . '(Sabtu/Minggu dapat dibuka oleh admin lewat tipe "Masuk Kerja").');
+                    }
+                },
             ],
             'jam_kunjungan' => [
                 'required',
                 'date_format:H:i',
                 'in:' . implode(',', Tamu::SLOT_JAM),
-                function (string $attribute, mixed $value, \Closure $fail) use ($request) {
-                    $divisi  = (string) $request->input('tujuan_ditemui');
-                    $tanggal = (string) $request->input('tanggal_kunjungan');
-
-                    if ($divisi === '' || $tanggal === '') {
-                        return; // biarkan rule required yang menolak
-                    }
-
-                    if (Tamu::isJamTerblokir($tanggal, $value, $divisi)) {
-                        $fail("Jam {$value} sudah penuh untuk divisi \"{$divisi}\" "
-                            . "pada tanggal {$tanggal} (rentang 3 jam sudah di-approve). "
-                            . 'Silakan pilih jam lain.');
-                    }
-                },
             ],
 
             'keperluan' => ['required', 'string', 'max:2000'],

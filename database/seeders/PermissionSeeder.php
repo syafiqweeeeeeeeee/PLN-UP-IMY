@@ -12,31 +12,41 @@ use Illuminate\Support\Facades\DB;
 /**
  * PermissionSeeder — SISTEM HAK AKSES PER ID MENU.
  *
- * Total permission di database = 51 baris: 39 baris matriks mengikuti
- * struktur 11 ID Menu Sidebar (lihat MasterMenu::MENUS) × aksi CRUD
- * yang benar-benar AKTIF di kode, ditambah 4 baris `karyawan_data.*`
- * dan 8 baris `master_bidang.*` / `master_jabatan.*` (module Data
- * Karyawan, Master Bidang & Master Jabatan di panel admin — di
- * luar matriks admin, diassign lewat halaman Kelola Permission /
- * Direct Permission):
+ * Total permission di database = 55 baris: 43 baris matriks mengikuti
+ * struktur menu sidebar (lihat MasterMenu::MENUS) × aksi CRUD
+ * yang benar-benar AKTIF di kode, ditambah 12 baris modul master
+ * yang kini ikut matriks (`karyawan_data.*`, `master_bidang.*` &
+ * `master_jabatan.*` — module Data Karyawan, Master Bidang & Master
+ * Jabatan di panel admin; tetap bisa diassign lewat halaman Kelola
+ * Permission / Direct Permission):
  *
  *      ID Menu | permission_key  | hak akses yang didaftarkan
  *      --------|-----------------|--------------------------------
  *      1  Dashboard      | dashboard              | view            (1)
  *      2  Berita         | news                   | view/custom/edit/delete
  *      3  Data Tamu      | tamu                   | view/custom/edit/delete
+ *      13 Hari Libur     | hari_libur             | view/custom/edit/delete
  *      4  Pengumuman     | announcements          | view/custom/edit/delete
  *      5  Halaman        | pages                  | view/custom/edit/delete
  *      6  Menu           | menus                  | view/custom/edit/delete
  *      7  Pengguna       | users                  | view/custom/edit/delete
  *      8  Galeri         | galleries              | view/custom/edit/delete
  *      9  Link Kerja     | work_links             | view/custom/edit/delete
+ *      14 Data Karyawan  | karyawan_data          | view/custom/edit/delete
+ *      15 Master Bidang  | master_bidang          | view/custom/edit/delete
+ *      16 Master Jabatan | master_jabatan         | view/custom/edit/delete
  *      10 Log Aktivitas  | activity_logs          | view/delete     (2)
  *      11 Role/Hak Akses | roles                  | view/custom/edit/delete
  *
- *      1 + (8 × 4) + 2 + 4 = 39  (+ 4 karyawan_data.* = 43,
- *                                 + 4 master_bidang.*
- *                                 + 4 master_jabatan.* = 51)
+ *      1 + (13 × 4) + 2 = 55 = PERSIS set permission Super Admin.
+ *
+ *      (1) Dashboard hanya .view; (2) Log Aktivitas hanya .view &
+ *      .delete — kolom lain tampil "—" di matriks.
+ *
+ *      Kompatibilitas: hari_libur.* punya FALLBACK alias ke tamu.*
+ *      (Permission::ACTION_ALIASES), sehingga role lama yang sudah
+ *      punya akses Data Tamu tetap bisa mengelola hari libur tanpa
+ *      re-scope; grant baru via centang matriks tetap berlaku.
  *
  * Aksi spesifik non-CRUD yang dulu terdaftar terpisah (news.publish,
  * announcements.publish, tamu.checkout, user.reset-password,
@@ -62,6 +72,7 @@ class PermissionSeeder extends Seeder
         'dashboard' => ['view'],
         'news' => ['view', 'create', 'edit', 'delete'],
         'tamu' => ['view', 'create', 'edit', 'delete'],
+        'hari_libur' => ['view', 'create', 'edit', 'delete'],
         'announcements' => ['view', 'create', 'edit', 'delete'],
         'pages' => ['view', 'create', 'edit', 'delete'],
         'menus' => ['view', 'create', 'edit', 'delete'],
@@ -70,14 +81,12 @@ class PermissionSeeder extends Seeder
         'work_links' => ['view', 'create', 'edit', 'delete'],
         'activity_logs' => ['view', 'delete'],
         'roles' => ['view', 'create', 'edit', 'delete'],
-        // Data Karyawan — master data HR di portal karyawan (bukan menu
-        // matriks admin; dikelola akun karyawan yang diberi permission ini
-        // via Edit Role / Direct Permission).
+        // Data Karyawan — master data HR di portal karyawan (matriks
+        // Tambah/Edit Role + Kelola Permission / Direct Permission).
         'karyawan_data' => ['view', 'create', 'edit', 'delete'],
         // Master Bidang & Master Jabatan — master data hierarki di
-        // panel admin (di luar matriks admin; dikelola akun yang
-        // diberi permission ini via Kelola Role / Direct Permission —
-        // pola sama dengan karyawan_data).
+        // panel admin (matriks Tambah/Edit Role + Kelola Permission /
+        // Direct Permission).
         'master_bidang' => ['view', 'create', 'edit', 'delete'],
         'master_jabatan' => ['view', 'create', 'edit', 'delete'],
     ];
@@ -87,6 +96,7 @@ class PermissionSeeder extends Seeder
         'dashboard' => 'Dashboard',
         'news' => 'News',
         'tamu' => 'Guest Book',
+        'hari_libur' => 'Hari Libur',
         'announcements' => 'Announcements',
         'pages' => 'Page Management',
         'menus' => 'Menu Management',
@@ -105,7 +115,7 @@ class PermissionSeeder extends Seeder
         $menuNames = array_column(MasterMenu::MENUS, 'name', 'permission_key');
 
         // ================================================
-        // 1) Pastikan baris permission matriks ada (43).
+        // 1) Pastikan baris permission matriks ada (55).
         // ================================================
         $permissionIds = [];
 
@@ -126,7 +136,7 @@ class PermissionSeeder extends Seeder
         $activeNames = array_keys($permissionIds);
 
         // ================================================
-        // 2) Hapus permission legacy/diam di luar 39 baris
+        // 2) Hapus permission legacy/diam di luar 55 baris
         //    matriks — bersama pivot role & direct-permission
         //    user agar tidak ada sisa data dummy.
         // ================================================
@@ -149,7 +159,7 @@ class PermissionSeeder extends Seeder
             ['description' => 'Super Admin — Sekretariat/Humas, akses penuh seluruh fitur', 'status' => true]
         );
 
-        // Super Admin: akses penuh = TEPAT seluruh 39 permission matriks
+        // Super Admin: akses penuh = TEPAT seluruh 55 permission matriks
         // (sync() mengganti isi pivot → tidak ada sisa permission legacy).
         $superAdmin->permissions()->sync(array_values($permissionIds));
 
@@ -207,6 +217,8 @@ class PermissionSeeder extends Seeder
                 return $action === 'view' ? 'Lihat Menu' : "{$verb} Menu";
             case 'tamu':
                 return $action === 'view' ? 'Akses Data Tamu' : "{$verb} Tamu";
+            case 'hari_libur':
+                return $action === 'view' ? 'Akses Hari Libur' : "{$verb} Hari Libur";
             case 'users':
                 return $action === 'view' ? 'Lihat Pengguna' : "{$verb} Pengguna";
             case 'roles':

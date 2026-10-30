@@ -6,7 +6,6 @@ use App\Http\Controllers\Concerns\VerifiesTamu;
 use App\Http\Controllers\Controller;
 use App\Models\Tamu;
 use App\Services\ActivityLogger;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -67,41 +66,12 @@ class TamuController extends Controller
         return $this->indexRouteName();
     }
 
-    /**
-     * Setelah approve()/reject() dari halaman DETAIL, kembali ke halaman
-     * itu (bukan ke daftar) supaya admin langsung melihat status & log baru.
-     *
-     * FIX: atribut #[\Override] DIHAPUS — method ini meng-override method
-     * bawaan TRAIT VerifiesTamu (bukan method parent class/interface), dan
-     * PHP 8.3+ menolak atribut itu dengan FATAL compile error
-     * ("no matching parent method exists") sehingga kelas gagal dimuat —
-     * halaman admin/tamu maupun seluruh suite test yang menyentuhnya ikut
-     * mati. Kelas Karyawan\TamuController tetap memakai #[\Override]
-     * karena parent-nya (kelas ini) benar-benar punya method-nya.
-     */
-    protected function aksiStatusRedirect(Request $request, Tamu $tamu): RedirectResponse
-    {
-        return redirect()->route('admin.tamu.detail', $tamu);
-    }
-
-    /**
-     * HALAMAN DETAIL KUNJUNGAN TAMU (admin/tamu/detail.blade.php).
-     *
-     * Bagian atas: badge status utama + kartu log aktivitas yang mencatat
-     * siapa yang melakukan perubahan status terakhir beserta tanggal &
-     * jamnya. Di bawahnya tombol aksi sesuai status saat ini:
-     *   Menunggu   -> [Setujui Kunjungan] + [Batalkan Kunjungan]
-     *   Dibatalkan -> [Ubah Menjadi Disetujui]
-     *   Disetujui  -> [Ubah Menjadi Dibatalkan]
-     * Semua aksi dikonfirmasi dialog sebelum dikirim.
-     */
-    public function detail(Tamu $tamu)
-    {
-        return view('admin.tamu.detail', [
-            'tamu'       => $tamu,
-            'dokumenUrl' => $this->dokumenUrl($tamu),
-        ]);
-    }
+    /* HALAMAN DETAIL (admin/tamu/detail.blade.php) DIHAPUS — seluruh isi
+       halaman itu (identitas, jadwal, keperluan, dokumen, kartu
+       check-in/out & kartu log aktivitas) kini hidup di MODAL pop-up
+       parsial admin.tamu.detail-tamu-modal, yang dibuka dari baris tabel
+       (openDetailModal). Aksi status tetap dari tombol tabel -> modal
+       verifikasi, lalu kembali ke daftar. */
 
     public function index(Request $request)
     {
@@ -109,7 +79,9 @@ class TamuController extends Controller
             ->search($request->string('q')->toString())
             ->tanggalAntara($request->input('dari'), $request->input('sampai'))
             ->status($request->string('status')->toString())
-            ->latest()
+            // Urut JADWAL KUNJUNGAN (terbaru di atas), bukan waktu input —
+            // berlaku untuk Panel Admin maupun Portal Karyawan (subclass).
+            ->orderByDesc('tanggal_kunjungan')
             ->orderByDesc('id');
 
         $stats = [
@@ -151,6 +123,16 @@ class TamuController extends Controller
             'dokumen'   => $this->dokumenUrl($t),
             // Untuk kompatibilitas dengan modal edit (JS mengakses model Carbon)
             'tanggal_kunjungan' => $t->tanggal_kunjungan,
+            // Kartu LOG AKTIVITAS di modal detail (pengganti halaman detail):
+            // siapa & kapan perubahan status terakhir, atau catatan "belum
+            // ada perubahan" untuk kunjungan yang masih menunggu.
+            'log' => ($t->verified_at && $t->verified_by)
+                ? 'Terakhir diperbarui oleh ' . $t->verifier_name
+                    . ' (' . $t->verifier_role_label . ') pada '
+                    . $t->verified_at->translatedFormat('d M Y')
+                    . ' jam ' . $t->verified_at->format('H.i')
+                    . ' — status saat ini ' . $t->kunjunganState()['badge_label'] . '.'
+                : 'Belum ada perubahan status — kunjungan menunggu verifikasi.',
         ])->keyBy('id');
 
         // Data lengkap untuk JavaScript (sudah diformat, aman untuk @json)
@@ -193,8 +175,7 @@ class TamuController extends Controller
             'orang_ditemui' => ['nullable', 'string', 'max:150'],
             'jumlah_tamu' => ['required', 'integer', 'min:1', 'max:100'],
             'tanggal_kunjungan' => ['required', 'date'],
-            // Slot jam operasional + blokir double-booking divisi sama
-            'jam_kunjungan' => $this->jamRules($request),
+            'jam_kunjungan' => $this->jamRules(),
             'keperluan' => ['required', 'string', 'max:2000'],
         ], [
             'nik.required' => 'NIK wajib diisi.',
@@ -374,11 +355,9 @@ class TamuController extends Controller
             'orang_ditemui' => ['nullable', 'string', 'max:150'],
             'jumlah_tamu' => ['required', 'integer', 'min:1', 'max:100'],
             'tanggal_kunjungan' => ['required', 'date'],
-            // Blokir slot divisi sama — kunjungan INI sendiri dikecualikan,
-            // dan jam lamanya (meski di luar slot) tetap boleh dipertahankan.
-            // Edit: rentang blokir 1 jam (hanya jam booking itu sendiri),
-            // selaras tampilan merah di modal edit.
-            'jam_kunjungan' => $this->jamRules($request, $tamu->id, $tamu->tanggal_kunjungan?->format('H:i'), 1),
+            // Jam lamanya (meski di luar slot) tetap boleh dipertahankan
+            // saat edit agar data lama tidak hilang.
+            'jam_kunjungan' => $this->jamRules($tamu->tanggal_kunjungan?->format('H:i')),
             'keperluan' => ['required', 'string', 'max:2000'],
         ], [
             'nik.required' => 'NIK wajib diisi.',
@@ -424,57 +403,31 @@ class TamuController extends Controller
 
     /**
      * Rule validasi "Jam Kunjungan" — selaras form registrasi publik:
-     * wajib salah satu slot operasional, dan belum DISETUJUI untuk
-     * divisi + tanggal yang sama (anti double-booking).
+     * wajib salah satu slot operasional (di luar jam istirahat).
      *
-     * @param  int|null  $kecualiId  ID kunjungan yang dikecualikan saat edit,
-     *                               supaya tidak memblokir dirinya sendiri.
      * @param  string|null  $jamLama  Jam lama milik rekornya sendiri — masih
      *                               diterima saat edit agar data lama yang
      *                               di luar slot operasional tetap bisa disimpan.
-     * @param  int|null  $durasiJam   Rentang blokir (jam). Jalur update kirim 1
-     *                               — edit hanya membaca SATU jam booking,
-     *                               bukan rentang 3 jam seperti form publik.
      * @return array<int, mixed>
      */
-    protected function jamRules(Request $request, ?int $kecualiId = null, ?string $jamLama = null, ?int $durasiJam = null): array
+    protected function jamRules(?string $jamLama = null): array
     {
         return [
             'required',
             'date_format:H:i',
-            function (string $attribute, mixed $value, \Closure $fail) use ($request, $kecualiId, $jamLama, $durasiJam) {
-                $divisi  = (string) $request->input('tujuan_ditemui');
-                $tanggal = (string) $request->input('tanggal_kunjungan');
-
-                if ($divisi === '' || $tanggal === '') {
-                    return; // biarkan rule required yang menolak
-                }
-
-                try {
-                    $tanggal = \Carbon\Carbon::parse($tanggal)->format('Y-m-d');
-                } catch (\Throwable) {
-                    return; // biarkan rule date yang menolak
-                }
-
+            function (string $attribute, mixed $value, \Closure $fail) use ($jamLama) {
                 // Harus slot operasional — kecuali tidak berubah dari nilai lama
                 if (! in_array($value, Tamu::SLOT_JAM, true) && $value !== $jamLama) {
                     $fail('Jam kunjungan harus di luar jam istirahat & sesuai jam operasional.');
-
-                    return;
-                }
-
-                if (Tamu::isJamTerblokir($tanggal, $value, $divisi, $kecualiId, $durasiJam)) {
-                    $fail("Jam {$value} sudah di-approve untuk divisi \"{$divisi}\" "
-                        . "pada tanggal {$tanggal}. Silakan pilih jam lain.");
                 }
             },
         ];
     }
 
     /* Keputusan verifikasi ("setuju" / "tolak") ada di trait
-       Concerns\VerifiesTamu — aturan satu-aksi-per-kunjungan, blokir
-       jadwal bentrok, pencatatan verified_by/verified_at & log aktivitas
-       dipakai bersama oleh panel Admin dan Portal Karyawan. */
+       Concerns\VerifiesTamu — aturan revisi status bebas, pencatatan
+       verified_by/verified_at & log aktivitas dipakai bersama oleh
+       panel Admin dan Portal Karyawan. */
 
     /*
      * CHECK-IN / CHECK-OUT — alur front office (satpam).
@@ -625,7 +578,9 @@ class TamuController extends Controller
             ->search($request->string('q')->toString())
             ->tanggalAntara($request->input('dari'), $request->input('sampai'))
             ->status($request->string('status')->toString())
-            ->latest()
+            // Selaras index: urut jadwal kunjungan terbaru (export & print
+            // harus mengikuti urutan halaman daftar).
+            ->orderByDesc('tanggal_kunjungan')
             ->orderByDesc('id');
     }
 

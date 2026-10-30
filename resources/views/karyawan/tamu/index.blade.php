@@ -575,14 +575,6 @@
         padding: 0.35rem 0.6rem;
         word-break: break-all;
     }
-    .tamu-jam-status {
-        display: block;
-        font-size: 0.7rem;
-        margin-top: 0.28rem;
-        color: var(--kry-muted);
-    }
-    .tamu-jam-status.blocked { color: #dc2626; font-weight: 600; }
-    .tamu-jam-status.ok { color: #16a34a; }
     .hidden { display: none !important; }
 
     /* Custom dropdown divisi (pola form registrasi publik) */
@@ -706,11 +698,6 @@
 
     /* Slot jam kunjungan dalam <select> jam */
     .tamu-modal select option:disabled { color: var(--kry-muted) !important; background: #f1f5f9 !important; }
-    .tamu-modal select option.slot-penuh {
-        color: #dc2626 !important;
-        background: #fef2f2 !important;
-        font-weight: 600;
-    }
 
     /* Detail rows */
     .detail-list { display: grid; gap: 0; }
@@ -1173,7 +1160,8 @@
 
 {{-- ============================================
      MODAL: DETAIL TAMU — parsial bersama (shell, diisi JS openDetailModal)
-     Portal karyawan tidak punya halaman detail -> detailUrl null.
+     Halaman detail SUDAH DIHAPUS di kedua konteks (admin & karyawan):
+     modal ini satu-satunya tampilan detail, termasuk kartu log aktivitas.
      ============================================ --}}
 @include('admin.tamu.detail-tamu-modal', [
     // 'tamu' => NULL sengaja eksplisit: variabel $tamu dari @foreach
@@ -1181,7 +1169,6 @@
     // ter-render mode lengkap pakai tamu terakhir dalam loop.
     'tamu'        => null,
     'accentColor' => 'var(--kry-teal)',
-    'detailUrl'   => null,
     'checkinUrl'  => route('karyawan.tamu.checkin', ':id'),
     'checkoutUrl' => route('karyawan.tamu.checkout', ':id'),
 ])
@@ -1248,31 +1235,21 @@
 </div>
 
 @if (session('wa_konfirmasi'))
-@php $wa = session('wa_konfirmasi'); $waBentrok = ! empty($wa['bentrok']); @endphp
+@php $wa = session('wa_konfirmasi'); @endphp
 <div class="tamu-modal-overlay show" id="waKonfirmasiModal">
     <div class="tamu-modal">
         <div class="tamu-delete-dialog">
-            @if ($waBentrok)
-            <div class="del-icon" style="background:#fff7ed; color:#ea580c;"><i class="fas fa-calendar-xmark" style="font-size:1.5rem;"></i></div>
-            <h6>Jadwal Kunjungan Sudah Ada yang Diizinkan</h6>
-            <p>Kunjungan <b>{{ $wa['nama'] }}</b> ({{ $wa['no_wa'] }}) <b>TIDAK disetujui</b>:
-                jadwalnya bentrok — pada jadwal & divisi yang sama sudah ada kunjungan
-                <b>{{ $wa['bentrok_dengan'] }}</b> ({{ $wa['bentrok_jadwal'] }} WIB) yang diizinkan.
-                WhatsApp tamu ini akan terbuka dengan pesan pemberitahuan agar mengajukan
-                jadwal lain — cukup tekan <b>Kirim</b>.</p>
-            @else
             <div class="del-icon" style="background:#e7f9ee; color:#16a34a;"><i class="fab fa-whatsapp" style="font-size:1.5rem;"></i></div>
             <h6>Kirim Konfirmasi WhatsApp</h6>
             <p>Berbaskan tamu <b>{{ $wa['nama'] }}</b> ({{ $wa['no_wa'] }}) bahwa kunjungannya
                 <b>{{ $wa['status'] }}</b>. WhatsApp akan terbuka dengan pesan yang sudah terisi otomatis —
                 cukup tekan <b>Kirim</b>.</p>
-            @endif
             <div class="tamu-delete-actions">
                 <button type="button" class="cancel" onclick="closeTamuModal('waKonfirmasiModal')">Lewati</button>
                 <a href="{{ $wa['wa_url'] }}" target="_blank" rel="noopener" class="confirm"
-                   style="background:{{ $waBentrok ? '#ea580c' : '#25D366' }}; color:#fff; text-decoration:none; display:inline-flex;"
+                   style="background:#25D366; color:#fff; text-decoration:none; display:inline-flex;"
                    onclick="setTimeout(function(){ closeTamuModal('waKonfirmasiModal'); }, 300);">
-                    <i class="fab fa-whatsapp me-1"></i> {{ $waBentrok ? 'Beritahu via WhatsApp' : 'Buka WhatsApp' }}
+                    <i class="fab fa-whatsapp me-1"></i> Buka WhatsApp
                 </a>
             </div>
         </div>
@@ -1394,7 +1371,6 @@
                                 class="form-select @error('jam_kunjungan') is-invalid @enderror" style="font-size:0.85rem;">
                             <option value="">— Pilih Jam —</option>
                         </select>
-                        <small id="add-jam-status" class="tamu-jam-status" style="display:none;"></small>
                         @error('jam_kunjungan')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-4">
@@ -1560,7 +1536,6 @@
                         <select name="jam_kunjungan" id="edit-jam_kunjungan" required class="form-select" style="font-size:0.85rem;">
                             <option value="">— Pilih Jam —</option>
                         </select>
-                        <small id="edit-jam-status" class="tamu-jam-status" style="display:none;"></small>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jumlah Tamu <span class="text-danger">*</span></label>
@@ -1680,7 +1655,17 @@
             info.innerHTML = infoHtml;
         }
 
-        // 2) Maksud & Keperluan
+        // 2) Kartu LOG AKTIVITAS (pengganti halaman detail yang dihapus)
+        var logCard = body.querySelector('[data-role="log"]');
+        if (logCard) {
+            var logText = body.querySelector('[data-role="log-text"]');
+            if (logText) {
+                logText.textContent = t.log || 'Belum ada perubahan status — kunjungan menunggu verifikasi.';
+            }
+            logCard.hidden = false;
+        }
+
+        // 3) Maksud & Keperluan
         var keperluanWrap = body.querySelector('[data-role="keperluan-wrap"]');
         if (keperluanWrap) {
             keperluanWrap.hidden = !t.keperluan;
@@ -1690,7 +1675,7 @@
             }
         }
 
-        // 3) Dokumen Pendukung
+        // 4) Dokumen Pendukung
         var dokumenWrap = body.querySelector('[data-role="dokumen-wrap"]');
         if (dokumenWrap) {
             dokumenWrap.hidden = !t.dokumen;
@@ -1703,7 +1688,7 @@
             }
         }
 
-        // 4) Card dinamis (badge + jam + aksi check-in/out) ke slot bawah
+        // 5) Card dinamis (badge + jam + aksi check-in/out) ke slot bawah
         appendCoCard(t);
         openTamuModal('detailModal');
     }
@@ -1801,7 +1786,7 @@
     /* ===== Modal Tambah Manual ===== */
     function openAddModal() {
         openTamuModal('addModal');
-        refreshJam('add');
+        buildJamOptions('add');
 
         const ta = document.getElementById('add-keperluan');
         const count = document.getElementById('add-keperluan-count');
@@ -1875,7 +1860,7 @@
 
         updateEditCounter();
         openTamuModal('editModal');
-        refreshJam('edit');
+        buildJamOptions('edit');
     }
 
     function updateEditCounter() {
@@ -1935,7 +1920,12 @@
         if (!value) return;
         hidden.value = value;
 
-        const menu = hidden.closest('.tamu-dd-wrap').querySelector('.tamu-dd-options');
+        /* Hidden input berada DI LUAR .tamu-dd-wrap (pilihan struktur form),
+           jadi kaitkan ke wrapper lewat input display sebagai fallback —
+           tanpa ini .closest() menghasilkan null dan openEditModal gagal
+           (pola sama dengan salinan admin). */
+        const wrap = hidden.closest('.tamu-dd-wrap') || display.closest('.tamu-dd-wrap');
+        const menu = wrap && wrap.querySelector('.tamu-dd-options');
         const ada = menu && Array.prototype.some.call(menu.querySelectorAll('.dropdown-option'), function (o) {
             return o.getAttribute('data-value') === value;
         });
@@ -2202,28 +2192,20 @@
     })();
 
     /* ============================================================
-       SLOT JAM KUNJUNGAN — slot ter-approve ditandai MERAH
-       (data dari /api/booked-slots, pola form registrasi publik)
+       SLOT JAM KUNJUNGAN — opsi jam dibangun via JS (1:1 dengan
+       Tamu::SLOT_JAM); jam istirahat 11:30–13:00 dinonaktifkan.
+       Tidak ada pemblokiran jam akibat kunjungan lain.
        ============================================================ */
-    const bookedSlotsUrl = '{{ route('layanan.registrasi-tamu.booked-slots') }}';
-
-    function setJamStatus(el, text, kind) {
-        if (!el) return;
-        el.style.display = text ? 'block' : 'none';
-        el.textContent = text || '';
-        el.className = 'tamu-jam-status' + (kind ? ' ' + kind : '');
-    }
 
     function jamContext(prefix) {
         return {
             jam:     document.getElementById(prefix + '-jam_kunjungan'),
             tanggal: document.getElementById(prefix + '-tanggal_kunjungan'),
             divisi:  document.getElementById(prefix + '-tujuan_ditemui'),
-            status:  document.getElementById(prefix + '-jam-status'),
         };
     }
 
-    function buildJamOptions(prefix, blocked) {
+    function buildJamOptions(prefix) {
         const c = jamContext(prefix);
         if (!c.jam) return;
 
@@ -2234,29 +2216,12 @@
 
         SLOT_OPSIONAL.forEach(function (opt) {
             const val = opt.jam;
-            let disabled = false;
-            let label = opt.label;
-            let isBlocked = false;
-
-            if (val >= JAM_ISTIRAHAT_AWAL && val < JAM_ISTIRAHAT_AKHIR) {
-                disabled = true;
-                label = opt.label + ' (Jam Istirahat)';
-            }
-
-            if (blocked.indexOf(val) !== -1) {
-                disabled = true;
-                isBlocked = true;
-                label = opt.label + ' (Terblokir)';
-                if (jamAwal && val === jamAwal) disabled = false;
-            }
+            const disabled = val >= JAM_ISTIRAHAT_AWAL && val < JAM_ISTIRAHAT_AKHIR;
 
             const option = document.createElement('option');
             option.value = val;
-            option.textContent = label;
-            if (isBlocked) {
-                option.classList.add('slot-penuh');
-                option.title = 'Jam ini sudah di-approve dan tidak dapat dipilih.';
-            }
+            option.textContent = disabled ? opt.label + ' (Jam Istirahat)' : opt.label;
+            option.setAttribute('data-status', disabled ? 'istirahat' : 'tersedia');
             if (disabled) option.disabled = true;
 
             c.jam.appendChild(option);
@@ -2279,71 +2244,14 @@
         }
     }
 
-    const jamLoading = { add: false, edit: false };
-    const jamRefreshDirty = { add: false, edit: false };
-
-    function refreshJam(prefix) {
-        const c = jamContext(prefix);
-        if (!c.jam || !c.tanggal || !c.divisi) return;
-
-        const tanggal = c.tanggal.value;
-        const divisi = c.divisi.value;
-
-        if (!tanggal || !divisi) {
-            buildJamOptions(prefix, []);
-            setJamStatus(c.status, 'Pilih divisi & tanggal untuk melihat ketersediaan jam');
-            return;
-        }
-
-        if (jamLoading[prefix]) {
-            jamRefreshDirty[prefix] = true;
-            return;
-        }
-        jamLoading[prefix] = true;
-
-        setJamStatus(c.status, 'Memuat ketersediaan jam...');
-
-        const qs = '?tanggal=' + encodeURIComponent(tanggal)
-                 + '&divisi=' + encodeURIComponent(divisi)
-                 + (prefix === 'edit' ? '&durasi=1' : '');
-
-        fetch(bookedSlotsUrl + qs)
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                jamLoading[prefix] = false;
-                if (jamRefreshDirty[prefix]) {
-                    jamRefreshDirty[prefix] = false;
-                    refreshJam(prefix);
-                    return;
-                }
-                const blocked = Array.isArray(data.jam_terblokir) ? data.jam_terblokir : [];
-                buildJamOptions(prefix, blocked);
-
-                setJamStatus(
-                    c.status,
-                    blocked.length ? '\u26A0 Jam terblokir: ' + blocked.join(', ') : '\u2713 Semua slot tersedia',
-                    blocked.length ? 'blocked' : 'ok'
-                );
-            })
-            .catch(function () {
-                jamLoading[prefix] = false;
-                if (jamRefreshDirty[prefix]) {
-                    jamRefreshDirty[prefix] = false;
-                    refreshJam(prefix);
-                    return;
-                }
-                setJamStatus(c.status, 'Gagal memuat ketersediaan jam', 'blocked');
-            });
-    }
-
     (function () {
         ['add', 'edit'].forEach(function (prefix) {
             const c = jamContext(prefix);
-            if (!c.jam || !c.tanggal || !c.divisi) return;
+            if (!c.jam) return;
 
-            c.tanggal.addEventListener('change', function () { refreshJam(prefix); });
-            c.divisi.addEventListener('change', function () { refreshJam(prefix); });
             c.jam.addEventListener('change', function () {
+                // Guard: slot istirahat tidak boleh tersimpan
+                // (bisa ter-set lewat manipulasi nilai programatis).
                 const opt = c.jam.selectedOptions && c.jam.selectedOptions[0];
                 if (opt && opt.disabled) c.jam.value = '';
             });
@@ -2394,7 +2302,7 @@
             }
 
             updateEditCounter();
-            refreshJam('edit');
+            buildJamOptions('edit');
         } else if (document.getElementById('addModal')) {
             openAddModal();
             const addHidden = document.getElementById('add-tujuan_ditemui');

@@ -267,15 +267,21 @@ class TamuCheckInOutTest extends TestCase
         $satpam = $this->satpam();
         $tamu   = $this->kunjungan(['checked_in_at' => now()->subHour()]);
 
-        $html = $this->actingAs($satpam)
-            ->get(route('admin.tamu.detail', $tamu))
-            ->assertOk()
-            ->assertSee('Check-Out Tamu')
-            ->assertSee('Berkunjung')
-            ->getContent();
+        $this->actingAs($satpam);
+
+        // Halaman detail sudah dihapus — state kartu kini dirender
+        // MODAL detail (mode lengkap) dari parsial bersama.
+        $html = view('admin.tamu.detail-tamu-modal', [
+            'tamu'        => $tamu,
+            'checkinUrl'  => route('admin.tamu.checkin', $tamu),
+            'checkoutUrl' => route('admin.tamu.checkout', $tamu),
+        ])->render();
+
+        $this->assertStringContainsString('Check-Out Tamu', $html);
+        $this->assertStringContainsString('Berkunjung', $html);
 
         $tombol = $this->tagOf($html, 'data-action="checkout"');
-        $this->assertNotSame('', $tombol, 'Tombol check-out harus ada di halaman detail.');
+        $this->assertNotSame('', $tombol, 'Tombol check-out harus ada di modal detail.');
         $this->assertStringNotContainsString('hidden', $tombol, 'Tombol check-out harus aktif saat tamu berkunjung.');
 
         // Jam check-in ikut tampil; chip "Kunjungan selesai" masih tersembunyi
@@ -291,11 +297,15 @@ class TamuCheckInOutTest extends TestCase
             'checked_out_at' => now()->subMinutes(10),
         ]);
 
-        $html = $this->actingAs($satpam)
-            ->get(route('admin.tamu.detail', $tamu))
-            ->assertOk()
-            ->assertSee('Selesai')
-            ->getContent();
+        $this->actingAs($satpam);
+
+        $html = view('admin.tamu.detail-tamu-modal', [
+            'tamu'        => $tamu,
+            'checkinUrl'  => route('admin.tamu.checkin', $tamu),
+            'checkoutUrl' => route('admin.tamu.checkout', $tamu),
+        ])->render();
+
+        $this->assertStringContainsString('Selesai', $html);
 
         $tombol = $this->tagOf($html, 'data-action="checkout"');
         $this->assertNotSame('', $tombol);
@@ -421,7 +431,6 @@ class TamuCheckInOutTest extends TestCase
 
         $html = view('admin.tamu.detail-tamu-modal', [
             'tamu'        => $tamu,
-            'detailUrl'   => route('admin.tamu.detail', $tamu),
             'checkinUrl'  => route('admin.tamu.checkin', $tamu),
             'checkoutUrl' => route('admin.tamu.checkout', $tamu),
         ])->render();
@@ -432,6 +441,9 @@ class TamuCheckInOutTest extends TestCase
         $this->assertStringNotContainsString('<dt>Check-In</dt>', $html);
         $this->assertStringNotContainsString('<dt>Check-Out</dt>', $html);
         $this->assertStringNotContainsString('<dt>Status</dt>', $html);
+
+        // Kartu LOG AKTIVITAS ikut terrender (pengganti halaman detail)
+        $this->assertStringContainsString('Log Aktivitas Status', $html);
 
         // Kartu dinamis (kondisi selesai) ikut ter-render di bagian bawah
         $this->assertStringContainsString('data-co-card', $html);
