@@ -396,14 +396,10 @@
     @endif
 
     {{-- ============================================
-         FILTER BAR (filter saja — aksi ada di tabel)
+         FILTER BAR (tanggal & status saja — fitur
+         pencarian dihapus agar ringan untuk DB)
          ============================================ --}}
     <form class="kt-filter-bar" method="GET" action="{{ route('karyawan.kunjungan-tamu') }}">
-        <div class="search-wrapper">
-            <i class="fas fa-search"></i>
-            <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama, instansi, atau NIK...">
-        </div>
-        <div class="kt-filter-divider"></div>
         <input type="date" name="dari" value="{{ request('dari') }}" title="Tanggal kunjungan dari">
         <span class="kt-filter-count">s/d</span>
         <input type="date" name="sampai" value="{{ request('sampai') }}" title="Tanggal kunjungan sampai">
@@ -418,7 +414,7 @@
         <button type="submit" class="btn-corp btn-corp-primary" style="padding:0.5rem 1rem; font-size:0.8rem;">
             <i class="fas fa-filter me-1"></i> Terapkan
         </button>
-        @if (request()->anyFilled(['q', 'dari', 'sampai', 'status']))
+        @if (request()->anyFilled(['dari', 'sampai', 'status']))
             <a href="{{ route('karyawan.kunjungan-tamu') }}" class="btn-corp btn-corp-soft" style="padding:0.5rem 1rem; font-size:0.8rem;">
                 <i class="fas fa-rotate-left"></i>
             </a>

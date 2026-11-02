@@ -11,10 +11,11 @@ use Tests\TestCase;
 
 /**
  * HARI LIBUR / TANGGAL MERAH — CRUD panel admin
- * (route admin.hari-libur.*, gate permission hari_libur.* dengan
- * FALLBACK alias ke tamu.*), termasuk 2 TIPE status tanggal: libur
- * (blokir kunjungan) & masuk_kerja (override weekend agar bisa
- * dipilih pengunjung).
+ * (route admin.hari-libur.*, gate permission hari_libur.* TANPA
+ * fallback alias ke tamu.* — akses murni dari centang manual
+ * hari_libur.* di matriks Tambah/Edit Role), termasuk 2 TIPE status
+ * tanggal: libur (blokir kunjungan) & masuk_kerja (override weekend
+ * agar bisa dipilih pengunjung).
  *
  * Pemblokiran/pengizinan tanggal di form registrasi publik diuji di
  * TamuTest (test_store_rejects_tanggal_libur, test_store_menerima_akhir_pekan_di_override).
@@ -36,7 +37,7 @@ class HariLiburTest extends TestCase
         foreach ($permissions as $permission) {
             $perm = Permission::firstOrCreate(
                 ['name' => $permission],
-                ['display_name' => $permission, 'module' => 'Guest Book']
+                ['display_name' => $permission, 'module' => str_starts_with($permission, 'hari_libur') ? 'Hari Libur' : 'Guest Book']
             );
             $role->permissions()->attach($perm->id);
         }
@@ -68,14 +69,19 @@ class HariLiburTest extends TestCase
             ->assertSee('Libur Perusahaan');
     }
 
-    public function test_fallback_tamu_view_masih_membuka_hari_libur(): void
+    /**
+     * REVISI RBAC — fallback alias tamu.* → hari_libur.* DIHAPUS.
+     * Role yang HANYA punya tamu.* (contoh: role "Satpam" dengan menu
+     * Data Tamu) tidak otomatis mendapat akses menu Hari Libur; menu
+     * hanya muncul bila hari_libur.* dicentang manual di matriks role.
+     */
+    public function test_tamu_view_saja_tidak_membuka_hari_libur(): void
     {
-        // Role lama hanya punya tamu.* → tetap bisa akses (alias fallback).
         $admin = $this->adminWithPermissions(['tamu.view']);
 
         $this->actingAs($admin)
             ->get(route('admin.hari-libur.index'))
-            ->assertOk();
+            ->assertForbidden();
     }
 
     public function test_matriks_hak_akses_memuat_menu_hari_libur(): void
@@ -102,7 +108,7 @@ class HariLiburTest extends TestCase
 
     public function test_index_renders_daftar_tanggal_merah(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view']);
+        $admin = $this->adminWithPermissions(['hari_libur.view']);
         HariLibur::create([
             'tanggal'    => now()->addDays(7)->format('Y-m-d'),
             'keterangan' => 'Libur Perusahaan',
@@ -117,7 +123,7 @@ class HariLiburTest extends TestCase
 
     public function test_store_creates_hari_libur(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
+        $admin = $this->adminWithPermissions(['hari_libur.view', 'hari_libur.create']);
         $tanggal = now()->addDays(3)->format('Y-m-d');
 
         $this->actingAs($admin)
@@ -138,7 +144,7 @@ class HariLiburTest extends TestCase
 
     public function test_store_accepts_tipe_masuk_kerja(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
+        $admin = $this->adminWithPermissions(['hari_libur.view', 'hari_libur.create']);
         // Sabtu pekan depan — di-override jadi hari kerja khusus.
         $tanggal = now()->next(\Carbon\Carbon::SATURDAY)->format('Y-m-d');
 
@@ -159,7 +165,7 @@ class HariLiburTest extends TestCase
 
     public function test_store_rejects_tipe_tidak_valid(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
+        $admin = $this->adminWithPermissions(['hari_libur.view', 'hari_libur.create']);
 
         $this->actingAs($admin)
             ->post(route('admin.hari-libur.store'), [
@@ -174,7 +180,7 @@ class HariLiburTest extends TestCase
 
     public function test_store_rejects_tipe_kosong(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
+        $admin = $this->adminWithPermissions(['hari_libur.view', 'hari_libur.create']);
 
         $this->actingAs($admin)
             ->post(route('admin.hari-libur.store'), [
@@ -188,7 +194,7 @@ class HariLiburTest extends TestCase
 
     public function test_index_menampilkan_badge_tipe(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view']);
+        $admin = $this->adminWithPermissions(['hari_libur.view']);
         HariLibur::create([
             'tanggal'    => now()->addDays(7)->format('Y-m-d'),
             'tipe'       => 'libur',
@@ -208,9 +214,9 @@ class HariLiburTest extends TestCase
             ->assertSee('Masuk Kerja');
     }
 
-    public function test_store_requires_tamu_create_permission(): void
+    public function test_store_requires_hari_libur_create_permission(): void
     {
-        $viewer = $this->adminWithPermissions(['tamu.view']);
+        $viewer = $this->adminWithPermissions(['hari_libur.view']);
 
         $this->actingAs($viewer)
             ->post(route('admin.hari-libur.store'), [
@@ -224,7 +230,7 @@ class HariLiburTest extends TestCase
 
     public function test_store_rejects_duplicate_tanggal(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
+        $admin = $this->adminWithPermissions(['hari_libur.view', 'hari_libur.create']);
         $tanggal = now()->addDays(3)->format('Y-m-d');
         HariLibur::create(['tanggal' => $tanggal, 'keterangan' => 'Sudah Ada']);
 
@@ -241,7 +247,7 @@ class HariLiburTest extends TestCase
 
     public function test_store_rejects_tanggal_lampau(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
+        $admin = $this->adminWithPermissions(['hari_libur.view', 'hari_libur.create']);
 
         $this->actingAs($admin)
             ->post(route('admin.hari-libur.store'), [
@@ -254,7 +260,7 @@ class HariLiburTest extends TestCase
 
     public function test_store_rejects_keterangan_kosong(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.create']);
+        $admin = $this->adminWithPermissions(['hari_libur.view', 'hari_libur.create']);
 
         $this->actingAs($admin)
             ->post(route('admin.hari-libur.store'), [
@@ -267,7 +273,7 @@ class HariLiburTest extends TestCase
 
     public function test_update_mengubah_tanggal_dan_keterangan(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.edit']);
+        $admin = $this->adminWithPermissions(['hari_libur.view', 'hari_libur.edit']);
         $libur = HariLibur::create([
             'tanggal'    => now()->addDays(5)->format('Y-m-d'),
             'keterangan' => 'Nama Lama',
@@ -292,7 +298,7 @@ class HariLiburTest extends TestCase
 
     public function test_update_mengubah_tipe(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.edit']);
+        $admin = $this->adminWithPermissions(['hari_libur.view', 'hari_libur.edit']);
         $libur = HariLibur::create([
             'tanggal'    => now()->addDays(5)->format('Y-m-d'),
             'tipe'       => 'libur',
@@ -314,9 +320,9 @@ class HariLiburTest extends TestCase
         ]);
     }
 
-    public function test_update_requires_tamu_edit_permission(): void
+    public function test_update_requires_hari_libur_edit_permission(): void
     {
-        $viewer = $this->adminWithPermissions(['tamu.view']);
+        $viewer = $this->adminWithPermissions(['hari_libur.view']);
         $libur = HariLibur::create([
             'tanggal'    => now()->addDays(5)->format('Y-m-d'),
             'keterangan' => 'Tetap',
@@ -334,7 +340,7 @@ class HariLiburTest extends TestCase
 
     public function test_destroy_menghapus_hari_libur(): void
     {
-        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.delete']);
+        $admin = $this->adminWithPermissions(['hari_libur.view', 'hari_libur.delete']);
         $libur = HariLibur::create([
             'tanggal'    => now()->addDays(5)->format('Y-m-d'),
             'keterangan' => 'Akan Dihapus',

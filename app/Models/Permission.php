@@ -36,22 +36,18 @@ class Permission extends Model
      * sehingga @can('news.publish'), middleware permission:tamu.checkout,
      * dst. tetap berjalan normal (tanpa 403) meski barisnya tak lagi
      * terdaftar terpisah di tabel permissions.
+     *
+     * Catatan: modul Hari Libur TIDAK lagi memiliki fallback alias ke
+     * `tamu.*` — role dengan hanya tamu.* TIDAK otomatis mendapat akses
+     * Hari Libur. Akses modul ini murni dari centang `hari_libur.*`
+     * pada matriks hak akses Tambah/Edit Role (hanya dicentang manual,
+     * tidak pernah ikut tercentang otomatis).
      */
     public const ACTION_ALIASES = [
         'news.publish' => 'news.edit',
         'announcements.publish' => 'announcements.edit',
         'tamu.checkout' => 'tamu.edit',
         'user.reset-password' => 'users.edit',
-        'roles.assign_permission' => 'roles.edit',
-        // FALLBACK modul Hari Libur — modul ini dulu digate `tamu.*`.
-        // Role lama yang hanya memiliki tamu.* TETAP bisa mengelola hari
-        // libur (resolved name), sedangkan grant baru `hari_libur.*`
-        // tetap dihormati via cek permission mentah di User::hasPermission
-        // (rule 0) — jadi bisa dicentang mandiri maupun dicabut perlahan.
-        'hari_libur.view' => 'tamu.view',
-        'hari_libur.create' => 'tamu.create',
-        'hari_libur.edit' => 'tamu.edit',
-        'hari_libur.delete' => 'tamu.delete',
     ];
 
     /**

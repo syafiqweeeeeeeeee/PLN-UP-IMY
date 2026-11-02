@@ -196,17 +196,29 @@ class PortalController extends Controller
             [mb_strtolower(trim((string) $user->name))]
         );
 
-        // Statistik dari basis scoping (tanpa filter halaman ini).
+        // Statistik dengan SATU query agregat (bukan 4 query COUNT
+        // terpisah) — hemat koneksi DB per render halaman.
+        $statRow = Tamu::query()
+            ->whereRaw(
+                'LOWER(TRIM(orang_ditemui)) = ?',
+                [mb_strtolower(trim((string) $user->name))]
+            )
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw("COALESCE(SUM(status_verifikasi = ?), 0) as menunggu", [Tamu::STATUS_MENUNGGU])
+            ->selectRaw("COALESCE(SUM(status_verifikasi = ?), 0) as disetujui", [Tamu::STATUS_DISETUJUI])
+            ->selectRaw("COALESCE(SUM(status_verifikasi = ?), 0) as ditolak", [Tamu::STATUS_DITOLAK])
+            ->first();
+
         $stats = [
-            'total'    => $scoped()->count(),
-            'menunggu' => (clone $scoped())->where('status_verifikasi', Tamu::STATUS_MENUNGGU)->count(),
-            'disetujui'=> (clone $scoped())->where('status_verifikasi', Tamu::STATUS_DISETUJUI)->count(),
-            'ditolak'  => (clone $scoped())->where('status_verifikasi', Tamu::STATUS_DITOLAK)->count(),
+            'total'    => (int) $statRow->total,
+            'menunggu' => (int) $statRow->menunggu,
+            'disetujui'=> (int) $statRow->disetujui,
+            'ditolak'  => (int) $statRow->ditolak,
         ];
 
-        // Daftar + filter (reuse scope search/tanggalAntara/status model).
+        // Daftar + filter tanggal/status (TANPA search — fitur pencarian
+        // dihapus agar tidak membebani DB dengan LIKE per render).
         $tamus = $scoped()
-            ->search($request->query('q'))
             ->tanggalAntara($request->query('dari'), $request->query('sampai'))
             ->status($request->query('status'))
             ->orderByDesc('tanggal_kunjungan')

@@ -3,6 +3,10 @@
 @section('title', 'Kelola Role — E-PPID PLN')
 @section('page-title', 'Kelola Role')
 
+@if (session('success'))
+<div hidden data-swal-success="{{ session('success') }}"></div>
+@endif
+
 @push('styles')
 <style>
     .role-badge-active {
@@ -183,11 +187,6 @@
                     </td>
                     <td class="td-actions">
                         <div class="d-flex gap-1 justify-content-end flex-wrap">
-                            @can('roles.assign_permission')
-                            <button class="news-action-btn edit" style="background: #dbeafe; color: #1d4ed8;" onclick="window.location.href='{{ route('admin.roles.permissions', $role) }}'" title="Kelola Permission">
-                                <i class="fas fa-lock-open"></i>
-                            </button>
-                            @endcan
                             @can('roles.edit')
                             <a href="{{ route('admin.roles.edit', $role) }}" class="news-action-btn edit" title="Edit">
                                 <i class="fas fa-pen"></i>

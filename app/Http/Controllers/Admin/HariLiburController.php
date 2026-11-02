@@ -24,9 +24,9 @@ use Illuminate\View\View;
  *
  * Otorisasi: permission khusus `hari_libur.*` (ID Menu 13, ikut
  * matriks hak akses Tambah/Edit Role & terdaftar di PermissionSeeder).
- * FALLBACK alias ke `tamu.*` (Permission::ACTION_ALIASES) menjaga role
- * lama yang sudah punya akses Data Tamu tetap bisa mengelola modul ini
- * tanpa re-scope.
+ * TANPA fallback alias ke `tamu.*` — role dengan hanya tamu.* tidak
+ * otomatis mendapat akses modul ini; akses murni dari centang manual
+ * `hari_libur.*` di matriks Tambah/Edit Role.
  */
 class HariLiburController extends Controller
 {

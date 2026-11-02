@@ -258,8 +258,8 @@
                 @endcan
 
                 {{-- Hari Libur — permission khusus hari_libur.* (ID Menu 13,
-                     matriks hak akses Tambah/Edit Role). FALLBACK alias ke
-                     tamu.* menjaga role lama tetap bisa mengakses. --}}
+                     matriks hak akses Tambah/Edit Role). TANPA fallback ke
+                     tamu.* — menu hanya muncul jika dicentang manual. --}}
                 @can('hari_libur.view')
                 <a href="{{ route('admin.hari-libur.index') }}"
                    class="sidebar-link @if(request()->routeIs('admin.hari-libur.*')) active @endif"

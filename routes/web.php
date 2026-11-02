@@ -394,7 +394,6 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
 
             Route::middleware('permission:roles.view')->group(function () {
                 Route::get('roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('roles.index');
-                Route::get('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');
             });
             // Pembuatan role baru — dibatasi role yang punya permission roles.create
             Route::middleware('permission:roles.create')->group(function () {
@@ -405,10 +404,11 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
                 Route::get('roles/{role}/edit', [\App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('roles.edit');
                 Route::put('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])->name('roles.update');
                 Route::put('/roles/{role}/toggle-status', [\App\Http\Controllers\Admin\RoleController::class, 'toggleStatus'])->name('roles.toggle-status');
-            });
-            Route::middleware('permission:roles.assign_permission')->group(function () {
-                Route::put('/roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])->name('roles.permissions.update');
-            });
+            });            // REVISI: halaman "Kelola Permission" (GET & PUT
+            // /roles/{role}/permissions) DIHAPUS — hak akses penuh via
+            // matriks Tambah/Edit Role; store() kembali ke roles.index
+            // dengan popup "Role berhasil dibuat.".
+
             Route::middleware('permission:roles.delete')->group(function () {
                 Route::delete('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('roles.destroy');
             });
@@ -483,8 +483,9 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         // HARI LIBUR / TANGGAL MERAH — daftar tanggal yang DITOLAK pada
         // form registrasi tamu publik (validasi backend + blokir UI).
         // Modul Hari Libur — permission khusus hari_libur.* (ID Menu 13,
-        // ikut matriks hak akses). FALLBACK alias ke tamu.*
-        // (Permission::ACTION_ALIASES) menjaga role lama tetap berlaku.
+        // ikut matriks hak akses). TANPA fallback alias ke tamu.* —
+        // akses modul ini hanya lewat centang manual hari_libur.*
+        // di Tambah/Edit Role (tidak otomatis ikut dari tamu.*).
         // ============================================================
         Route::middleware('permission:hari_libur.view')->group(function () {
             Route::get('hari-libur', [\App\Http\Controllers\Admin\HariLiburController::class, 'index'])

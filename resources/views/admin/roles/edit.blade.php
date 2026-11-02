@@ -291,8 +291,8 @@
     {{-- ============================================
          SECTION: Matriks Hak Akses (ID Menu Sidebar × CRUD)
          Checkbox disimpan dinamis ke pivot role_permission.
-         Permission di luar matriks (publish/checkout/assign)
-         tetap dikelola di halaman "Kelola Permission".
+         HANYA centang MANUAL yang tersimpan — centang yang belum
+         dipilih tidak pernah tercentang otomatis.
          ============================================ --}}
     <div class="form-section">
         <div class="form-section-header">

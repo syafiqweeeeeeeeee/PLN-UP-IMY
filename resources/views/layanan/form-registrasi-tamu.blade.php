@@ -1789,6 +1789,11 @@
         }
 
         /* ===== DROPDOWN DIVISI ===== */
+        /* EKSKLUSIVITAS DROPDOWN — hanya SATU dropdown (Bidang/Jabatan)
+           yang boleh terbuka bersamaan: setiap dropdown yang DIBUKA
+           otomatis menutup dropdown lain agar panel tidak bertumpuk. */
+        window.__registrasiDropdownClosers = window.__registrasiDropdownClosers || [];
+
         (function () {
             var inputDisplay = document.getElementById('tujuan_ditemui_display');
             var inputHidden = document.getElementById('tujuan_ditemui');
@@ -1805,10 +1810,27 @@
 
             function toggle() {
                 isOpen = !isOpen;
+                if (isOpen) {
+                    // EKSKLUSIF: tutup dulu semua dropdown lain sebelum
+                    // membuka menu ini — tampilan tidak bertumpuk.
+                    window.__registrasiDropdownClosers.forEach(function (closer) {
+                        if (closer.owner !== 'divisi') closer.close();
+                    });
+                }
                 dropdownMenu.style.display = isOpen ? 'block' : 'none';
                 inputDisplay.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
                 if (inputDisplay.parentElement) inputDisplay.parentElement.classList.toggle('dropdown-open', isOpen);
             }
+
+            window.__registrasiDropdownClosers.push({
+                owner: 'divisi',
+                close: function () {
+                    isOpen = false;
+                    dropdownMenu.style.display = 'none';
+                    inputDisplay.setAttribute('aria-expanded', 'false');
+                    if (inputDisplay.parentElement) inputDisplay.parentElement.classList.remove('dropdown-open');
+                },
+            });
 
             function close() {
                 isOpen = false;
@@ -1952,10 +1974,27 @@
 
             function jToggle() {
                 jIsOpen = !jIsOpen;
+                if (jIsOpen) {
+                    // EKSKLUSIF: tutup dulu semua dropdown lain sebelum
+                    // membuka menu ini — tampilan tidak bertumpuk.
+                    window.__registrasiDropdownClosers.forEach(function (closer) {
+                        if (closer.owner !== 'jabatan') closer.close();
+                    });
+                }
                 jabatanMenu.style.display = jIsOpen ? 'block' : 'none';
                 jabatanDisplay.setAttribute('aria-expanded', jIsOpen ? 'true' : 'false');
                 if (jabatanDisplay.parentElement) jabatanDisplay.parentElement.classList.toggle('dropdown-open', jIsOpen);
             }
+
+            window.__registrasiDropdownClosers.push({
+                owner: 'jabatan',
+                close: function () {
+                    jIsOpen = false;
+                    jabatanMenu.style.display = 'none';
+                    jabatanDisplay.setAttribute('aria-expanded', 'false');
+                    if (jabatanDisplay.parentElement) jabatanDisplay.parentElement.classList.remove('dropdown-open');
+                },
+            });
 
             function jClose() {
                 jIsOpen = false;

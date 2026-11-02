@@ -93,11 +93,15 @@ class RoleController extends Controller
         ]);
 
         // Simpan matriks hak akses (checkbox per ID Menu × CRUD)
-        // ke pivot role_permission.
+        // ke pivot role_permission. HANYA centang manual di form yang
+        // tersimpan — tidak ada permission yang tercentang otomatis.
         $this->syncMatrixPermissions($role, $request->input('permissions', []));
 
-        return redirect()->route('admin.roles.permissions', $role)
-            ->with('success', "Role \"{$role->name}\" berhasil dibuat. Atur permission untuk role ini.");
+        // REVISI: langsung kembali ke daftar role dengan popup sukses —
+        // halaman "Kelola Permission" (admin/roles/{role}/permissions)
+        // sudah dihapus; hak akses diatur penuh lewat matriks form ini.
+        return redirect()->route('admin.roles.index')
+            ->with('success', 'Role berhasil dibuat.');
     }
 
     public function edit(Role $role)
@@ -157,6 +161,15 @@ class RoleController extends Controller
     }
 
     /**
+     * REVISI: halaman "Kelola Permission" (admin/roles/{role}/permissions)
+     * DIHAPUS — method permissions() & updatePermissions() sudah tidak ada.
+     * Seluruh permission role diatur lewat matriks hak akses di form
+     * Tambah/Edit Role; syncMatrixPermissions(preserveExtras: true) di
+     * update() menyerap peran halaman tersebut (permission di luar matriks
+     * tidak ikut terhapus).
+     */
+
+    /**
      * Simpan pemetaan matriks (checkbox per ID Menu × aksi CRUD) ke pivot
      * role_permission — hanya permission yang termasuk matriks master menu.
      *
@@ -189,6 +202,11 @@ class RoleController extends Controller
 
         $role->permissions()->sync(array_values(array_unique(array_merge($submitted, $nonMatrixCurrentIds))));
     }
+
+    /*
+     * REMOVED: permissions() & updatePermissions() — halaman
+     * "Kelola Permission" dihapus dari sistem (lihat catatan di atas).
+     */
 
     /**
      * SINKRONISASI ROLE → PENGGUNA (spec: "mengedit centang pada suatu
@@ -268,44 +286,6 @@ class RoleController extends Controller
 
         return redirect()->route('admin.roles.index')
             ->with('success', "Role \"{$name}\" berhasil dihapus.");
-    }
-
-    public function permissions(Role $role)
-    {
-        Gate::authorize('roles.assign_permission');
-
-        $grouped = Permission::orderBy('module')
-            ->orderBy('name')
-            ->get()
-            ->groupBy('module');
-
-        return view('admin.roles.permissions', compact('role', 'grouped'));
-    }
-
-    public function updatePermissions(Request $request, Role $role)
-    {
-        Gate::authorize('roles.assign_permission');
-
-        $validated = $request->validate([
-            'permissions' => ['required', 'array'],
-            'permissions.*' => ['integer', 'exists:permissions,id'],
-        ]);
-
-        $permissionIds = array_unique($validated['permissions']);
-
-        $role->permissions()->sync($permissionIds);
-
-        // SINKRONISASI ROLE → PENGGUNA — halaman "Kelola Permission":
-        // sinkronkan juga direct permission salinan lama milik seluruh
-        // akun pemegang role ini.
-        $this->syncRoleUsersDirectPermissions($role);
-
-        // REAL-TIME RBAC — halaman "Kelola Permission": flush cache gate
-        // agar perubahan langsung diwarisi semua akun dengan role ini.
-        \App\Providers\AuthServiceProvider::flushPermissionGateCache();
-
-        return redirect()->route('admin.roles.permissions', $role)
-            ->with('success', 'Permission berhasil diperbarui.');
     }
 
     public function toggleStatus(Request $request, Role $role)
