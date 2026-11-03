@@ -29,21 +29,21 @@ contoh kodenya.
 
 **E-PPID PLN** adalah aplikasi web berbasis **Laravel 12** untuk pengelolaan
 website PPID (Pejabat Pengelola Informasi dan Dokumentasi) unit pembangkit
-PLN UP Indramayu. Aplikasi punya **dua area besar**:
+PLN UP Indramayu. Aplikasi punya **tiga area besar**:
 
 | Area | URL | Isi |
 |---|---|---|
 | **Portal Publik** | `/` | Landing page: berita, pengumuman, galeri, halaman statis, buku tamu (registrasi tamu), informasi publik |
-| **Admin Panel** | `/admin` | CMS: kelola berita, pengumuman, galeri, halaman, menu, data tamu, pengguna, role, link kerja, log aktivitas, pengaturan |
-| **Portal Karyawan** | `/dashboard`-an | Portal internal: konten internal, link kerja per bidang, aplikasi internal, notifikasi |
+| **Admin Panel** | `/admin` | CMS: berita, pengumuman, galeri, halaman, menu, data tamu, hari libur, pengguna, role, link kerja, data karyawan, master bidang/jabatan, log aktivitas, pengaturan |
+| **Portal Karyawan** | `/karyawan/*` | Portal internal: informasi, layanan internal, link kerja, kunjungan tamu, profil |
 
 **Aktor (role) yang ada — HANYA 3:**
 
 | Role | Siapa | Cakupan Akses |
 |---|---|---|
 | `Super Admin` | Sekretariat / Humas | **Penuh** — seluruh fitur & menu Admin Panel |
-| `Admin Bidang` | Pengelola delegated ke satu Bidang Utama | Terbatas menu **Pengumuman** & **Link Kerja**, data dibatasi bidangnya sendiri |
-| `Karyawan` | Seluruh pegawai | Portal Karyawan. Bisa diberi **direct permission ekstra** → masuk Admin Panel parial ("setengah admin") |
+| `Admin Bidang` | Pengelola delegated ke satu Bidang Utama | Terbatas menu **Pengumuman** & **Link Kerja**, data dibatasi bidangnya sendiri (bawaan seeder juga memberi akses lihat Master Bidang & Master Jabatan) |
+| `Karyawan` | Seluruh pegawai | Portal Karyawan. Bisa diberi **direct permission ekstra** → masuk Admin Panel parsial ("setengah admin") |
 
 > Role legacy `Administrator` masih dikenali sebagai setara `Super Admin`
 > (kompatibilitas akun lama), tapi **tidak bisa dibuat lagi** dari UI —
@@ -181,9 +181,11 @@ HTML dikirim ke browser
 │   │   └── Middleware/                 # auth, admin.access, EnsureNotKaryawan
 │   ├── Models/                         # Eloquent: User, Role, Permission,
 │   │   │                               #   News, Tamu, MasterMenu, dst.
-│   └── Support/                        # Helper, mis. ActivityLogger
+│   ├── Console/Commands/               # Artisan: permission:grant, dst.
+│   └── Services/                       # Service layer: ActivityLogger,
+│                                       #   PortalContentService, XlsxReader, dst.
 ├── database/
-│   ├── migrations/                     # Skema DB (33 file, lihat bab 4)
+│   ├── migrations/                     # Skema DB (49 file, lihat bab 4)
 │   └── seeders/                        # Isi awal DB
 │       ├── AdminUserSeeder.php         # Akun admin awal dari .env
 │       ├── MasterMenuSeeder.php        # Isi tabel master_menus
@@ -203,8 +205,8 @@ HTML dikirim ke browser
 
 | Item | Konvensi | Contoh |
 |---|---|---|
-| Permission | `<module_key>.<action>` | `news.view`, `tamu.checkout` |
-| Titik permission | `view` / `create` / `edit` / `delete` (+ aksi khusus per modul) | |
+| Permission | `<module_key>.<action>` | `news.view`, `tamu.checkout` (alias → `tamu.edit`) |
+| Titik permission | `view` / `create` / `edit` / `delete` (aksi khusus lewat `Permission::ACTION_ALIASES`, lihat 5.9) | |
 | Route admin | `admin.<module>.<action>` | `admin.news.index` |
 | Route karyawan | `karyawan.<module>.<action>` | `karyawan.tamu.index` |
 | Controller | `<Module>Controller.php` di `App\Http\Controllers\Admin\` | `NewsController` |
@@ -428,7 +430,7 @@ permission di controller (atau GlobalScope trait ScopesToDepartment).
 | Seeder | Isi apa | Bisa dijalankan berulang? |
 |---|---|---|
 | `AdminUserSeeder` | Akun admin awal dari env `ADMIN_EMAIL`/`ADMIN_PASSWORD` | aman |
-| `PermissionSeeder` | Daftar 55 permission → `firstOrCreate` ke tabel `permissions`; lalu `sync` ke role Super Admin (seluruh 55), `syncWithoutDetaching`/`sync` ke Admin Bidang & Karyawan | **idempotent** |
+| `PermissionSeeder` | Daftar 55 permission → `firstOrCreate` ke tabel `permissions` (sekaligus menghapus baris legacy di luar daftar + pivotnya); lalu `sync` (replace penuh) ke 3 Role Dasar: Super Admin (seluruh 55), Admin Bidang (daftar explicit), Karyawan (baseline) | **idempotent** |
 | `MasterMenuSeeder` | Isi tabel `master_menus` dari konstanta `MasterMenu::MENUS` pakai `updateOrCreate(['id'=>…])` + hapus baris di luar `MENUS` | **idempotent** |
 
 Jalankan seeder hanya-satu:
@@ -459,7 +461,7 @@ php artisan db:seed
 |---|---|---|
 | **Permission** | Kemampuan atomik. Format nama `<module>.<action>`, mis. `news.edit`, `tamu.checkout`. | `permissions` |
 | **Role** | Wadah/paket permission yang menempel ke user. Ada 3 role dasar + role kustom buatan admin. | `roles` |
-| **Direct Permission** | Permission yang menempel **langsung ke akun** (bukan via role). Berfungsi sebagai *white-list override* per modul — lihat 5.5. | `user_has_permissions` |
+| **Direct Permission** | Permission yang menempel **langsung ke akun** (bukan via role). Berfungsi sebagai **tambahan (union)** di atas permission role — direct hanya MENAMBAH, tidak pernah mencabut hak role; lihat 5.5. | `user_has_permissions` |
 | **Matriks Hak Akses** | UI checklist: baris = ID Menu sidebar, kolom = 4 aksi CRUD (`view / create / edit / delete`). Centang = memasang permission `<permission_key>.<aksi>`. | input form → pivot |
 | **Master Menu** | Master daftar menu sidebar (15 menu: 11 ID fixed + 13–16) dengan `permission_key` per modul — sumber baris matriks. | `master_menus` + konstanta `MasterMenu::MENUS` |
 
@@ -470,7 +472,7 @@ php artisan db:seed
 | Role | Perilaku khusus di kode |
 |---|---|
 | `Super Admin` | Akses penuh seluruh fitur. **Kuota akun ≤ 3** (`User::MAX_SUPER_ADMIN_ACCOUNTS`). Legacy `Administrator` dihitung setara. |
-| `Admin Bidang` | Delegasi per bidang: wajib terikat `department_id`, hanya boleh kelola Pengumuman & Link Kerja bidangnya (`role.scope:admin` menolak yang tanpa bidang). |
+| `Admin Bidang` | Delegasi per bidang: wajib terikat `department_id`, hanya boleh kelola Pengumuman & Link Kerja bidangnya (`role.scope:admin` menolak yang tanpa bidang). Bawaan seeder juga memberi `master_bidang.view` & `master_jabatan.view`. |
 | `Karyawan` | Baseline `KARYAWAN_BASELINE_PERMISSIONS` (portal karyawan). Permission **di luar baseline** membuka akses `/admin` ("setengah admin", lihat 5.6). |
 
 Kuota lain: akun Karyawan ber-level jabatan `senior_manager` maksimal **3 akun
@@ -532,14 +534,14 @@ Aturan relasi yang WAJIB dipahami:
 |---|---|
 | `app/Models/User.php` | `hasPermission()` (lihat 5.5), `hasDirectPermission()`, `directPermissionIds()`, `syncPermissions()` (sync pivot `user_has_permissions`), `permissions()` / `roles()` / `role()`, `roleNames()` (pivot + fallback `role_id`), `isSuperAdmin()` / `isDepartmentAdmin()` / `isKaryawan()` / `isAdmin()`, `extraKaryawanPermissions()` / `hasExtraKaryawanPermission()`, konstanta `SUPER_ADMIN_ROLE`, `DEPARTMENT_ADMIN_ROLE`, `ASSIGNABLE_ROLE_NAMES`, `MAX_SUPER_ADMIN_ACCOUNTS`, `MAX_SENIOR_MANAGER_ACCOUNTS`, `KARYAWAN_BASELINE_PERMISSIONS` |
 | `app/Models/Role.php` | `permissions()` / `users()` (pivot), `isInactive()`, `hasPermission($name)` |
-| `app/Models/Permission.php` | `roles()` (pivot `role_permission`), `fill`: `name`, `display_name`, `module`, `ACTION_ALIASES` (alias aksi + fallback `hari_libur.*` → `tamu.*`) |
+| `app/Models/Permission.php` | `roles()` (pivot `role_permission`), `fill`: `name`, `display_name`, `module`, `ACTION_ALIASES` (alias aksi non-CRUD → aksi induk: `news.publish`→`news.edit`, `announcements.publish`→`announcements.edit`, `tamu.checkout`→`tamu.edit`, `user.reset-password`→`users.edit`). Modul Hari Libur memakai permission `hari_libur.*` langsung |
 | `app/Models/MasterMenu.php` | `MENUS` (master 15 menu: id 1–11 fixed + 13 Hari Libur & 14–16 modul master; baris id 12 "contoh" sudah dihapus), `CRUD_ACTIONS` (4 aksi matriks), `permissionNamesFor()` / `matrixPermissionNames()` (daftar nama permission matriks), `matrixForRoleForm()` (matriks untuk form Role & form Pengguna — hanya permission yang benar-benar terdaftar di DB) |
 | `app/Providers/AuthServiceProvider.php` | `Gate::before` → semua ability dicek lewat `User::hasPermission()` inilah yang membuat `@can('news.edit')` bekerja; gate khusus `users.edit:self` & `users.delete` |
 | `app/Http/Middleware/PermissionMiddleware.php` | Alias `permission:xxx` — cek `hasPermission($permissions[0])`, gagal = `403` |
 | `app/Http/Middleware/RoleMiddleware.php` | Alias `role.scope:super_admin/department_admin/admin` |
 | `app/Http/Middleware/EnsureNotKaryawan.php` | Alias `admin.access` (pintu `/admin`) |
 | `app/Http/Middleware/EnsureKaryawan.php` | Alias `karyawan.access` (pintu `/karyawan`) |
-| `app/Http/Controllers/Admin/RoleController.php` | CRUD Role; `syncMatrixPermissions(preserveExtras)` — sinkron matriks → pivot `role_permission` |
+| `app/Http/Controllers/Admin/RoleController.php` | CRUD Role — seluruh hak akses role diatur dari matriks Tambah/Edit Role (tidak ada halaman pengaturan permission terpisah); `syncMatrixPermissions(preserveExtras)` — sinkron matriks → pivot `role_permission`; `syncRoleUsersDirectPermissions()` — buang salinan direct permission basi seluruh pemegang role (kecuali role delegasi Admin Bidang & Karyawan) |
 | `app/Http/Controllers/Admin/UserController.php` | CRUD Pengguna; `syncDirectPermissions()` — sinkron matriks → pivot `user_has_permissions` |
 | `resources/views/admin/partials/permission-matrix.blade.php` | Partial matriks checklist — dipakai form Tambah/Edit **Role** dan tab "Hak Akses Fitur" form **Pengguna** |
 
@@ -559,42 +561,52 @@ Aturan relasi yang WAJIB dipahami:
 ### 5.5 Logika `hasPermission()` — urutan pengecekan
 
 Method `User::hasPermission($permission)` dipakai oleh Gate (`@can`,
-`Gate::authorize`) dan middleware `permission:`. Alurnya (white-list override):
+`Gate::authorize`) dan middleware `permission:`. Alurnya — **semantik
+Spatie: direct permission hanya MENAMBAH (union), tidak pernah
+mencabut hak yang berasal dari role**:
 
 ```
-cek permission: news.edit
+cek permission: news.publish
         │
         ▼
-1. hasDirectPermission('news.edit')   ← user_has_permissions
+0. resolveAlias()  →  'news.edit'   (Permission::ACTION_ALIASES)
+     aksi non-CRUD menyatu dengan aksi induknya; nama asli tetap
+     dicek lebih dulu agar baris permission legacy (bila masih ada)
+     tetap dihormati
+        │
+        ▼
+1. Direct permission — user_has_permissions
         │  YA ──────────────────► ALLOW  (langsung)
         │  TIDAK
         ▼
-2. Punya direct permission LAIN modul yang sama? (permissionModule)
-        │  YA  ──────────────────► BLOCK  ← override role!
-        │      (artinya user pernah mengelola matriks modul ini;
-        │       yang tidak dicentang dianggap sengaja dicabut)
+2. Role permission — role AKTIF → pivot role_permission
+        │  YA ──────────────────► ALLOW  (fallback role)
         │  TIDAK
         ▼
-3. Role permission (role → role_permission) sebagai fallback
-        │  role aktif punya news.edit ──► ALLOW
-        │  tidak ada ────────────► BLOCK
+3. Fallback akun lama — tanpa pivot role_user, pakai users.role_id
+   ke role aktif yang punya permission ini?
+        │  YA ──────────────────► ALLOW
+        │  TIDAK ───────────────► BLOCK  (403)
 ```
 
-**Contoh konkret** (dari komentar di kode):
+**Contoh konkret:**
 
 - Admin Bidang punya role permission `[news.view, news.edit, news.delete]`.
 - Di Direct Permission form Pengguna hanya dicentang `[news.view, news.delete]`.
-- Cek `hasPermission('news.edit')` → step 1 gagal, step 2 ketemu direct
-  permission `news.*` → **BLOCK** (walaupun role-nya punya).
+- Cek `hasPermission('news.edit')` → step 1 gagal, tetapi **step 2
+  ketemu di role** → **ALLOW**. Matriks direct tidak pernah mencabut
+  hak role — untuk mencabut `news.edit`, centangnya dilepas di form
+  **Edit Role**, bukan di form Pengguna.
+- Karyawan yang diberi direct permission `tamu.view` (di luar baseline
+  `dashboard.view` / `pages.view`) → lolos di step 1, dan
+  `extraKaryawanPermissions()` tidak lagi kosong sehingga middleware
+  `admin.access` mengizinkan akun ini masuk `/admin` — inilah mekanisme
+  "setengah admin".
 
-- Karyawan yang **belum pernah** di-sync direct permission modul `news`.
-- `hasPermission('news.edit')` → step 1 gagal, step 2 tidak ada direct
-  modul `news` → **fallback ke role** → ikuti permission role-nya.
-
-> Konsekuen praktis: **satu kali** matriks direct permission menu `news`
-> disentuh untuk seorang user, seluruh permission `news.*` miliknya jadi
-> **didefinisikan oleh matriks itu** — bukan oleh role lagi. Inilah
-> mekanisme "setengah admin".
+> Konsekuen praktis: **permission ekstra** langsung aktif begitu satu
+> centang matriks direct disimpan (UNION dengan role). Sebaliknya,
+> melepas centang dari matriks direct **tidak** menurunkan hak yang
+> berasal dari role.
 
 ### 5.6 Middleware & Gate — penjaga di semua lapisan
 
@@ -612,13 +624,13 @@ baseline `KARYAWAN_BASELINE_PERMISSIONS`:
 ```php
 public const KARYAWAN_BASELINE_PERMISSIONS = [
     'dashboard.view',
-    'news.view',
     'pages.view',
-    'internal.view',
-    'applications.view',
-    'logout',
 ];
 ```
+
+> Catatan: `news.view` **sengaja tidak** ada di baseline — menu Kelola
+> Berita (portal karyawan & panel admin) hanya muncul bila hak berita
+> diberikan eksplisit lewat role atau Direct Permission.
 
 Baseline inilah yang di-sync ke role `Karyawan` di `PermissionSeeder`.
 Permission **di luar** baseline yang diberikan ke akun Karyawan (lewat
@@ -655,11 +667,22 @@ RoleController@store / @update
    │  validasi id permission hanya yang milik matriks (intersect)
    ▼  syncMatrixPermissions()
       - store            → sync penuh ke pivot role_permission
+                           (redirect ke daftar role + popup
+                           "Role berhasil dibuat.")
       - update           → preserveExtras=true: permission DI LUAR matriks
-                           (news.publish, tamu.checkout, dst.) DIPERTAHANKAN
-                           — hanya dikelola di halaman "Kelola Permission"
+                           (bila masih ada baris legacy) DIPERTAHANKAN —
+                           seluruh 55 permission aktif kini berada di
+                           matriks, jadi tidak ada permission terdaftar
+                           yang terlewat saat disinkron
+      - update / destroy → syncRoleUsersDirectPermissions(): salinan direct
+                           permission basi milik pemegang role dibersihkan
+                           (kecuali role delegasi Admin Bidang & Karyawan)
+                           → perubahan role langsung berlaku ke seluruh
+                           akun pemegangnya
    ▼
 @can / permission: di seluruh app langsung menghormati role ini
+(+ AuthServiceProvider::flushPermissionGateCache() — real-time,
+tanpa logout & tanpa deploy)
 ```
 
 **C. Alur Direct Permission via Form Pengguna** (per akun):
@@ -690,14 +713,17 @@ Ada 4 cara, dari paling umum sampai paling teknis:
    Nama (unik), Deskripsi, Status **Aktif**.
 3. Centang matriks **ID Menu × CRUD** sesuai hak akses yang diinginkan
    (mis. untuk role "Editor Berita": Berita → view, create, edit).
-4. Simpan → role baru tersimpan di tabel `roles`; centangan matriks
-   masuk pivot `role_permission`.
-5. Sistem otomatis membawa Anda ke halaman **Kelola Permission** untuk
-   memberi permission di luar matriks (mis. `news.publish`) — butuh
-   `roles.assign_permission`.
-6. Berikan role ke akun: buka **Pengguna → Tambah/Edit** → pilih dropdown
-   **Role Pengguna** — sistem menulis `users.role_id` + pivot `role_user`.
-7. Verifikasi: login dengan akun tersebut — sidebar hanya menampilkan menu
+4. Simpan → role baru tersimpan di tabel `roles`, centangan matriks
+   masuk pivot `role_permission`, lalu sistem **redirect ke daftar
+   role** dengan popup "Role berhasil dibuat." Seluruh hak akses
+   diatur penuh dari matriks form ini — aksi khusus seperti
+   `news.publish` tidak perlu baris terpisah karena menyatu lewat alias
+   `Permission::ACTION_ALIASES`.
+5. Berikan role ke akun: buka **Pengguna → Tambah/Edit** → pilih dropdown
+   **Role Pengguna** (3 Role Dasar di depan, disusul role kustom aktif;
+   role legacy `Administrator` tidak ditawarkan) — sistem menulis
+   `users.role_id` + pivot `role_user`.
+6. Verifikasi: login dengan akun tersebut — sidebar hanya menampilkan menu
    yang lolos `@can`, route lain dijaga 403.
 
 > Role Dasar (Super Admin / Admin Bidang / Karyawan) tidak dapat dihapus dan
@@ -724,34 +750,51 @@ Dipakai ketika hak akses **berbeda antar-orang** dengan role sama (contoh:
    `admin.access` otomatis memperbolehkan akun ini masuk `/admin` — hanya
    menu yang dicentang yang tampak di sidebar.
 
-> ⚠️ Ingat aturan override di 5.5: begitu satu akun punya direct permission
-> modul `news` apa pun, seluruh `news.*`-nya dikontrol matriks itu — yang
-> tidak dicentang berarti **dicabut**, meskipun role-nya punya.
+> ⚠️ Ingat semantik **union** di 5.5: direct permission hanya
+> **menambah** hak di atas role. Hak yang berasal dari role tidak bisa
+> dicabut lewat matriks ini — lepas centangnya lewat form **Edit Role**.
 
 #### 5.8.C Lewat Kode — PermissionSeeder (sumber permission & role dasar)
 
 Dipakai saat **menambah modul/permission baru** sekalian dengan kodenya.
 File: `database/seeders/PermissionSeeder.php`.
 
-1. Tambahkan entri permission ke array `$permissions`:
+1. Daftarkan permission baru di **dua konstanta private** seeder —
+   `MENU_ACTIONS` (permission_key → daftar aksi) dan `MENU_MODULES`
+   (permission_key → nama modul kolom `permissions.module`):
 
    ```php
-   ['name' => 'laporan.view',   'display_name' => 'Lihat Laporan',   'module' => 'Laporan Management'],
-   ['name' => 'laporan.create', 'display_name' => 'Tambah Laporan',  'module' => 'Laporan Management'],
-   ['name' => 'laporan.edit',   'display_name' => 'Edit Laporan',    'module' => 'Laporan Management'],
-   ['name' => 'laporan.delete', 'display_name' => 'Hapus Laporan',   'module' => 'Laporan Management'],
+   private const MENU_ACTIONS = [
+       // ...
+       'laporan' => ['view', 'create', 'edit', 'delete'],
+   ];
+
+   private const MENU_MODULES = [
+       // ...
+       'laporan' => 'Laporan Management',
+   ];
    ```
 
-2. Berikan ke role di array yang sama:
-   - **Super Admin** → tambahkan semua ke `$adminPermissions`.
-   - **Admin Bidang** → hanya menu relevan (array explicit di
-     `$adminBidang->permissions()->syncWithoutDetaching(...)`).
-   - **Karyawan** → hanya lewat konstanta `User::KARYAWAN_BASELINE_PERMISSIONS`
-     yang dibaca seeder.
+   Seeder otomatis `firstOrCreate` baris `laporan.*` dan **menghapus**
+   kembali seluruh permission di luar daftar ini (beserta pivot role &
+   direct-permissionnya) — jadi jangan mendaftarkan nama di luar pola
+   `<permission_key>.<aksi>`.
+
+2. Pemberian ke role juga otomatis di `run()` seeder yang sama:
+   - **Super Admin** → `sync()` **seluruh** permission — modul baru ikut
+     tanpa daftar manual.
+   - **Admin Bidang** → daftar explicit `array_intersect_key(...)`
+     (`dashboard.view`, `announcements.*`, `work_links.*`,
+     `master_bidang.view`, `master_jabatan.view`) — tambahkan di sini
+     bila modulnya memang untuk Admin Bidang.
+   - **Karyawan** → `array_intersect_key` dengan konstanta
+     `User::KARYAWAN_BASELINE_PERMISSIONS` — masukkan ke konstanta itu
+     hanya bila modulnya jadi bagian baseline portal karyawan.
 
 3. Kalau modulnya juga masuk matriks, tambahkan baris ke konstanta
    `MasterMenu::MENUS` di `app/Models/MasterMenu.php` (id unik lanjut
-   dari 12) lalu isi tabel `master_menus` via `MasterMenuSeeder`.
+   dari terakhir = **17**) lalu isi tabel `master_menus` via
+   `MasterMenuSeeder`.
 
 4. Jalankan:
 
@@ -832,28 +875,46 @@ Jangan lupa isi `created_at` / `updated_at` (kolom NOT NULL).
 
 ### 5.9 Katalog Permission Lengkap
 
-Daftar lengkap yang dibuat `PermissionSeeder` (acuan penulisan kode & form hak akses):
+`PermissionSeeder` membuat **tepat 55 baris** permission — semuanya
+terdaftar di matriks hak akses (ID Menu × CRUD), sehingga bisa diassign
+lewat form Tambah/Edit Role **maupun** Direct Permission form Pengguna:
 
-| Modul | Permission | Catatan |
-|---|---|---|
-| Dashboard | `dashboard.view` | Hanya lihat — kolom lain di matriks otomatis "—" |
-| Pengguna | `users.view`, `users.create`, `users.edit`, `users.delete` | `users.edit` = kelola status Aktif/Nonaktif |
-| Pengguna (aksi khusus) | `user.reset-password` | Terpisah agar dapat didelegasikan sendiri |
-| Role | `roles.view`, `roles.create`, `roles.edit`, `roles.delete` | |
-| Role (aksi khusus) | `roles.assign_permission` | Akses halaman "Kelola Permission" |
-| Berita | `news.view / create / edit / delete` | Kolom `.publish` juga ada |
-| Pengumuman | `announcements.view / create / edit / delete` | kolom `.publish` juga ada |
-| Galeri | `galleries.view / create / edit / delete` | |
-| Link Kerja | `work_links.view / create / edit / delete` | Modul per-bidang |
-| Data Tamu | `tamu.view / create / edit / delete` | Aksi khusus: `tamu.checkout` |
-| Halaman CMS | `pages.view / create / edit / delete` | Menu sensitif — dilarang untuk Admin Bidang |
-| Menu Builder | `menus.view / create / edit / delete` | Menu sensitif — dilarang untuk Admin Bidang |
-| Grup Karyawan | `groups.view / create / edit / delete` | |
-| Aplikasi | `applications.view / create / edit / delete` | |
-| Log Aktivitas | `activity_logs.view`, `activity_logs.delete` | Tidak ada create/edit (sistem yang menulis) |
-| Pengaturan | `settings.view`, `settings.edit` | |
-| Halaman Internal | `internal.view` | Bagian baseline Karyawan |
-| Autentikasi | `logout` | Tanpa prefix modul |
+| ID Menu | Modul | Permission | Catatan |
+|---|---|---|---|
+| 1 | Dashboard | `dashboard.view` | Hanya lihat — kolom lain di matriks otomatis "—" |
+| 2 | Berita | `news.view / create / edit / delete` | Aksi `.publish` via alias → `news.edit` |
+| 3 | Data Tamu | `tamu.view / create / edit / delete` | Aksi `.checkout` via alias → `tamu.edit` |
+| 13 | Hari Libur | `hari_libur.view / create / edit / delete` | Akses murni lewat centang `hari_libur.*` — tidak ikut otomatis dari modul lain |
+| 4 | Pengumuman | `announcements.view / create / edit / delete` | Aksi `.publish` via alias → `announcements.edit` |
+| 5 | Halaman CMS | `pages.view / create / edit / delete` | Modul sensitif `role.scope:super_admin` |
+| 6 | Menu Builder | `menus.view / create / edit / delete` | Modul sensitif `role.scope:super_admin` |
+| 7 | Pengguna | `users.view / create / edit / delete` | `.edit` juga membuka reset-password (alias) |
+| 8 | Galeri | `galleries.view / create / edit / delete` | |
+| 9 | Link Kerja | `work_links.view / create / edit / delete` | Modul per-bidang (`role.scope:admin`) |
+| 14 | Data Karyawan | `karyawan_data.view / create / edit / delete` | Master data HR — ikut matriks |
+| 15 | Master Bidang | `master_bidang.view / create / edit / delete` | Ikut matriks |
+| 16 | Master Jabatan | `master_jabatan.view / create / edit / delete` | Ikut matriks |
+| 10 | Log Aktivitas | `activity_logs.view`, `activity_logs.delete` | Tidak ada create/edit (sistem yang menulis) |
+| 11 | Role / Hak Akses | `roles.view / create / edit / delete` | |
+
+`1 + (13 × 4) + 2 = 55` — persis set permission Super Admin.
+
+**Aksi khusus TANPA baris terpisah** — dites lewat
+`User::hasPermission` yang membaca `Permission::ACTION_ALIASES`:
+
+| Nama yang dicek di kode (route / `@can` / Gate) | Menyatu dengan |
+|---|---|
+| `news.publish` | `news.edit` |
+| `announcements.publish` | `announcements.edit` |
+| `tamu.checkout` | `tamu.edit` |
+| `user.reset-password` | `users.edit` |
+
+> ⚠️ Permission legacy `settings.*`, `groups.*`, `applications.*`,
+> `internal.view`, dan `logout` sudah dibersihkan dari tabel
+> `permissions` (bersama pivotnya) oleh `PermissionSeeder` — jangan
+> mengacu ke nama-nama lama itu. Baris aksi khusus (`*.publish`,
+> `tamu.checkout`, `user.reset-password`) juga tidak dibuat terpisah;
+> semuanya lewat alias pada tabel di atas.
 
 ### 5.10 Data Scoping (batas bidang)
 
@@ -943,7 +1004,7 @@ mencari "fitur X ada di file mana".
 | Menu navigasi dinamis | (view composer `layouts.navbar`) | `MenuBuilderService::treeFor(user)` | Navbar publik dibangun dari tabel `menus`; menu ber-target halaman CMS disaring sesuai visibilitas per role |
 | FAQ | `GET /layanan/faq` | View statis | |
 | **Registrasi tamu publik** | `GET/POST /layanan/form-registrasi-tamu` | `TamuController@create/store` | Buku tamu tanpa login: NIK, instansi, KTP (upload), tujuan ditemui (divisi), jumlah tamu, jadwal |
-| Hari libur / tanggal merah | `GET/POST/PUT/DELETE /admin/hari-libur` | `Admin\HariLiburController@index/store/update/destroy` | Master status tanggal ber-tipe `libur` (tanggal merah — DITOLAK form registrasi publik) & `masuk_kerja` (override weekend — Sabtu/Minggu jadi BISA dipilih). Divalidasi server di `TamuController@store` + diblokir UI lewat **kalender kustom** `#tanggal-calendar` (JS `$tanggalMerah` / `$tanggalMasuk`; datepicker native browser diganti agar tanggal bisa diwarnai per-hari: merah = libur/weekend, hitam = override weekend). Gate permission `hari_libur.*` (ID Menu 13, ikut matriks Tambah/Edit Role) dengan FALLBACK alias ke `tamu.*` agar role lama tetap berlaku
+| Hari libur / tanggal merah | `GET/POST/PUT/DELETE /admin/hari-libur` | `Admin\HariLiburController@index/store/update/destroy` | Master status tanggal ber-tipe `libur` (tanggal merah — DITOLAK form registrasi publik) & `masuk_kerja` (override weekend — Sabtu/Minggu jadi BISA dipilih). Divalidasi server di `TamuController@store` + diblokir UI lewat **kalender kustom** `#tanggal-calendar` (JS `$tanggalMerah` / `$tanggalMasuk`; datepicker native browser diganti agar tanggal bisa diwarnai per-hari: merah = libur/weekend, hitam = override weekend). Gate permission `hari_libur.*` (ID Menu 13, ikut matriks Tambah/Edit Role) — akses modul ini **murni lewat centang `hari_libur.*`**, tidak ikut otomatis dari permission modul lain
 
 ### 6.2 Modul Buku Tamu (positif lengkap — kolom penting)
 
@@ -965,7 +1026,7 @@ Fitur paling kompleks di aplikasi. Model `app/Models/Tamu.php`:
 | Login admin/karyawan | `GET/POST /admin/login`, logout `POST /admin/logout` | Satu pintu login untuk semua; redirect setelah login tergantung role (`User::isAdmin()` / `isKaryawan()`) |
 | Lupa password via OTP email | `POST /forgot-password/otp`, `POST /forgot-password/reset` (throttle 10/menit) | AJAX JSON dari modal di halaman login; OTP dikirim via `Mail\OtpMail` |
 | Ganti password wajib | `GET/POST /account/password/*` + middleware `must.password` | Akun yang passwordnya direset admin (`must_change_password=true`) dihalangi ke halaman ganti password sebelum boleh lanjut ke halaman manapun |
-| Halaman register nonaktif | `GET /register` → redirect ke login | Tidak ada pendaftaran mandiri — akun dibuat Super Admin lewat panel |`
+| Halaman register nonaktif | `GET /register` → redirect ke login | Tidak ada pendaftaran mandiri — akun dibuat Super Admin lewat panel |
 
 ### 6.4 Admin Panel (semua di prefix `/admin`, middleware `auth` + `admin.access`)
 
@@ -975,7 +1036,7 @@ Middleware alias (didaftarkan di `bootstrap/app.php`):
 |---|---|---|
 | `admin.access` | `EnsureNotKaryawan` | Karyawan murni (tanpa permission ekstra) ditolak masuk `/admin` |
 | `karyawan.access` | `EnsureKaryawan` | Hanya Karyawan murni boleh masuk portal karyawan |
-| `role.scope:super_admin` | `RoleMiddleware` | Tolak Admin Bidang (menu sensitif: User, Role, Pages, Menus) |
+| `role.scope:super_admin` | `RoleMiddleware` | Tolak **Admin Bidang** (menu sensitif: Pengguna, Role, Halaman, Menu) — role lain (termasuk Karyawan ber-permission ekstra) lolos selama punya permission |
 | `role.scope:admin` | `RoleMiddleware` | Semua admin kecuali Karyawan; Admin Bidang wajib terikat bidang |
 | `permission:xxx` | `PermissionMiddleware` | Cek `User::hasPermission()` per aksi |
 | `page.visible` | `EnsurePageVisible` | Halaman CMS draft/terbatas disembunyikan |
@@ -987,6 +1048,7 @@ Middleware alias (didaftarkan di `bootstrap/app.php`):
 |---|---|---|
 | Dashboard statistik | `GET /admin/dashboard` | Statistik tamu/berita/pengumuman + quick actions adaptif permission |
 | Pencarian global topbar | `GET /admin/search` | `AdminSearchController` invocable — cari berita/pengumuman/tamu/user dari topbar (Ctrl+K) |
+| Pencarian global dashboard | `GET /admin/cari` | `DashboardController@globalSearch` — pencarian lintas modul dari dashboard; URI sengaja BEDA dari `/admin/search` agar dua route tidak bentrok |
 | Notifikasi lonceng | `GET /admin/notifications/poll`, `POST /admin/notifications/seen` | Polling JSON dot & badge live via `NotificationService` (melacak `users.last_seen_tamu_id` per akun); "seen" dicatat saat dropdown dibuka |
 | Pengaturan panel | `GET /admin/settings` + PUT `profile`, `notifications`, `password` | Tema tampilan, preferensi notifikasi (kolom JSON `notification_settings`), ganti profil & password |
 | Log aktivitas | `GET /admin/activity-logs`, `DELETE /admin/activity-logs/{uuid}`, `DELETE` (clear) | Audit trail semua aksi penting (`ActivityLogger::log`); permission `activity_logs.view` / `.delete` |
@@ -999,44 +1061,31 @@ Middleware alias (didaftarkan di `bootstrap/app.php`):
 | Pengumuman | `/admin/announcements` | `announcements.*` + `.publish` | Dibungkus `role.scope:admin` — Admin Bidang scoped ke bidangnya (global scope `ScopedToUserDepartment`) |
 | Galeri | `/admin/galeri` | `galleries.*` | Toggle status via PATCH; dipakai juga landing publik |
 | Link Kerja | `/admin/work-links` | `work_links.*` | Dikelola per bidang/sub-bidang — konsumen utamanya portal karyawan (`PortalContentService`) |
+| Data Tamu | `/admin/tamu` | `tamu.*` (+ gate `tamu.checkout`) | Dibungkus `role.scope:admin`; jadwal (`tamu/jadwal`), export, print, dokumen privat (`tamu/{tamu}/dokumen`); check-in, check-out & verifikasi satu gate `tamu.checkout` (alias → `tamu.edit`) |
+| Hari Libur | `/admin/hari-libur` | `hari_libur.*` | Master tanggal `libur` / `masuk_kerja` (ID Menu 13, ikut matriks) — akses murni lewat centang `hari_libur.*` |
 
 #### Manajemen pengguna, role & hak akses (HANYA Super Admin — `role.scope:super_admin`)
 
 | Fitur | Route | Permission | Penjelasan |
 |---|---|---|---|
 | Daftar pengguna | `GET users` | `users.view` | Filter/search; kuota Super Admin ≤ 3 (`User::MAX_SUPER_ADMIN_ACCOUNTS`) & Senior Manager ≤ 3 (`MAX_SENIOR_MANAGER_ACCOUNTS`) |
-| Tambah pengguna | `GET/POST users/create` | `users.create` | Dropdown role terbatas 3 aktor (`ASSIGNABLE_ROLE_NAMES`); validasi hirarki (level jabatan × bidang × sub-bidang dependent dropdown) |
+| Tambah pengguna | `GET/POST users/create` | `users.create` | Dropdown role: 3 Role Dasar (`ASSIGNABLE_ROLE_NAMES`) di depan, disusul seluruh role kustom aktif; role legacy `Administrator` tidak ditawarkan. Validasi hirarki (level jabatan × bidang × sub-bidang dependent dropdown dari Master Bidang/Jabatan) |
 | Detail pengguna | `GET users/{user}` | – | Selalu terbuka (dipakai profil saya di topbar) |
 | Toggle status akun | `PATCH users/{user}/toggle-status` | `users.edit` | Aktif ⇄ Nonaktif (pengganti fitur edit penuh lama) |
-| Reset password | `PATCH users/{user}/reset-password` | `user.reset-permission` (terpisah biar bisa didelegasikan) | Password sementara sekali pakai → `must_change_password=true` |
+| Reset password | `PATCH users/{user}/reset-password` | `user.reset-password` (alias → `users.edit`) | Password sementara sekali pakai → `must_change_password=true`; divalidasi backend lewat middleware, bukan sekadar tombol disembunyikan |
 | Hapus pengguna | `DELETE users/{user}` | `users.delete` | |
-| Edit profil + Direct Permission | `GET/PUT users/{user}/edit` | `can:users.edit:self` | Pengecualian di `AuthServiceProvider`: user SELALU boleh edit profil sendiri; task mahaksa matriks Direct Permission (tab "Hak Akses Fitur") |
-| Kelola role | `GET/POST/PUT/DELETE roles*` | `roles.*` | CRUD Role + toggle status role nonaktif; update permission via `roles.assign_permission` (matriks Master Menu × CRUD) |
+| Edit profil + Direct Permission | `GET/PUT users/{user}/edit` | `can:users.edit:self` | Pengecualian di `AuthServiceProvider`: user SELALU boleh edit profil sendiri; tab matriks Direct Permission ("Hak Akses Fitur") hanya disinkron untuk role delegasi Admin Bidang & Karyawan — role lain dikosongkan |
+| Kelola role | `GET/POST/PUT/DELETE roles*` | `roles.*` | CRUD Role + toggle status role nonaktif; hak akses diatur penuh lewat **matriks Master Menu × CRUD** di form Tambah/Edit Role (tanpa halaman pengaturan permission terpisah); Role Dasar tidak bisa dihapus & namanya terkunci saat edit |
 | Halaman CMS | `pages.*` | `pages.*` + `role.scope:super_admin` | CRUD halaman + section builder (`PageSectionController` — store/update/move/destroy) |
 | Menu Builder | `menus.*` | `menus.*` + `role.scope:super_admin` | CRUD menu landing page + toggle status + move (urutan) |
-
-### 6.5 Portal Karyawan (`/karyawan/*`, middleware `auth` + `karyawan.access`)
-
-Semua halaman view-only KECUALI: profil, dan modul **berita/pengumuman/galeri/tamu** yang diberikan via permission (dropdown "Akses Admin" di layout `karyawan.blade.php`).
-
-| Fitur | Route | Penjelasan |
-|---|---|---|
-| Dashboard karyawan | `GET /karyawan/dashboard` | Sapaan, statistik, link kerja ter-scope (`PortalContentService::workLinksBalancedFor`) |
-| Informasi | `GET /karyawan/informasi(/{type}/{slug})` | Berita & pengumuman internal — type `berita\|pengumuman`, content di-scope bidang untuk pengumuman |
-| Layanan internal | `GET /karyawan/layanan(/{slug})` | Panduan/prosedur statis dari `PortalContentService::internalServicesFor()` — ter-scope hirarki user |
-| Link Kerja | `GET /karyawan/link` | Link dari tabel `work_links`; aturan scope: Senior Manager/Admin = semua, Manager Bidang = bidang+umum, Asmen/Staf = terkunci sub-bidang sendiri + umum (`PortalContentService::linkAccessFor()`) |
-| Profil saya | `GET/PUT /karyawan/profil` | Satu-satunya bagian yang bisa diubah karyawan (nama, no HP, alamat, foto) |
-| Kelola Berita (bonus) | `/karyawan/berita/*` | CRUD + publish, REUSE `permission:news.*` — controller `Karyawan\NewsController` |
-| Kelola Pengumuman | `/karyawan/pengumuman/*` | Idem, `announcements.*` |
-| Kelola Galeri | `/karyawan/galeri/*` | `galleries.*` |
-| Data Tamu | `/karyawan/data-tamu/*` | `tamu.*` — controller `Karyawan\TamuController` **extends** controller Admin `TamuController` (logic reuse penuh, layout beda) |
 
 ### 6.4.1 Data Karyawan (master data HR — panel admin)
 
 Modul `karyawan_data.*` di **panel admin** (`/admin/data-karyawan`,
-tombol sidebar "Data Karyawan" di bagian Manajemen). Permission di luar
-matriks admin — assign lewat **Kelola Permission** / Direct Permission;
-Super Admin dapat semua secara bawaan (lihat PermissionSeeder):
+tombol sidebar "Data Karyawan" di bagian Manajemen). Permission
+`karyawan_data.*` **ikut matriks hak akses** (ID Menu 14) — bisa
+diassign lewat form Tambah/Edit Role maupun Direct Permission; Super
+Admin dapat semua secara bawaan (lihat PermissionSeeder):
 
 - **Tabel** `karyawans` (migrasi `2026_10_15_000001`) — 24 kolom
   spesifikasi, `nid` unique string (nol di depan aman), tanggal bertipe
@@ -1110,6 +1159,50 @@ Super Admin dapat semua secara bawaan (lihat PermissionSeeder):
   (20 kasus — validasi silang bidang/jabatan, nilai lama tidak hilang,
   filter master & legacy, pemetaan impor, backfill idempoten, seeder).
 
+### 6.4.2 Master Bidang & Master Jabatan (master data hierarki — panel admin)
+
+Modul berdampingan dengan Data Karyawan di sidebar (ID Menu 15 & 16,
+memakai permission `master_bidang.*` / `master_jabatan.*` — ikut matriks
+Tambah/Edit Role & Direct Permission; bawaan seeder Admin Bidang hanya
+dapat `.view`). Route wildcard dibatasi `whereNumber`, route statis
+didaftarkan sebelumnya (pola sama dengan data-karyawan).
+
+| Modul | Route prefix | Aksi & catatan |
+|---|---|---|
+| Master Bidang | `/admin/master-bidang` | `index`, `create/store`, `show`, `edit/update`, `destroy` — plus fitur **Petakan Kode Legacy**: `GET/POST master-bidang/map-legacy-codes` (pratinjau JSON + penerapan massal `department_code`/`sub_department_code`, gate `master_bidang.edit`) |
+| Master Jabatan | `/admin/master-jabatan` | `index`, `create/store`, `show`, `edit/update`, `destroy` — master jabatan per bidang (parent), dipakai form Pengguna & Data Karyawan |
+
+- **Model** `App\Models\Bidang` (induk → sub-bidang lewat `parent_id`) &
+  `App\Models\Jabatan`.
+- **Seeder** `MasterBidangJabatanSeeder` — 38 bidang + 5 jabatan (data
+  aktual UP Indramayu), idempoten; dipanggil dari `DatabaseSeeder`.
+- Tabel `bidangs`/`jabatans` BERDIRI SENDIRI — kolom & data `karyawans`
+  tidak diubah (pemetaan hanya mengisi FK `bidang_id`/`jabatan_id`).
+- Test: `tests/Feature/MasterBidangJabatanTest.php`.
+
+### 6.5 Portal Karyawan (`/karyawan/*`, middleware `auth` + `karyawan.access`)
+
+Semua halaman view-only KECUALI: profil, **Kunjungan Tamu** (aksi
+Setujui/Batalkan), dan modul **berita/pengumuman/galeri/tamu** yang
+diberikan via permission (dropdown "Akses Admin" di layout
+`karyawan.blade.php` — dropdown muncul bila akun punya permission konten
+tersebut **atau** permission ekstra di luar baseline).
+
+| Fitur | Route | Penjelasan |
+|---|---|---|
+| Dashboard karyawan | `GET /karyawan/dashboard` | Sapaan, statistik, link kerja ter-scope (`PortalContentService::workLinksBalancedFor`) |
+| Informasi | `GET /karyawan/informasi(/{type}/{slug})` | Berita & pengumuman internal — type `berita\|pengumuman`, content di-scope bidang untuk pengumuman |
+| Layanan internal | `GET /karyawan/layanan(/{slug})` | Panduan/prosedur statis dari `PortalContentService::internalServicesFor()` — ter-scope hirarki user |
+| Link Kerja | `GET /karyawan/link` | Link dari tabel `work_links`; aturan scope: Senior Manager/Admin = semua, Manager Bidang = bidang+umum, Asmen/Staf = terkunci sub-bidang sendiri + umum (`PortalContentService::linkAccessFor()`) |
+| Kunjungan Tamu | `GET /karyawan/kunjungan-tamu`, `POST .../{tamu}/verifikasi` | Tamu yang menunjuk akun ini sebagai orang yang ditemui (scoping nama akun login) — aksi Setujui/Batalkan sekali jalan, **tanpa** permission khusus |
+| Profil saya | `GET/PUT /karyawan/profil` | Nama, no HP, alamat, ganti password (wajib password lama) |
+| Kelola Berita (bonus) | `/karyawan/berita/*` | CRUD + publish, REUSE `permission:news.*` — controller `Karyawan\NewsController` |
+| Kelola Pengumuman | `/karyawan/pengumuman/*` | Idem, `announcements.*` |
+| Kelola Galeri | `/karyawan/galeri/*` | `galleries.*` |
+| Data Tamu | `/karyawan/data-tamu/*` | `tamu.*` — controller `Karyawan\TamuController` **extends** controller Admin `TamuController` (logic reuse penuh, layout beda) |
+
+---
+
 ### 6.6 Middleware global (bootstrap/app.php)
 
 - MustChangePassword di-append ke grup `web` — semua halaman ber-auth dijaga.
@@ -1126,7 +1219,7 @@ Super Admin dapat semua secara bawaan (lihat PermissionSeeder):
 | `App\Services\XlsxReader` | Baca file .xlsx impor Data Karyawan tanpa ext-zip (parser ZIP native + DOM XML) |
 | `App\Http\Controllers\Concerns\ScopesToDepartment` | Trait filter data per-bidang di controller modul bidang |
 | `App\Models\Scopes\ScopedToUserDepartment` | Global scope data-scoping bidang — dimatikan eksplisit di halaman publik pengumuman |
-| `App\Support\GrantPermission` | Artisan console command (`php artisan permission:grant?`) untuk bantuan debugging permission |
+| `App\Console\Commands\GrantPermission` | Artisan console command (`php artisan permission:grant`) untuk bantuan debugging permission |
 | View composers | `TopbarComposer` (topbar admin), `KaryawanLayoutComposer` (portal karyawan), `MenuBuilderService` composer (navbar publik) |
 
 ---
@@ -1252,7 +1345,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Laporan;
-use App\Support\ActivityLogger;   // sesuaikan namespace bila berbeda
+use App\Services\ActivityLogger;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -1434,15 +1527,19 @@ Buat 2 file: `index.blade.php` dan `form.blade.php` (dipakai create & edit).
 
 ### 7.5 ⭐ PermissionSeeder — WAJIB
 
-File: `database/seeders/PermissionSeeder.php`
-
-**Step 5a — daftarkan permission baru** ke array `$permissions` di atas:
+File: `database/seeders/PermissionSeeder.php`**Step 5a — daftarkan permission baru** di dua konstanta private
+seeder (bukan array `$permissions` — array itu sudah tidak dipakai):
 
 ```php
-['name' => 'laporan.view',   'display_name' => 'Lihat Laporan',  'module' => 'Laporan Management'],
-['name' => 'laporan.create', 'display_name' => 'Tambah Laporan', 'module' => 'Laporan Management'],
-['name' => 'laporan.edit',   'display_name' => 'Edit Laporan',   'module' => 'Laporan Management'],
-['name' => 'laporan.delete', 'display_name' => 'Hapus Laporan',  'module' => 'Laporan Management'],
+private const MENU_ACTIONS = [
+    // ...
+    'laporan' => ['view', 'create', 'edit', 'delete'],
+];
+
+private const MENU_MODULES = [
+    // ...
+    'laporan' => 'Laporan Management',
+];
 ```
 
 **Aturan penamaan:**
@@ -1451,28 +1548,26 @@ File: `database/seeders/PermissionSeeder.php`
 <permission_key>.<action>
 ```
 
-`action` umumnya salah satu `view | create | edit | delete`, tapi ada
-juga yang khusus per modul: `publish` (news, announcements),
-`checkout` (tamu), `reset-password` (user), `assign_permission` (roles),
-`logout` (auth, tanpa prefix modul).
+`action` umumnya salah satu `view | create | edit | delete`. Aksi
+khusus per modul (`publish` news/pengumuman, `checkout` tamu,
+`reset-password` user) **tidak dibuat sebagai baris permission** —
+dipetakan ke aksi induknya lewat `Permission::ACTION_ALIASES` (lihat
+5.9). Jangan mendaftarkan nama legacy: `settings.*`, `groups.*`,
+`applications.*`, `internal.view`, `logout` — barisnya akan langsung
+dihapus kembali oleh seeder.
 
 > 💡 Menu yang hanya bisa dilihat (mis. Dashboard) cukup dibuat `.view`
 > saja. Di matriks hak akses kolom lain otomatis tampak "—".
 
-**Step 5b — berikan permission ke role**, masih di seeder yang sama:
+**Step 5b — berikan permission ke role**, masih di seeder yang sama
+(semua otomatis di `run()`):
 
-- **Super Admin** → tambahkan 4 permission di atas ke array `$adminPermissions`.
-- **Admin Bidang** → hanya kalau memang menu-nya untuk Admin Bidang.
-- **Karyawan** → hanya kalau menu juga dibuka di Portal Karyawan
-  (biasanya tidak).
-
-```php
-// di array $adminPermissions:
-'laporan.view', 'laporan.create', 'laporan.edit', 'laporan.delete',
-```
-
-Untuk **Admin Bidang**, komit ke array explicit di seeder (baris
-`$adminBidang->permissions()->syncWithoutDetaching(...)`).
+- **Super Admin** → `sync()` seluruh permission — modul baru ikut tanpa
+  daftar manual.
+- **Admin Bidang** → hanya kalau memang menu-nya untuk Admin Bidang:
+  tambahkan ke daftar explicit `array_intersect_key(...)`.
+- **Karyawan** → hanya kalau menu juga jadi baseline portal karyawan:
+  masukkan ke konstanta `User::KARYAWAN_BASELINE_PERMISSIONS`.
 
 ---
 
@@ -1480,10 +1575,10 @@ Untuk **Admin Bidang**, komit ke array explicit di seeder (baris
 
 File: `app/Models/MasterMenu.php` → konstanta `MENUS`.
 
-Tambah 1 baris. **ID harus unik** (lanjut dari terakhir = 13):
+Tambah 1 baris. **ID harus unik** (lanjut dari terakhir saat ini = **17**):
 
 ```php
-['id' => 13, 'name' => 'Laporan', 'route' => 'admin.laporan.index',
+['id' => 17, 'name' => 'Laporan', 'route' => 'admin.laporan.index',
  'icon' => 'fa-file-alt', 'permission_key' => 'laporan'],
 ```
 
@@ -1597,9 +1692,10 @@ matriks (mis. "Export"):
    ];
    ```
 
-2. `database/seeders/PermissionSeeder.php` → buat permission `key.export`
-   untuk menu yang relevan (mis. `news.export`), dan berikan ke role
-   yang berhak.
+2. `database/seeders/PermissionSeeder.php` → tambahkan aksi `export`
+   ke array `MENU_ACTIONS['laporan']` (permission `<key>.export` ikut
+   dibuat & otomatis disync ke Super Admin; `MENU_MODULES` hanya perlu
+   diisi bila `permission_key`-nya baru).
 
 3. `resources/views/admin/partials/permission-matrix.blade.php` →
    - Tambah `<th>Export (Download)</th>` di header
@@ -1632,7 +1728,7 @@ matriks (mis. "Export"):
 Buat file `tests/Feature/LaporanTest.php`. Ikuti pola yang sudah ada:
 
 - `tests/Feature/RbacTest.php` — uji dasar permission per-role
-- `tests/Feature/DirectPermissionTest.php` — uji direct permission & logika override
+- `tests/Feature/DirectPermissionTest.php` — uji direct permission & logika union (tambahan di atas role)
 - `tests/Feature/PortalContentManagementTest.php` — uji CRUD konten
 
 ```php
@@ -1738,5 +1834,5 @@ php artisan optimize:clear
 php artisan test
 ```
 
-*jendela terakir 2026-10-12 — dibuat otomatis oleh Codebuff.
+*jendela terakhir 2026-11-03 — dibuat otomatis oleh Codebuff.
 Silakan update saat arsitektur berubah.*

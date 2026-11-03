@@ -61,7 +61,8 @@ Sistem E-PPID PLN mencakup:
 - **Portal Karyawan** (area internal ter-autentikasi): informasi, layanan internal, link kerja, profil
 - **Panel Admin (CMS)**: berita, pengumuman, galeri, halaman dinamis, menu builder
 - **Buku Tamu digital**: registrasi kunjungan, check-in/check-out, dokumen KTP & surat
-- **Manajemen pengguna, role & permission** (RBAC per-aksi, delegasi per bidang)
+- **Master data & hari libur**: Data Karyawan (impor/ekspor), Master Bidang, Master Jabatan, kalender Hari Libur
+- **Manajemen pengguna, role & permission** (RBAC per-aksi, matriks ID Menu × CRUD, Direct Permission per akun, delegasi per bidang)
 - **Manajemen Link Kerja** per bidang/sub-bidang
 - **Log Aktivitas** seluruh aksi CRUD & autentikasi
 
@@ -99,10 +100,11 @@ E-PPID PLN menyediakan solusi berbasis web:
 | **Karyawan** | Pegawai internal — membaca informasi, layanan internal, dan link kerja sesuai bidangnya | Login `/admin/login`, diarahkan ke `/karyawan/dashboard` |
 | **Admin Bidang** | Pengelola konten yang didelegasikan ke satu bidang (pengumuman & link kerja bidangnya) | Login → panel admin (terbatas) |
 | **Super Admin (Sekretariat/Humas)** | Pengelola penuh konten & operasional | Login → panel admin |
-| **Administrator** | Administrator sistem — akses penuh termasuk user, role, log | Login → panel admin |
 
-> Tidak ada pendaftaran akun mandiri. Akun dibuat oleh Administrator/Super Admin.
-> Rincian matriks role × permission dibahas di Bagian 4.4 dan dokumen
+> Tidak ada pendaftaran akun mandiri. Akun dibuat oleh Super Admin.
+> Role legacy *Administrator* masih dikenali setara Super Admin untuk
+> akun lama, tetapi tidak bisa dipilih/dibuat lagi.
+> Rincian matriks role × permission dibahas di Bagian 4.3 dan dokumen
 > `docs/matriks-role.md`.
 
 ---MR4gMQTF6cMZ
@@ -193,7 +195,7 @@ E-PPID PLN menyediakan solusi berbasis web:
 |  +----------------+  +----------------+  +-------------+ |
 |  Middleware: auth, permission:, role.scope:,              |
 |  admin.access, karyawan.access, page.visible,             |
-|  throttle (OTP lupa password)                             |
+|  must.password, throttle (OTP lupa password)              |
 |  Services: MenuBuilderService, PortalContentService,      |
 |  ActivityLogger, NotificationService                      |
 +---------------------------+------------------------------+
@@ -202,8 +204,9 @@ E-PPID PLN menyediakan solusi berbasis web:
 +----------------------------------------------------------+
 |                DATABASE (MySQL 8)                        |
 |  users, roles, permissions, role_user, role_permission,  |
-|  departments, news, announcements, galleries, pages,     |
-|  page_sections, page_role, menus, tamus, work_links,     |
+|  user_has_permissions, master_menus, departments,        |
+|  news, announcements, galleries, pages, page_sections,   |
+|  page_role, menus, tamus, hari_liburs, work_links,       |
 |  activity_logs, contact_messages, cache, jobs            |
 +----------------------------------------------------------+
 ```
@@ -222,7 +225,7 @@ E-PPID PLN menyediakan solusi berbasis web:
 | email | VARCHAR(255) | Email (untuk login) |
 | role | VARCHAR(255) | Kolom legacy fallback (default `user`) |
 | role_id | BIGINT UNSIGNED | FK roles — role utama (fallback RBAC) |
-| level_jabatan | VARCHAR(255) | Hirarki: administrator / senior_manager / manager_bidang / staf_spv |
+| level_jabatan | VARCHAR(255) | Hirarki Karyawan: senior_manager / manager_bidang / asisten_manager / staf (nilai legacy `administrator`, `staf_spv` masih dikenali) |
 | department | VARCHAR(255) | Kode bidang utama (legacy) |
 | department_id | BIGINT UNSIGNED | FK departments — pengikatan bidang (Admin Bidang/Karyawan) |
 | sub_department | VARCHAR(255) | Kode sub-bidang (mis. spv_chcb_b) |
@@ -231,17 +234,19 @@ E-PPID PLN menyediakan solusi berbasis web:
 | last_seen_tamu_id | BIGINT UNSIGNED | Penanda notifikasi buku tamu sudah dilihat |
 | email_verified_at / password / remember_token / timestamps | — | Standar Laravel |
 
-#### Tabel: roles, permissions, role_permission, role_user
+#### Tabel: roles, permissions, role_permission, role_user, user_has_permissions, master_menus
 | Nama Field | Tipe Data | Keterangan |
 |------------|-----------|------------|
 | roles.id | BIGINT UNSIGNED | Primary Key |
-| roles.name | VARCHAR(100) UNIQUE | Nama role: Administrator, Super Admin, Admin Bidang, Karyawan |
-| roles.description / status | VARCHAR / TINYINT(1) | Deskripsi & aktif/nonaktif |
+| roles.name | VARCHAR(100) UNIQUE | Nama role: Super Admin, Admin Bidang, Karyawan (+ role kustom buatan admin) |
+| roles.description / status | VARCHAR / TINYINT(1) | Deskripsi & aktif/nonaktif (status 0 → permission role diabaikan) |
 | permissions.id | BIGINT UNSIGNED | Primary Key |
-| permissions.name | VARCHAR(100) UNIQUE | Kode permission, mis. `news.publish` |
+| permissions.name | VARCHAR(100) UNIQUE | Kode permission, format `modul.aksi` — mis. `news.edit`, `tamu.view` (55 baris matriks; aksi khusus seperti `news.publish` dipetakan lewat alias, bukan baris terpisah) |
 | permissions.display_name / module | VARCHAR(255) | Label & modul pemilik |
 | role_permission | pivot | role_id ↔ permission_id |
 | role_user | pivot | user_id ↔ role_id (multi-role) |
+| user_has_permissions | pivot | user_id ↔ permission_id — **Direct Permission** per akun (hak ekstra di atas role) |
+| master_menus | tabel | Master ID Menu Sidebar (15 baris: ID 1–11 fixed + 13–16) — sumber baris matriks hak akses form Role & Pengguna |
 
 #### Tabel: departments
 | Nama Field | Tipe Data | Keterangan |
@@ -381,28 +386,60 @@ Area internal terpisah dari panel admin, dibatasi middleware `auth` + `karyawan.
 - **Topbar:** breadcrumb, pencarian global (Ctrl+K), lonceng notifikasi buku tamu (polling JSON), info user
 - **Dashboard:** welcome card, stat cards, quick actions adaptif, aktivitas terbaru, status sistem, notifikasi
 - **Modul konten:** Berita, Pengumuman, Galeri, Halaman (Page + Section builder), Menu Builder
-- **Modul operasional:** Data Tamu (list/filter, check-in/out, export, print, dokumen privat), Link Kerja
-- **Modul tata kelola:** Pengguna (buat, toggle aktif/nonaktif, hapus), Role & Permission (khusus Super Admin), Log Aktivitas
+- **Modul operasional:** Data Tamu (list/filter, check-in/out, export, print, dokumen privat), Hari Libur (tanggal merah & override akhir pekan), Link Kerja
+- **Modul master data:** Data Karyawan (HR, impor/ekspor CSV & XLSX), Master Bidang, Master Jabatan
+- **Modul tata kelola:** Pengguna (buat, toggle aktif/nonaktif, reset password, direct permission, hapus), Role (matriks hak akses, khusus Super Admin), Log Aktivitas
 - **Login:** `/admin/login` dengan modal lupa password berbasis OTP email (rate limit 10x/menit)
 
 ### 4.3 Kontrol Akses (RBAC)
 
 Prinsip: **role = akses**, **bidang = organisasi**. Middleware `permission:` menjaga
 setiap endpoint admin per aksi; `role.scope:super_admin` membatasi modul sensitif
-(user, role, halaman, menu, buku tamu) hanya untuk Super Admin/Administrator;
+(Pengguna, Role, Halaman, Menu) — role Admin Bidang ditolak di sana;
 `role.scope:admin` mengizinkan Admin Bidang dengan scope data di controller.
 
-| Modul / Permission | Karyawan | Admin Bidang | Super Admin / Administrator |
+**Alur RBAC (kondisi aktual):**
+
+1. **Permission matriks** — 55 baris `modul.aksi` (15 ID Menu × aksi CRUD,
+   dashboard hanya `.view`, log aktivitas hanya `.view`/`.delete`), semuanya
+   tampil sebagai baris matriks **ID Menu × 4 aksi CRUD** pada form
+   Tambah/Edit Role dan tab Direct Permission form Pengguna. Tidak ada
+   halaman pengaturan permission terpisah.
+2. **3 Role Dasar** (`Super Admin`, `Admin Bidang`, `Karyawan`) — dibuat
+   seeder, tidak bisa dihapus, nama terkunci saat edit; role kustom
+   tambahan boleh dibuat/dihapus admin. Role legacy `Administrator`
+   dikenali setara Super Admin tetapi tidak bisa dipilih lagi.
+3. **Direct Permission** (`user_has_permissions`) — hak ekstra per akun
+   untuk role `Admin Bidang` & `Karyawan`; semantik **union**: direct
+   hanya menambah di atas role, tidak pernah mencabutnya.
+4. **Cek efektif** `User::hasPermission()` dipakai Gate (`@can`),
+   middleware `permission:`, dan sidebar — membaca direct ∪ role aktif
+   (∪ fallback `users.role_id`) secara real-time per request.
+5. **Alias aksi** — `news.publish`→`news.edit`,
+   `announcements.publish`→`announcements.edit`, `tamu.checkout`→`tamu.edit`,
+   `user.reset-password`→`users.edit` (tanpa baris permission terpisah).
+6. **Karyawan baseline** — role Karyawan hanya berisi `dashboard.view` dan
+   `pages.view`; permission di luar baseline (= "permission ekstra")
+   membuka akses masuk `/admin` ("setengah admin").
+
+| Modul / Permission | Karyawan (baseline) | Admin Bidang | Super Admin |
 |---|:-:|:-:|:-:|
-| Portal (internal.view, news.view, pages.view, applications.view, dashboard.view) | ✅ | ✅ | ✅ |
-| Kelola berita (news.create/edit/publish/delete) | ❌ | ❌ | ✅ |
+| Portal & dasar (dashboard.view, pages.view) | ✅ | ✅ | ✅ |
+| Kelola berita (news.*) — di luar baseline, diberikan eksplisit | ❌ | ❌ | ✅ |
 | Kelola pengumuman (announcements.*) | ❌ | ✅ (bidangnya) | ✅ |
 | Kelola link kerja (work_links.*) | ❌ | ✅ (bidangnya) | ✅ |
 | Kelola galeri (galleries.*) | ❌ | ❌ | ✅ |
-| Halaman CMS & Menu Builder (pages.*, menus.*) | ❌ | ❌ | ✅ |
-| Buku Tamu (tamu.view/create/checkout/delete) | ❌ | ❌ | ✅ |
-| Pengguna & Role (users.*, roles.*) | ❌ | ❌ | ✅ |
-| Log Aktivitas (activity_logs.view) | ❌ | ❌ | ✅ |
+| Halaman CMS & Menu Builder (pages.*, menus.*) — `role.scope:super_admin` | ❌ | ❌ | ✅ |
+| Buku Tamu (tamu.*) | ❌ | ❌ (via direct permission bila diberikan) | ✅ |
+| Hari Libur (hari_libur.*) | ❌ | ❌ | ✅ |
+| Data Karyawan (karyawan_data.*) | ❌ | ❌ | ✅ |
+| Master Bidang / Master Jabatan | ❌ | Lihat saja (bawaan seeder) | ✅ |
+| Pengguna & Role (users.*, roles.*) — `role.scope:super_admin` | ❌ | ❌ | ✅ |
+| Log Aktivitas (activity_logs.view / .delete) | ❌ | ❌ | ✅ |
+
+> Semua permission modul baru ikut **matriks hak akses** (bisa diassign per
+> role maupun per akun). Karyawan yang diberi permission di luar baseline
+> otomatis bisa masuk `/admin` — hanya menu yang lolos `@can` yang tampil.
 
 ### 4.4 Spesifikasi Desain Visual
 
@@ -452,10 +489,10 @@ setiap endpoint admin per aksi; `role.scope:super_admin` membatasi modul sensiti
 | FR-006 | CMS Galeri: CRUD kategori + publish/draft + lightbox di halaman publik | Sedang | ✅ Implementasi |
 | FR-007 | Halaman dinamis (Page + Section builder: banner/text/cards/file/faq) dengan visibilitas draft/published & public/role-restricted | Tinggi | ✅ Implementasi |
 | FR-008 | Menu Builder hierarkis (route/page/url, ikon, urutan, aktif/nonaktif) | Sedang | ✅ Implementasi |
-| FR-009 | Portal Karyawan terpisah: dashboard, informasi internal, layanan internal, link kerja, profil — view-only, diarahkan otomatis setelah login | Tinggi | ✅ Implementasi |
+| FR-009 | Portal Karyawan terpisah: dashboard, informasi internal, layanan internal, link kerja, kunjungan tamu, profil — konten view-only, diarahkan otomatis setelah login | Tinggi | ✅ Implementasi |
 | FR-010 | RBAC per-aksi: seluruh route admin dijaga middleware `permission:`; sidebar & dashboard adaptif | Tinggi | ✅ Implementasi |
-| FR-011 | Manajemen pengguna: buat akun, toggle status aktif/nonaktif, hapus; tanpa pendaftaran mandiri | Tinggi | ✅ Implementasi |
-| FR-012 | Manajemen Role & Permission granular per modul (hanya Super Admin) | Tinggi | ✅ Implementasi |
+| FR-011 | Manajemen pengguna: buat akun, toggle status aktif/nonaktif, reset password (permission terpisah), Direct Permission per akun, hapus; tanpa pendaftaran mandiri | Tinggi | ✅ Implementasi |
+| FR-012 | Manajemen Role: 3 Role Dasar terkunci + role kustom bebas dibuat/dihapus; hak akses diatur via matriks ID Menu × CRUD (55 permission) & Direct Permission (hanya Super Admin) | Tinggi | ✅ Implementasi |
 | FR-013 | Delegasi Admin Bidang: pengumuman & link kerja terbatas pada bidang akun terkait | Sedang | ✅ Implementasi |
 | FR-014 | Buku Tamu digital: registrasi mandiri (NIK, KTP, surat permohonan), check-in/check-out, konfirmasi WhatsApp/email, export & print | Tinggi | ✅ Implementasi |
 | FR-015 | Dokumen privat tamu (KTP, surat) disajikan via route terproteksi, tidak dapat diakses publik via /storage | Tinggi | ✅ Implementasi |
@@ -464,6 +501,10 @@ setiap endpoint admin per aksi; `role.scope:super_admin` membatasi modul sensiti
 | FR-018 | Log Aktivitas otomatis untuk seluruh aksi CRUD & login/logout; dapat dilihat & dibersihkan admin | Sedang | ✅ Implementasi |
 | FR-019 | Lupa password via OTP email (modal AJAX, rate limit 10x/menit per IP) | Sedang | ✅ Implementasi |
 | FR-020 | Pencarian global admin (Ctrl+K) dan notifikasi tamu baru di topbar | Rendah | ✅ Implementasi |
+| FR-021 | Modul Hari Libur: master tanggal `libur` / `masuk_kerja` — validasi backend form registrasi publik + kalender kustom berwarna (merah = libur/weekend, hitam = override weekend) | Sedang | ✅ Implementasi |
+| FR-022 | Data Karyawan (master HR): CRUD, impor CSV/XLSX, ekspor mengikuti filter, daftarkan akun dari baris karyawan | Sedang | ✅ Implementasi |
+| FR-023 | Master Bidang & Master Jabatan: CRUD master data hierarki + pemetaan kode legacy (ID Menu 15 & 16, ikut matriks hak akses) | Sedang | ✅ Implementasi |
+| FR-024 | Kunjungan Tamu di Portal Karyawan: daftar tamu yang menunjuk akun ini + aksi Setujui/Batalkan sekali jalan (tanpa permission khusus) | Sedang | ✅ Implementasi |
 
 #### 5.1.2 Non-Functional Requirements
 
@@ -499,8 +540,10 @@ PLN-UP-IMY/
 │   │   ├── Controllers/
 │   │   │   ├── Admin/            # Dashboard, News, Announcement, Gallery,
 │   │   │   │                     # Page, PageSection, Menu, User, Role,
-│   │   │   │                     # Tamu, WorkLink, ActivityLog, Notification,
-│   │   │   │                     # AdminSearch
+│   │   │   │                     # Tamu, HariLibur, WorkLink, ActivityLog,
+│   │   │   │                     # Notification, AdminSearch, Settings,
+│   │   │   │                     # DataKaryawan, MasterBidang,
+│   │   │   │                     # MasterJabatan, EmployeeProfile
 │   │   │   ├── Auth/             # Login, ForgotPassword (OTP)
 │   │   │   ├── Karyawan/         # PortalController (dashboard, informasi,
 │   │   │   │                     # layanan, link, profil)
@@ -519,10 +562,13 @@ PLN-UP-IMY/
 │                                 # ActivityLogger, NotificationService
 ├── config/
 ├── database/
-│   ├── migrations/               # 25 migrasi (users, RBAC, konten, tamus,
+│   ├── migrations/               # 49 migrasi (users, RBAC, konten, tamus,
+│   │                             # hari_liburs, karyawans, bidangs/jabatans,
 │   │                             # work_links, departments, ...)
 │   └── seeders/                  # AdminUserSeeder, KaryawanUserSeeder,
-│                                 # PermissionSeeder, MenuSeeder, WorkLinkSeeder
+│                                 # PermissionSeeder, MasterMenuSeeder,
+│                                 # MasterBidangJabatanSeeder, MenuSeeder,
+│                                 # WorkLinkSeeder
 ├── docker-compose.yml            # app (FrankenPHP) + db (MySQL 8)
 ├── Dockerfile
 ├── public/
@@ -540,7 +586,8 @@ PLN-UP-IMY/
 │       └── pages/                # index, show (CMS)
 ├── routes/
 │   └── web.php
-├── tests/Feature/                # 128 test (RBAC, Tamu, Portal, Menu, ...)
+├── tests/Feature/                # 561 test (RBAC, Tamu, Portal, Menu,
+│                                 # Data Karyawan, Master Bidang/Jabatan, ...)
 └── storage/
 ```
 
@@ -647,7 +694,7 @@ SESSION_DRIVER=database
 QUEUE_CONNECTION=database
 CACHE_STORE=database
 
-# Akun Administrator awal (WAJIB diganti sebelum seed produksi)
+# Akun Super Admin awal (WAJIB diganti sebelum seed produksi)
 ADMIN_EMAIL=email-anda@domain.com
 ADMIN_PASSWORD=password-yang-kuat
 
@@ -662,7 +709,7 @@ tabrakan dengan MySQL Laragon).
 
 | Akun | Email | Password | Keterangan |
 |---|---|---|---|
-| Administrator | `admin@example.com` | `password123` | login admin `/admin/login` |
+| Super Admin | `admin@example.com` | `password123` | login admin `/admin/login` (dari `ADMIN_EMAIL`/`ADMIN_PASSWORD`) |
 | Karyawan | `opaladzmii@gmail.com` | `karyawan123` | login portal `/karyawan/dashboard` |
 | Test User | `test@example.com` | `password123` | user biasa (tanpa role admin) |
 
@@ -681,8 +728,9 @@ tabrakan dengan MySQL Laragon).
 | Halaman CMS | `/halaman`, `/halaman/{slug}` | GET |
 | Login | `/admin/login` | GET / POST |
 | Lupa password (OTP) | `/forgot-password/otp`, `/forgot-password/reset` | POST |
-| Portal Karyawan | `/karyawan/dashboard`, `/karyawan/informasi`, `/karyawan/layanan`, `/karyawan/link`, `/karyawan/profil` | GET / PUT |
-| Panel Admin | `/admin/dashboard`, `/admin/news`, `/admin/announcements`, `/admin/galeri`, `/admin/pages`, `/admin/menus`, `/admin/users`, `/admin/roles`, `/admin/tamu`, `/admin/work-links`, `/admin/activity-logs` | GET/POST/PUT/PATCH/DELETE |
+| Portal Karyawan | `/karyawan/dashboard`, `/karyawan/informasi`, `/karyawan/layanan`, `/karyawan/link`, `/karyawan/kunjungan-tamu`, `/karyawan/profil` | GET / POST / PUT |
+| Panel Admin | `/admin/dashboard`, `/admin/news`, `/admin/announcements`, `/admin/galeri`, `/admin/pages`, `/admin/menus`, `/admin/users`, `/admin/roles`, `/admin/tamu`, `/admin/hari-libur`, `/admin/work-links`, `/admin/data-karyawan`, `/admin/master-bidang`, `/admin/master-jabatan`, `/admin/activity-logs` | GET/POST/PUT/PATCH/DELETE |
+| Pengaturan & utilitas admin | `/admin/settings`, `/admin/search`, `/admin/cari`, `/admin/notifications/poll` | GET / PUT / POST |
 | Logout | `/admin/logout` | POST |
 
 ### 7.5 Testing
@@ -691,8 +739,9 @@ tabrakan dengan MySQL Laragon).
 php artisan test
 ```
 
-Seluruh 128 test harus lulus (mencakup RBAC, buku tamu, portal karyawan, menu,
-berita/pengumuman, halaman, dan log aktivitas). Di dalam container, test suite
+Seluruh **561 test** harus lulus (mencakup RBAC, buku tamu, portal karyawan, menu,
+berita/pengumuman, halaman, data karyawan, master bidang/jabatan, dan log
+aktivitas). Di dalam container, test suite
 butuh override koneksi ke host `db`:
 
 ```bash
@@ -716,7 +765,7 @@ docker compose exec -e DB_HOST=db -e DB_PASSWORD=root app php artisan test
 #### 8.2.1 Login Portal
 1. Buka `/admin/login` dan masukkan email + password
 2. Akun ber-role **Karyawan** otomatis diarahkan ke **Portal Karyawan** (`/karyawan/dashboard`)
-3. Portal tidak menyediakan hak kelola — seluruh konten bersifat baca
+3. Portal bersifat baca untuk konten umum — aksi terbatas hanya Profil dan verifikasi Kunjungan Tamu; modul kelola lain muncul hanya bila hak aksesnya diberikan (lihat 8.2.2)
 
 #### 8.2.2 Menggunakan Portal
 - **Dashboard:** ringkasan informasi terbaru, layanan internal, dan link kerja yang relevan untuk Anda
@@ -724,7 +773,8 @@ docker compose exec -e DB_HOST=db -e DB_PASSWORD=root app php artisan test
 - **Layanan:** buka daftar layanan internal; pilih layanan untuk melihat prosedurnya
 - **Link Kerja:** gunakan filter tab untuk memilih kategori/bidang; klik kartu untuk membuka alat kerja di tab baru
 - **Profil Saya:** ubah nama, no HP, alamat; untuk ganti password wajib memasukkan password lama
-- Karyawan **tidak dapat** mengakses `/admin/*` — akan dialihkan kembali ke portal
+- **Kunjungan Tamu:** daftar tamu yang menemui Anda; tombol Setujui/Batalkan hanya muncul sekali untuk status "menunggu"
+- Karyawan **tanpa permission ekstra** tidak dapat mengakses `/admin/*` — akan dialihkan kembali ke portal; karyawan yang diberi permission ekstra (mis. `tamu.view`) dapat membuka modul tersebut di panel admin
 
 ### 8.3 Petunjuk Untuk Admin / Super Admin
 
@@ -748,12 +798,13 @@ docker compose exec -e DB_HOST=db -e DB_PASSWORD=root app php artisan test
 6. Tamu baru memunculkan notifikasi di lonceng topbar
 
 #### 8.3.4 Mengelola Pengguna & Role (Super Admin)
-1. **Pengguna:** Tambah akun (nama, email, password, role, hirarki organisasi: level jabatan, bidang, sub-bidang); toggle aktif/nonaktif; hapus
-2. **Role:** buat role baru, atur permission per modul via halaman *Kelola Permission*
-3. **Admin Bidang:** beri role *Admin Bidang* + isi bidang akun — ia hanya dapat mengelola pengumuman & link kerja bidangnya
+1. **Pengguna:** Tambah akun (nama, email, password, role, hirarki organisasi: level jabatan, bidang, sub-bidang); toggle aktif/nonaktif; reset password; hapus
+2. **Role:** buat role baru (3 Role Dasar tidak bisa dihapus & namanya terkunci saat edit), lalu atur hak akses per modul lewat **matriks ID Menu × aksi CRUD** di form Tambah/Edit Role (55 permission — halaman pengaturan permission terpisah sudah dihapus). Aksi khusus (`news.publish`, `tamu.checkout`, `user.reset-password`) ikut tercakup otomatis lewat aliasnya
+3. **Hak akses per orang:** tab **Hak Akses Fitur** (Direct Permission) di form Tambah/Edit Pengguna — untuk role Admin Bidang & Karyawan; semantik *union* (menambah di atas role)
+4. **Admin Bidang:** beri role *Admin Bidang* + isi bidang akun — ia hanya dapat mengelola pengumuman & link kerja bidangnya
 
 #### 8.3.5 Membaca Log Aktivitas
-1. Buka **Log Aktivitas** (menu khusus Administrator)
+1. Buka **Log Aktivitas** (butuh permission `activity_logs.view` — umumnya hanya Super Admin)
 2. Setiap aksi tercatat: siapa, modul, aksi, deskripsi, IP, waktu
 3. Log dapat dihapus per item atau dibersihkan seluruhnya
 
@@ -770,8 +821,8 @@ docker compose exec -e DB_HOST=db -e DB_PASSWORD=root app php artisan test
 | CSS/aset tidak ter-load | Jalankan `npm install && npm run build` |
 | Error koneksi database | Cek `DB_HOST=db` di `.env` (dalam container) dan status container `db` |
 | Test gagal di dalam container | Gunakan override: `docker compose exec -e DB_HOST=db -e DB_PASSWORD=root app php artisan test` |
-| Lupa password admin | Gunakan alur OTP di halaman login, atau reset manual oleh Administrator lain |
-| Akses ditolak (403) | Periksa permission role Anda di menu Role (hanya Super Admin) atau hubungi Administrator |
+| Lupa password admin | Gunakan alur OTP di halaman login, atau reset oleh Super Admin lain (permission `user.reset-password`) |
+| Akses ditolak (403) | Periksa permission role Anda di menu Role (hanya Super Admin) atau hubungi Super Admin |
 
 ---
 
@@ -787,7 +838,7 @@ dan tata kelola akses dalam satu aplikasi. Sistem ini telah menerapkan:
 ✅ **RBAC Per-Aksi:** permission granular di semua endpoint admin + delegasi Admin Bidang
 ✅ **Audit Penuh:** log aktivitas otomatis seluruh aksi CRUD & autentikasi
 ✅ **Palet Warna Konsisten & Responsif:** identitas brand PLN di semua perangkat
-✅ **Teruji:** 128 automated test (PHPUnit) memastikan perilaku sistem
+✅ **Teruji:** 561 automated test (PHPUnit) memastikan perilaku sistem
 
 Sistem siap digunakan dan dapat dikembangkan lebih lanjut sesuai kebutuhan.
 

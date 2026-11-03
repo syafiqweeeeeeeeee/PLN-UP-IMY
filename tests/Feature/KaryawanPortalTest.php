@@ -490,6 +490,8 @@ class KaryawanPortalTest extends TestCase
 
         $this->actingAs($user)->put(route('karyawan.profil.update'), [
             'name'             => 'Naufal Adzmi',
+            'no_hp'            => '081234567890',
+            'alamat'           => 'Indramayu, Jawa Barat',
             'current_password' => 'passwordlama',
             'password'         => 'passwordbaru99',
             'password_confirmation' => 'passwordbaru99',
@@ -505,6 +507,8 @@ class KaryawanPortalTest extends TestCase
 
         $this->actingAs($user)->put(route('karyawan.profil.update'), [
             'name'             => 'Naufal Adzmi',
+            'no_hp'            => '081234567890',
+            'alamat'           => 'Indramayu, Jawa Barat',
             'current_password' => 'salah total',
             'password'         => 'passwordbaru99',
             'password_confirmation' => 'passwordbaru99',

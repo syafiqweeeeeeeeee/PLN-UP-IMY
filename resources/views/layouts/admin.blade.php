@@ -8,7 +8,7 @@
      perpindahan halaman admin jauh lebih ringan. Komposer Topbar
      juga di-skip atas dasar header yang sama (TopbarComposer).
 
-     Script halaman (@push('scripts')) ikut di dalam <main> agar
+     Script halaman (@@push('scripts')) ikut di dalam <main> agar
      router.js mengeksekusi ulang setelah swap (reexecuteScripts).
      ============================================================ -->
 @if(request()->header('X-Partial') === '1' && request()->header('X-Requested-With') === 'XMLHttpRequest')

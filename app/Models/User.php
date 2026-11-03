@@ -330,9 +330,14 @@ class User extends Authenticatable
      */
     public const KARYAWAN_BASELINE_PERMISSIONS = [
         'dashboard.view',
-        'news.view',
         'pages.view',
     ];
+
+    // Catatan: `news.view` SENGAJA tidak masuk baseline. Modul berita
+    // adalah fitur admin/portal karyawan yang harus diberikan EKSPLISIT
+    // (direct permission atau role), sehingga menu "Kelola Berita" di
+    // layouts/karyawan.blade.php (@can('news.view')) tidak muncul untuk
+    // karyawan biasa yang tidak punya hak akses berita.
 
     /**
      * Apakah akun ini Super Admin (Sekretariat / Humas)?

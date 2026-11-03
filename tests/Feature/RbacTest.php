@@ -300,21 +300,31 @@ class RbacTest extends TestCase
 
     public function test_role_creation_is_disabled(): void
     {
-        // REVISI ARSITEKTUR: pembuatan role baru dinonaktifkan — route
-        // roles.create/roles.store dihapus → 404, tombol UI dikunci.
+        // FLOW BARU: pembuatan role AKTIF kembali — admin dengan permission
+        // roles.create mengirim form Tambah Role, data tersimpan, lalu
+        // diarahkan ke daftar role dengan flash sukses.
         $admin = $this->userWithPermissions(['roles.view', 'roles.create']);
 
-        $this->actingAs($admin)
-            ->get(route('admin.roles.index'))
-            ->assertOk()
-            // Tombol tambah DIKUNCI (disabled) — bukan lagi link <a>
-            ->assertSee('btn-corp-add" disabled', false)
-            ->assertDontSee('btn-corp-add" href=', false);
+        $response = $this->actingAs($admin)
+            ->post(route('admin.roles.store'), [
+                'name'        => 'Role Operator Uji',
+                'description' => 'Role baru dari alur pembuatan yang aktif.',
+                'status'      => 'active',
+            ]);
 
-        // POST ke endpoint roles (create) → tidak lagi tersedia.
-        $this->actingAs($admin)
-            ->post(route('admin.roles.index'), ['name' => 'Role Baru'])
-            ->assertStatus(405); // Method Not Allowed — route store dihapus
+        $response->assertRedirect(route('admin.roles.index'))
+            ->assertSessionHas('success', 'Role berhasil dibuat.');
+
+        // Data role tersimpan lengkap (status aktif dikonversi ke boolean).
+        $this->assertDatabaseHas('roles', [
+            'name'        => 'Role Operator Uji',
+            'description' => 'Role baru dari alur pembuatan yang aktif.',
+            'status'      => 1,
+        ]);
+
+        $role = \App\Models\Role::where('name', 'Role Operator Uji')->first();
+        $this->assertNotNull($role);
+        $this->assertTrue($role->status);
     }
 
     public function test_base_roles_cannot_be_deleted(): void

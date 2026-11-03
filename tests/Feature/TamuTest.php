@@ -35,17 +35,25 @@ class TamuTest extends TestCase
        ========================================================= */
 
     /**
-     * Tanggal hari kerja (Senin–Jumat) minimal $hari hari dari hari ini.
+     * Tanggal hari kerja ke-$hari (Senin–Jumat) dihitung dari hari ini.
+     * Hanya hari kerja yang dihitung, sehingga Sabtu/Minggu dilewati dan
+     * $hari berbeda selalu menghasilkan tanggal berbeda.
      * Form registrasi menolak akhir pekan, sehingga test yang HARUS
      * diterima tidak boleh jatuh pada Sabtu/Minggu (tanggal uji tidak
      * boleh bergantung pada hari test dijalankan).
      */
     private function hariKerja(int $hari = 1): string
     {
-        $tanggal = now()->addDays($hari);
+        $tanggal = now()->startOfDay();
+        $dihitung = 0;
 
-        while ($tanggal->isWeekend()) {
+        while ($dihitung < $hari) {
             $tanggal->addDay();
+
+            // 0 = Minggu, 6 = Sabtu → bukan hari kerja, jangan dihitung.
+            if (! $tanggal->isWeekend()) {
+                $dihitung++;
+            }
         }
 
         return $tanggal->format('Y-m-d');

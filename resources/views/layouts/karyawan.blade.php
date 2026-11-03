@@ -7,7 +7,7 @@
      topbar portal, footer & script CDN tidak di-render ulang sehingga
      perpindahan halaman portal instan tanpa reload penuh.
      Komposer KaryawanLayoutComposer juga di-skip (header sama).
-     Script halaman (@push('scripts')) ikut di dalam <main> agar
+     Script halaman (@@push('scripts')) ikut di dalam <main> agar
      router.js mengeksekusi ulang setelah swap.
      ============================================================ -->
 @if(request()->header('X-Partial') === '1' && request()->header('X-Requested-With') === 'XMLHttpRequest')
@@ -497,10 +497,13 @@
                     <i class="fas fa-door-open"></i> Kunjungan Tamu
                 </a>
 
-                {{-- DROPDOWN AKSES ADMIN — muncul hanya jika karyawan punya
-                     minimal 1 permission admin. Berisi semua fitur admin
-                     yang diberikan ke karyawan ini. --}}
-                @canany(['news.view', 'announcements.view', 'galleries.view', 'tamu.view'])
+                {{-- DROPDOWN AKSES ADMIN — muncul jika karyawan punya minimal
+                     satu permission admin konten ATAU permission ekstra di
+                     luar baseline (mis. users.view) yang membuka Panel Admin.
+                     Setiap item di dalamnya tetap dijaga @can masing-masing,
+                     sehingga menu tanpa permission tidak ikut tampil. --}}
+                @if (auth()->user()?->hasExtraKaryawanPermission()
+                     || auth()->user()?->canAny(['news.view', 'announcements.view', 'galleries.view', 'tamu.view']))
                 <div class="kry-dropdown-wrap">
                     <button type="button" class="kry-nav-btn" id="adminAccessBtn"
                             aria-haspopup="true" aria-expanded="false" aria-label="Akses Admin">
@@ -559,7 +562,7 @@
                         @endif
                     </div>
                 </div>
-                @endcanany
+                @endif
             </nav>
 
             <div class="kry-topbar-user">

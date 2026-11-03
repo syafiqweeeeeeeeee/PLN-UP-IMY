@@ -263,6 +263,16 @@
         .pln-card-body { grid-template-columns: 1fr; }
         .pln-section--doc { order: 2; }
         .pln-section--detail { order: 1; }
+
+        /* Lepaskan penempatan kolom 2 milik layout desktop; jika tidak,
+           grid satu kolom tetap membuat kolom implisit sempit sehingga
+           isi form (dan popup kalender) melebar keluar kartu. */
+        .pln-card-body > .pln-section--data,
+        .pln-card-body > .pln-section--doc,
+        .pln-card-body > .pln-section--detail {
+            grid-column: 1;
+            grid-row: auto;
+        }
     }
 
     /* Tablet desktop kecil: kompak */
@@ -399,11 +409,19 @@
        tanggal libur/akhir pekan bisa diwarnai MERAH (disabled) dan akhir
        pekan yang di-override admin tampil HITAM (bisa dipilih). */
     .pln-cal {
+        /* ABSOLUTE terhadap wrapper input di dalam .pln-card — SELALU
+           terbuka ke bawah (bottom-start), tidak pernah membalik ke atas.
+           Kartu memakai overflow: hidden, jadi ruang bawah kartu ditambah
+           JS (sesuaikanRuangKalender) agar seluruh popup tetap di dalam
+           area card dan footer "Hari ini" tidak terpotong. */
         position: absolute;
         top: calc(100% + 6px);
         left: 0;
         z-index: 1050;
-        width: 288px;
+        width: min(288px, calc(100vw - 1rem));
+        max-height: min(340px, calc(100vh - 1rem));
+        overflow-y: auto;
+        overscroll-behavior: contain;
         background: var(--bg-card, #fff);
         border: 1px solid var(--border-color, #e5e7eb);
         border-radius: 12px;
@@ -1399,8 +1417,10 @@
                                                 aria-label="Bulan berikutnya">&rsaquo;</button>
                                     </div>
                                     <div class="pln-cal-grid pln-cal-dow" aria-hidden="true">
-                                        <span>Min</span><span>Sel</span><span>Rab</span><span>Kam</span>
-                                        <span>Jum</span><span>Sab</span><span>Min</span>
+                                        {{-- Sunday-first: urutan ini WAJIB sama dengan offset
+                                             getDay() (0 = Minggu) pada renderKalender(). --}}
+                                        <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span>
+                                        <span>Kam</span><span>Jum</span><span>Sab</span>
                                     </div>
                                     <div class="pln-cal-grid" id="cal-days"></div>
                                     <div class="pln-cal-foot">
@@ -2790,6 +2810,46 @@
                         btn.setAttribute('aria-label', nama + (btn.title ? ' — ' + btn.title : ''));
                         kalDays.appendChild(btn);
                     }
+
+                    // Sesuaikan lagi ruang bawah kartu bila jumlah baris
+                    // minggu berubah (mis. ganti bulan).
+                    if (!kalender.hidden) sesuaikanRuangKalender();
+                }
+
+                /* Popup selalu di bawah input (bottom-start). Karena kartu
+                   memakai overflow: hidden, popup dijepit ke dalam area
+                   kartu (horizontal) dan ruang bawah kartu ditambah
+                   seperlunya supaya footer "Hari ini" tidak terpotong. */
+                function sesuaikanRuangKalender() {
+                    var kartu = document.getElementById('form-registrasi');
+                    if (!kartu) return;
+
+                    var tepi = 10;
+                    kartu.style.paddingBottom = '';
+                    kalender.style.left = '';
+                    kalender.style.maxWidth = '';
+
+                    var batasKartu = kartu.getBoundingClientRect();
+                    kalender.style.maxWidth = Math.floor(batasKartu.width - tepi * 2) + 'px';
+
+                    // Geser horizontal agar popup tidak melewati sisi kartu.
+                    var batasKalender = kalender.getBoundingClientRect();
+                    var geser = 0;
+                    if (batasKalender.right > batasKartu.right - tepi) {
+                        geser = Math.round((batasKartu.right - tepi) - batasKalender.right);
+                    }
+                    if (batasKalender.left + geser < batasKartu.left + tepi) {
+                        geser = Math.round((batasKartu.left + tepi) - batasKalender.left);
+                    }
+                    if (geser !== 0) {
+                        kalender.style.left = geser + 'px';
+                        batasKalender = kalender.getBoundingClientRect();
+                    }
+
+                    var kurang = batasKalender.bottom - (batasKartu.bottom - tepi);
+                    if (kurang > 0) {
+                        kartu.style.paddingBottom = Math.ceil(kurang + tepi) + 'px';
+                    }
                 }
 
                 function bukaKalender() {
@@ -2800,11 +2860,14 @@
                     tampilBulan = Number(bagian[1]) - 1;
                     renderKalender();
                     kalender.hidden = false;
+                    sesuaikanRuangKalender();
                     tanggal.setAttribute('aria-expanded', 'true');
                 }
 
                 function tutupKalender() {
                     kalender.hidden = true;
+                    var kartu = document.getElementById('form-registrasi');
+                    if (kartu) kartu.style.paddingBottom = '';
                     tanggal.setAttribute('aria-expanded', 'false');
                 }
 
