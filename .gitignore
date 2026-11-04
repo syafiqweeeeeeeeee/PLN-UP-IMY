@@ -17,6 +17,10 @@
 /public/hot
 /public/storage
 /storage/*.key
+
+# Dump database lokal (berisi data & hash password) tidak ikut di-commit
+backup_*.sql
+database/backups/
 /storage/pail
 /vendor
 Homestead.json

@@ -686,7 +686,7 @@ APP_URL=http://localhost:8000
 DB_CONNECTION=mysql
 DB_HOST=db            # 127.0.0.1 bila di luar container
 DB_PORT=3306
-DB_DATABASE=nama_database_anda
+DB_DATABASE=pln_up_imy
 DB_USERNAME=root
 DB_PASSWORD=root
 

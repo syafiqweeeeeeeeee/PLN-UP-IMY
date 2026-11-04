@@ -112,8 +112,8 @@ ADMIN_PASSWORD=password123
 **Alternatif: Docker (cadangan)** — `Dockerfile` + `docker-compose.yml` tetap
 ada di repo. Jalankan `docker compose up -d --build` lalu buka
 `http://localhost:8000`. Blok `environment` di `docker-compose.yml`
-menimpa kunci `DB_*` (menunjuk container `db:3306`, database
-`nama_database_anda`), jadi `.env` tidak perlu diubah.
+menimpa kunci `DB_*` (menunjuk container `db:3306`, database `pln_up_imy`),
+jadi `.env` tidak perlu diubah.
 
 ### 2.3 Perintah Harian
 

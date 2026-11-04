@@ -13,7 +13,7 @@ services:
       - SERVER_NAME=:8000
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_DATABASE=nama_database_anda
+      - DB_DATABASE=pln_up_imy
       - DB_USERNAME=root
       - DB_PASSWORD=root
     depends_on:
@@ -27,7 +27,9 @@ services:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: nama_database_anda
+      # Hanya dipakai saat volume dbdata masih kosong; mengganti nama di sini
+      # tidak me-rename database yang sudah ada.
+      MYSQL_DATABASE: pln_up_imy
     volumes:
       - dbdata:/var/lib/mysql
     healthcheck:
@@ -36,6 +38,21 @@ services:
       timeout: 5s
       retries: 20
       start_period: 30s
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    ports:
+      - "8080:80"
+    environment:
+      # Terhubung ke service MySQL "db" pada jaringan compose (port 3306 antar-container)
+      PMA_HOST: db
+      # Batas import dump SQL besar supaya tidak timeout
+      UPLOAD_LIMIT: 300M
+      MEMORY_LIMIT: 512M
+      MAX_EXECUTION_TIME: "600"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   dbdata:
