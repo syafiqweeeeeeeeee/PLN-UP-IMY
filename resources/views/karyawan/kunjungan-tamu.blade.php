@@ -126,19 +126,6 @@
         padding: 0.7rem 1rem;
         margin-bottom: 1rem;
     }
-    .kt-filter-bar .search-wrapper {
-        position: relative;
-        flex: 1;
-        min-width: 220px;
-    }
-    .kt-filter-bar .search-wrapper i {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--kry-muted);
-        font-size: 0.8rem;
-    }
     .kt-filter-bar input,
     .kt-filter-bar select {
         border: 1px solid var(--kry-line);
@@ -151,7 +138,6 @@
     }
     .kt-filter-bar input:focus,
     .kt-filter-bar select:focus { border-color: var(--kry-teal); }
-    .kt-filter-bar .search-wrapper input { width: 100%; padding-left: 34px; }
     .kt-filter-divider { width: 1px; height: 24px; background: var(--kry-line); }
     .kt-filter-count { font-size: 0.76rem; color: var(--kry-muted); white-space: nowrap; }
 
@@ -534,43 +520,49 @@
                              ====================================== --}}
                         <div class="kt-aksi-btns">
                         @if ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_MENUNGGU)
-                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}">
+                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}"
+                                      data-swal-confirm="Setujui kunjungan {{ $tamu->nama }} pada {{ $tamu->tanggal_kunjungan?->translatedFormat('d F Y H:i') }}?"
+                                      data-swal-confirm-title="Setujui Kunjungan?">
                                     @csrf
                                     <input type="hidden" name="keputusan" value="setuju">
                                     <button type="submit" class="kt-act-btn approve"
-                                            title="Setujui kunjungan tamu {{ $tamu->nama }}"
-                                            onclick="return confirm('Setujui kunjungan \"{{ $tamu->nama }}\" pada {{ $tamu->tanggal_kunjungan?->translatedFormat('d F Y H:i') }}?');">
+                                            title="Setujui kunjungan tamu {{ $tamu->nama }}">
                                         <i class="fas fa-check"></i> Setujui
                                     </button>
                                 </form>
-                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}">
+                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}"
+                                      data-swal-confirm="Batalkan kunjungan {{ $tamu->nama }} pada {{ $tamu->tanggal_kunjungan?->translatedFormat('d F Y H:i') }}?"
+                                      data-swal-confirm-title="Batalkan Kunjungan?"
+                                      data-swal-confirm-tone="danger">
                                     @csrf
                                     <input type="hidden" name="keputusan" value="tolak">
                                     <button type="submit" class="kt-act-btn cancel"
-                                            title="Batalkan kunjungan tamu {{ $tamu->nama }}"
-                                            onclick="return confirm('Batalkan kunjungan \"{{ $tamu->nama }}\" pada {{ $tamu->tanggal_kunjungan?->translatedFormat('d F Y H:i') }}?');">
+                                            title="Batalkan kunjungan tamu {{ $tamu->nama }}">
                                         <i class="fas fa-xmark"></i> Batalkan
                                     </button>
                                 </form>
                         @elseif ($tamu->status_verifikasi === \App\Models\Tamu::STATUS_DISETUJUI)
                                 {{-- Sudah Disetujui — aksi revisi menjadi Dibatalkan --}}
-                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}">
+                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}"
+                                      data-swal-confirm="Ubah status kunjungan {{ $tamu->nama }} menjadi DIBATALKAN?"
+                                      data-swal-confirm-title="Batalkan Kunjungan?"
+                                      data-swal-confirm-tone="danger">
                                     @csrf
                                     <input type="hidden" name="keputusan" value="tolak">
                                     <button type="submit" class="kt-act-btn cancel"
-                                            title="Ubah menjadi Dibatalkan"
-                                            onclick="return confirm('Ubah status kunjungan \"{{ $tamu->nama }}\" menjadi DIBATALKAN?');">
+                                            title="Ubah menjadi Dibatalkan">
                                         <i class="fas fa-rotate"></i> Batalkan
                                     </button>
                                 </form>
                         @else
                                 {{-- Dibatalkan — aksi revisi menjadi Disetujui --}}
-                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}">
+                                <form method="POST" action="{{ route('karyawan.kunjungan-tamu.verifikasi', $tamu) }}"
+                                      data-swal-confirm="Ubah status kunjungan {{ $tamu->nama }} menjadi DISETUJUI?"
+                                      data-swal-confirm-title="Setujui Kunjungan?">
                                     @csrf
                                     <input type="hidden" name="keputusan" value="setuju">
                                     <button type="submit" class="kt-act-btn approve"
-                                            title="Ubah menjadi Disetujui"
-                                            onclick="return confirm('Ubah status kunjungan \"{{ $tamu->nama }}\" menjadi DISETUJUI?');">
+                                            title="Ubah menjadi Disetujui">
                                         <i class="fas fa-rotate"></i> Setujui
                                     </button>
                                 </form>

@@ -35,7 +35,7 @@
         <div class="kry-detail-content">
             <p><strong>{{ $item->excerpt }}</strong></p>
 
-            {!! $type === 'berita' ? $item->content : $item->content !!}
+            {!! nl2br(e($item->content)) !!}
         </div>
     </article>
 

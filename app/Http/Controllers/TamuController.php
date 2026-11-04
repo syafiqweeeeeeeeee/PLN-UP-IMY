@@ -6,7 +6,6 @@ use App\Models\HariLibur;
 use App\Models\Jabatan;
 use App\Models\Tamu;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * TamuController — pendaftaran tamu kantor/instansi.
@@ -185,26 +184,20 @@ class TamuController extends Controller
               bernama `dokumen_zip` — legacy name)
            ========================================================= */
         $dokumen_zip = null;
-        
-        // Debug: Cek apakah file dikirim
+
+        // Berkas WAJIB (sudah divalidasi di atas). Kegagalan menyimpan
+        // (disk penuh / izin) tidak boleh menjadi 500 mentah, dan tamu
+        // tidak boleh tersimpan tanpa dokumen yang diminta.
         if ($request->hasFile('dokumen')) {
-            $file = $request->file('dokumen');
-            Log::info('[Dokumen] File diterima:', [
-                'name' => $file->getClientOriginalName(),
-                'size' => $file->getSize(),
-                'mime' => $file->getMimeType(),
-                'extension' => $file->getClientOriginalExtension(),
-                'isValid' => $file->isValid(),
-            ]);
-            
-            if ($file->isValid()) {
-                $dokumen_zip = $file->store('dokumen', 'private');
-                Log::info('[Dokumen] File disimpan:', ['path' => $dokumen_zip]);
-            } else {
-                Log::error('[Dokumen] File tidak valid');
+            try {
+                $dokumen_zip = $request->file('dokumen')->store('dokumen', 'private');
+            } catch (\Throwable $e) {
+                report($e);
+
+                return back()
+                    ->withInput()
+                    ->withErrors(['dokumen' => 'Berkas gagal disimpan. Silakan unggah ulang.']);
             }
-        } else {
-            Log::warning('[Dokumen] Tidak ada file yang dikirim');
         }
 
         /* =========================================================
@@ -220,6 +213,12 @@ class TamuController extends Controller
             'tujuan_ditemui' => $validated['tujuan_ditemui'],
             'jabatan_ditemui' => $validated['jabatan_ditemui'],
             'orang_ditemui'  => $validated['orang_ditemui'],
+            // Tautkan ke akun (bukan hanya nama) agar otorisasi portal
+            // karyawan tidak bisa dibajak lewat perubahan nama profil.
+            'orang_ditemui_user_id' => Tamu::resolveOrangDitemuiUserId(
+                $validated['orang_ditemui'],
+                $request->input('orang_ditemui_id')
+            ),
             'jumlah_tamu'    => $validated['jumlah_tamu'],
             'tanggal_kunjungan' => $validated['tanggal_kunjungan'] . ' ' . $validated['jam_kunjungan'],
             'keperluan'      => $validated['keperluan'],

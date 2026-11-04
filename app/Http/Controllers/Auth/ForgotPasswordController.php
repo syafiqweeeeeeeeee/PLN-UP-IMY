@@ -35,6 +35,9 @@ class ForgotPasswordController extends Controller
     /** Jeda minimum antar pengiriman OTP per email (detik). */
     private const OTP_RESEND_COOLDOWN = 60;
 
+    /** Maksimal percobaan verifikasi OTP salah per email sebelum OTP dibatalkan. */
+    private const OTP_MAX_ATTEMPTS = 5;
+
     /** Kirim OTP ke email terdaftar. */
     public function sendOtp(Request $request): JsonResponse
     {
@@ -75,6 +78,9 @@ class ForgotPasswordController extends Controller
 
         cache()->put($cacheKey, Hash::make($otp), now()->addSeconds(self::OTP_TTL));
         cache()->put($throttleKey, now()->getTimestamp() + self::OTP_RESEND_COOLDOWN, now()->addSeconds(self::OTP_RESEND_COOLDOWN));
+
+        // OTP baru → hitungan percobaan salah dimulai dari nol.
+        cache()->forget($this->otpAttemptsKey($email));
 
         try {
             Mail::to($user->email)->send(new OtpMail($otp, $user->name, self::OTP_TTL / 60));
@@ -129,11 +135,29 @@ class ForgotPasswordController extends Controller
         }
 
         $cachedHash = (string) cache()->get($cacheKey);
+        $attemptsKey = $this->otpAttemptsKey($email);
 
         if (! Hash::check((string) $validated['otp'], $cachedHash)) {
+            // Batasi percobaan tebak kode: OTP 6 digit hanya kuat bila
+            // jumlah percobaannya dibatasi (throttle per IP saja tidak cukup).
+            $attempts = (int) cache()->get($attemptsKey, 0) + 1;
+            cache()->put($attemptsKey, $attempts, now()->addSeconds(self::OTP_TTL));
+
+            if ($attempts >= self::OTP_MAX_ATTEMPTS) {
+                cache()->forget($cacheKey);
+                cache()->forget($attemptsKey);
+
+                return response()->json([
+                    'message' => 'Terlalu banyak percobaan kode OTP. Kode dibatalkan — silakan kirim ulang OTP baru.',
+                    'errors'  => ['otp' => ['Terlalu banyak percobaan. Kirim ulang OTP baru.']],
+                ], 429);
+            }
+
+            $sisa = self::OTP_MAX_ATTEMPTS - $attempts;
+
             return response()->json([
-                'message' => 'Kode OTP salah. Periksa kembali email Anda.',
-                'errors'  => ['otp' => ['Kode OTP salah. Periksa kembali email Anda.']],
+                'message' => "Kode OTP salah. Sisa percobaan: {$sisa}.",
+                'errors'  => ['otp' => ["Kode OTP salah. Sisa percobaan: {$sisa}."]],
             ], 422);
         }
 
@@ -151,6 +175,7 @@ class ForgotPasswordController extends Controller
             ->delete();
 
         cache()->forget($cacheKey);
+        cache()->forget($this->otpAttemptsKey($email));
 
         ActivityLogger::log('password_reset', $user, [
             'module'      => 'autentikasi',
@@ -166,6 +191,12 @@ class ForgotPasswordController extends Controller
     private function otpCacheKey(string $email): string
     {
         return 'otp:password:' . sha1($email);
+    }
+
+    /** Kunci cache penghitung percobaan OTP salah per email. */
+    private function otpAttemptsKey(string $email): string
+    {
+        return 'otp:attempts:' . sha1($email);
     }
 
     /** Samarkan email untuk pesan sukses: a***b@domain.com. */

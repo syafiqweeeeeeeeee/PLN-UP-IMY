@@ -205,6 +205,11 @@ class TamuController extends Controller
             . ' ' . $validated['jam_kunjungan'];
         unset($validated['jam_kunjungan']);
 
+        // Simpan tautan akun "orang yang ditemui" (dasar otorisasi portal).
+        $validated['orang_ditemui_user_id'] = Tamu::resolveOrangDitemuiUserId(
+            $validated['orang_ditemui'] ?? null
+        );
+
         $tamu = Tamu::create($validated);
 
         ActivityLogger::log('create', null, [
@@ -388,6 +393,12 @@ class TamuController extends Controller
             \Carbon\Carbon::parse($validated['tanggal_kunjungan'])->format('Y-m-d')
             . ' ' . $validated['jam_kunjungan'];
         unset($validated['jam_kunjungan']);
+
+        // Nama orang yang ditemui bisa berubah saat edit — tautan akun ikut
+        // disegarkan agar scoping portal tetap konsisten.
+        $validated['orang_ditemui_user_id'] = Tamu::resolveOrangDitemuiUserId(
+            $validated['orang_ditemui'] ?? null
+        );
 
         $tamu->update($validated);
 

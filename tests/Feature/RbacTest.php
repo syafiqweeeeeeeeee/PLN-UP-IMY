@@ -118,10 +118,10 @@ class RbacTest extends TestCase
     }
 
     /* =========================================================
-       PENGGUNA — show tetap terbuka (profil saya di topbar)
+       PENGGUNA — show hanya untuk profil sendiri atau users.view
        ========================================================= */
 
-    public function test_users_index_gated_but_profile_show_open(): void
+    public function test_users_index_gated_and_profile_show_only_for_self(): void
     {
         $plain = User::factory()->create();
         $other = User::factory()->create(['name' => 'Teman Satu Tim']);
@@ -131,11 +131,15 @@ class RbacTest extends TestCase
             ->get(route('admin.users.index'))
             ->assertForbidden();
 
-        // Tapi profil sendiri (dan show user lain) tetap bisa diakses —
-        // dipakai menu "Profil Saya" di topbar semua role
+        // Profil sendiri tetap bisa diakses (menu "Profil Saya" di topbar).
+        $this->actingAs($plain)
+            ->get(route('admin.users.show', $plain))
+            ->assertOk();
+
+        // Detail pengguna LAIN ditolak tanpa users.view (cegah IDOR).
         $this->actingAs($plain)
             ->get(route('admin.users.show', $other))
-            ->assertOk();
+            ->assertForbidden();
     }
 
     public function test_users_destroy_requires_users_delete_permission(): void

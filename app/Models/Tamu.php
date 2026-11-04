@@ -53,6 +53,7 @@ class Tamu extends Model
         'tujuan_ditemui',
         'jabatan_ditemui',
         'orang_ditemui',
+        'orang_ditemui_user_id',
         'jumlah_tamu',
         'tanggal_kunjungan',
         'keperluan',
@@ -70,6 +71,54 @@ class Tamu extends Model
         'checked_out_at'    => 'datetime',
         'verified_at'       => 'datetime',
     ];
+
+    /**
+     * Relasi akun "orang yang ditemui" — dasar otorisasi Portal
+     * Karyawan (bukan pencocokan nama teks yang bisa berubah).
+     */
+    public function orangDitemuiUser(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'orang_ditemui_user_id');
+    }
+
+    /**
+     * Tentukan akun "orang yang ditemui" dari nama yang dikirim form.
+     *
+     * Nama tetap menjadi sumber kebenaran (tamu boleh mengetik siapa pun),
+     * tetapi hasilnya diterjemahkan sekali ke users.id agar otorisasi
+     * portal tidak bergantung pada teks yang bisa berubah.
+     *
+     * `$explicitId` (opsional, dari dropdown form) hanya dipakai bila nama
+     * pada opsi itu memang cocok dengan nama yang dikirim — mencegah client
+     * menunjuk akun sembarang lewat hidden input.
+     */
+    public static function resolveOrangDitemuiUserId(?string $nama, mixed $explicitId = null): ?int
+    {
+        $nama = trim((string) $nama);
+
+        if ($nama === '') {
+            return null;
+        }
+
+        $cocokkan = static fn ($query) => $query
+            ->whereRaw('LOWER(TRIM(name)) = ?', [mb_strtolower($nama)])
+            ->orderBy('id');
+
+        $explicitId = (int) ($explicitId ?? 0);
+
+        if ($explicitId > 0) {
+            $kandidat = User::query()->find($explicitId);
+
+            if ($kandidat !== null
+                && mb_strtolower(trim((string) $kandidat->name)) === mb_strtolower($nama)) {
+                return (int) $kandidat->id;
+            }
+        }
+
+        $id = $cocokkan(User::query())->value('id');
+
+        return $id !== null ? (int) $id : null;
+    }
 
     /**
      * Relasi user yang mengambil keputusan verifikasi (approve / batalkan).

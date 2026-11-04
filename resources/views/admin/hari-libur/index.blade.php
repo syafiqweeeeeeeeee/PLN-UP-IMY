@@ -224,18 +224,18 @@
                     <div class="hl-actions">
                         @can('hari_libur.edit')
                             <button type="button" class="hl-action-btn edit" title="Edit"
-                                    onclick='hlOpenEdit({!! json_encode([
+                                    onclick="hlOpenEdit(@js([
                                         'id' => $libur->id,
                                         'tanggal' => $libur->tanggal->format('Y-m-d'),
                                         'tipe' => $libur->tipe,
                                         'keterangan' => $libur->keterangan,
-                                    ]) !!})'>
+                                    ]))">
                                 <i class="fas fa-pen"></i>
                             </button>
                         @endcan
                         @can('hari_libur.delete')
                             <form method="POST" action="{{ route('admin.hari-libur.destroy', $libur) }}"
-                                  onsubmit="return confirm('Hapus tanggal {{ $libur->tanggal->format('d M Y') }} ({{ addslashes($libur->keterangan) }})? Status tanggal ini kembali mengikuti aturan default.')">
+                                  data-swal-confirm="Hapus tanggal {{ $libur->tanggal->format('d M Y') }} ({{ $libur->keterangan }})? Status tanggal ini kembali mengikuti aturan default.">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="hl-action-btn delete" title="Hapus">

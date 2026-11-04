@@ -433,6 +433,16 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        // Profil SENDIRI selalu boleh dibuka (dipakai topbar). Detail akun
+        // lain wajib punya permission users.view — tanpa guard ini siapa pun
+        // yang lolos admin.access bisa mengintai data pengguna lain hanya
+        // dengan menaikkan ID pada URL (IDOR).
+        abort_unless(
+            $user->is(auth()->user()) || Gate::allows('users.view'),
+            403,
+            'Anda tidak memiliki izin untuk melihat detail pengguna ini.'
+        );
+
         // Data kepegawaian (tabel employee_profiles) ikut dimuat agar
         /// halaman Detail Pengguna langsung menyajikan profil lengkap.
         $user->load(['role', 'employeeProfile']);

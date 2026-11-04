@@ -752,6 +752,12 @@
 
         <script src="{{ asset('js/i18n.js') }}"></script>
 
+        {{-- SweetAlert2 + helper notifikasi bersama: dialog pada halaman
+             publik (mis. validasi unggah berkas) memakai pop-up yang sama
+             dengan panel admin, bukan alert() bawaan browser. --}}
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="{{ asset('js/swal-helper.js') }}"></script>
+
         {{-- Client-side router (AJAX/SPA): klik link internal hanya menukar
              konten halaman — navbar & footer tetap utuh, tanpa reload. --}}
         <script src="{{ asset('js/router.js') }}" defer></script>

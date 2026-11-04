@@ -36,7 +36,7 @@ class KunjunganTamuPortalTest extends TestCase
 
     private function tamu(array $overrides = []): Tamu
     {
-        return Tamu::create(array_merge([
+        $data = array_merge([
             'nik'             => '3201123456780001',
             'nama'            => 'Budi Santoso',
             'no_hp'           => '081234567890',
@@ -46,7 +46,17 @@ class KunjunganTamuPortalTest extends TestCase
             'jumlah_tamu'     => 1,
             'tanggal_kunjungan' => now()->addDay(),
             'keperluan'       => 'Kunjungan industri.',
-        ], $overrides));
+        ], $overrides);
+
+        // Otorisasi portal kini memakai users.id — tautkan otomatis seperti
+        // yang dilakukan controller saat pendaftaran.
+        if (! array_key_exists('orang_ditemui_user_id', $data)) {
+            $data['orang_ditemui_user_id'] = Tamu::resolveOrangDitemuiUserId(
+                $data['orang_ditemui'] ?? null
+            );
+        }
+
+        return Tamu::create($data);
     }
 
     public function test_halaman_renders_dan_navigasi_ada_di_navbar(): void
@@ -92,7 +102,7 @@ class KunjunganTamuPortalTest extends TestCase
             ->assertDontSee('Tamu Untuk Abdi');
 
         $this->assertSame(1, Tamu::query()
-            ->whereRaw('LOWER(TRIM(orang_ditemui)) = ?', ['abdi robbi ikhsan'])
+            ->where('orang_ditemui_user_id', $abdi->id)
             ->count());
     }
 
@@ -242,6 +252,38 @@ class KunjunganTamuPortalTest extends TestCase
         $this->assertSame(Tamu::STATUS_DITOLAK, $tamu->status_verifikasi);
         $this->assertSame($user->id, $tamu->verified_by);
         $this->assertTrue($tamu->verified_at->gte($pertama));
+    }
+
+    /**
+     * REGRESI KEAMANAN — mengganti nama profil TIDAK boleh membuka
+     * kunjungan milik karyawan lain (dulu otorisasi memakai nama teks).
+     */
+    public function test_perubahan_nama_profil_tidak_membuka_kunjungan_orang_lain(): void
+    {
+        $penyerang = $this->karyawanUser('PENYERANG KARYAWAN');
+        $this->karyawanUser('VICTIM KARYAWAN');
+
+        $tamu = $this->tamu([
+            'nik'           => '3201123456780099',
+            'orang_ditemui' => 'VICTIM KARYAWAN',
+        ]);
+
+        $this->actingAs($penyerang)->put(route('karyawan.profil.update'), [
+            'name'   => 'VICTIM KARYAWAN',
+            'no_hp'  => '081200000000',
+            'alamat' => 'Jl. Uji',
+        ])->assertRedirect(route('karyawan.profil'));
+
+        $this->actingAs($penyerang->fresh())->get(route('karyawan.kunjungan-tamu'))
+            ->assertOk()
+            ->assertDontSee('Budi Santoso');
+
+        $this->actingAs($penyerang->fresh())
+            ->post(route('karyawan.kunjungan-tamu.verifikasi', $tamu), ['keputusan' => 'setuju'])
+            ->assertRedirect(route('karyawan.kunjungan-tamu'))
+            ->assertSessionHas('error');
+
+        $this->assertSame(Tamu::STATUS_MENUNGGU, $tamu->fresh()->status_verifikasi);
     }
 
     public function test_karyawan_tidak_bisa_verifikasi_kunjungan_orang_lain(): void

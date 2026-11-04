@@ -30,20 +30,22 @@ class PortalController extends Controller
     }
 
     /**
-     * Batas aksi verifikasi di Portal Karyawan: hanya tamu yang MENYEBUT
-     * akun ini sebagai "Orang yang Ditemui" — scoping yang sama dengan
-     * daftar di kunjunganTamu() (case-insensitive + trim).
+     * Batas aksi verifikasi di Portal Karyawan: hanya tamu yang MENUNJUK
+     * AKUN ini sebagai "Orang yang Ditemui".
+     *
+     * Perbandingan memakai users.id (kolom orang_ditemui_user_id), BUKAN
+     * nama teks: nama profil bisa diubah pemilik akun, sehingga pencocokan
+     * nama dahulu bisa dipakai untuk mengambil alih kunjungan orang lain.
      */
     protected function bolehVerifikasi(Request $request, Tamu $tamu): bool
     {
         $user = $request->user();
 
-        if ($user === null) {
+        if ($user === null || $tamu->orang_ditemui_user_id === null) {
             return false;
         }
 
-        return mb_strtolower(trim((string) $tamu->orang_ditemui))
-            === mb_strtolower(trim((string) $user->name));
+        return (int) $tamu->orang_ditemui_user_id === (int) $user->id;
     }
 
     /**
@@ -170,13 +172,13 @@ class PortalController extends Controller
      * KUNJUNGAN TAMU (khusus Portal Karyawan)
      * ---------------------------------------------------------
      * Daftar registrasi tamu dari form publik /layanan/form-registrasi-tamu
-     * yang MENYEBUT akun ini sebagai "Orang yang Ditemui"
-     * (`tamus.orang_ditemui` = nama akun login).
+     * yang MENUNJUK AKUN ini sebagai "Orang yang Ditemui" — dipetakan
+     * sekali saat pendaftaran ke `tamus.orang_ditemui_user_id`.
      *
-     * SCOPING ketat per akun — dibandingkan case-insensitive + trim
-     * (nama dari dropdown registrasi diambil langsung dari kolom
-     * users.name, tapi input teks bebas bisa beda kapital/spasi).
-     * Akun lain (termasuk Super Admin) TIDAK lewat halaman ini:
+     * SCOPING ketat per AKUN (users.id), bukan nama teks: nama profil bisa
+     * diubah sendiri oleh karyawan, sehingga pencocokan nama tidak lagi
+     * dipakai sebagai dasar otorisasi. Akun lain (termasuk Super Admin)
+     * TIDAK lewat halaman ini:
      * Super Admin melihat seluruh data lewat panel admin
      * (admin.tamu.index) yang sudah ada.
      *
@@ -190,19 +192,14 @@ class PortalController extends Controller
     {
         $user = auth()->user();
 
-        // Basis scoping: tamu yang menunjuk nama akun ini.
-        $scoped = fn () => Tamu::query()->whereRaw(
-            'LOWER(TRIM(orang_ditemui)) = ?',
-            [mb_strtolower(trim((string) $user->name))]
-        );
+        // Basis scoping: tamu yang menautkan AKUN ini sebagai orang
+        // yang ditemui (kolom relasi, bukan nama teks).
+        $scoped = fn () => Tamu::query()->where('orang_ditemui_user_id', $user->id);
 
         // Statistik dengan SATU query agregat (bukan 4 query COUNT
         // terpisah) — hemat koneksi DB per render halaman.
         $statRow = Tamu::query()
-            ->whereRaw(
-                'LOWER(TRIM(orang_ditemui)) = ?',
-                [mb_strtolower(trim((string) $user->name))]
-            )
+            ->where('orang_ditemui_user_id', $user->id)
             ->selectRaw('COUNT(*) as total')
             ->selectRaw("COALESCE(SUM(status_verifikasi = ?), 0) as menunggu", [Tamu::STATUS_MENUNGGU])
             ->selectRaw("COALESCE(SUM(status_verifikasi = ?), 0) as disetujui", [Tamu::STATUS_DISETUJUI])

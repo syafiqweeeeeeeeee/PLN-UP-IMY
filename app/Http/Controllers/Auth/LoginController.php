@@ -8,10 +8,19 @@ use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class LoginController extends Controller
 {
+    /** Maksimal percobaan login per email+IP sebelum dijeda. */
+    private const MAX_ATTEMPTS = 5;
+
+    /** Jeda (detik) setelah batas percobaan terlampaui. */
+    private const DECAY_SECONDS = 60;
+
     public function showLoginForm(): View
     {
         return view('admin.login');
@@ -21,13 +30,30 @@ class LoginController extends Controller
     {
         $credentials = $request->only('email', 'password');
 
+        // Brute-force guard: batasi percobaan per pasangan email + IP agar
+        // password tidak bisa ditebak terus-menerus dari satu sumber.
+        $throttleKey = Str::lower((string) $credentials['email']) . '|' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_ATTEMPTS)) {
+            $seconds = max((int) RateLimiter::availableIn($throttleKey), 1);
+
+            throw ValidationException::withMessages([
+                'email' => "Terlalu banyak percobaan masuk. Coba lagi dalam {$seconds} detik.",
+            ]);
+        }
+
         $user = \App\Models\User::where('email', $credentials['email'])->first();
 
         if (! $user || ! \Illuminate\Support\Facades\Hash::check($credentials['password'], $user->password)) {
+            RateLimiter::hit($throttleKey, self::DECAY_SECONDS);
+
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => trans('auth.failed')]);
         }
+
+        // Login berhasil → hitungan percobaan gagal direset.
+        RateLimiter::clear($throttleKey);
 
         Auth::login($user, $request->boolean('remember'));
 

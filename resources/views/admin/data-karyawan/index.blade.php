@@ -869,16 +869,17 @@
                              karyawan_data.edit (tombol + backend). --}}
                         @can('karyawan_data.edit')
                             @php
-                                $pesanAktif = 'Nonaktifkan karyawan ' . addslashes($karyawan->nama)
+                                $pesanAktif = 'Nonaktifkan karyawan ' . $karyawan->nama
                                     . ' (NID ' . $karyawan->nid . ')?'
                                     . ' Datanya TIDAK dihapus — hanya statusnya menjadi Nonaktif sehingga tidak tampil pada daftar default.';
-                                $pesanNonaktif = 'Aktifkan kembali karyawan ' . addslashes($karyawan->nama)
+                                $pesanNonaktif = 'Aktifkan kembali karyawan ' . $karyawan->nama
                                     . ' (NID ' . $karyawan->nid . ')?'
                                     . ' Statusnya kembali Aktif dan langsung tampil pada daftar karyawan aktif.';
                             @endphp
                             @if ($status === 'nonaktif')
                                 <form method="POST" action="{{ route('admin.karyawan_data.toggle-status', $karyawan) }}"
-                                      onsubmit="return confirm('{{ addslashes($pesanNonaktif) }}')">
+                                      data-swal-confirm="{{ $pesanNonaktif }}"
+                                      data-swal-confirm-title="Aktifkan Kembali?">
                                     @csrf
                                     {{-- Filter yang sedang dipakai ikut dikirim agar
                                          daftar setelah perubahan status tetap sama. --}}
@@ -896,7 +897,8 @@
                                 </form>
                             @else
                                 <form method="POST" action="{{ route('admin.karyawan_data.toggle-status', $karyawan) }}"
-                                      onsubmit="return confirm('{{ addslashes($pesanAktif) }}')">
+                                      data-swal-confirm="{{ $pesanAktif }}"
+                                      data-swal-confirm-title="Nonaktifkan Karyawan?">
                                     @csrf
                                     @if (request()->filled('q'))
                                         <input type="hidden" name="q" value="{{ request('q') }}">

@@ -18,7 +18,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // tidak tertangkap sebagai slug detail layanan.
 // ============================================================
 Route::get('/layanan/form-registrasi-tamu', [\App\Http\Controllers\TamuController::class, 'create'])->name('layanan.registrasi-tamu');
-Route::post('/layanan/form-registrasi-tamu', [\App\Http\Controllers\TamuController::class, 'store'])->name('layanan.registrasi-tamu.store');
+// Throttle 10 kiriman/menit per IP: form publik + unggah berkas wajib
+// adalah target spam termudah (memenuhi tabel tamus & disk privat).
+Route::post('/layanan/form-registrasi-tamu', [\App\Http\Controllers\TamuController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('layanan.registrasi-tamu.store');
 
 // API daftar pegawai (dipakai fetch JS dependent dropdown "Orang yang
 // Ditemui"): ?bidang=...&jabatan=... -> JSON daftar karyawan/staff pada

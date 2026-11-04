@@ -1353,6 +1353,10 @@
                                    aria-expanded="false"
                                    required
                                    class="pln-input custom-dropdown-input @error('orang_ditemui') has-error @enderror" />
+                            {{-- Penautan akun: diisi saat memilih opsi dari daftar
+                                 (server tetap memvalidasi nama ⇄ akun). --}}
+                            <input type="hidden" name="orang_ditemui_id" id="orang_ditemui_id"
+                                   value="{{ old('orang_ditemui_id', '') }}" />
                             <i class="fas fa-chevron-down dropdown-arrow"></i>
                             <div id="orang-dropdown" class="custom-dropdown-menu custom-scroll-menu" role="listbox" style="display: none;">
                                 <div class="dropdown-options custom-scroll-content" id="orang-options">
@@ -1492,7 +1496,7 @@
             {{-- ================= FOOTER FORM & TOMBOL SUBMIT ================= --}}
             <div class="pln-actions">
                 <p class="pln-required-note"><span class="required">*</span> Wajib diisi. Data Anda aman &amp; hanya untuk keperluan registrasi.</p>
-                <button type="submit" class="btn-pln-primary" id="btn-submit" onclick="console.log('[Form] Submit diklik')">
+                <button type="submit" class="btn-pln-primary" id="btn-submit">
                     <i class="fas fa-paper-plane"></i> <span data-i18n="form.btn_submit">Daftar Sekarang</span>
                 </button>
             </div>
@@ -1603,8 +1607,6 @@
             var nameEl = document.getElementById('dokumen-name');
             var sizeEl = document.getElementById('dokumen-size');
 
-            console.log('[Dokumen] File dihapus');
-
             if (badge) {
                 badge.className = 'file-badge';
                 badge.innerHTML = '<i class="fas fa-file"></i>';
@@ -1629,23 +1631,17 @@
 
         /* Preview dokumen: badge, nama, ukuran + sembunyikan dropzone kosong */
         window.previewDokumen = function (input) {
-            console.log('[Dokumen] previewDokumen dipanggil, input:', input);
-
             if (!input) {
                 console.error('[Dokumen] Input tidak ditemukan');
                 return;
             }
 
             if (!input.files || !input.files[0]) {
-                console.log('[Dokumen] Tidak ada file');
                 return;
             }
 
             var file = input.files[0];
-            console.log('[Dokumen] File dipilih:', file.name, formatFileSize(file.size), 'type:', file.type);
-
             var ext = getFileExt(file.name);
-            console.log('[Dokumen] Ekstensi:', ext);
 
             // Validasi sisi klien (server tetap sumber kebenaran)
             if (!isAllowedExt(file, DOKUMEN_EXT)) {
@@ -1654,8 +1650,14 @@
                 if (statusEl) {
                     statusEl.textContent = '✗ Format tidak didukung: .' + ext + ' (didukung: ' + DOKUMEN_TEXT + ')';
                 }
-                alert('Format berkas tidak didukung.\n\nDukungan: ' + DOKUMEN_TEXT + '.\n\nAnda memilih: ' + file.name + ' (.' + ext + ')');
                 window.removeDokumen();
+
+                if (window.AdminSwal) {
+                    window.AdminSwal.warning(
+                        'Dukungan: ' + DOKUMEN_TEXT + '.\n\nAnda memilih: ' + file.name + ' (.' + ext + ')',
+                        'Format Berkas Tidak Didukung'
+                    );
+                }
                 return;
             }
 
@@ -1665,12 +1667,16 @@
                 if (statusEl) {
                     statusEl.textContent = '✗ Ukuran terlalu besar: ' + formatFileSize(file.size) + ' (maksimal: 10MB)';
                 }
-                alert('Ukuran berkas terlalu besar.\n\nMaksimal: 10MB\nUkuran file: ' + formatFileSize(file.size));
                 window.removeDokumen();
+
+                if (window.AdminSwal) {
+                    window.AdminSwal.warning(
+                        'Maksimal: 10MB\nUkuran file: ' + formatFileSize(file.size),
+                        'Ukuran Berkas Terlalu Besar'
+                    );
+                }
                 return;
             }
-
-            console.log('[Dokumen] File valid, menampilkan preview');
 
             var area = document.getElementById('dokumen-area');
             var preview = document.getElementById('dokumen-preview');
@@ -1708,17 +1714,11 @@
             if (uploadStatusEl) {
                 uploadStatusEl.textContent = '';
             }
-
-            console.log('[Dokumen] Preview berhasil ditampilkan');
         };
 
         // Inisialisasi upload dokumen
         try {
             (function initDokumenUpload() {
-                console.log('[Dokumen] Inisialisasi upload dokumen...');
-                console.log('[Dokumen] document.getElementById("dokumen"):', document.getElementById('dokumen'));
-                console.log('[Dokumen] document.getElementById("dokumen-area"):', document.getElementById('dokumen-area'));
-
                 var inputDokumen = document.getElementById('dokumen');
                 var dokArea = document.getElementById('dokumen-area');
 
@@ -1732,11 +1732,8 @@
                     return;
                 }
 
-                console.log('[Dokumen] Elemen ditemukan:', { input: inputDokumen, area: dokArea });
-
                 // Klik area untuk membuka file picker
                 dokArea.addEventListener('click', function (e) {
-                    console.log('[Dokumen] Area diklik');
                     e.preventDefault();
                     inputDokumen.click();
                 });
@@ -1770,12 +1767,10 @@
                     dokArea.classList.remove('is-dragover');
 
                     var files = e.dataTransfer.files;
-                    console.log('[Dokumen] Drop event, files:', files.length);
 
                     if (files.length > 0) {
                         try {
                             inputDokumen.files = files;
-                            console.log('[Dokumen] Files berhasil di-set via drop');
                         } catch (err) {
                             console.error('[Dokumen] Error set files via drop:', err);
                             // Fallback untuk browser yang lebih lama
@@ -1793,16 +1788,9 @@
                 });
 
                 // Handle change ( saat file dipilih via file picker)
-                inputDokumen.addEventListener('change', function (e) {
-                    console.log('[UPLOAD] Change event dipanggil!');
-                    console.log('[UPLOAD] files:', inputDokumen.files);
-                    if (inputDokumen.files && inputDokumen.files[0]) {
-                        console.log('[UPLOAD] File dipilih:', inputDokumen.files[0].name, formatFileSize(inputDokumen.files[0].size));
-                    }
+                inputDokumen.addEventListener('change', function () {
                     window.previewDokumen(inputDokumen);
                 });
-
-                console.log('[UPLOAD TEST] === INISIALISASI SELESAI ===');
             })();
         } catch (err) {
             console.error('[UPLOAD TEST] ERROR fatal:', err);
@@ -1898,8 +1886,6 @@
                 }
                 if (match) select(match);
             }
-
-            console.log('[Divisi] Inisialisasi selesai');
         })();
 
         /* ===== PENCARIAN DI DROPDOWN DIVISI =====
@@ -1966,8 +1952,6 @@
 
             /* Reset pencarian setiap dropdown dibuka. */
             if (displayInput) displayInput.addEventListener('click', function () { resetDivisiSearch(); });
-
-            console.log('[DivisiSearch] Inisialisasi selesai');
         })();
 
         /* ===== DROPDOWN JABATAN (BERTINGKAT) =====
@@ -2167,8 +2151,6 @@
                     }
                 });
             })();
-
-            console.log('[Jabatan] Inisialisasi selesai');
         })();
 
         /* ===== DROPDOWN ORANG DITEMUI (DENGAN PENCARIAN) =====
@@ -2224,6 +2206,7 @@
 
                     html += '<div class="dropdown-option orang-option"'
                         + ' data-value="' + escapeHtml(nama) + '"'
+                        + ' data-id="' + escapeHtml(String((p && p.id) || '')) + '"'
                         + ' data-search="' + escapeHtml(nama.toLowerCase()) + '">'
                         + '<div style="min-width: 0;"><div style="font-weight: 600;">'
                         + escapeHtml(nama) + '</div></div></div>';
@@ -2282,6 +2265,11 @@
                 orangOptionList.forEach(function (o) { o.classList.remove('selected'); });
                 opt.classList.add('selected');
                 orangInput.value = opt.getAttribute('data-value') || opt.textContent.trim();
+
+                // Pilihan eksplisit dari daftar → simpan id akunnya.
+                var hiddenOrangId = document.getElementById('orang_ditemui_id');
+                if (hiddenOrangId) hiddenOrangId.value = opt.getAttribute('data-id') || '';
+
                 oClose();
                 orangInput.focus();
             }
@@ -2307,6 +2295,11 @@
             orangInput.addEventListener('focus', function () { if (!oIsOpen) oToggle(); });
             orangInput.addEventListener('click', function (e) { e.stopPropagation(); if (!oIsOpen) oToggle(); });
             orangInput.addEventListener('input', function () {
+                // Mengetik bebas = bukan pilihan dari daftar → id akun dikosongkan
+                // (server akan mencocokkan ulang dari nama).
+                var hiddenOrangId = document.getElementById('orang_ditemui_id');
+                if (hiddenOrangId) hiddenOrangId.value = '';
+
                 if (!oIsOpen) oToggle();
                 else oFilter();
             });
@@ -2329,8 +2322,6 @@
                 })[0];
                 if (orangMatch) orangMatch.classList.add('selected');
             }
-
-            console.log('[OrangDitemui] Inisialisasi selesai');
         })();
 
         /* ============================================================
@@ -2536,11 +2527,6 @@
             selectDariHidden(bidangHidden, bidangSelect);
             selectDariHidden(jabatanHidden, jabatanSelect);
             loadOrang();
-
-            console.log('[OrangFilter] Inisialisasi selesai', {
-                bidang: bidangSelect.value,
-                jabatan: jabatanSelect.value,
-            });
         })();
 
         /* Tanggal hari ini (Y-m-d) — dipakai pembatas tanggal lewat dan
@@ -2951,7 +2937,6 @@
             if (btn.getAttribute('data-selesai-bound') === '1') return;
             btn.setAttribute('data-selesai-bound', '1');
             btn.addEventListener('click', function () {
-                console.log('[Modal] btn-modal-selesai clicked');
                 window.location.href = '{{ route('layanan.registrasi-tamu') }}';
             });
         }
@@ -2985,8 +2970,6 @@
 
         var nohpInput = document.getElementById('no_hp');
         if (nohpInput) nohpInput.addEventListener('input', function () { this.value = this.value.replace(/[^0-9+\-\s()]/g, '').slice(0, 25); });
-
-        console.log('[UTILS] Semua selesai');
     })();
 </script>@endpush
 

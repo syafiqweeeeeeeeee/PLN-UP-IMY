@@ -688,6 +688,12 @@
         })();
     </script>
 
+    {{-- SweetAlert2 + helper notifikasi bersama (dialog konfirmasi &
+         notifikasi seragam dengan panel admin, tanpa alert/confirm
+         bawaan browser). --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/swal-helper.js') }}"></script>
+
     {{-- Client-side router: pindah halaman tanpa reload layout,
          cache memori per halaman, micro-transition 60ms --}}
     <script src="{{ asset('js/router.js') }}" defer></script>
