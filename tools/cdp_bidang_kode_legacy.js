@@ -1,8 +1,10 @@
 /* Verifikasi UI dua perubahan terkait Master Bidang:
    (1) Form Link Kerja — panel kategori "Khusus" menampilkan SEMUA baris
        Master Bidang (sebelum fix: 0 opsi karena filter kode legacy).
-   (2) Master Bidang — field Kode Legacy di form + tombol "Petakan Kode
-       Legacy" (pratinjau GET JSON, TANPA menekan Terapkan).
+   (2) Master Bidang — field Kode Legacy di form SUDAH DIHAPUS (section
+       "Kode Legacy (Pemetaan Scoping)" tidak ada lagi di create/edit) +
+       tombol "Petakan Kode Legacy" tetap ada (pratinjau GET JSON, TANPA
+       menekan Terapkan).
 
    Yang diperiksa:
    A1 radio Khusus → panel terbuka & opsi bidang > 0 ( == jumlah baris
@@ -12,7 +14,7 @@
    B2 klik → modal terbuka + pratinjau JSON termuat
    B3 form POST punya CSRF & action benar (TIDAK disubmit)
    B4 putaran SPA → script tetap hidup (regresi router.js)
-   B5 form Master Bidang punya field department_code / sub_department_code
+   B5 form Master Bidang TIDAK punya field department_code / sub_department_code (section dihapus)
    X  tidak ada error konsol/exception sepanjang alur
 */
 const BASE = 'http://127.0.0.1:8000';
@@ -185,7 +187,7 @@ async function main() {
     spa1 === '/admin/data-karyawan' && b4j.url === '/admin/master-bidang' && b4j.terbuka && !b4j.belumMemuat && Number(b4j.angka) > 0, b4);
   await evl(`document.getElementById('mbMapLegacyModal').classList.remove('show'); 'ok'`);
 
-  /* ---------- B5: form Master Bidang punya field kode legacy ---------- */
+  /* ---------- B5: form Master Bidang TIDAK lagi menampilkan field kode legacy ---------- */
   await send('Page.navigate', { url: BASE + '/admin/master-bidang/create' });
   await sleep(3500);
   const b5 = await evl(`(function(){
@@ -195,17 +197,15 @@ async function main() {
     return JSON.stringify({
       url: location.pathname,
       select: !!sel,
-      opsiSelect: sel ? sel.options.length : 0,
-      adaKosong: sel ? sel.options[0].value === '' : false,
       input: !!inp,
       opsiDatalist: dl ? dl.options.length : 0,
       judul: document.body.innerHTML.indexOf('Kode Legacy (Pemetaan Scoping)') !== -1
     });
   })()`);
   const b5j = JSON.parse(b5);
-  chk('B5 form Master Bidang menampilkan field kode legacy (select + datalist)',
-    b5j.url === '/admin/master-bidang/create' && b5j.select && b5j.opsiSelect > 1 && b5j.adaKosong &&
-    b5j.input && b5j.opsiDatalist > 0 && b5j.judul, b5);
+  chk('B5 form Master Bidang tidak lagi menampilkan field kode legacy (section dihapus)',
+    b5j.url === '/admin/master-bidang/create' && !b5j.select && !b5j.input &&
+    b5j.opsiDatalist === 0 && !b5j.judul, b5);
 
   /* ---------- X: tidak ada error konsol ---------- */
   chk('X nol error konsol/exception sepanjang alur', errors.length === 0, errors.slice(0, 5).join(' || '));

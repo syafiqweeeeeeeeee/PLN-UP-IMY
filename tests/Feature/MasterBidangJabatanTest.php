@@ -709,8 +709,9 @@ class MasterBidangJabatanTest extends TestCase
        ------------------------------------------------------------
        - Dropdown Link Kerja menampilkan SEMUA baris Master Bidang,
          termasuk yang belum punya kode legacy (fix dropdown kosong).
-       - Form Master Bidang bisa mengisi kode legacy & validasi kode
-         tidak sah ditolak server-side.
+       - Endpoint store/update Master Bidang masih bisa mengisi kode
+         legacy & validasi kode tidak sah ditolak server-side (tanpa
+         field di form — konsumen legacy: fitur "Petakan Kode Legacy").
        - Fitur "Petakan Kode Legacy": pratinjau tidak menulis apa pun,
          penerapan mengisi kode yang masih kosong, tidak menimpa kode
          lama, tidak menebak baris yang tidak cocok, dan idempoten.
@@ -738,10 +739,13 @@ class MasterBidangJabatanTest extends TestCase
     {
         $user = $this->masterUser(['master_bidang.view', 'master_bidang.create', 'master_bidang.edit']);
 
+        // Section "Kode Legacy (Pemetaan Scoping)" sudah dihapus dari form
+        // create & edit (tidak diperlukan lagi di UI). Backend tetap
+        // menerima kode legacy bila dikirim langsung ke route.
         $this->actingAs($user)
             ->get(route('admin.master_bidang.create'))
             ->assertOk()
-            ->assertSee('Kode Legacy', false);
+            ->assertDontSee('Kode Legacy', false);
 
         $this->actingAs($user)
             ->post(route('admin.master_bidang.store'), [
