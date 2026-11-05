@@ -615,7 +615,7 @@
                         <div class="card-body-custom">
                             <h6 class="card-title">{{ $item->judul }}</h6>
                             <div class="card-date">
-                                <i class="fas fa-calendar-alt"></i> {{ $item->tanggal_kegiatan->translatedFormat('d F Y') }}
+                                <i class="fas fa-calendar-alt"></i> {{ $item->tanggal_kegiatan->format('Y-m-d') }}
                             </div>
                             @if ($item->deskripsi)
                             <p class="card-desc">{{ $item->deskripsi }}</p>

@@ -434,7 +434,7 @@
             @endif
             <div class="portal-news-card-meta">
                 <span class="portal-news-card-date">
-                    <i class="far fa-calendar"></i> {{ $item->tanggal_kegiatan->format('d M Y') }}
+                    <i class="far fa-calendar"></i> {{ $item->tanggal_kegiatan->format('Y-m-d') }}
                 </span>
                 <div class="portal-news-card-actions">
                     @can('galleries.edit')

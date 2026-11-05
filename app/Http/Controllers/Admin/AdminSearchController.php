@@ -210,7 +210,7 @@ class AdminSearchController extends Controller
                 'items' => $logs->map(fn (array $l) => [
                     'title' => $l['description'],
                     'url'   => route('admin.activity-logs.index'),
-                    'meta'  => $l['timestamp']->locale('id')->translatedFormat('d M Y H:i'),
+                    'meta'  => $l['timestamp']->format('Y-m-d H:i'),
                 ])->all(),
             ],
         ]);

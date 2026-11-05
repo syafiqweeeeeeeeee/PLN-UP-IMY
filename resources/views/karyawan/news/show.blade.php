@@ -183,7 +183,7 @@
                 {{ $news->is_published ? 'Dipublikasikan' : 'Draft' }}
             </span>
             &middot; {{ $news->category }}
-            &middot; {{ $news->created_at->format('d M Y H:i') }}
+            &middot; {{ $news->created_at->format('Y-m-d H:i') }}
         </p>
     </div>
 </div>
@@ -236,18 +236,18 @@
         @if ($news->published_at)
         <div class="portal-detail-field">
             <div class="portal-detail-label">Tanggal Publikasi</div>
-            <div class="portal-detail-value">{{ $news->published_at->format('d M Y H:i') }}</div>
+            <div class="portal-detail-value">{{ $news->published_at->format('Y-m-d H:i') }}</div>
         </div>
         @endif
 
         <div class="portal-detail-field">
             <div class="portal-detail-label">Dibuat Pada</div>
-            <div class="portal-detail-value muted">{{ $news->created_at->format('d/m/Y H:i:s') }}</div>
+            <div class="portal-detail-value muted">{{ $news->created_at->format('Y-m-d H:i:s') }}</div>
         </div>
 
         <div class="portal-detail-field">
             <div class="portal-detail-label">Diperbarui Pada</div>
-            <div class="portal-detail-value muted">{{ $news->updated_at->format('d/m/Y H:i:s') }}</div>
+            <div class="portal-detail-value muted">{{ $news->updated_at->format('Y-m-d H:i:s') }}</div>
         </div>
     </div>
 </div>

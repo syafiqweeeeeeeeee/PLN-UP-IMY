@@ -68,15 +68,15 @@
         ['Jabatan Ditemui', $tamu->jabatan_ditemui],
         ['Orang yang Ditemui', $tamu->orang_ditemui],
         ['Jumlah Tamu', $tamu->jumlah_tamu . ' orang'],
-        ['Tanggal Kunjungan', $tamu->tanggal_kunjungan?->format('d M Y, H:i')],
-        ['Waktu Pendaftaran', $tamu->created_at?->format('d M Y, H:i')],
+        ['Tanggal Kunjungan', $tamu->tanggal_kunjungan?->format('Y-m-d H:i')],
+        ['Waktu Pendaftaran', $tamu->created_at?->format('Y-m-d H:i')],
     ], fn ($row) => (string) $row[1] !== ''));
 
     /** Teks kartu LOG AKTIVITAS — sama dengan payload `log` di modal shell. */
     $logAktivitas = $isShell ? null : (($tamu->verified_at && $tamu->verified_by)
         ? 'Terakhir diperbarui oleh ' . $tamu->verifier_name
             . ' (' . $tamu->verifier_role_label . ') pada '
-            . $tamu->verified_at->translatedFormat('d M Y')
+            . $tamu->verified_at->format('Y-m-d')
             . ' jam ' . $tamu->verified_at->format('H.i')
             . ' — status saat ini ' . $tamu->kunjunganState()['badge_label'] . '.'
         : 'Belum ada perubahan status — kunjungan menunggu verifikasi.');

@@ -66,7 +66,7 @@ class HariLiburController extends Controller
         ActivityLogger::log('create', null, [
             'module'      => 'tamu',
             'description' => 'menambahkan tanggal "'
-                . $libur->tanggal->format('d M Y') . '" (' . $libur->keterangan . ')',
+                . $libur->tanggal->format('Y-m-d') . '" (' . $libur->keterangan . ')',
         ]);
 
         return redirect()->route('admin.hari-libur.index')
@@ -105,7 +105,7 @@ class HariLiburController extends Controller
 
     public function destroy(HariLibur $hariLibur): RedirectResponse
     {
-        $tanggal = $hariLibur->tanggal->format('d M Y');
+        $tanggal = $hariLibur->tanggal->format('Y-m-d');
         $hariLibur->delete();
 
         ActivityLogger::log('delete', null, [

@@ -14,7 +14,7 @@
         <div class="kry-detail-meta">
             <span class="kry-badge kry-badge-umum">{{ $type === 'berita' ? 'Berita' : 'Pengumuman' }}</span>
             <span><i class="fas fa-calendar-day"></i>
-                {{ optional($item->published_at)->translatedFormat('d F Y') ?? '-' }}</span>
+                {{ optional($item->published_at)->format('Y-m-d') ?? '-' }}</span>
             @if ($type === 'berita' && !empty($item->category))
                 <span><i class="fas fa-tag"></i> {{ ucfirst($item->category) }}</span>
             @endif
@@ -47,7 +47,7 @@
                     <h4>{{ $row['model']->title }}</h4>
                     <span>
                         <i class="fas fa-calendar-day"></i>
-                        {{ optional($row['model']->published_at)->translatedFormat('d F Y') ?? '-' }}
+                        {{ optional($row['model']->published_at)->format('Y-m-d') ?? '-' }}
                     </span>
                     <p>{{ $row['model']->excerpt }}</p>
                 </a>

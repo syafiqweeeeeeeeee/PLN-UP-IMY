@@ -350,9 +350,9 @@ class ActivityLogTest extends TestCase
         $this->assertSame(now()->format('Y-m-d'), $result['groups'][0]['key']);
         $this->assertSame(now()->subDay()->format('Y-m-d'), $result['groups'][1]['key']);
 
-        // Header UI sesuai format: "Today - ..." / "Yesterday - ..." + nama hari Inggris.
+        // Header UI sesuai format: "Today - ..." / "Yesterday - ..." + tanggal ISO.
         $this->assertStringStartsWith('Today - ', $result['groups'][0]['label']);
-        $this->assertStringContainsString(now()->locale('en')->translatedFormat('l, F j, Y'), $result['groups'][0]['label']);
+        $this->assertStringContainsString(now()->format('Y-m-d'), $result['groups'][0]['label']);
         $this->assertStringStartsWith('Yesterday - ', $result['groups'][1]['label']);
 
         // Entri dikelompokkan benar: 1 di kemarin, 1 di hari ini.

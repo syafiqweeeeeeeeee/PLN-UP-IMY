@@ -208,10 +208,10 @@
                 <td>
                     <span class="hl-date-chip {{ $libur->isMasukKerja() ? 'masuk' : '' }}">
                         <i class="fas {{ $libur->isMasukKerja() ? 'fa-calendar-check' : 'fa-calendar-xmark' }}"></i>
-                        {{ $libur->tanggal->translatedFormat('d M Y') }}
+                        {{ $libur->tanggal->format('Y-m-d') }}
                     </span>
                 </td>
-                <td><span class="hl-day">{{ $libur->tanggal->translatedFormat('l') }}</span></td>
+                <td><span class="hl-day">{{ $libur->tanggal->locale('id')->translatedFormat('l') }}</span></td>
                 <td>
                     @if ($libur->isMasukKerja())
                         <span class="hl-badge masuk_kerja"><i class="fas fa-check"></i> Masuk Kerja</span>
@@ -235,7 +235,7 @@
                         @endcan
                         @can('hari_libur.delete')
                             <form method="POST" action="{{ route('admin.hari-libur.destroy', $libur) }}"
-                                  data-swal-confirm="Hapus tanggal {{ $libur->tanggal->format('d M Y') }} ({{ $libur->keterangan }})? Status tanggal ini kembali mengikuti aturan default.">
+                                  onsubmit="return confirm('Hapus tanggal {{ $libur->tanggal->format('d M Y') }} ({{ addslashes($libur->keterangan) }})? Status tanggal ini kembali mengikuti aturan default.')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="hl-action-btn delete" title="Hapus">

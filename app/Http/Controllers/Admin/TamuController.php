@@ -107,10 +107,10 @@ class TamuController extends Controller
             'orang'     => $t->orang_ditemui,
             'keperluan' => $t->keperluan,
             'jumlah'    => $t->jumlah_tamu,
-            'tanggal'   => $t->tanggal_kunjungan?->format('d M Y, H:i'),
-            'daftar'    => $t->created_at->format('d M Y, H:i'),
-            'checkin'   => $t->checked_in_at?->format('d M Y, H:i'),
-            'checkout'  => $t->checked_out_at?->format('d M Y, H:i'),
+            'tanggal'   => $t->tanggal_kunjungan?->format('Y-m-d H:i'),
+            'daftar'    => $t->created_at->format('Y-m-d H:i'),
+            'checkin'   => $t->checked_in_at?->format('Y-m-d H:i'),
+            'checkout'  => $t->checked_out_at?->format('Y-m-d H:i'),
             'status'    => $t->verifikasi_label === 'Disetujui'
                 ? ($t->checked_out_at ? 'Selesai' : ($t->checked_in_at ? 'Berkunjung' : 'Belum Check-In'))
                 : $t->verifikasi_label,
@@ -129,7 +129,7 @@ class TamuController extends Controller
             'log' => ($t->verified_at && $t->verified_by)
                 ? 'Terakhir diperbarui oleh ' . $t->verifier_name
                     . ' (' . $t->verifier_role_label . ') pada '
-                    . $t->verified_at->translatedFormat('d M Y')
+                    . $t->verified_at->format('Y-m-d')
                     . ' jam ' . $t->verified_at->format('H.i')
                     . ' — status saat ini ' . $t->kunjunganState()['badge_label'] . '.'
                 : 'Belum ada perubahan status — kunjungan menunggu verifikasi.',
@@ -472,7 +472,7 @@ class TamuController extends Controller
 
         if ($tamu->checked_in_at !== null) {
             return $this->kunjunganResult($request, $tamu, 'error',
-                "Tamu \"{$tamu->nama}\" sudah check-in pada {$tamu->checked_in_at->format('d M Y, H:i')}.");
+                "Tamu \"{$tamu->nama}\" sudah check-in pada {$tamu->checked_in_at->format('Y-m-d H:i')}.");
         }
 
         $tamu->update(['checked_in_at' => now()]);
@@ -655,8 +655,8 @@ class TamuController extends Controller
                 foreach ($rows as $t) {
                     fputcsv($out, [
                         ++$i,
-                        $t->created_at?->format('d/m/Y H:i'),
-                        $t->tanggal_kunjungan?->format('d/m/Y H:i'),
+                        $t->created_at?->format('Y-m-d H:i'),
+                        $t->tanggal_kunjungan?->format('Y-m-d H:i'),
                         $t->nama,
                         $t->nik,
                         $t->no_hp,
@@ -665,8 +665,8 @@ class TamuController extends Controller
                         $t->tujuan_ditemui,
                         $t->jumlah_tamu,
                         $t->keperluan,
-                        $t->checked_in_at?->format('d/m/Y H:i'),
-                        $t->checked_out_at?->format('d/m/Y H:i'),
+                        $t->checked_in_at?->format('Y-m-d H:i'),
+                        $t->checked_out_at?->format('Y-m-d H:i'),
                         $t->checked_out_at ? 'Selesai' : 'Berkunjung',
                     ]);
                 }

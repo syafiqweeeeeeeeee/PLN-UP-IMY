@@ -183,7 +183,7 @@
                         </span>
                     </td>
                     <td class="col-hide-mobile" style="color:var(--ink-muted); font-size:0.85rem;">
-                        {{ $role->created_at->format('d M Y') }}
+                        {{ $role->created_at->format('Y-m-d') }}
                     </td>
                     <td class="td-actions">
                         <div class="d-flex gap-1 justify-content-end flex-wrap">

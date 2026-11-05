@@ -392,7 +392,7 @@
                     <h1 class="berita-detail-title">{{ $news->title }}</h1>
 
                     <div class="berita-detail-meta">
-                        <span><i class="far fa-calendar-alt"></i> {{ $news->published_at?->format('d F Y') ?? $news->created_at->format('d F Y') }}</span>
+                        <span><i class="far fa-calendar-alt"></i> {{ $news->published_at?->format('Y-m-d') ?? $news->created_at->format('Y-m-d') }}</span>
                         @if ($news->author)
                         <span><i class="fas fa-user-pen"></i> <span class="author-meta">{{ $news->author }}</span></span>
                         @endif
@@ -439,7 +439,7 @@
                     </div>
                     <div class="related-body">
                         <div class="related-meta">
-                            <span><i class="far fa-calendar-alt"></i> {{ $item->published_at?->format('d M Y') ?? $item->created_at->format('d M Y') }}</span>
+                            <span><i class="far fa-calendar-alt"></i> {{ $item->published_at?->format('Y-m-d') ?? $item->created_at->format('Y-m-d') }}</span>
                         </div>
                         <div class="related-title">{{ $item->title }}</div>
                         <span class="related-link">Selengkapnya <i class="fas fa-arrow-right"></i></span>

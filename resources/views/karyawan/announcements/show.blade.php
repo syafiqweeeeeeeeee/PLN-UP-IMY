@@ -141,7 +141,7 @@
                 {{ $announcement->is_published ? 'Dipublikasikan' : 'Draft' }}
             </span>
             &middot; {{ ucfirst($announcement->category) }}
-            &middot; {{ ($announcement->published_at ?? $announcement->created_at)->format('d M Y H:i') }}
+            &middot; {{ ($announcement->published_at ?? $announcement->created_at)->format('Y-m-d H:i') }}
         </p>
     </div>
 </div>
@@ -207,18 +207,18 @@
         @if ($announcement->published_at)
         <div class="portal-detail-field">
             <div class="portal-detail-label">Tanggal Publikasi</div>
-            <div class="portal-detail-value">{{ $announcement->published_at->format('d M Y H:i') }}</div>
+            <div class="portal-detail-value">{{ $announcement->published_at->format('Y-m-d H:i') }}</div>
         </div>
         @endif
 
         <div class="portal-detail-field">
             <div class="portal-detail-label">Dibuat Pada</div>
-            <div class="portal-detail-value muted">{{ $announcement->created_at->format('d/m/Y H:i:s') }}</div>
+            <div class="portal-detail-value muted">{{ $announcement->created_at->format('Y-m-d H:i:s') }}</div>
         </div>
 
         <div class="portal-detail-field">
             <div class="portal-detail-label">Diperbarui Pada</div>
-            <div class="portal-detail-value muted">{{ $announcement->updated_at->format('d/m/Y H:i:s') }}</div>
+            <div class="portal-detail-value muted">{{ $announcement->updated_at->format('Y-m-d H:i:s') }}</div>
         </div>
     </div>
 </div>

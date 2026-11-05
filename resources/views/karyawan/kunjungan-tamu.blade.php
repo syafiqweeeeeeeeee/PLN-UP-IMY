@@ -431,14 +431,14 @@
                     <td>
                         <span class="kt-jadwal-chip">
                             <i class="fas fa-calendar-check"></i>
-                            {{ $tamu->tanggal_kunjungan?->translatedFormat('d M Y') ?? '—' }}
+                            {{ $tamu->tanggal_kunjungan?->format('Y-m-d') ?? '—' }}
                             @if ($tamu->tanggal_kunjungan)
                                 · {{ $tamu->tanggal_kunjungan->format('H:i') }}
                             @endif
                         </span>
                         <div class="kt-guest-meta" title="Waktu pendaftaran">
                             <i class="fas fa-clock"></i> didaftarkan
-                            {{ $tamu->created_at->translatedFormat('d M Y') }} {{ $tamu->created_at->format('H:i') }}
+                            {{ $tamu->created_at->format('Y-m-d') }} {{ $tamu->created_at->format('H:i') }}
                         </div>
                     </td>
                     <td>
@@ -526,7 +526,8 @@
                                     @csrf
                                     <input type="hidden" name="keputusan" value="setuju">
                                     <button type="submit" class="kt-act-btn approve"
-                                            title="Setujui kunjungan tamu {{ $tamu->nama }}">
+                                            title="Setujui kunjungan tamu {{ $tamu->nama }}"
+                                            onclick="return confirm('Setujui kunjungan \"{{ $tamu->nama }}\" pada {{ $tamu->tanggal_kunjungan?->translatedFormat('d F Y H:i') }}?');">
                                         <i class="fas fa-check"></i> Setujui
                                     </button>
                                 </form>
@@ -537,7 +538,8 @@
                                     @csrf
                                     <input type="hidden" name="keputusan" value="tolak">
                                     <button type="submit" class="kt-act-btn cancel"
-                                            title="Batalkan kunjungan tamu {{ $tamu->nama }}">
+                                            title="Batalkan kunjungan tamu {{ $tamu->nama }}"
+                                            onclick="return confirm('Batalkan kunjungan \"{{ $tamu->nama }}\" pada {{ $tamu->tanggal_kunjungan?->translatedFormat('d F Y H:i') }}?');">
                                         <i class="fas fa-xmark"></i> Batalkan
                                     </button>
                                 </form>
@@ -578,7 +580,7 @@
                                 <i class="fas fa-circle-check"></i>
                                 @if ($tamu->verified_at && $tamu->verifier)
                                     Sudah diapprove oleh <strong>{{ $tamu->verifier_name }}</strong>
-                                    pada tanggal {{ $tamu->verified_at->translatedFormat('d F Y') }}
+                                    pada tanggal {{ $tamu->verified_at->format('Y-m-d') }}
                                     jam {{ $tamu->verified_at->format('H.i') }}
                                 @else
                                     Sudah diapprove oleh <strong>{{ $tamu->verifier_name }}</strong>
@@ -591,7 +593,7 @@
                                 @if ($tamu->verified_at && $tamu->verifier)
                                     Dibatalkan oleh {{ $tamu->verifier_role_label }}
                                     atasnama <strong>{{ $tamu->verifier_name }}</strong>
-                                    pada tanggal {{ $tamu->verified_at->translatedFormat('d F Y') }}
+                                    pada tanggal {{ $tamu->verified_at->format('Y-m-d') }}
                                     jam {{ $tamu->verified_at->format('H.i') }}
                                 @else
                                     Dibatalkan oleh {{ $tamu->verifier_role_label }}

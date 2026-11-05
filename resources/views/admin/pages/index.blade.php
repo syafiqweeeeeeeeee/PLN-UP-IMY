@@ -115,7 +115,7 @@
                             —
                         @endif
                     </td>
-                    <td>{{ $page->updated_at->translatedFormat('d M Y H:i') }}</td>
+                    <td>{{ $page->updated_at->format('Y-m-d H:i') }}</td>
                     <td>
                         <div class="page-actions">
                             @can('pages.edit')

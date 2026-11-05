@@ -414,7 +414,7 @@
                     <h1 class="pengumuman-detail-title">{{ $pengumuman->title }}</h1>
 
                     <div class="pengumuman-detail-meta">
-                        <span><i class="far fa-calendar-alt"></i> {{ ($pengumuman->published_at ?? $pengumuman->created_at)->translatedFormat('d F Y') }}</span>
+                        <span><i class="far fa-calendar-alt"></i> {{ ($pengumuman->published_at ?? $pengumuman->created_at)->format('Y-m-d') }}</span>
                         <span><i class="far fa-clock"></i> {{ $pengumuman->created_at->diffForHumans() }}</span>
                         @if ($pengumuman->authorUser)
                         <span><i class="fas fa-user-pen"></i> {{ $pengumuman->authorUser->name }}</span>
@@ -433,7 +433,7 @@
                         <h4><i class="fas fa-circle-info me-1"></i> Informasi</h4>
                         <p>
                             Pengumuman ini diterbitkan oleh PT PLN Nusantara Power UP PLTU Indramayu
-                            pada {{ ($pengumuman->published_at ?? $pengumuman->created_at)->translatedFormat('d F Y') }}.
+                            pada {{ ($pengumuman->published_at ?? $pengumuman->created_at)->format('Y-m-d') }}.
                             Untuk pertanyaan lebih lanjut, silakan hubungi kantor PPID.
                         </p>
                     </div>
@@ -457,7 +457,7 @@
                     <div class="related-title">{{ $item->title }}</div>
                     <div class="related-excerpt">{{ $item->excerpt }}</div>
                     <div class="related-meta">
-                        <span><i class="far fa-calendar-alt"></i> {{ ($item->published_at ?? $item->created_at)->translatedFormat('d M Y') }}</span>
+                        <span><i class="far fa-calendar-alt"></i> {{ ($item->published_at ?? $item->created_at)->format('Y-m-d') }}</span>
                     </div>
                 </a>
                 @endforeach

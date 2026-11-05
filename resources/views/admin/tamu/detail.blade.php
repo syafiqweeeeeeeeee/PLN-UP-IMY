@@ -197,7 +197,7 @@
                 <div class="dt-log-text">
                     Terakhir diperbarui oleh <strong>{{ $tamu->verifier_name }}</strong>
                     ({{ $tamu->verifier_role_label }})
-                    pada {{ $tamu->verified_at->translatedFormat('d M Y') }}
+                    pada {{ $tamu->verified_at->format('Y-m-d') }}
                     jam {{ $tamu->verified_at->format('H.i') }}
                     — status saat ini <strong>{{ $badgeLabel }}</strong>.
                 </div>
@@ -307,7 +307,7 @@
             <div class="dt-row"><dt>Jumlah Tamu</dt><dd>{{ $tamu->jumlah_tamu }} orang</dd></div>
             <div class="dt-row">
                 <dt>Jadwal Kunjungan</dt>
-                <dd>{{ $tamu->tanggal_kunjungan?->translatedFormat('d F Y') ?? '-' }}
+                <dd>{{ $tamu->tanggal_kunjungan?->format('Y-m-d') ?? '-' }}
                     {{ $tamu->tanggal_kunjungan?->format('H:i') }}</dd>
             </div>
         </div>

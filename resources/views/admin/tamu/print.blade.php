@@ -346,12 +346,12 @@
         <h2>{{ $style === 'pdf' ? 'Laporan Daftar Tamu' : 'Data Tamu — Buku Registrasi' }}</h2>
         <p>
             @if ($filter['dari'] || $filter['sampai'])
-                Periode {{ $filter['dari'] ? \Illuminate\Support\Carbon::parse($filter['dari'])->translatedFormat('d M Y') : 'awal' }}
-                s/d {{ $filter['sampai'] ? \Illuminate\Support\Carbon::parse($filter['sampai'])->translatedFormat('d M Y') : 'sekarang' }}
+                Periode {{ $filter['dari'] ? \Illuminate\Support\Carbon::parse($filter['dari'])->format('Y-m-d') : 'awal' }}
+                s/d {{ $filter['sampai'] ? \Illuminate\Support\Carbon::parse($filter['sampai'])->format('Y-m-d') : 'sekarang' }}
             @else
                 Seluruh periode
             @endif
-            — dicetak {{ now()->translatedFormat('d M Y H:i') }} WIB
+            — dicetak {{ now()->format('Y-m-d H:i') }} WIB
         </p>
     </div>
 
@@ -460,8 +460,8 @@
             @forelse ($tamus as $tamu)
                 <tr>
                     <td class="{{ $style === 'excel' ? 'rownum' : 'ctr' }}">{{ $loop->iteration }}</td>
-                    <td class="ctr">{{ $tamu->created_at?->format('d/m/Y H:i') }}</td>
-                    <td class="ctr">{{ $tamu->tanggal_kunjungan?->format('d/m/Y H:i') }}</td>
+                    <td class="ctr">{{ $tamu->created_at?->format('Y-m-d H:i') }}</td>
+                    <td class="ctr">{{ $tamu->tanggal_kunjungan?->format('Y-m-d H:i') }}</td>
                     <td><strong>{{ $tamu->nama }}</strong></td>
                     <td class="ctr">{{ $tamu->nik }}</td>
                     <td class="ctr">{{ $tamu->no_hp }}</td>
@@ -470,8 +470,8 @@
                     <td>{{ $tamu->tujuan_ditemui }}</td>
                     <td class="num">{{ $tamu->jumlah_tamu }}</td>
                     <td>{{ \Illuminate\Support\Str::limit($tamu->keperluan, 120) }}</td>
-                    <td class="ctr">{{ $tamu->checked_in_at?->format('d/m/Y H:i') ?? '—' }}</td>
-                    <td class="ctr">{{ $tamu->checked_out_at?->format('d/m/Y H:i') ?? '—' }}</td>
+                    <td class="ctr">{{ $tamu->checked_in_at?->format('Y-m-d H:i') ?? '—' }}</td>
+                    <td class="ctr">{{ $tamu->checked_out_at?->format('Y-m-d H:i') ?? '—' }}</td>
                     <td class="ctr">
                         @php
                             /* Alur sama dengan tabel index: Disetujui
@@ -510,7 +510,7 @@
     @if ($style === 'pdf' && $tamus->isNotEmpty())
         {{-- Blok tanda tangan --}}
         <div class="ttd">
-            <div class="tempat">Indramayu, {{ now()->translatedFormat('d F Y') }}</div>
+            <div class="tempat">Indramayu, {{ now()->format('Y-m-d') }}</div>
             <div style="margin-bottom:2.6rem;">Mengetahui,</div>
             <div class="nama">( .................................... )</div>
             <div style="font-size:0.72rem; color:#64748b;">Petugas Front Office</div>
@@ -518,7 +518,7 @@
     @endif
 
     <div class="printed-at">
-        Dicetak dari {{ request()->getHost() }} — {{ now()->translatedFormat('d/m/Y H:i:s') }} |
+        Dicetak dari {{ request()->getHost() }} — {{ now()->format('Y-m-d H:i:s') }} |
         {{ $tamus->count() }} baris data
         @if ($style === 'pdf')| No. Dok: BRT/{{ now()->format('Ym') }}/{{ str_pad((string) $tamus->count(), 4, '0', STR_PAD_LEFT) }}@endif
     </div>

@@ -931,13 +931,13 @@
                         <span class="tamu-no-badge">{{ ($tamus->currentPage() - 1) * $tamus->perPage() + $loop->iteration }}</span>
                         <div class="tamu-waktu-meta">
                             <span class="waktu-pill" title="Waktu pendaftaran">
-                                <i class="fas fa-calendar-day"></i>{{ $tamu->created_at->translatedFormat('d M Y') }}
+                                <i class="fas fa-calendar-day"></i>{{ $tamu->created_at->format('Y-m-d') }}
                                 <span class="pill-sep">·</span>
                                 <span class="pill-jam">{{ $tamu->created_at->format('H:i') }}</span>
                             </span>
                             <span class="kunjungan-chip" title="Jadwal kunjungan yang dipilih tamu">
                                 <i class="fas fa-calendar-check"></i>
-                                {{ $tamu->tanggal_kunjungan?->translatedFormat('d M Y') ?? '—' }}
+                                {{ $tamu->tanggal_kunjungan?->format('Y-m-d') ?? '—' }}
                                 @if ($tamu->tanggal_kunjungan)
                                     <span class="chip-sep">·</span>
                                     <span>{{ $tamu->tanggal_kunjungan->format('H:i') }}</span>
@@ -1017,7 +1017,7 @@
                             @else
                                 Sudah diapprove oleh <strong>{{ $tamu->verifier_name }}</strong>
                             @endif
-                            pada tanggal {{ $tamu->verified_at->translatedFormat('d F Y') }}
+                            pada tanggal {{ $tamu->verified_at->format('Y-m-d') }}
                             jam {{ $tamu->verified_at->format('H.i') }}
                         </span>
                     @endif

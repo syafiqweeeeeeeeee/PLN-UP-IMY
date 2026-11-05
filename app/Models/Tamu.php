@@ -247,7 +247,7 @@ class Tamu extends Model
     {
         return "Halo Bpk/Ibu {$this->nama}, pendaftaran kunjungan Anda di "
             . "PT PLN Nusantara Power UP PLTU Indramayu telah DIIZINKAN.\n\n"
-            . "Jadwal kunjungan: {$this->tanggal_kunjungan?->translatedFormat('d F Y, H:i')} WIB\n"
+            . "Jadwal kunjungan: {$this->tanggal_kunjungan?->format('Y-m-d H:i')} WIB\n"
             . "Yang akan ditemui: {$this->tujuan_ditemui}\n"
             . "Jumlah tamu: {$this->jumlah_tamu} orang\n\n"
             . "Silakan tunjukkan pesan ini dan membawa identitas diri (KTP) "
@@ -261,7 +261,7 @@ class Tamu extends Model
     {
         return "Halo Bpk/Ibu {$this->nama}, mohon maaf pendaftaran kunjungan Anda di "
             . "PT PLN Nusantara Power UP PLTU Indramayu pada "
-            . "{$this->tanggal_kunjungan?->translatedFormat('d F Y, H:i')} WIB "
+            . "{$this->tanggal_kunjungan?->format('Y-m-d H:i')} WIB "
             . "belum dapat kami izinkan.\n\n"
             . "Silakan hubungi petugas atau lakukan pendaftaran ulang di waktu lain. "
             . "Terima kasih atas pengertiannya.";
@@ -398,8 +398,8 @@ class Tamu extends Model
             'label'        => $label,
             'badge'        => $badge,
             'badge_label'  => $badgeLabel,
-            'checkin'      => $this->checked_in_at?->format('d M Y, H:i'),
-            'checkout'     => $this->checked_out_at?->format('d M Y, H:i'),
+            'checkin'      => $this->checked_in_at?->format('Y-m-d H:i'),
+            'checkout'     => $this->checked_out_at?->format('Y-m-d H:i'),
             'durasi'       => $durasi,
             'durasi_label' => $durasiLabel,
             'can_checkin'  => $this->canCheckin(),

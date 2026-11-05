@@ -641,7 +641,7 @@
             <div class="news-card-meta">
                 <span class="news-card-date">
                     <i class="far fa-calendar"></i>
-                    {{ $item->created_at->format('d M Y') }}
+                    {{ $item->created_at->format('Y-m-d') }}
                     @if ($item->author)
                         <span style="margin-left: 0.25rem;">· {{ $item->author }}</span>
                     @endif

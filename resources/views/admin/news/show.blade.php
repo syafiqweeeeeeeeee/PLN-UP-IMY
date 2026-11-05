@@ -18,7 +18,7 @@
                 <span class="badge" style="background: {{ $news->category === 'umum' ? 'var(--pln-blue)' : ($news->category === 'teknis' ? '#00a3e0' : ($news->category === 'kegiatan' ? '#eab900' : '#8b5cf6')) }}; color: #fff; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 4px; text-transform: uppercase;">
                     {{ $news->category }}
                 </span>
-                &middot; {{ $news->created_at->format('d M Y H:i') }}
+                &middot; {{ $news->created_at->format('Y-m-d H:i') }}
                 &middot; {{ $news->is_published ? 'Dipublikasikan' : 'Draft' }}
             </p>
         </div>
@@ -81,7 +81,7 @@
             @if ($news->published_at)
             <div class="mb-3">
                 <label class="form-group-label">Tanggal Publikasi</label>
-                <div style="font-size: 0.9rem; color: var(--ink-heading);">{{ $news->published_at->format('d M Y H:i') }}</div>
+                <div style="font-size: 0.9rem; color: var(--ink-heading);">{{ $news->published_at->format('Y-m-d H:i') }}</div>
             </div>
             @endif
         </div>

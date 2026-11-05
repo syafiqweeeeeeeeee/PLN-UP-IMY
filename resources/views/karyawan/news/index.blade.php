@@ -454,7 +454,7 @@
             <p class="portal-news-card-excerpt">{{ Str::limit($item->excerpt, 90) }}</p>
             <div class="portal-news-card-meta">
                 <span class="portal-news-card-date">
-                    <i class="far fa-calendar"></i> {{ $item->created_at->format('d M Y') }}
+                    <i class="far fa-calendar"></i> {{ $item->created_at->format('Y-m-d') }}
                     @if ($item->author)
                         <span style="margin-left: 0.2rem;">· {{ $item->author }}</span>
                     @endif

@@ -440,7 +440,7 @@
                     <td class="col-hide-mobile">
                         <span style="font-size: 0.85rem; color: var(--ink-muted);">
                             <i class="far fa-calendar me-1"></i>
-                            {{ $user->created_at->format('d M Y') }}
+                            {{ $user->created_at->format('Y-m-d') }}
                         </span>
                     </td>
                     @php

@@ -372,7 +372,7 @@
             <div class="galeri-card-meta">
                 <span class="galeri-card-date">
                     <i class="far fa-calendar"></i>
-                    <span>{{ $item->tanggal_kegiatan->translatedFormat('d M Y') }}</span>
+                    <span>{{ $item->tanggal_kegiatan->format('Y-m-d') }}</span>
                     @if ($creatorNames[$item->id] ?? null)
                         <span class="creator">· {{ $creatorNames[$item->id] }}</span>
                     @endif

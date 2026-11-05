@@ -124,7 +124,7 @@ class TamuController extends Controller
 
                     // 2. Tanggal merah (tipe libur) — ditolak.
                     if ($libur !== null) {
-                        $tgl = $tanggal->format('d F Y');
+                        $tgl = $tanggal->format('Y-m-d');
                         $ket = $libur->keterangan !== '' ? ' — ' . $libur->keterangan : '';
                         $fail("Tanggal {$tgl} adalah hari libur{$ket} dan tidak dapat dipilih untuk kunjungan.");
 
@@ -133,8 +133,8 @@ class TamuController extends Controller
 
                     // 3. Akhir pekan tanpa override — hardcode libur.
                     if ($tanggal->isWeekend()) {
-                        $fail("Tanggal {$tanggal->translatedFormat('d F Y')} adalah "
-                            . $tanggal->translatedFormat('l')
+                        $fail("Tanggal {$tanggal->format('Y-m-d')} adalah "
+                            . $tanggal->locale('id')->translatedFormat('l')
                             . ' (akhir pekan) — kunjungan hanya dapat dijadwalkan pada hari kerja '
                             . '(Sabtu/Minggu dapat dibuka oleh admin lewat tipe "Masuk Kerja").');
                     }

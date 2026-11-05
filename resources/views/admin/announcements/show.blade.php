@@ -131,13 +131,13 @@
 
                     <div class="detail-label">Dibuat</div>
                     <div class="detail-value" style="margin-bottom: 1.25rem;">
-                        <i class="far fa-calendar me-1" style="color: #9ca3af;"></i> {{ $announcement->created_at->format('d M Y H:i') }}
+                        <i class="far fa-calendar me-1" style="color: #9ca3af;"></i> {{ $announcement->created_at->format('Y-m-d H:i') }}
                     </div>
 
                     @if ($announcement->published_at)
                     <div class="detail-label">Dipublikasikan</div>
                     <div class="detail-value" style="margin-bottom: 1.25rem;">
-                        <i class="far fa-calendar-check me-1" style="color: #16a34a;"></i> {{ $announcement->published_at->format('d M Y H:i') }}
+                        <i class="far fa-calendar-check me-1" style="color: #16a34a;"></i> {{ $announcement->published_at->format('Y-m-d H:i') }}
                     </div>
                     @endif
 

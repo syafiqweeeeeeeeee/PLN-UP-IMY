@@ -433,7 +433,7 @@
                         </div>
                         <div class="news-body">
                             <div class="news-meta">
-                                <span><i class="fas fa-calendar-alt"></i> {{ $item->published_at?->format('d M Y') ?? $item->created_at->format('d M Y') }}</span>
+                                <span><i class="fas fa-calendar-alt"></i> {{ $item->published_at?->format('Y-m-d') ?? $item->created_at->format('Y-m-d') }}</span>
                                 @if ($item->author)
                                 <span><i class="fas fa-user-pen"></i> {{ $item->author }}</span>
                                 @endif

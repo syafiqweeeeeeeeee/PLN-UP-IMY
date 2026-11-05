@@ -56,7 +56,7 @@
                     <div class="kry-news-body">
                         <div class="kry-news-date">
                             <i class="fas fa-calendar-day"></i>
-                            {{ optional($item->published_at)->translatedFormat('d F Y') ?? '-' }}
+                            {{ optional($item->published_at)->format('Y-m-d') ?? '-' }}
                             <span class="kry-tag">Pengumuman</span>
                         </div>
                         <h3>{{ $item->title }}</h3>
@@ -81,7 +81,7 @@
                     <div class="kry-news-body">
                         <div class="kry-news-date">
                             <i class="fas fa-calendar-day"></i>
-                            {{ optional($item->published_at)->translatedFormat('d F Y') ?? '-' }}
+                            {{ optional($item->published_at)->format('Y-m-d') ?? '-' }}
                             <span class="kry-tag">Berita</span>
                         </div>
                         <h3>{{ $item->title }}</h3>

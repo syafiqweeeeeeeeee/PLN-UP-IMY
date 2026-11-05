@@ -98,6 +98,6 @@ class EmployeeProfile extends Model
     /** Format tanggal yang mudah dibaca (14 Mar 1985); null-safe. */
     public function formatTanggal(?string $column): ?string
     {
-        return $this->getAttribute($column)?->translatedFormat('d M Y');
+        return $this->getAttribute($column)?->format('Y-m-d');
     }
 }

@@ -242,7 +242,7 @@
                     </td>
                     <td class="col-hide-mobile">
                         <span style="font-size: 0.85rem; color: var(--ink-muted);">
-                            <i class="far fa-calendar me-1"></i>{{ $item->created_at->format('d M Y') }}
+                            <i class="far fa-calendar me-1"></i>{{ $item->created_at->format('Y-m-d') }}
                         </span>
                     </td>
                     <td class="td-actions">

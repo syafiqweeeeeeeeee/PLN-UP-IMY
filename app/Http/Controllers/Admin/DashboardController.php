@@ -129,7 +129,7 @@ class DashboardController extends Controller
                 'title'  => $item->title,
                 'type'   => $item->content_type,
                 'status' => $item->published ? 'Published' : 'Draft',
-                'date'   => $item->created_at->locale('id')->translatedFormat('d M Y'),
+                'date'   => $item->created_at->format('Y-m-d'),
             ])
             ->values()
             ->toArray();
@@ -320,7 +320,7 @@ class DashboardController extends Controller
 
                 return [
                     'title'   => $t->nama,
-                    'meta'    => ($hitInstansi || ! $hitNama) && $t->instansi ? $t->instansi : ($t->tanggal_kunjungan?->translatedFormat('d M Y') ?? '-'),
+                    'meta'    => ($hitInstansi || ! $hitNama) && $t->instansi ? $t->instansi : ($t->tanggal_kunjungan?->format('Y-m-d') ?? '-'),
                     'icon'    => 'fas fa-address-book',
                     'color'   => '#fef3c7',
                     // Modul tamu tidak punya halaman detail per baris —

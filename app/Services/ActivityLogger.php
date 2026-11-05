@@ -308,7 +308,7 @@ class ActivityLogger
      */
     public static function dayHeader(Carbon $date): string
     {
-        $english = $date->copy()->locale('en')->translatedFormat('l, F j, Y');
+        $english = $date->copy()->locale('en')->format('Y-m-d');
 
         if ($date->isToday()) {
             return 'Today - ' . $english;

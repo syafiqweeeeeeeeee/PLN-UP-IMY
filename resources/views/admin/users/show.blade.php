@@ -725,7 +725,7 @@
                             <div class="detail-label">Terdaftar</div>
                             <div class="detail-value">
                                 <i class="far fa-calendar me-1" style="color: var(--pln-blue);"></i>
-                                {{ $user->created_at->format('d F Y') }}
+                                {{ $user->created_at->format('Y-m-d') }}
                             </div>
                         </div>
                     </div>
@@ -778,17 +778,17 @@
                     </div>
                     <div>
                         <div class="detail-label">Dibuat Pada</div>
-                        <div class="detail-value muted">{{ $user->created_at->format('d/m/Y H:i:s') }}</div>
+                        <div class="detail-value muted">{{ $user->created_at->format('Y-m-d H:i:s') }}</div>
                     </div>
                     <div>
                         <div class="detail-label">Diperbarui Pada</div>
-                        <div class="detail-value muted">{{ $user->updated_at->format('d/m/Y H:i:s') }}</div>
+                        <div class="detail-value muted">{{ $user->updated_at->format('Y-m-d H:i:s') }}</div>
                     </div>
                     @if($user->email_verified_at)
                     <div>
                         <div class="detail-label">Verifikasi Email</div>
                         <div class="detail-value" style="color: #10b981;">
-                            <i class="fas fa-check-circle me-1"></i>{{ $user->email_verified_at->format('d F Y H:i') }}
+                            <i class="fas fa-check-circle me-1"></i>{{ $user->email_verified_at->format('Y-m-d H:i') }}
                         </div>
                     </div>
                     @endif

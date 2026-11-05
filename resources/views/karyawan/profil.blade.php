@@ -32,7 +32,7 @@
                 <span><i class="fas fa-location-dot" style="width:18px; color:#008fa8;"></i>
                     {{ $user->alamat ?? 'Belum ada alamat' }}</span>
                 <span><i class="fas fa-calendar" style="width:18px; color:#008fa8;"></i>
-                    Terdaftar {{ $user->created_at?->translatedFormat('d F Y') }}</span>
+                    Terdaftar {{ $user->created_at?->format('Y-m-d') }}</span>
             </div>
         </aside>
 
