@@ -287,9 +287,9 @@
             <div class="hl-modal-body">
                 <div>
                     <label class="hl-label" for="hl-tanggal">Tanggal <span class="req">*</span></label>
-                    <input type="date" id="hl-tanggal" name="tanggal" required
-                           min="{{ now()->format('Y-m-d') }}"
-                           value="{{ old('tanggal') }}" class="hl-input">
+                    <x-date-picker id="hl-tanggal" name="tanggal" required min="today"
+                                   :value="old('tanggal')" :class="$errors->has('tanggal') ? 'is-invalid' : ''"
+                                   placeholder="Pilih tanggal" />
                     <p class="hl-hint">Minimal hari ini — tanggal lampau tidak bisa didaftarkan.</p>
                 </div>
                 <div>
@@ -338,7 +338,8 @@
             <div class="hl-modal-body">
                 <div>
                     <label class="hl-label" for="hl-edit-tanggal">Tanggal <span class="req">*</span></label>
-                    <input type="date" id="hl-edit-tanggal" name="tanggal" required class="hl-input">
+                    <x-date-picker id="hl-edit-tanggal" name="tanggal" required
+                                   placeholder="Pilih tanggal" />
                 </div>
                 <div>
                     <label class="hl-label" for="hl-edit-tipe">Tipe Status <span class="req">*</span></label>

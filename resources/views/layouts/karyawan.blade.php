@@ -63,6 +63,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="{{ asset('css/karyawan.css') }}" />
+
+    {{-- Datepicker global (<x-date-picker />) — tampilan seragam dengan
+         Form Registrasi Tamu. Dimuat setelah karyawan.css. --}}
+    <link rel="stylesheet" href="{{ asset('css/date-picker.css') }}?v={{ @filemtime(public_path('css/date-picker.css')) }}" />
     @push('styles')
     <style>
         /* ============================================
@@ -693,6 +697,10 @@
          bawaan browser). --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/swal-helper.js') }}"></script>
+
+    {{-- Datepicker global: inisialisasi otomatis seluruh input
+         <x-date-picker /> maupun input class=".datepicker". --}}
+    <script src="{{ asset('js/date-picker.js') }}?v={{ @filemtime(public_path('js/date-picker.js')) }}" defer></script>
 
     {{-- Client-side router: pindah halaman tanpa reload layout,
          cache memori per halaman, micro-transition 60ms --}}

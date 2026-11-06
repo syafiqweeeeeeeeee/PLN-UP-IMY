@@ -6,9 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\ActivityLogger;
 use App\Models\Announcement;
 use App\Models\Department;
-use App\Models\Menu;
 use App\Models\News;
-use App\Models\Page;
 use App\Models\Tamu;
 use App\Models\User;
 use App\Models\WorkLink;
@@ -32,15 +30,13 @@ class DashboardController extends Controller
         $user = auth()->user();
         $isDepartmentAdmin = $user && $user->isDepartmentAdmin();
 
-        // Draft gabungan dari seluruh konten (berita + pengumuman + halaman)
+        // Draft gabungan dari seluruh konten (berita + pengumuman)
         $totalDraftContent = News::where('is_published', false)->count()
-            + Announcement::where('is_published', false)->count()
-            + Page::where('status', Page::STATUS_DRAFT)->count();
+            + Announcement::where('is_published', false)->count();
 
         // Statistik global untuk Super Admin / Admin tingkat atas
         $stats = [
             'total_users'     => User::count(),
-            'total_pages'     => Page::count(),
             'total_news'      => News::where('is_published', true)->count(),
             'pending_content' => $totalDraftContent,
         ];
@@ -118,11 +114,7 @@ class DashboardController extends Controller
             ->selectRaw("'Pengumuman' as content_type, title, is_published as published, created_at")
             ->get();
 
-        $pages = Page::query()
-            ->selectRaw("'Halaman' as content_type, title, status = ? as published, created_at", [Page::STATUS_PUBLISHED])
-            ->get();
-
-        $latest_content = $news->concat($announcements)->concat($pages)
+        $latest_content = $news->concat($announcements)
             ->sortByDesc('created_at')
             ->take(5)
             ->map(fn ($item) => [
@@ -251,46 +243,6 @@ class DashboardController extends Controller
                 'color'   => '#166534',
                 'url'     => route('admin.announcements.edit', $a),
                 'cta'     => 'Kelola Pengumuman',
-            ])->all();
-        }
-
-        /* -----------------------------------------------------------
-           Halaman — judul.
-           ----------------------------------------------------------- */
-        if (Gate::allows('pages.view')) {
-            $items = Page::query()
-                ->where('title', 'like', $like)
-                ->latest('updated_at')
-                ->limit(8)
-                ->get(['id', 'title', 'status']);
-
-            $groups['Halaman'] = $items->map(fn (Page $p) => [
-                'title'   => $p->title,
-                'meta'    => $p->status === Page::STATUS_PUBLISHED ? 'Terbit' : 'Draft',
-                'icon'    => 'fas fa-file-lines',
-                'color'   => '#7c3aed',
-                'url'     => route('admin.pages.edit', $p),
-                'cta'     => 'Kelola Halaman',
-            ])->all();
-        }
-
-        /* -----------------------------------------------------------
-           Menu — label.
-           ----------------------------------------------------------- */
-        if (Gate::allows('menus.view')) {
-            $items = Menu::query()
-                ->where('label', 'like', $like)
-                ->orderBy('sort_order')
-                ->limit(8)
-                ->get(['id', 'label', 'is_active']);
-
-            $groups['Menu'] = $items->map(fn (Menu $m) => [
-                'title'   => $m->label,
-                'meta'    => $m->is_active ? 'Aktif' : 'Nonaktif',
-                'icon'    => 'fas fa-bars',
-                'color'   => '#7c3aed',
-                'url'     => route('admin.menus.edit', $m),
-                'cta'     => 'Kelola Menu',
             ])->all();
         }
 

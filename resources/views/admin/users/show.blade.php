@@ -1128,7 +1128,10 @@
                             @foreach (['service_date' => 'Service Date', 'hire_date' => 'Hire Date', 'retire_date' => 'Retire Date', 'grade_date' => 'Grade Date', 'tgl_jab' => 'Tgl Jab', 'tanggal_lahir' => 'Tgl Lahir'] as $epDateField => $epDateLabel)
                                 <div class="col-md-4">
                                     <label class="ep-form-label" for="ep_{{ $epDateField }}">{{ $epDateLabel }}</label>
-                                    <input type="date" id="ep_{{ $epDateField }}" name="{{ $epDateField }}" value="{{ old($epDateField, $epPrefill[$epDateField] ?? '') }}" class="form-control form-control-sm">
+                                    <x-date-picker :id="'ep_' . $epDateField" :name="$epDateField"
+                                                   :value="old($epDateField, $epPrefill[$epDateField] ?? '')"
+                                                   :class="$errors->has($epDateField) ? 'is-invalid' : ''"
+                                                   placeholder="Pilih tanggal" size="sm" />
                                 </div>
                             @endforeach
                         </div>

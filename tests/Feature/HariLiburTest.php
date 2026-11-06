@@ -102,8 +102,8 @@ class HariLiburTest extends TestCase
             ->assertSee('Master Jabatan')
             ->assertDontSee('contoh'); // baris dummy lama sudah dihapus
 
-        // 55 permission = 1 dashboard + 13 menu × 4 aksi + 2 log (tanpa create/edit).
-        $this->assertSame(55, substr_count($response->getContent(), 'name="permissions[]"'));
+        // 47 permission = 1 dashboard + 11 menu × 4 aksi + 2 log (tanpa create/edit).
+        $this->assertSame(47, substr_count($response->getContent(), 'name="permissions[]"'));
     }
 
     public function test_index_renders_daftar_tanggal_merah(): void

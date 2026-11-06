@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PermissionSeeder::class,
             AdminUserSeeder::class,
-            MenuSeeder::class,
             MasterMenuSeeder::class,
             KaryawanUserSeeder::class,
             // Master Bidang lebih dulu — WorkLinkSeeder memetakan setiap

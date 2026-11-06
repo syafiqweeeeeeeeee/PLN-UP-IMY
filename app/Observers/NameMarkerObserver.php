@@ -2,7 +2,6 @@
 
 namespace App\Observers;
 
-use App\Models\Page;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -11,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Menjaga kolom penanda nama (*_name) pada tabel pivot tetap sinkron
- * ketika nama di tabel sumber diubah (rename role/permission/user/page).
+ * ketika nama di tabel sumber diubah (rename role/permission/user).
  *
  * Kolom penanda HANYA untuk keterbacaan; proses RBAC tetap memakai ID.
  * Insert pivot baru lewat attach/sync ditangani oleh
@@ -22,17 +21,14 @@ use Illuminate\Support\Facades\Schema;
  */
 class NameMarkerObserver
 {
-    public function updated(Role|Permission|User|Page $model): void
+    public function updated(Role|Permission|User $model): void
     {
-        // pages memakai kolom `title`; model lain memakai `name`.
-        $nameColumn = $model instanceof Page ? 'title' : 'name';
-
         // Hanya bertindak bila atribut nama benar-benar berubah.
-        if (! $model->wasChanged($nameColumn)) {
+        if (! $model->wasChanged('name')) {
             return;
         }
 
-        $value = $model->getAttribute($nameColumn);
+        $value = $model->getAttribute('name');
         $id = $model->getKey();
 
         match (true) {
@@ -40,7 +36,6 @@ class NameMarkerObserver
             $model instanceof Role => $this->updatePivots([
                 ['role_permission', 'role_id', 'role_name'],
                 ['role_user',       'role_id', 'role_name'],
-                ['page_role',       'role_id', 'role_name'],
             ], $id, $value),
 
             $model instanceof Permission => $this->updatePivots([
@@ -51,11 +46,6 @@ class NameMarkerObserver
             $model instanceof User => $this->updatePivots([
                 ['role_user',           'user_id', 'user_name'],
                 ['user_has_permissions', 'user_id', 'user_name'],
-            ], $id, $value),
-
-            // pages.title → page_role.page_name
-            $model instanceof Page => $this->updatePivots([
-                ['page_role', 'page_id', 'page_name'],
             ], $id, $value),
         };
     }

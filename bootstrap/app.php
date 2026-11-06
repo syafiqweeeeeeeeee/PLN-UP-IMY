@@ -14,7 +14,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'permission' => \App\Http\Middleware\PermissionMiddleware::class,
             'role.scope' => \App\Http\Middleware\RoleMiddleware::class,
-            'page.visible' => \App\Http\Middleware\EnsurePageVisible::class,
             'admin.access' => \App\Http\Middleware\EnsureNotKaryawan::class,
             'karyawan.access' => \App\Http\Middleware\EnsureKaryawan::class,
             'must.password' => \App\Http\Middleware\MustChangePassword::class,

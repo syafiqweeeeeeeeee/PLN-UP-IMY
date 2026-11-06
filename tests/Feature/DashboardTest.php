@@ -6,7 +6,6 @@ use App\Models\Announcement;
 use App\Models\ActivityLog;
 use App\Models\Gallery;
 use App\Models\News;
-use App\Models\Page;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -44,9 +43,6 @@ class DashboardTest extends TestCase
             'excerpt' => 'e', 'content' => 'c', 'is_published' => false,
         ]);
 
-        // 1 halaman terbit
-        Page::create(['title' => 'Halaman Uji', 'slug' => 'halaman-uji', 'status' => Page::STATUS_PUBLISHED]);
-
         $admin = $this->adminUser();
 
         $response = $this->actingAs($admin)->get(route('admin.dashboard'));
@@ -55,9 +51,8 @@ class DashboardTest extends TestCase
 
         $stats = $response->viewData('stats');
         $this->assertSame(1, $stats['total_users']);
-        $this->assertSame(1, $stats['total_pages']);
         $this->assertSame(1, $stats['total_news']);
-        // Draft gabungan: 1 berita + 1 pengumuman + 0 halaman
+        // Draft gabungan: 1 berita + 1 pengumuman
         $this->assertSame(2, $stats['pending_content']);
     }
 
@@ -68,23 +63,23 @@ class DashboardTest extends TestCase
             'excerpt' => 'e', 'content' => 'c', 'author' => 'a',
             'is_published' => true, 'published_at' => now(),
         ]);
-        Page::create([
-            'title' => 'Halaman Campur Uji', 'slug' => 'halaman-campur-uji',
-            'status' => Page::STATUS_DRAFT,
+        Announcement::create([
+            'title' => 'Pengumuman Campur Uji', 'slug' => 'pengumuman-campur-uji',
+            'category' => 'umum', 'excerpt' => 'e', 'content' => 'c', 'is_published' => false,
         ]);
 
         $response = $this->actingAs($this->adminUser())->get(route('admin.dashboard'));
 
         $response->assertOk()
             ->assertSee('Berita Campur Uji')
-            ->assertSee('Halaman Campur Uji');
+            ->assertSee('Pengumuman Campur Uji');
 
         $latest = $response->viewData('latest_content');
         $this->assertNotEmpty($latest);
 
         // Semua baris berasal dari DB — tidak ada placeholder statis lama
         foreach ($latest as $item) {
-            $this->assertContains($item['title'], ['Berita Campur Uji', 'Halaman Campur Uji']);
+            $this->assertContains($item['title'], ['Berita Campur Uji', 'Pengumuman Campur Uji']);
         }
     }
 

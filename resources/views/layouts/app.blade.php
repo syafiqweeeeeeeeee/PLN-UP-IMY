@@ -717,6 +717,11 @@
                 pointer-events: none !important;
             }
         </style>
+
+        {{-- Datepicker global (komponen <x-date-picker />) — seragam di
+             seluruh portal. Cache-busting mengikuti filemtime. --}}
+        <link rel="stylesheet" href="{{ asset('css/date-picker.css') }}?v={{ @filemtime(public_path('css/date-picker.css')) }}" />
+
         @stack('styles')
     </head>
     <body data-partial-content=".pt-main">
@@ -757,6 +762,10 @@
              dengan panel admin, bukan alert() bawaan browser. --}}
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="{{ asset('js/swal-helper.js') }}"></script>
+
+        {{-- Datepicker global: inisialisasi otomatis seluruh input
+             <x-date-picker /> maupun input class=".datepicker". --}}
+        <script src="{{ asset('js/date-picker.js') }}?v={{ @filemtime(public_path('js/date-picker.js')) }}" defer></script>
 
         {{-- Client-side router (AJAX/SPA): klik link internal hanya menukar
              konten halaman — navbar & footer tetap utuh, tanpa reload. --}}

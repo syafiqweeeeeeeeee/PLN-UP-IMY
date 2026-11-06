@@ -66,10 +66,6 @@ class NotificationService
         $draftAnnouncements = (int) Cache::remember('admin.notifs.draft-announcements', now()->addSeconds(10), fn () =>
             (int) DB::table('announcements')->where('is_published', false)->count()
         );
-        $draftPages         = (int) Cache::remember('admin.notifs.draft-pages', now()->addSeconds(10), fn () =>
-            (int) DB::table('pages')->where('status', 'draft')->count()
-        );
-
         $seenTamuId = $this->seenTamuId();
 
         $newTamuCount = 0;
@@ -95,8 +91,8 @@ class NotificationService
             }
         }
 
-        // Draft gabungan berita + pengumuman + halaman (pasif, tidak dihitung unread)
-        $totalDraft = $draftNews + $draftAnnouncements + $draftPages;
+        // Draft gabungan berita + pengumuman (pasif, tidak dihitung unread)
+        $totalDraft = $draftNews + $draftAnnouncements;
 
         if ($totalDraft > 0) {
             $items[] = [

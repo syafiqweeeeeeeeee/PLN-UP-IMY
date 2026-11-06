@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Page;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -113,24 +112,6 @@ class PivotNameMarkerTest extends TestCase
             ->where('user_id', $user->id)->where('role_id', $role->id)->first();
 
         $this->assertSame('Role Tambahan', $row->role_name);
-    }
-
-    public function test_sync_page_roles_fills_marker_from_page_title(): void
-    {
-        $page = Page::create([
-            'title' => 'Profil Perusahaan',
-            'slug' => 'profil-perusahaan',
-            'status' => Page::STATUS_PUBLISHED,
-        ]);
-
-        $page->roles()->sync([$this->karyawanRole()->id]);
-
-        $row = DB::table('page_role')->where('page_id', $page->id)->first();
-
-        $this->assertNotNull($row);
-        // pages tidak punya kolom `name` — penanda diambil dari `title`.
-        $this->assertSame('Profil Perusahaan', $row->page_name);
-        $this->assertSame('Karyawan', $row->role_name);
     }
 
     /* =========================================================

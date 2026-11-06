@@ -330,7 +330,6 @@ class User extends Authenticatable
      */
     public const KARYAWAN_BASELINE_PERMISSIONS = [
         'dashboard.view',
-        'pages.view',
     ];
 
     // Catatan: `news.view` SENGAJA tidak masuk baseline. Modul berita

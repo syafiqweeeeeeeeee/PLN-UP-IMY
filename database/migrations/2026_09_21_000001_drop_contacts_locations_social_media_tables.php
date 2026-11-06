@@ -27,9 +27,14 @@ return new class extends Migration
         Schema::dropIfExists('social_medias');
 
         // --- 2. Hapus menu navbar yang menunjuk ke route kontak ---
-        $contactRouteIds = DB::table('menus')
-            ->whereIn('route_name', ['hubungi-kami', 'lokasi', 'sosial-media'])
-            ->pluck('id');
+        // Tabel `menus` sudah dihapus dari aplikasi (fitur Menu Builder
+        // dihentikan). Migration lama ini tetap harus jalan di instalasi
+        // baru, jadi langkah ini dilewati bila tabelnya tidak ada.
+        $contactRouteIds = Schema::hasTable('menus')
+            ? DB::table('menus')
+                ->whereIn('route_name', ['hubungi-kami', 'lokasi', 'sosial-media'])
+                ->pluck('id')
+            : collect();
 
         if ($contactRouteIds->isNotEmpty()) {
             // Parent "Kontak" dari anak-anak tersebut (bisa jadi multi-level)
@@ -63,6 +68,7 @@ return new class extends Migration
     public function down(): void
     {
         // Penghapusan modul bersifat permanen — tidak ada rollback.
-        // Struktur tabel dapat dibuat ulang via seeder/menu builder.
+        // Struktur tabel dapat dibuat ulang lewat migration pembuatnya
+        // bila modul ini dihidupkan lagi.
     }
 };

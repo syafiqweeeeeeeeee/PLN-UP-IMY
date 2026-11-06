@@ -6,9 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\ActivityLogger;
 use App\Models\Announcement;
 use App\Models\Gallery;
-use App\Models\Menu;
 use App\Models\News;
-use App\Models\Page;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
@@ -20,9 +18,9 @@ use Illuminate\Support\Facades\Gate;
 /**
  * Endpoint pencarian topbar admin (Ctrl+K / ikon kaca pembesar).
  *
- * Mencari di SEMUA modul admin — konten (berita, pengumuman, halaman,
- * galeri) maupun manajemen (pengguna, menu, role, log
- * aktivitas). Hasil JSON dikelompokkan per tipe konten.
+ * Mencari di SEMUA modul admin — konten (berita, pengumuman, galeri)
+ * maupun manajemen (pengguna, role, log aktivitas). Hasil JSON
+ * dikelompokkan per tipe konten.
  *
  * Aturan hak akses: modul hanya dicari jika user punya permission
  * view-nya (Gate::allows) — user tidak bisa "menemukan" data yang
@@ -71,14 +69,6 @@ class AdminSearchController extends Controller
                 ->get(['id', 'title', 'is_published'])
             : collect();
 
-        $pages = Gate::allows('pages.view')
-            ? Page::query()
-                ->where('title', 'like', "%{$q}%")
-                ->latest('updated_at')
-                ->limit(5)
-                ->get(['id', 'title', 'status'])
-            : collect();
-
         $galleries = Gate::allows('galleries.view')
             ? Gallery::query()
                 ->where('judul', 'like', "%{$q}%")
@@ -88,7 +78,7 @@ class AdminSearchController extends Controller
             : collect();
 
         /* =========================================================
-           MANAJEMEN — pengguna, menu, role, log
+           MANAJEMEN — pengguna, role, log
            ========================================================= */
 
         $users = Gate::allows('users.view')
@@ -100,14 +90,6 @@ class AdminSearchController extends Controller
                 ->orderBy('name')
                 ->limit(5)
                 ->get(['id', 'name', 'email'])
-            : collect();
-
-        $menus = Gate::allows('menus.view')
-            ? Menu::query()
-                ->where('label', 'like', "%{$q}%")
-                ->orderBy('sort_order')
-                ->limit(5)
-                ->get(['id', 'label', 'is_active'])
             : collect();
 
         $roles = Gate::allows('roles.view')
@@ -160,15 +142,6 @@ class AdminSearchController extends Controller
                 ])->all(),
             ],
             [
-                'label' => 'Halaman',
-                'icon'  => 'fa-file-lines',
-                'items' => $pages->map(fn (Page $p) => [
-                    'title' => $p->title,
-                    'url'   => route('admin.pages.edit', $p),
-                    'meta'  => $p->status === Page::STATUS_PUBLISHED ? 'Terbit' : 'Draft',
-                ])->all(),
-            ],
-            [
                 'label' => 'Galeri',
                 'icon'  => 'fa-images',
                 'items' => $galleries->map(fn (Gallery $g) => [
@@ -184,15 +157,6 @@ class AdminSearchController extends Controller
                     'title' => $u->name,
                     'url'   => route('admin.users.show', $u),
                     'meta'  => $u->email,
-                ])->all(),
-            ],
-            [
-                'label' => 'Menu',
-                'icon'  => 'fa-bars',
-                'items' => $menus->map(fn (Menu $m) => [
-                    'title' => $m->label,
-                    'url'   => route('admin.menus.edit', $m),
-                    'meta'  => $m->is_active ? 'Aktif' : 'Nonaktif',
                 ])->all(),
             ],
             [

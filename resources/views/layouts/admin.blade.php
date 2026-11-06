@@ -56,6 +56,11 @@
              versi baru, tidak lagi memakai salinan lama dari cache. --}}
         <link href="{{ asset('css/admin.css') }}?v={{ @filemtime(public_path('css/admin.css')) }}" rel="stylesheet" />
 
+        {{-- Datepicker global (<x-date-picker />) — tampilan seragam dengan
+             Form Registrasi Tamu. Dimuat setelah admin.css agar menang
+             spesifisitas atas style input bawaan admin. --}}
+        <link href="{{ asset('css/date-picker.css') }}?v={{ @filemtime(public_path('css/date-picker.css')) }}" rel="stylesheet" />
+
         {{-- ============================================================
              THEME BOOTSTRAP (anti-FOUC) — jalan SEBELUM render.
              Membaca localStorage 'admin-theme' (light|dark|system),
@@ -274,20 +279,6 @@
                     <span class="link-icon"><i class="fas fa-bullhorn"></i></span>
                     {{-- Label kosmetik saja — kontrol akses tetap dari permission. --}}
                     <span class="link-text">{{ $authUserSidebar?->isDepartmentAdmin() ? 'Pengumuman Internal' : 'Pengumuman' }}</span>
-                </a>
-                @endcan
-
-                @can('pages.view')
-                <a href="{{ route('admin.pages.index') }}" class="sidebar-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
-                    <span class="link-icon"><i class="fas fa-file-lines"></i></span>
-                    <span class="link-text">Halaman</span>
-                </a>
-                @endcan
-
-                @can('menus.view')
-                <a href="{{ route('admin.menus.index') }}" class="sidebar-link {{ request()->routeIs('admin.menus.*') ? 'active' : '' }}">
-                    <span class="link-icon"><i class="fas fa-bars"></i></span>
-                    Menu
                 </a>
                 @endcan
 
@@ -528,6 +519,10 @@
 
         {{-- Helper notifikasi SweetAlert bersama (admin, portal karyawan, publik) --}}
         <script src="{{ asset('js/swal-helper.js') }}"></script>
+
+        {{-- Datepicker global: inisialisasi otomatis seluruh input
+             <x-date-picker /> maupun input class=".datepicker". --}}
+        <script src="{{ asset('js/date-picker.js') }}?v={{ @filemtime(public_path('js/date-picker.js')) }}" defer></script>
 
         {{-- Client-side router: pindah halaman tanpa reload layout,
              cache memori per halaman, micro-transition 60ms --}}

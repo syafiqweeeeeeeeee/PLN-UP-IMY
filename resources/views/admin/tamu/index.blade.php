@@ -819,24 +819,9 @@
     }
     .tamu-dd-menu .dropdown-option.selected::before { background: var(--pln-blue); }
 
-    /* Input tanggal: sembunyikan ikon kalender bawaan browser agar
-       tampil bersih seperti dropdown (kalender tetap terbuka saat
-       field / panah diklik). */
-    .tamu-dd-wrap input[type="date"] {
-        padding-right: 1.7rem;
-        color-scheme: light;
-        cursor: pointer;
-    }
-    .tamu-dd-wrap input[type="date"]::-webkit-calendar-picker-indicator {
-        opacity: 0;
-        cursor: pointer;
-        padding: 0.18rem;
-        border-radius: 5px;
-        transition: background 0.18s ease;
-    }
-    .tamu-dd-wrap input[type="date"]::-webkit-calendar-picker-indicator:hover {
-        background: rgba(0,0,0,0.03);
-    }
+    /* Input tanggal memakai komponen global <x-date-picker />
+       (public/css/date-picker.css) — tidak ada lagi datepicker native
+       yang perlu di-style khusus di sini. */
     html.theme-dark .tamu-dd-input[readonly] { background: var(--panel); }
     html.theme-dark .tamu-dd-menu { background: var(--panel); border-color: var(--line); }
     html.theme-dark .tamu-dd-menu .dropdown-optgroup { background: rgba(255,255,255,0.03); border-color: var(--line); }
@@ -936,9 +921,11 @@
         <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama, instansi, atau NIK...">
     </div>
     <div class="filter-divider"></div>
-    <input type="date" name="dari" value="{{ request('dari') }}" title="Tanggal kunjungan dari" style="font-size:0.82rem;">
+    <x-date-picker name="dari" :value="request('dari')" size="sm" placeholder="Dari tanggal"
+                   title="Tanggal kunjungan dari" :clearable="true" />
     <span style="color:#9ca3af; font-size:0.75rem;">s/d</span>
-    <input type="date" name="sampai" value="{{ request('sampai') }}" title="Tanggal kunjungan sampai" style="font-size:0.82rem;">
+    <x-date-picker name="sampai" :value="request('sampai')" size="sm" placeholder="Sampai tanggal"
+                   title="Tanggal kunjungan sampai" :clearable="true" />
     <select name="status" style="font-size:0.82rem;">
         <option value="">Semua Status</option>
         <option value="menunggu" @selected(request('status') === 'menunggu')>Menunggu Verifikasi</option>
@@ -1373,16 +1360,13 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Tanggal Kunjungan <span class="text-danger">*</span></label>
-                        {{-- Dibatasi hari ini ke depan (min = hari ini), ikon kalender
-                             bawaan disembunyikan & diganti chevron ala dropdown --}}
-                        <div class="tamu-dd-wrap">
-                            <input type="date" name="tanggal_kunjungan" id="add-tanggal_kunjungan" required
-                                   min="{{ now()->format('Y-m-d') }}"
-                                   class="form-control tamu-dd-input @error('tanggal_kunjungan') is-invalid @enderror"
-                                   value="{{ \Illuminate\Support\Str::substr((string) old('tanggal_kunjungan', ''), 0, 10) ?: now()->format('Y-m-d') }}"
-                                   title="Tanggal kunjungan minimal hari ini" style="font-size:0.85rem;">
-                            <i class="fas fa-chevron-down tamu-dd-arrow"></i>
-                        </div>
+                        {{-- Kalender global (x-date-picker): identik dengan form
+                             registrasi publik, dibatasi hari ini ke depan. --}}
+                        <x-date-picker name="tanggal_kunjungan" id="add-tanggal_kunjungan"
+                                       min="today" required
+                                       :value="\Illuminate\Support\Str::substr((string) old('tanggal_kunjungan', ''), 0, 10) ?: now()->format('Y-m-d')"
+                                       :class="$errors->has('tanggal_kunjungan') ? 'is-invalid' : ''"
+                                       title="Tanggal kunjungan minimal hari ini" />
                         <small style="font-size:0.7rem; color:#9ca3af; display:block; margin-top:0.25rem;">Minimal hari ini.</small>
                         @error('tanggal_kunjungan')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
@@ -1552,14 +1536,10 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Tanggal Kunjungan <span class="text-danger">*</span></label>
-                        {{-- Sama seperti modal Tambah: min hari ini, ikon kalender
-                             bawaan disembunyikan (data lama boleh tetap di masa lalu
-                             — JS hanya mem-blokir pemilihan baru sebelum hari ini) --}}
-                        <div class="tamu-dd-wrap">
-                            <input type="date" name="tanggal_kunjungan" id="edit-tanggal_kunjungan" required
-                                   class="form-control tamu-dd-input" style="font-size:0.85rem;">
-                            <i class="fas fa-chevron-down tamu-dd-arrow"></i>
-                        </div>
+                        {{-- Sama seperti modal Tambah: kalender global; data lama
+                             boleh tetap di masa lalu (blokir hanya untuk pilihan baru). --}}
+                        <x-date-picker name="tanggal_kunjungan" id="edit-tanggal_kunjungan" required
+                                       title="Tanggal kunjungan minimal hari ini" />
                     </div>
                     <div class="col-md-4">
                         <label class="form-label" style="font-size:0.78rem; font-weight:600;">Jam Kunjungan <span class="text-danger">*</span></label>

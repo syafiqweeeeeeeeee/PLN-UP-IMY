@@ -22,10 +22,8 @@ class TopbarTest extends TestCase
         return $this->userWithPermissions([
             'news.view',
             'announcements.view',
-            'pages.view',
             'galleries.view',
             'users.view',
-            'menus.view',
             'roles.view',
             'activity_logs.view',
         ], [

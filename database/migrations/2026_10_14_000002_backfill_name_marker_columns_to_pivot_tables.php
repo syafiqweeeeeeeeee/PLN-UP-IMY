@@ -40,7 +40,11 @@ return new class extends Migration
         $roles       = DB::table('roles')->pluck('name', 'id');
         $permissions = DB::table('permissions')->pluck('name', 'id');
         $users       = DB::table('users')->pluck('name', 'id');
-        $pages       = DB::table('pages')->pluck('title', 'id');
+        // Tabel `pages` sudah dihapus dari aplikasi — migrasi lama ini tetap
+        // harus jalan di instalasi baru, jadi dibaca hanya bila ada.
+        $pages       = DB::getSchemaBuilder()->hasTable('pages')
+            ? DB::table('pages')->pluck('title', 'id')
+            : collect();
 
         // --- role_permission: role_name + permission_name ---
         $this->fill(

@@ -7,12 +7,10 @@ use App\Http\View\Composers\TopbarComposer;
 use App\Models\Announcement;
 use App\Models\Gallery;
 use App\Models\News;
-use App\Models\Page;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use App\Observers\NameMarkerObserver;
-use App\Services\MenuBuilderService;
 use App\Services\PublicPageCache;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
@@ -41,7 +39,6 @@ class AppServiceProvider extends ServiceProvider
         Role::observe(NameMarkerObserver::class);
         Permission::observe(NameMarkerObserver::class);
         User::observe(NameMarkerObserver::class);
-        Page::observe(NameMarkerObserver::class);
 
         // View paginasi kustom di resources/views/vendor/pagination
         // (markup Bootstrap — layout app & admin memuat Bootstrap 5).
@@ -51,23 +48,10 @@ class AppServiceProvider extends ServiceProvider
         // Cache halaman publik (PublicPageCache) — buang versi lama setiap
         // kali konten yang tampil di website publik disimpan/dihapus,
         // sehingga perubahan langsung terlihat tanpa menunggu TTL.
-        foreach ([News::class, Announcement::class, Gallery::class, Page::class] as $publicContent) {
+        foreach ([News::class, Announcement::class, Gallery::class] as $publicContent) {
             $publicContent::saved(fn () => PublicPageCache::flush());
             $publicContent::deleted(fn () => PublicPageCache::flush());
         }
-
-        // Navbar publik dirender dinamis dari Menu Builder.
-        // Menu ber-target halaman CMS disaring sesuai visibilitas per role;
-        // fallback ke struktur default bila DB belum di-seed.
-        View::composer('layouts.navbar', function ($view) {
-            // hasTable dimemoisasi + tree di-cache (TTL 5 menit, flush saat
-            // menu diubah) — dulu: query informs + tree baru tiap request.
-            $menuTree = MenuBuilderService::menusTableExists()
-                ? app(MenuBuilderService::class)->treeFor(auth()->user())
-                : [];
-
-            $view->with('menuTree', $menuTree);
-        });
 
         // Topbar admin: data user asli + notifikasi dinamis dari database.
         View::composer('layouts.admin', TopbarComposer::class);

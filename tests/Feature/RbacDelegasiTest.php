@@ -48,7 +48,7 @@ class RbacDelegasiTest extends TestCase
         $role = $this->makeRole('Super Admin', [
             'dashboard.view', 'users.view', 'users.create', 'users.edit', 'users.delete',
             'roles.view', 'news.view', 'news.create', 'tamu.view',
-            'pages.view', 'menus.view', 'activity_logs.view',
+            'activity_logs.view',
             'announcements.view', 'announcements.create', 'announcements.edit', 'announcements.delete', 'announcements.publish',
             'work_links.view', 'work_links.create', 'work_links.edit', 'work_links.delete',
         ]);
@@ -88,15 +88,16 @@ class RbacDelegasiTest extends TestCase
 
     public function test_admin_bidang_blocked_from_sensitive_menus_and_routes(): void
     {
-        $admin = $this->adminBidang('operasi', ['users.view', 'roles.view', 'pages.view']);
+        $admin = $this->adminBidang('operasi', ['users.view', 'roles.view']);
 
         // Middleware role.scope:super_admin memblokir manajemen user/role.
         $this->actingAs($admin)->get(route('admin.users.create'))->assertForbidden();
         $this->actingAs($admin)->post(route('admin.users.store'), [])->assertForbidden();
         $this->actingAs($admin)->get(route('admin.roles.index'))->assertForbidden();
 
-        // Halaman (landing page) hanya Super Admin.
-        $this->actingAs($admin)->get(route('admin.pages.index'))->assertForbidden();
+        // Route fitur Halaman/Menu sudah dihapus total — bukan sekadar 403.
+        $this->actingAs($admin)->get('/admin/pages')->assertNotFound();
+        $this->actingAs($admin)->get('/admin/menus')->assertNotFound();
     }
 
     public function test_admin_bidang_with_tamu_permission_can_access_tamu(): void
@@ -144,7 +145,6 @@ class RbacDelegasiTest extends TestCase
 
         // Menu sensitif disembunyikan.
         $this->assertStringNotContainsString('>Data Tamu<', $html);
-        $this->assertStringNotContainsString('>Halaman<', $html);
         $this->assertStringNotContainsString('>Pengguna<', $html);
         $this->assertStringNotContainsString('>Role<', $html);
         $this->assertStringNotContainsString('Log Aktivitas<', $html);
@@ -158,9 +158,13 @@ class RbacDelegasiTest extends TestCase
             ->getContent();
 
         $this->assertStringContainsString('Data Tamu', $html);
-        $this->assertStringContainsString('>Halaman<', $html);
+        $this->assertStringContainsString('>Berita<', $html);
         $this->assertStringContainsString('>Pengguna<', $html);
         $this->assertStringContainsString('Log Aktivitas', $html);
+
+        // Fitur Halaman & Menu sudah dihapus — tidak boleh ada di sidebar.
+        $this->assertStringNotContainsString('>Halaman<', $html);
+        $this->assertStringNotContainsString('>Menu<', $html);
     }
 
     /* =========================================================
@@ -675,7 +679,7 @@ class RbacDelegasiTest extends TestCase
         $this->assertFalse($bidang->hasPermission('users.view'));
         $this->assertFalse($bidang->hasPermission('roles.view'));
         $this->assertFalse($bidang->hasPermission('tamu.view'));
-        $this->assertFalse($bidang->hasPermission('pages.view'));
+        $this->assertFalse($bidang->hasPermission('galleries.view'));
     }
 
     /* =========================================================

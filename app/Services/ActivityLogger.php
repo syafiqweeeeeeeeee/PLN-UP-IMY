@@ -493,8 +493,6 @@ class ActivityLogger
             'master_jabatan' => 'Master Jabatan',
             'pengguna'    => 'Pengguna',
             'permohonan'  => 'Permohonan',
-            'halaman'     => 'Halaman',
-            'menu'        => 'Menu',
             'role'        => 'Role & Hak Akses',
             'autentikasi' => 'Autentikasi',
             'log'         => 'Log Aktivitas',

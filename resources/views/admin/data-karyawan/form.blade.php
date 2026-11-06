@@ -142,9 +142,10 @@
             </div>
             <div class="col-md-4">
                 <label class="form-label">TGL LAHIR</label>
-                <input type="date" name="tanggal_lahir"
-                       class="form-control @error('tanggal_lahir') is-invalid @enderror"
-                       value="{{ old('tanggal_lahir', $karyawan?->tanggal_lahir?->format('Y-m-d')) }}">
+                <x-date-picker name="tanggal_lahir" max="today"
+                               :value="old('tanggal_lahir', $karyawan?->tanggal_lahir?->format('Y-m-d'))"
+                               :class="$errors->has('tanggal_lahir') ? 'is-invalid' : ''"
+                               placeholder="Pilih tanggal lahir" />
                 @error('tanggal_lahir')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-2">
@@ -279,37 +280,42 @@
         <div class="row g-3">
             <div class="col-md-4">
                 <label class="form-label">SERVICE DATE</label>
-                <input type="date" name="service_date"
-                       class="form-control @error('service_date') is-invalid @enderror"
-                       value="{{ old('service_date', $karyawan?->service_date?->format('Y-m-d')) }}">
+                <x-date-picker name="service_date"
+                               :value="old('service_date', $karyawan?->service_date?->format('Y-m-d'))"
+                               :class="$errors->has('service_date') ? 'is-invalid' : ''"
+                               placeholder="Pilih service date" />
                 @error('service_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-4">
                 <label class="form-label">HIRE DATE</label>
-                <input type="date" name="hire_date"
-                       class="form-control @error('hire_date') is-invalid @enderror"
-                       value="{{ old('hire_date', $karyawan?->hire_date?->format('Y-m-d')) }}">
+                <x-date-picker name="hire_date"
+                               :value="old('hire_date', $karyawan?->hire_date?->format('Y-m-d'))"
+                               :class="$errors->has('hire_date') ? 'is-invalid' : ''"
+                               placeholder="Pilih hire date" />
                 @error('hire_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-4">
                 <label class="form-label">RETIRE DATE</label>
-                <input type="date" name="retire_date"
-                       class="form-control @error('retire_date') is-invalid @enderror"
-                       value="{{ old('retire_date', $karyawan?->retire_date?->format('Y-m-d')) }}">
+                <x-date-picker name="retire_date"
+                               :value="old('retire_date', $karyawan?->retire_date?->format('Y-m-d'))"
+                               :class="$errors->has('retire_date') ? 'is-invalid' : ''"
+                               placeholder="Pilih retire date" />
                 @error('retire_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-6">
                 <label class="form-label">GRADE DATE</label>
-                <input type="date" name="grade_date"
-                       class="form-control @error('grade_date') is-invalid @enderror"
-                       value="{{ old('grade_date', $karyawan?->grade_date?->format('Y-m-d')) }}">
+                <x-date-picker name="grade_date"
+                               :value="old('grade_date', $karyawan?->grade_date?->format('Y-m-d'))"
+                               :class="$errors->has('grade_date') ? 'is-invalid' : ''"
+                               placeholder="Pilih grade date" />
                 @error('grade_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-6">
                 <label class="form-label">TGL JAB <small class="text-muted">(tanggal jabatan)</small></label>
-                <input type="date" name="tgl_jab"
-                       class="form-control @error('tgl_jab') is-invalid @enderror"
-                       value="{{ old('tgl_jab', $karyawan?->tgl_jab?->format('Y-m-d')) }}">
+                <x-date-picker name="tgl_jab"
+                               :value="old('tgl_jab', $karyawan?->tgl_jab?->format('Y-m-d'))"
+                               :class="$errors->has('tgl_jab') ? 'is-invalid' : ''"
+                               placeholder="Pilih tanggal jabatan" />
                 @error('tgl_jab')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
         </div>

@@ -65,12 +65,11 @@
                     <label class="form-group-label" for="tanggal_kegiatan">
                         Tanggal Kegiatan <span class="required">*</span>
                     </label>
-                    <input type="date"
-                           id="tanggal_kegiatan"
-                           name="tanggal_kegiatan"
-                           value="{{ old('tanggal_kegiatan', $gallery?->tanggal_kegiatan?->format('Y-m-d')) }}"
-                           max="{{ now()->format('Y-m-d') }}"
-                           class="form-input @error('tanggal_kegiatan') is-invalid @enderror">
+                    <x-date-picker id="tanggal_kegiatan" name="tanggal_kegiatan"
+                                   max="today"
+                                   :value="old('tanggal_kegiatan', $gallery?->tanggal_kegiatan?->format('Y-m-d'))"
+                                   :class="$errors->has('tanggal_kegiatan') ? 'is-invalid' : ''"
+                                   placeholder="Pilih tanggal kegiatan" />
                     @error('tanggal_kegiatan')
                         <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
                     @enderror

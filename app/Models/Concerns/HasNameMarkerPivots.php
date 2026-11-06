@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * mengisi kolom penanda nama (*_name) untuk baris baru.
  *
  * Pakai trait ini di model yang relasinya menyentuh tabel pivot
- * role_permission, role_user, user_has_permissions, atau page_role.
+ * role_permission, role_user, atau user_has_permissions.
  * Kolom penanda hanya untuk keterbacaan; RBAC tetap memakai ID.
  */
 trait HasNameMarkerPivots

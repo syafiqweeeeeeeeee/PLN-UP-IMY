@@ -15,8 +15,7 @@ aplikasi — bukan web informasi publik untuk masyarakat umum.
 - Beranda profil UP PLTU Indramayu 3×330 MW, Tentang Kami (Profil, Sejarah, Visi & Misi, Struktur Organisasi)
 - Informasi: Berita, Pengumuman, Galeri (dengan kategori & lightbox), Informasi Standar Pelayanan
 - Layanan: FAQ dan **Form Registrasi Tamu** (buku tamu digital — pintu masuk tunggal kunjungan)
-- Halaman CMS dinamis dengan visibilitas per-role (draft/terbit/terbatas)
-- Navbar dinamis dari Menu Builder + i18n Indonesia/English + dark mode
+- Navbar statis (didefinisikan di `layouts/navbar.blade.php`) + i18n Indonesia/English + dark mode
 
 ### Buku Tamu Digital
 - Registrasi mandiri oleh tamu: NIK, data instansi, unggah **foto KTP** & **surat permohonan (PDF)**
@@ -38,8 +37,6 @@ Area internal terpisah dari panel admin, hanya untuk akun ber-role **Karyawan**:
 ### Panel Admin (`/admin/login`)
 - Dashboard dengan statistik, quick actions adaptif permission, aktivitas terbaru, & notifikasi
 - CRUD Berita, Pengumuman, Galeri (+ publish/unpublish + target publikasi: publik / portal / keduanya)
-- Halaman dinamis (Page + Section builder: banner, text, cards, file, FAQ)
-- Menu Builder (navbar publik dari database)
 - Manajemen Data Tamu (check-in/out, export, print, dokumen privat)
 - Manajemen Link Kerja (kategori umum & khusus per bidang/sub-bidang)
 - Manajemen User (buat akun, toggle aktif/nonaktif, hapus — tanpa pendaftaran mandiri)
@@ -172,7 +169,6 @@ app/
 ├── Models/                    # News, Announcement, Page, Menu, Role, Permission,
 │                              #   Tamu, WorkLink, Department, ActivityLog, ...
 └── Services/
-    ├── MenuBuilderService.php    # Susunan navbar publik (fallback hardcoded)
     ├── PortalContentService.php  # Data portal karyawan (layanan internal & link kerja + scope hirarki)
     ├── ActivityLogger.php        # Pencatat log aktivitas otomatis
     └── NotificationService.php   # Notifikasi tamu baru
@@ -181,9 +177,8 @@ resources/views/
 ├── admin/                     # halaman dashboard admin
 ├── karyawan/                  # halaman portal karyawan
 ├── informasi|tentang_kami/    # halaman landing page
-├── layanan/                   # FAQ + form-registrasi-tamu
-└── pages/                     # indeks & detail halaman CMS
-database/seeders/              # PermissionSeeder, MenuSeeder, AdminUserSeeder,
+└── layanan/                   # FAQ + form-registrasi-tamu
+database/seeders/              # PermissionSeeder, AdminUserSeeder,
                                #   KaryawanUserSeeder, WorkLinkSeeder
 ```
 

@@ -51,8 +51,6 @@ class MasterMenu extends Model
         ['id' => 3,  'name' => 'Data Tamu',       'route' => 'admin.tamu.index',          'icon' => 'fa-id-card',        'permission_key' => 'tamu'],
         ['id' => 13, 'name' => 'Hari Libur',      'route' => 'admin.hari-libur.index',    'icon' => 'fa-calendar-xmark', 'permission_key' => 'hari_libur'],
         ['id' => 4,  'name' => 'Pengumuman',      'route' => 'admin.announcements.index', 'icon' => 'fa-bullhorn',       'permission_key' => 'announcements'],
-        ['id' => 5,  'name' => 'Halaman',         'route' => 'admin.pages.index',         'icon' => 'fa-file-lines',     'permission_key' => 'pages'],
-        ['id' => 6,  'name' => 'Menu',            'route' => 'admin.menus.index',         'icon' => 'fa-bars',           'permission_key' => 'menus'],
         ['id' => 7,  'name' => 'Pengguna',        'route' => 'admin.users.index',         'icon' => 'fa-users',          'permission_key' => 'users'],
         ['id' => 8,  'name' => 'Galeri',          'route' => 'admin.galeri.index',        'icon' => 'fa-images',         'permission_key' => 'galleries'],
         ['id' => 9,  'name' => 'Link Kerja',      'route' => 'admin.work-links.index',    'icon' => 'fa-link',           'permission_key' => 'work_links'],

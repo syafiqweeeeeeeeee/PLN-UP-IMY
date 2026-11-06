@@ -35,7 +35,7 @@
                     <div class="d-flex align-items-center gap-3 flex-wrap">
                         {{-- Global Search: submit (Enter / klik ikon) membawa
                              ?q=... ke halaman hasil pencarian lintas modul
-                             (User, Berita, Pengumuman, Halaman, Menu, Tamu). --}}
+                             (User, Berita, Pengumuman, Tamu). --}}
                         <form action="{{ route('admin.global-search') }}" method="GET" style="position: relative; flex-shrink: 0; margin: 0;">
                             <input type="text"
                                    id="dashboardSearchInput"
@@ -107,9 +107,9 @@
             </div>
         </div>
     @else
-        {{-- Non Admin Bidang: Tampilkan 4 widget umum --}}
+        {{-- Non Admin Bidang: Tampilkan 3 widget umum --}}
         <div class="row g-3 mb-4">
-        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
+        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
             <div class="stat-card h-100" style="min-width: 0;">
                 <div class="stat-icon" style="background: #dbeafe; color: #1d4ed8;">
                     <i class="fas fa-users"></i>
@@ -120,18 +120,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
-            <div class="stat-card h-100" style="min-width: 0;">
-                <div class="stat-icon" style="background: #dcfce7; color: #166534;">
-                    <i class="fas fa-file-lines"></i>
-                </div>
-                <div style="min-width: 0;">
-                    <div class="stat-value" style="color: #166534;">{{ number_format($stats['total_pages']) }}</div>
-                    <div class="stat-label">Total Halaman</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
+        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
             <div class="stat-card h-100" style="min-width: 0;">
                 <div class="stat-icon" style="background: #dbeafe; color: #005B9C;">
                     <i class="fas fa-newspaper"></i>
@@ -142,7 +131,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
+        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
             <div class="stat-card h-100" style="min-width: 0;">
                 <div class="stat-icon" style="background: #fef3c7; color: #92400e;">
                     <i class="fas fa-clock"></i>

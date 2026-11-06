@@ -3,9 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Announcement;
-use App\Models\Menu;
 use App\Models\News;
-use App\Models\Page;
 use App\Models\Tamu;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -23,8 +21,6 @@ class GlobalSearchTest extends TestCase
             'users.view',
             'news.view',
             'announcements.view',
-            'pages.view',
-            'menus.view',
             'tamu.view',
         ], [
             'name'  => 'Admin Uji',
@@ -53,7 +49,7 @@ class GlobalSearchTest extends TestCase
        PENCARIAN LINTAS MODUL
        ========================================================= */
 
-    public function test_searches_across_users_news_announcements_pages_menus_and_tamu(): void
+    public function test_searches_across_users_news_announcements_and_tamu(): void
     {
         $admin = $this->adminUser();
 
@@ -74,14 +70,6 @@ class GlobalSearchTest extends TestCase
             'title' => 'Pengumuman Spionase', 'slug' => 'pengumuman-spionase',
             'category' => 'umum', 'excerpt' => 'e', 'content' => 'c', 'is_published' => true,
         ]);
-        Page::create([
-            'title' => 'Halaman Spionase', 'slug' => 'halaman-spionase',
-            'status' => Page::STATUS_PUBLISHED,
-        ]);
-        Menu::create([
-            'label' => 'Menu Spionase', 'type' => 'url', 'url' => '/x',
-            'sort_order' => 1, 'is_active' => true,
-        ]);
         Tamu::create([
             'nik' => '321001', 'nama' => 'Tamu Spionase', 'instansi' => 'PT Spionase',
             'no_hp' => '0812', 'email' => 'tamu@example.test',
@@ -99,12 +87,15 @@ class GlobalSearchTest extends TestCase
         $this->assertArrayHasKey('Pengguna', $groups);
         $this->assertArrayHasKey('Berita', $groups);
         $this->assertArrayHasKey('Pengumuman', $groups);
-        $this->assertArrayHasKey('Halaman', $groups);
-        $this->assertArrayHasKey('Menu', $groups);
         $this->assertArrayHasKey('Tamu', $groups);
+
+        // Modul Halaman & Menu sudah dihapus dari aplikasi → tidak boleh
+        // muncul lagi sebagai grup hasil pencarian.
+        $this->assertArrayNotHasKey('Halaman', $groups);
+        $this->assertArrayNotHasKey('Menu', $groups);
     }
 
-    public function test_group_rows_carry_action_links_to_manage_pages(): void
+    public function test_group_rows_carry_action_links_to_manage_content(): void
     {
         News::create([
             'title' => 'Berita Navbawa', 'slug' => 'berita-navbawa',

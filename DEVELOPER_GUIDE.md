@@ -344,8 +344,6 @@ tunggal** daftar menu sidebar admin untuk matriks hak akses (Form Role & Form Pe
 | 3 | Data Tamu | `admin.tamu.index` | `tamu` |
 | 13 | Hari Libur | `admin.hari-libur.index` | `hari_libur` |
 | 4 | Pengumuman | `admin.announcements.index` | `announcements` |
-| 5 | Halaman | `admin.pages.index` | `pages` |
-| 6 | Menu | `admin.menus.index` | `menus` |
 | 7 | Pengguna | `admin.users.index` | `users` |
 | 8 | Galeri | `admin.galeri.index` | `galleries` |
 | 9 | Link Kerja | `admin.work-links.index` | `work_links` |
@@ -358,8 +356,8 @@ tunggal** daftar menu sidebar admin untuk matriks hak akses (Form Role & Form Pe
 Setiap menu dipecah jadi **4 permission granular** di tabel `permissions`:
 `<permission_key>.view` / `.create` / `.edit` / `.delete`
 (lihat `MasterMenu::CRUD_ACTIONS`). ⚠️ JANGAN mengubah id 1–11 — ID sudah
-dipakai hard-coded di banyak tempat. Total matriks = **55 permission**
-(1 dashboard + 13 menu × 4 + 2 log) = PERSIS set permission Super Admin.
+dipakai hard-coded di banyak tempat. Total matriks = **47 permission**
+(1 dashboard + 11 menu × 4 + 2 log) = PERSIS set permission Super Admin.
 
 ### 4.5 Tabel konten
 
@@ -370,8 +368,6 @@ dipakai hard-coded di banyak tempat. Total matriks = **55 permission**
 | `galleries` | `2026_09_14_000002` | Album/foto galeri landing |
 | `activity_logs` | `2026_09_14_000002` | Audit trail: `user_id`, `action`, `description`, timestamps — diisi via `ActivityLogger::log(...)` |
 | `contact_messages` | `2026_09_15_000001` | Pesan dari form kontak landing |
-| `pages`, `page_role`, `page_sections` | `2026_09_15_000001` | CMS halaman statis landing; `page_role` membatasi halaman per role |
-| `menus` | `2026_09_15_000002` + `_000003` | Menu navigasi landing page + kolom `target` |
 | `work_links` | `2026_09_29_000002` + `2026_10_26_000001` | Link kerja terhubung Master Bidang (`bidang_id`); `department`/`sub_department` diturunkan otomatis dari baris Bidang |
 
 > Contoh lama `contact_locations` & `contact_social_media` sudah **dihapus**
@@ -430,7 +426,7 @@ permission di controller (atau GlobalScope trait ScopesToDepartment).
 | Seeder | Isi apa | Bisa dijalankan berulang? |
 |---|---|---|
 | `AdminUserSeeder` | Akun admin awal dari env `ADMIN_EMAIL`/`ADMIN_PASSWORD` | aman |
-| `PermissionSeeder` | Daftar 55 permission → `firstOrCreate` ke tabel `permissions` (sekaligus menghapus baris legacy di luar daftar + pivotnya); lalu `sync` (replace penuh) ke 3 Role Dasar: Super Admin (seluruh 55), Admin Bidang (daftar explicit), Karyawan (baseline) | **idempotent** |
+| `PermissionSeeder` | Daftar 47 permission → `firstOrCreate` ke tabel `permissions` (sekaligus menghapus baris legacy di luar daftar + pivotnya); lalu `sync` (replace penuh) ke 3 Role Dasar: Super Admin (seluruh 47), Admin Bidang (daftar explicit), Karyawan (baseline) | **idempotent** |
 | `MasterMenuSeeder` | Isi tabel `master_menus` dari konstanta `MasterMenu::MENUS` pakai `updateOrCreate(['id'=>…])` + hapus baris di luar `MENUS` | **idempotent** |
 
 Jalankan seeder hanya-satu:
@@ -535,7 +531,7 @@ Aturan relasi yang WAJIB dipahami:
 | `app/Models/User.php` | `hasPermission()` (lihat 5.5), `hasDirectPermission()`, `directPermissionIds()`, `syncPermissions()` (sync pivot `user_has_permissions`), `permissions()` / `roles()` / `role()`, `roleNames()` (pivot + fallback `role_id`), `isSuperAdmin()` / `isDepartmentAdmin()` / `isKaryawan()` / `isAdmin()`, `extraKaryawanPermissions()` / `hasExtraKaryawanPermission()`, konstanta `SUPER_ADMIN_ROLE`, `DEPARTMENT_ADMIN_ROLE`, `ASSIGNABLE_ROLE_NAMES`, `MAX_SUPER_ADMIN_ACCOUNTS`, `MAX_SENIOR_MANAGER_ACCOUNTS`, `KARYAWAN_BASELINE_PERMISSIONS` |
 | `app/Models/Role.php` | `permissions()` / `users()` (pivot), `isInactive()`, `hasPermission($name)` |
 | `app/Models/Permission.php` | `roles()` (pivot `role_permission`), `fill`: `name`, `display_name`, `module`, `ACTION_ALIASES` (alias aksi non-CRUD → aksi induk: `news.publish`→`news.edit`, `announcements.publish`→`announcements.edit`, `tamu.checkout`→`tamu.edit`, `user.reset-password`→`users.edit`). Modul Hari Libur memakai permission `hari_libur.*` langsung |
-| `app/Models/MasterMenu.php` | `MENUS` (master 15 menu: id 1–11 fixed + 13 Hari Libur & 14–16 modul master; baris id 12 "contoh" sudah dihapus), `CRUD_ACTIONS` (4 aksi matriks), `permissionNamesFor()` / `matrixPermissionNames()` (daftar nama permission matriks), `matrixForRoleForm()` (matriks untuk form Role & form Pengguna — hanya permission yang benar-benar terdaftar di DB) |
+| `app/Models/MasterMenu.php` | `MENUS` (master 13 menu: id 1–4, 7–11, 13 Hari Libur & 14–16 modul master; id 5 "Halaman" & 6 "Menu" dihapus bersama fiturnya), `CRUD_ACTIONS` (4 aksi matriks), `permissionNamesFor()` / `matrixPermissionNames()` (daftar nama permission matriks), `matrixForRoleForm()` (matriks untuk form Role & form Pengguna — hanya permission yang benar-benar terdaftar di DB) |
 | `app/Providers/AuthServiceProvider.php` | `Gate::before` → semua ability dicek lewat `User::hasPermission()` inilah yang membuat `@can('news.edit')` bekerja; gate khusus `users.edit:self` & `users.delete` |
 | `app/Http/Middleware/PermissionMiddleware.php` | Alias `permission:xxx` — cek `hasPermission($permissions[0])`, gagal = `403` |
 | `app/Http/Middleware/RoleMiddleware.php` | Alias `role.scope:super_admin/department_admin/admin` |
@@ -549,7 +545,7 @@ Aturan relasi yang WAJIB dipahami:
 
 | File | Isinya |
 |---|---|
-| `app/Models/MasterMenu.php` | Daftar **konstanta** menu sidebar (`MENUS`, 15 id: 1–11 fixed + 13 Hari Libur & 14–16 modul master; baris id 12 "contoh" sudah dihapus) + `CRUD_ACTIONS` |
+| `app/Models/MasterMenu.php` | Daftar **konstanta** menu sidebar (`MENUS`, 13 id: 1–4, 7–11 fixed + 13 Hari Libur & 14–16 modul master; id 5 & 6 dihapus) + `CRUD_ACTIONS` |
 | `database/seeders/MasterMenuSeeder.php` | Mengisi tabel `master_menus` dari konstanta di atas |
 | `database/seeders/PermissionSeeder.php` | Membuat daftar permission lalu memberikan ke role |
 
@@ -598,7 +594,7 @@ cek permission: news.publish
   hak role — untuk mencabut `news.edit`, centangnya dilepas di form
   **Edit Role**, bukan di form Pengguna.
 - Karyawan yang diberi direct permission `tamu.view` (di luar baseline
-  `dashboard.view` / `pages.view`) → lolos di step 1, dan
+  `dashboard.view` / `galleries.view`) → lolos di step 1, dan
   `extraKaryawanPermissions()` tidak lagi kosong sehingga middleware
   `admin.access` mengizinkan akun ini masuk `/admin` — inilah mekanisme
   "setengah admin".
@@ -624,7 +620,6 @@ baseline `KARYAWAN_BASELINE_PERMISSIONS`:
 ```php
 public const KARYAWAN_BASELINE_PERMISSIONS = [
     'dashboard.view',
-    'pages.view',
 ];
 ```
 
@@ -671,7 +666,7 @@ RoleController@store / @update
                            "Role berhasil dibuat.")
       - update           → preserveExtras=true: permission DI LUAR matriks
                            (bila masih ada baris legacy) DIPERTAHANKAN —
-                           seluruh 55 permission aktif kini berada di
+                           seluruh 47 permission aktif kini berada di
                            matriks, jadi tidak ada permission terdaftar
                            yang terlewat saat disinkron
       - update / destroy → syncRoleUsersDirectPermissions(): salinan direct
@@ -886,8 +881,6 @@ lewat form Tambah/Edit Role **maupun** Direct Permission form Pengguna:
 | 3 | Data Tamu | `tamu.view / create / edit / delete` | Aksi `.checkout` via alias → `tamu.edit` |
 | 13 | Hari Libur | `hari_libur.view / create / edit / delete` | Akses murni lewat centang `hari_libur.*` — tidak ikut otomatis dari modul lain |
 | 4 | Pengumuman | `announcements.view / create / edit / delete` | Aksi `.publish` via alias → `announcements.edit` |
-| 5 | Halaman CMS | `pages.view / create / edit / delete` | Modul sensitif `role.scope:super_admin` |
-| 6 | Menu Builder | `menus.view / create / edit / delete` | Modul sensitif `role.scope:super_admin` |
 | 7 | Pengguna | `users.view / create / edit / delete` | `.edit` juga membuka reset-password (alias) |
 | 8 | Galeri | `galleries.view / create / edit / delete` | |
 | 9 | Link Kerja | `work_links.view / create / edit / delete` | Modul per-bidang (`role.scope:admin`) |
@@ -897,7 +890,7 @@ lewat form Tambah/Edit Role **maupun** Direct Permission form Pengguna:
 | 10 | Log Aktivitas | `activity_logs.view`, `activity_logs.delete` | Tidak ada create/edit (sistem yang menulis) |
 | 11 | Role / Hak Akses | `roles.view / create / edit / delete` | |
 
-`1 + (13 × 4) + 2 = 55` — persis set permission Super Admin.
+`1 + (11 × 4) + 2 = 47` — persis set permission Super Admin.
 
 **Aksi khusus TANPA baris terpisah** — dites lewat
 `User::hasPermission` yang membaca `Permission::ACTION_ALIASES`:
@@ -943,7 +936,6 @@ kolom salinan nama (**nullable, tanpa default**):
 | `role_permission` | `role_name`, `permission_name` | `roles.name`, `permissions.name` |
 | `role_user` | `user_name`, `role_name` | `users.name`, `roles.name` |
 | `user_has_permissions` | `user_name`, `permission_name` | `users.name`, `permissions.name` |
-| `page_role` | `page_name`, `role_name` | **`pages.title`** (bukan `name`), `roles.name` |
 
 **Aturan main — kolom ini BUKAN bagian mekanisme RBAC:**
 
@@ -960,13 +952,13 @@ kolom salinan nama (**nullable, tanpa default**):
 1. **Insert pivot baru** — relasi memakai
    `App\Models\Relations\BelongsToManyNameMarkers` via trait
    `App\Models\Concerns\HasNameMarkerPivots` (dipakai model `User`,
-   `Role`, `Permission`, `Page`). Setiap `attach()` / `sync()` /
+   `Role`, `Permission`). Setiap `attach()` / `sync()` /
    `syncWithoutDetaching()` otomatis mengisi penanda baris baru
    (konfigurasi per relasi lewat `->withNameMarkers(...)`).
 2. **Rename sumber** — `App\Observers\NameMarkerObserver` (didaftrkan
    di `AppServiceProvider`) memperbarui penanda di seluruh baris pivot
-   terkait saat `roles.name`, `permissions.name`, `users.name`, atau
-   `pages.title` berubah. Hanya kolom nama yang berubah yang diproses.
+   terkait saat `roles.name`, `permissions.name`, atau `users.name`
+   berubah. Hanya kolom nama yang berubah yang diproses.
 
 Isi awal (baris existing) di-backfill migration
 `2026_10_14_000002_backfill_name_marker_columns_to_pivot_tables`.
@@ -991,7 +983,7 @@ Bab ini memetakan **seluruh fitur aplikasi** per area, disarikan dari
 `routes/web.php`, controller, dan middleware. Gunakan sebagai peta saat
 mencari "fitur X ada di file mana".
 
-### 6.1 Portal Publik (tanpa login) — `HomeController`, `PageDisplayController`, `TamuController`
+### 6.1 Portal Publik (tanpa login) — `HomeController`, `TamuController`
 
 | Fitur | Route | Controller/View | Penjelasan |
 |---|---|---|---|
@@ -1000,8 +992,7 @@ mencari "fitur X ada di file mana".
 | Daftar & detail berita | `GET /informasi/berita`, `GET /informasi/berita/{slug}` | Closure route + `informasi/*` view | Hanya `is_published=true` + `forPublic()`; detail menampilkan 3 berita terkait satu kategori |
 | Daftar & detail pengumuman | `GET /informasi/pengumuman(/{slug})` | Closure route | Publik **tanpa data-scoping bidang** — global scope `ScopedToUserDepartment` dimatikan eksplisit; konten dikurasi via `target_publication` (`public`/`all`) |
 | Galeri publik | `GET /informasi/galeri` | Closure route | `Gallery::published()` paginasi 9, dengan grid + lightbox |
-| Halaman CMS dinamis | `GET /halaman`, `GET /halaman/{slug}` | `PageDisplayController@index/show` + middleware `page.visible` | Dua pintu (publik & internal); visibilitas draft / role-terbatas di-enforce server-side (`EnsurePageVisible`) |
-| Menu navigasi dinamis | (view composer `layouts.navbar`) | `MenuBuilderService::treeFor(user)` | Navbar publik dibangun dari tabel `menus`; menu ber-target halaman CMS disaring sesuai visibilitas per role |
+| Navigasi publik | `layouts/navbar.blade.php` | Array `$navTree` statis di view | Navbar tidak lagi dibaca dari database — ubah item langsung di array tersebut |
 | FAQ | `GET /layanan/faq` | View statis | |
 | **Registrasi tamu publik** | `GET/POST /layanan/form-registrasi-tamu` | `TamuController@create/store` | Buku tamu tanpa login: NIK, instansi, KTP (upload), tujuan ditemui (divisi), jumlah tamu, jadwal |
 | Hari libur / tanggal merah | `GET/POST/PUT/DELETE /admin/hari-libur` | `Admin\HariLiburController@index/store/update/destroy` | Master status tanggal ber-tipe `libur` (tanggal merah — DITOLAK form registrasi publik) & `masuk_kerja` (override weekend — Sabtu/Minggu jadi BISA dipilih). Divalidasi server di `TamuController@store` + diblokir UI lewat **kalender kustom** `#tanggal-calendar` (JS `$tanggalMerah` / `$tanggalMasuk`; datepicker native browser diganti agar tanggal bisa diwarnai per-hari: merah = libur/weekend, hitam = override weekend). Gate permission `hari_libur.*` (ID Menu 13, ikut matriks Tambah/Edit Role) — akses modul ini **murni lewat centang `hari_libur.*`**, tidak ikut otomatis dari permission modul lain
@@ -1039,7 +1030,6 @@ Middleware alias (didaftarkan di `bootstrap/app.php`):
 | `role.scope:super_admin` | `RoleMiddleware` | Tolak **Admin Bidang** (menu sensitif: Pengguna, Role, Halaman, Menu) — role lain (termasuk Karyawan ber-permission ekstra) lolos selama punya permission |
 | `role.scope:admin` | `RoleMiddleware` | Semua admin kecuali Karyawan; Admin Bidang wajib terikat bidang |
 | `permission:xxx` | `PermissionMiddleware` | Cek `User::hasPermission()` per aksi |
-| `page.visible` | `EnsurePageVisible` | Halaman CMS draft/terbatas disembunyikan |
 | `must.password` | `MustChangePassword` | Pemaksa ganti password |
 
 #### Dashboard & utilitas
@@ -1076,8 +1066,6 @@ Middleware alias (didaftarkan di `bootstrap/app.php`):
 | Hapus pengguna | `DELETE users/{user}` | `users.delete` | |
 | Edit profil + Direct Permission | `GET/PUT users/{user}/edit` | `can:users.edit:self` | Pengecualian di `AuthServiceProvider`: user SELALU boleh edit profil sendiri; tab matriks Direct Permission ("Hak Akses Fitur") hanya disinkron untuk role delegasi Admin Bidang & Karyawan — role lain dikosongkan |
 | Kelola role | `GET/POST/PUT/DELETE roles*` | `roles.*` | CRUD Role + toggle status role nonaktif; hak akses diatur penuh lewat **matriks Master Menu × CRUD** di form Tambah/Edit Role (tanpa halaman pengaturan permission terpisah); Role Dasar tidak bisa dihapus & namanya terkunci saat edit |
-| Halaman CMS | `pages.*` | `pages.*` + `role.scope:super_admin` | CRUD halaman + section builder (`PageSectionController` — store/update/move/destroy) |
-| Menu Builder | `menus.*` | `menus.*` + `role.scope:super_admin` | CRUD menu landing page + toggle status + move (urutan) |
 
 ### 6.4.1 Data Karyawan (master data HR — panel admin)
 
@@ -1213,14 +1201,13 @@ tersebut **atau** permission ekstra di luar baseline).
 | Service | Dipakai untuk |
 |---|---|
 | `App\Services\ActivityLogger` | Audit trail (`activity_logs`); selalu log SEBELUM delete |
-| `App\Services\MenuBuilderService` | Navbar publik dinamis dari tabel `menus` |
 | `App\Services\NotificationService` | Isi notifikasi topbar admin (tamu baru/belum dibaca per akun) |
 | `App\Services\PortalContentService` | Seluruh konten portal karyawan: link kerja & layanan internal ter-scope hirarki |
 | `App\Services\XlsxReader` | Baca file .xlsx impor Data Karyawan tanpa ext-zip (parser ZIP native + DOM XML) |
 | `App\Http\Controllers\Concerns\ScopesToDepartment` | Trait filter data per-bidang di controller modul bidang |
 | `App\Models\Scopes\ScopedToUserDepartment` | Global scope data-scoping bidang — dimatikan eksplisit di halaman publik pengumuman |
 | `App\Console\Commands\GrantPermission` | Artisan console command (`php artisan permission:grant`) untuk bantuan debugging permission |
-| View composers | `TopbarComposer` (topbar admin), `KaryawanLayoutComposer` (portal karyawan), `MenuBuilderService` composer (navbar publik) |
+| View composers | `TopbarComposer` (topbar admin), `KaryawanLayoutComposer` (portal karyawan) |
 
 ---
 
@@ -1522,6 +1509,66 @@ Buat 2 file: `index.blade.php` dan `form.blade.php` (dipakai create & edit).
 
 > Pattern super lengkap bisa dilihat di:
 > `resources/views/admin/work_links/index.blade.php`.
+
+#### 7.4.A ⭐ Input tanggal — SELALU pakai `<x-date-picker />`
+
+Semua input tanggal di portal (admin, karyawan, publik) memakai **satu
+komponen global** yang meniru kalender Form Registrasi Tamu. Jangan lagi
+menulis `<input type="date">`: browser tidak bisa mewarnai akhir pekan /
+hari libur per-hari, dan tampilannya beda-beda antar halaman.
+
+| Berkas | Isi |
+|---|---|
+| `resources/views/components/date-picker.blade.php` | Komponen Blade `<x-date-picker />` (input teks readonly + panel kalender) |
+| `public/js/date-picker.js` | Mesin kalender: navigasi bulan, pilih tanggal, "Hari ini", "Bersihkan", auto-init + auto-scan setelah router swap |
+| `public/css/date-picker.css` | Tema: cyan PLN `#00A3E0 → #005B9C` untuk tanggal terpilih, weekend merah, footer "Hari ini", `z-index: 9999` |
+| `tests/Feature/DatePickerComponentTest.php` | Test markup, data atribut, migrasi halaman |
+| `tools/cdp_datepicker_verify.js` | Verifikasi visual/perilaku di browser (`node tools/cdp_datepicker_verify.js`) |
+
+Aset dimuat otomatis dari `layouts/app`, `layouts/admin`, dan
+`layouts/karyawan` — halaman baru **tidak perlu** menambahkan `<link>`/
+`<script>` sendiri.
+
+**Pemakaian dasar** (nilai selalu `YYYY-MM-DD`):
+
+```blade
+{{-- Form: wajib, minimal hari ini --}}
+<x-date-picker name="tanggal_kunjungan" min="today" required />
+
+{{-- Form: tanpa batas (tanggal lahir, riwayat kerja) --}}
+<x-date-picker name="tanggal_lahir" max="today" placeholder="Pilih tanggal lahir" />
+
+{{-- Filter bar: ringkas + bisa dikosongkan --}}
+<x-date-picker name="dari" :value="request('dari')" size="sm"
+               placeholder="Dari tanggal" :clearable="true" />
+```
+
+**Semua prop/atribut yang dibaca mesin kalender:**
+
+| Prop | Nilai | Arti |
+|---|---|---|
+| `name` / `id` / `value` | string | Atribut input & nilai awal (`YYYY-MM-DD`) |
+| `min`, `max` | `today` atau `YYYY-MM-DD` | Batas rentang; hari di luar rentang disabled |
+| `block-weekends` | `true`/`false` (default `false`) | Sabtu/Minggu **disabled** (merah) — dipakai form kunjungan |
+| `blocked` | `['2026-12-25' => 'Natal']` | Tanggal merah / hari libur → disabled + coret + tooltip keterangan |
+| `work-dates` | `['2026-11-07' => 'Lembur Sabtu']` | Override weekend (tipe `masuk_kerja`) → boleh dipilih |
+| `clearable` | `true`/`false` | Tampilkan tombol "Bersihkan" di footer (untuk filter) |
+| `size` | `sm` | Ukuran ringkas untuk filter bar |
+| `required`, `disabled`, `placeholder`, `icon`, `wrapper-class` | — | Seperti input biasa |
+
+Catatan perilaku:
+
+- **Weekend selalu ditandai merah** (visual) meski tidak diblokir; pakai
+  `block-weekends` bila memang harus ditolak.
+- Nilai programatik tetap kompatibel dengan JS halaman lama: mengisi
+  `input.value` / membaca `.value` bekerja seperti `<input type="date">`,
+  dan memilih tanggal mengirim event `input` + `change`.
+- Popup dipindah ke `<body>` (`position: fixed`) supaya tidak terpotong
+  `overflow` card/modal (overlay modal memakai `backdrop-filter`) dan
+  selalu menang `z-index`.
+- Input lama cukup diberi class `datepicker` (mis.
+  `<input type="date" class="datepicker">`) → otomatis diubah menjadi
+  kalender global saat halaman dimuat.
 
 ---
 

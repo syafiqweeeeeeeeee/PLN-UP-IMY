@@ -57,7 +57,52 @@
         {{-- Nav Content --}}
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ms-auto">
-                @foreach ($menuTree as $item)
+                @php
+                    /* ====================================================
+                       NAVIGASI PUBLIK STATIS
+                       ----------------------------------------------------
+                       Dulu dirender dari tabel `menus` (Menu Builder).
+                       Fitur Menu Builder dihapus → struktur di bawah ini
+                       adalah satu-satunya sumber kebenaran navbar.
+                       Tambah/ubah item cukup di array ini.
+                       ==================================================== */
+                    $navTree = [
+                        [
+                            'label' => 'Beranda', 'icon' => 'fa-house', 'i18n' => 'nav.home',
+                            'url' => route('home'), 'children' => [],
+                        ],
+                        [
+                            'label' => 'Tentang Kami', 'icon' => 'fa-building', 'i18n' => 'nav.about',
+                            'url' => null,
+                            'children' => [
+                                ['label' => 'Profil Perusahaan',   'url' => route('profil-perusahaan'),   'icon' => null, 'i18n' => 'nav.about_profile'],
+                                ['label' => 'Sejarah',             'url' => route('sejarah'),             'icon' => null, 'i18n' => 'nav.about_history'],
+                                ['label' => 'Visi & Misi',         'url' => route('visi-misi'),           'icon' => null, 'i18n' => 'nav.about_vision_mission'],
+                                ['label' => 'Struktur Organisasi', 'url' => route('struktur-organisasi'), 'icon' => null, 'i18n' => 'nav.about_structure'],
+                            ],
+                        ],
+                        [
+                            'label' => 'Informasi', 'icon' => 'fa-book-open', 'i18n' => 'nav.information',
+                            'url' => null,
+                            'children' => [
+                                ['label' => 'Berita',            'url' => route('berita'),            'icon' => null, 'i18n' => 'nav.info_news'],
+                                ['label' => 'Pengumuman',        'url' => route('pengumuman'),        'icon' => null, 'i18n' => 'nav.info_announcements'],
+                                ['label' => 'Informasi Layanan', 'url' => route('informasi.layanan'), 'icon' => null, 'i18n' => null],
+                                ['label' => 'Galeri',            'url' => route('galeri'),            'icon' => null, 'i18n' => 'nav.info_gallery'],
+                            ],
+                        ],
+                        [
+                            'label' => 'Layanan', 'icon' => 'fa-concierge-bell', 'i18n' => 'nav.services',
+                            'url' => null,
+                            'children' => [
+                                ['label' => 'FAQ',                  'url' => route('layanan.faq'),              'icon' => null, 'i18n' => 'nav.services_faq'],
+                                ['label' => 'Form Registrasi Tamu', 'url' => route('layanan.registrasi-tamu'), 'icon' => null, 'i18n' => 'nav.services_registration'],
+                            ],
+                        ],
+                    ];
+                @endphp
+
+                @foreach ($navTree as $item)
                     @php
                         $isGroupActive = collect($item['children'])->contains(
                             fn ($c) => $isActiveUrl($c['url'] ?? null)
@@ -75,7 +120,7 @@
                             <ul class="dropdown-menu">
                                 @foreach ($item['children'] as $child)
                                     <li>
-                                        <a class="dropdown-item {{ $isActiveUrl($child['url'] ?? null) ? 'active' : '' }}" href="{{ $child['url'] }}" @if (!empty($child['target'])) target="{{ $child['target'] }}" rel="noopener" @endif>
+                                        <a class="dropdown-item {{ $isActiveUrl($child['url'] ?? null) ? 'active' : '' }}" href="{{ $child['url'] }}">
                                             @if ($child['icon'])
                                                 <i class="fas {{ $child['icon'] }} me-1"></i>
                                             @endif
@@ -88,7 +133,7 @@
                     @elseif ($item['url'] !== null)
                         {{-- Leaf item langsung --}}
                         <li class="nav-item">
-                            <a class="nav-link {{ $isActiveUrl($item['url']) ? 'active' : '' }}" href="{{ $item['url'] }}" @if (!empty($item['target'])) target="{{ $item['target'] }}" rel="noopener" @endif>
+                            <a class="nav-link {{ $isActiveUrl($item['url']) ? 'active' : '' }}" href="{{ $item['url'] }}">
                                 @if ($item['icon'])
                                     <i class="fas {{ $item['icon'] }} me-1"></i>
                                 @endif

@@ -386,9 +386,11 @@
          pencarian dihapus agar ringan untuk DB)
          ============================================ --}}
     <form class="kt-filter-bar" method="GET" action="{{ route('karyawan.kunjungan-tamu') }}">
-        <input type="date" name="dari" value="{{ request('dari') }}" title="Tanggal kunjungan dari">
+        <x-date-picker name="dari" :value="request('dari')" size="sm" placeholder="Dari tanggal"
+                       title="Tanggal kunjungan dari" :clearable="true" />
         <span class="kt-filter-count">s/d</span>
-        <input type="date" name="sampai" value="{{ request('sampai') }}" title="Tanggal kunjungan sampai">
+        <x-date-picker name="sampai" :value="request('sampai')" size="sm" placeholder="Sampai tanggal"
+                       title="Tanggal kunjungan sampai" :clearable="true" />
         <select name="status" title="Status verifikasi">
             <option value="">Semua Status</option>
             <option value="menunggu" @selected(request('status') === 'menunggu')>Menunggu Verifikasi</option>

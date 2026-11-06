@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * PermissionSeeder — SISTEM HAK AKSES PER ID MENU.
  *
- * Total permission di database = 55 baris: 43 baris matriks mengikuti
+ * Total permission di database = 47 baris: 35 baris matriks mengikuti
  * struktur menu sidebar (lihat MasterMenu::MENUS) × aksi CRUD
  * yang benar-benar AKTIF di kode, ditambah 12 baris modul master
  * yang kini ikut matriks (`karyawan_data.*`, `master_bidang.*` &
@@ -27,8 +27,6 @@ use Illuminate\Support\Facades\DB;
  *      3  Data Tamu      | tamu                   | view/custom/edit/delete
  *      13 Hari Libur     | hari_libur             | view/custom/edit/delete
  *      4  Pengumuman     | announcements          | view/custom/edit/delete
- *      5  Halaman        | pages                  | view/custom/edit/delete
- *      6  Menu           | menus                  | view/custom/edit/delete
  *      7  Pengguna       | users                  | view/custom/edit/delete
  *      8  Galeri         | galleries              | view/custom/edit/delete
  *      9  Link Kerja     | work_links             | view/custom/edit/delete
@@ -38,7 +36,7 @@ use Illuminate\Support\Facades\DB;
  *      10 Log Aktivitas  | activity_logs          | view/delete     (2)
  *      11 Role/Hak Akses | roles                  | view/custom/edit/delete
  *
- *      1 + (13 × 4) + 2 = 55 = PERSIS set permission Super Admin.
+ *      1 + (11 × 4) + 2 = 47 = PERSIS set permission Super Admin.
  *
  *      (1) Dashboard hanya .view; (2) Log Aktivitas hanya .view &
  *      .delete — kolom lain tampil "—" di matriks.
@@ -74,8 +72,6 @@ class PermissionSeeder extends Seeder
         'tamu' => ['view', 'create', 'edit', 'delete'],
         'hari_libur' => ['view', 'create', 'edit', 'delete'],
         'announcements' => ['view', 'create', 'edit', 'delete'],
-        'pages' => ['view', 'create', 'edit', 'delete'],
-        'menus' => ['view', 'create', 'edit', 'delete'],
         'users' => ['view', 'create', 'edit', 'delete'],
         'galleries' => ['view', 'create', 'edit', 'delete'],
         'work_links' => ['view', 'create', 'edit', 'delete'],
@@ -98,8 +94,6 @@ class PermissionSeeder extends Seeder
         'tamu' => 'Guest Book',
         'hari_libur' => 'Hari Libur',
         'announcements' => 'Announcements',
-        'pages' => 'Page Management',
-        'menus' => 'Menu Management',
         'users' => 'User Management',
         'galleries' => 'Gallery',
         'work_links' => 'Work Link Management',
@@ -115,7 +109,7 @@ class PermissionSeeder extends Seeder
         $menuNames = array_column(MasterMenu::MENUS, 'name', 'permission_key');
 
         // ================================================
-        // 1) Pastikan baris permission matriks ada (55).
+        // 1) Pastikan baris permission matriks ada (47).
         // ================================================
         $permissionIds = [];
 
@@ -136,7 +130,7 @@ class PermissionSeeder extends Seeder
         $activeNames = array_keys($permissionIds);
 
         // ================================================
-        // 2) Hapus permission legacy/diam di luar 55 baris
+        // 2) Hapus permission legacy/diam di luar 47 baris
         //    matriks — bersama pivot role & direct-permission
         //    user agar tidak ada sisa data dummy.
         // ================================================
@@ -159,7 +153,7 @@ class PermissionSeeder extends Seeder
             ['description' => 'Super Admin — Sekretariat/Humas, akses penuh seluruh fitur', 'status' => true]
         );
 
-        // Super Admin: akses penuh = TEPAT seluruh 55 permission matriks
+        // Super Admin: akses penuh = TEPAT seluruh 47 permission matriks
         // (sync() mengganti isi pivot → tidak ada sisa permission legacy).
         $superAdmin->permissions()->sync(array_values($permissionIds));
 
@@ -211,10 +205,6 @@ class PermissionSeeder extends Seeder
                 return 'Akses Dashboard';
             case 'activity_logs':
                 return $action === 'view' ? 'Akses Log Aktivitas' : 'Hapus Log Aktivitas';
-            case 'pages':
-                return $action === 'view' ? 'Lihat Halaman' : "{$verb} Halaman";
-            case 'menus':
-                return $action === 'view' ? 'Lihat Menu' : "{$verb} Menu";
             case 'tamu':
                 return $action === 'view' ? 'Akses Data Tamu' : "{$verb} Tamu";
             case 'hari_libur':
