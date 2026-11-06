@@ -168,8 +168,8 @@ E-PPID PLN menyediakan solusi berbasis web:
                               | - Informasi      |   | (sesuai permission)|
                               | - Layanan        |   | - Dashboard        |
                               | - Link Kerja     |   | - Berita/Pengumuman|
-                              | - Profil Saya    |   | - Galeri/Halaman   |
-                              +------------------+   | - Menu/Pengguna    |
+                              | - Profil Saya    |   | - Galeri           |
+                              +------------------+   | - Pengguna/Role    |
                                                      | - Buku Tamu        |
                                                      | - Link Kerja       |
                                                      | - Log Aktivitas    |
@@ -194,10 +194,10 @@ E-PPID PLN menyediakan solusi berbasis web:
 |  |                |  | Karyawan       |  |             | |
 |  +----------------+  +----------------+  +-------------+ |
 |  Middleware: auth, permission:, role.scope:,              |
-|  admin.access, karyawan.access, page.visible,             |
-|  must.password, throttle (OTP lupa password)              |
-|  Services: MenuBuilderService, PortalContentService,      |
-|  ActivityLogger, NotificationService                      |
+|  admin.access, karyawan.access, must.password,            |
+|  throttle (OTP lupa password)                             |
+|  Services: PortalContentService, ActivityLogger,          |
+|  NotificationService, PublicPageCache, MasterOrgMatcher   |
 +---------------------------+------------------------------+
                             |
                             v
@@ -205,9 +205,9 @@ E-PPID PLN menyediakan solusi berbasis web:
 |                DATABASE (MySQL 8)                        |
 |  users, roles, permissions, role_user, role_permission,  |
 |  user_has_permissions, master_menus, departments,        |
-|  news, announcements, galleries, pages, page_sections,   |
-|  page_role, menus, tamus, hari_liburs, work_links,       |
-|  activity_logs, contact_messages, cache, jobs            |
+|  news, announcements, galleries, tamus, hari_liburs,     |
+|  work_links, karyawans, bidangs, jabatans,               |
+|  employee_profiles, activity_logs (legacy), cache, jobs  |
 +----------------------------------------------------------+
 ```
 
@@ -291,29 +291,9 @@ E-PPID PLN menyediakan solusi berbasis web:
 | tanggal_kegiatan | DATE | Tanggal kegiatan |
 | status | ENUM | publikasi / draft |
 
-#### Tabel: pages, page_sections, page_role
-| Nama Field | Tipe Data | Keterangan |
-|------------|-----------|------------|
-| pages.title / slug | VARCHAR | Judul & slug unik |
-| pages.status | VARCHAR(20) | draft / published |
-| pages.visibility | VARCHAR(20) | public / role_restricted |
-| pages.show_in_list | BOOLEAN | Tampil di indeks halaman |
-| pages.created_by / updated_by | FK users | Audit pembuat |
-| page_sections.type | VARCHAR(30) | banner / text / cards / file / faq |
-| page_sections.data | JSON | Konten section |
-| page_sections.sort_order | INT | Urutan section |
-| page_role | pivot | page_id ↔ role_id (halaman terbatas per role) |
-
-#### Tabel: menus
-| Nama Field | Tipe Data | Keterangan |
-|------------|-----------|------------|
-| id | BIGINT UNSIGNED | Primary Key |
-| parent_id | FK menus nullable | Hierarki menu (sub-menu) |
-| label / type | VARCHAR | Label & tipe target: route / page / url |
-| route_name / page_id / url | — | Target sesuai tipe |
-| icon | VARCHAR(60) | Kelas Font Awesome |
-| sort_order / is_active | INT / BOOLEAN | Urutan & status |
-| created_by | FK users | Audit pembuat |
+> Modul Halaman CMS (`pages`, `page_sections`, `page_role`) dan Menu Builder (`menus`)
+> sudah DIHAPUS pada migrasi `2026_11_05_000001`. Navbar publik kini statis di
+> `resources/views/layouts/navbar.blade.php`.
 
 #### Tabel: tamus (Buku Tamu)
 | Nama Field | Tipe Data | Keterangan |
@@ -322,12 +302,15 @@ E-PPID PLN menyediakan solusi berbasis web:
 | nik | VARCHAR(16) UNIQUE | NIK / No. KTP |
 | nama / instansi | VARCHAR(150) | Identitas tamu |
 | no_hp / email | VARCHAR | Kontak (WhatsApp click-to-chat) |
-| foto_ktp | VARCHAR | Path KTP (disk private, disajikan via route terproteksi) |
-| surat_jalan | VARCHAR nullable | PDF surat permohonan/undangan resmi |
-| tujuan_ditemui | VARCHAR(150) | Orang/divisi yang ditemui |
+| dokumen_zip | VARCHAR nullable | Arsip privat KTP + surat permohonan (satu ZIP, disk private, disajikan via route terproteksi) |
+| tujuan_ditemui | VARCHAR(150) | Divisi/tujuan yang ditemui |
+| jabatan_ditemui / orang_ditemui | VARCHAR(150) | Jabatan & nama orang yang ditemui |
+| orang_ditemui_user_id | FK users nullable | Akun karyawan yang ditemui (scoping Portal Karyawan) |
 | jumlah_tamu | TINYINT | Jumlah rombongan |
 | tanggal_kunjungan | DATETIME nullable | Rencana kunjungan |
 | keperluan | TEXT | Maksud & tujuan |
+| status_verifikasi | VARCHAR(20) | menunggu / disetujui / ditolak |
+| verified_at / verified_by | TIMESTAMP / FK users nullable | Jejak verifikasi |
 | checked_in_at / checked_out_at | TIMESTAMP nullable | Proses front office |
 
 #### Tabel: work_links
@@ -342,7 +325,11 @@ E-PPID PLN menyediakan solusi berbasis web:
 | department / sub_department | VARCHAR nullable | Kode legacy yang DITURUNKAN dari `bidang_id` (kompatibilitas filter lama) |
 | is_active | BOOLEAN | Nonaktif = disembunyikan tanpa dihapus |
 
-#### Tabel: activity_logs
+#### Tabel: activity_logs (LEGACY)
+> Tabel ini hanya dipertahankan untuk migrasi data lama (`logs:migrate-db-to-file`).
+> Log aktivitas RUNTIME disimpan sebagai file JSONL harian di
+> `storage/logs/activity-YYYY-MM-DD.jsonl` melalui `App\Services\ActivityLogger`.
+
 | Nama Field | Tipe Data | Keterangan |
 |------------|-----------|------------|
 | id | BIGINT UNSIGNED | Primary Key |
@@ -353,25 +340,16 @@ E-PPID PLN menyediakan solusi berbasis web:
 | subject_type / subject_id | VARCHAR / BIGINT | Subjek aksi (polymorphic ringan) |
 | ip_address / user_agent | VARCHAR | Metadata request |
 
-#### Tabel: contact_messages
-| Nama Field | Tipe Data | Keterangan |
-|------------|-----------|------------|
-| id | BIGINT UNSIGNED | Primary Key |
-| nama / email / telepon | VARCHAR | Identitas pengirim |
-| kategori / subjek / pesan | VARCHAR / TEXT | Isi pesan |
-| status / read_at | VARCHAR(20) / TIMESTAMP | belum_dibaca / sudah_dibaca |
-
-> Tabel framework bawaan: `cache`, `jobs` (driver database).
+> Tabel framework bawaan: `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs`, `sessions`, `password_reset_tokens` (driver database).
 
 ### 4.2 Desain Interface
 
 #### 4.2.1 Landing Page (publik, tanpa login)
-- **Navbar dinamis** dari Menu Builder (database, fallback hardcoded) + toggle i18n Indonesia/English + dark mode
+- **Navbar statis** (Blade) + toggle i18n Indonesia/English + dark mode
 - **Beranda:** hero profil UP PLTU Indramayu 3×330 MW, section wilayah, layanan informasi, mekanisme pelayanan, footer kontak
 - **Tentang Kami:** Profil Perusahaan, Sejarah (timeline), Visi & Misi, Struktur Organisasi
 - **Informasi:** Berita (list + detail + terkait), Pengumuman (list + detail), Galeri (kategori + lightbox, paginasi 9/halaman), Informasi Standar Pelayanan
 - **Layanan:** FAQ, **Form Registrasi Tamu** (buku tamu digital)
-- **Halaman CMS:** `/halaman` (indeks) dan `/halaman/{slug}` — visibilitas draft/role-restricted ditegakkan middleware `page.visible`
 
 #### 4.2.2 Portal Karyawan (`/karyawan/dashboard`)
 Area internal terpisah dari panel admin, dibatasi middleware `auth` + `karyawan.access`:
@@ -385,7 +363,7 @@ Area internal terpisah dari panel admin, dibatasi middleware `auth` + `karyawan.
 - **Sidebar (fixed left):** logo brand, menu navigasi adaptif permission (modul tanpa permission disembunyikan), footer kembali ke situs
 - **Topbar:** breadcrumb, pencarian global (Ctrl+K), lonceng notifikasi buku tamu (polling JSON), info user
 - **Dashboard:** welcome card, stat cards, quick actions adaptif, aktivitas terbaru, status sistem, notifikasi
-- **Modul konten:** Berita, Pengumuman, Galeri, Halaman (Page + Section builder), Menu Builder
+- **Modul konten:** Berita, Pengumuman, Galeri
 - **Modul operasional:** Data Tamu (list/filter, check-in/out, export, print, dokumen privat), Hari Libur (tanggal merah & override akhir pekan), Link Kerja
 - **Modul master data:** Data Karyawan (HR, impor/ekspor CSV & XLSX), Master Bidang, Master Jabatan
 - **Modul tata kelola:** Pengguna (buat, toggle aktif/nonaktif, reset password, direct permission, hapus), Role (matriks hak akses, khusus Super Admin), Log Aktivitas
@@ -395,7 +373,7 @@ Area internal terpisah dari panel admin, dibatasi middleware `auth` + `karyawan.
 
 Prinsip: **role = akses**, **bidang = organisasi**. Middleware `permission:` menjaga
 setiap endpoint admin per aksi; `role.scope:super_admin` membatasi modul sensitif
-(Pengguna, Role, Halaman, Menu) — role Admin Bidang ditolak di sana;
+(Pengguna, Role) — role Admin Bidang ditolak di sana;
 `role.scope:admin` mengizinkan Admin Bidang dengan scope data di controller.
 
 **Alur RBAC (kondisi aktual):**
@@ -418,18 +396,17 @@ setiap endpoint admin per aksi; `role.scope:super_admin` membatasi modul sensiti
 5. **Alias aksi** — `news.publish`→`news.edit`,
    `announcements.publish`→`announcements.edit`, `tamu.checkout`→`tamu.edit`,
    `user.reset-password`→`users.edit` (tanpa baris permission terpisah).
-6. **Karyawan baseline** — role Karyawan hanya berisi `dashboard.view` dan
-   `pages.view`; permission di luar baseline (= "permission ekstra")
+6. **Karyawan baseline** — role Karyawan hanya berisi `dashboard.view`;
+   permission di luar baseline (= "permission ekstra")
    membuka akses masuk `/admin` ("setengah admin").
 
 | Modul / Permission | Karyawan (baseline) | Admin Bidang | Super Admin |
 |---|:-:|:-:|:-:|
-| Portal & dasar (dashboard.view, pages.view) | ✅ | ✅ | ✅ |
+| Portal & dasar (dashboard.view) | ✅ | ✅ | ✅ |
 | Kelola berita (news.*) — di luar baseline, diberikan eksplisit | ❌ | ❌ | ✅ |
 | Kelola pengumuman (announcements.*) | ❌ | ✅ (bidangnya) | ✅ |
 | Kelola link kerja (work_links.*) | ❌ | ✅ (bidangnya) | ✅ |
 | Kelola galeri (galleries.*) | ❌ | ❌ | ✅ |
-| Halaman CMS & Menu Builder (pages.*, menus.*) — `role.scope:super_admin` | ❌ | ❌ | ✅ |
 | Buku Tamu (tamu.*) | ❌ | ❌ (via direct permission bila diberikan) | ✅ |
 | Hari Libur (hari_libur.*) | ❌ | ❌ | ✅ |
 | Data Karyawan (karyawan_data.*) | ❌ | ❌ | ✅ |
@@ -482,13 +459,13 @@ setiap endpoint admin per aksi; `role.scope:super_admin` membatasi modul sensiti
 | ID | Requirement | Prioritas | Status |
 |----|-------------|-----------|--------|
 | FR-001 | Landing page profil UP: beranda, tentang kami (profil/sejarah/visi-misi/struktur), informasi (berita/pengumuman/galeri), FAQ | Tinggi | ✅ Implementasi |
-| FR-002 | Navbar dinamis dari Menu Builder (database) dengan i18n Indonesia/English dan dark mode | Sedang | ✅ Implementasi |
+| FR-002 | Navbar statis (Blade) dengan i18n Indonesia/English dan dark mode | Sedang | ✅ Implementasi |
 | FR-003 | Panel admin dengan dashboard statistik, quick actions adaptif, dan notifikasi | Tinggi | ✅ Implementasi |
 | FR-004 | CMS Berita: CRUD + publish/unpublish + target publikasi (publik/portal/keduanya) | Tinggi | ✅ Implementasi |
 | FR-005 | CMS Pengumuman: CRUD + publish/unpublish + target publikasi + kepemilikan bidang | Tinggi | ✅ Implementasi |
 | FR-006 | CMS Galeri: CRUD kategori + publish/draft + lightbox di halaman publik | Sedang | ✅ Implementasi |
-| FR-007 | Halaman dinamis (Page + Section builder: banner/text/cards/file/faq) dengan visibilitas draft/published & public/role-restricted | Tinggi | ✅ Implementasi |
-| FR-008 | Menu Builder hierarkis (route/page/url, ikon, urutan, aktif/nonaktif) | Sedang | ✅ Implementasi |
+| FR-007 | ~~Halaman dinamis (Page + Section builder)~~ — modul dihapus 5 Nov 2026 | Tinggi | ❌ Dihapus |
+| FR-008 | ~~Menu Builder hierarkis~~ — modul dihapus 5 Nov 2026, navbar statis | Sedang | ❌ Dihapus |
 | FR-009 | Portal Karyawan terpisah: dashboard, informasi internal, layanan internal, link kerja, kunjungan tamu, profil — konten view-only, diarahkan otomatis setelah login | Tinggi | ✅ Implementasi |
 | FR-010 | RBAC per-aksi: seluruh route admin dijaga middleware `permission:`; sidebar & dashboard adaptif | Tinggi | ✅ Implementasi |
 | FR-011 | Manajemen pengguna: buat akun, toggle status aktif/nonaktif, reset password (permission terpisah), Direct Permission per akun, hapus; tanpa pendaftaran mandiri | Tinggi | ✅ Implementasi |
@@ -515,7 +492,7 @@ setiap endpoint admin per aksi; `role.scope:super_admin` membatasi modul sensiti
 | NFR-003 | Responsiveness | Mobile, Tablet, Desktop |
 | NFR-004 | Security | Password hashing (bcrypt), CSRF protection, dokumen KTP/surat di disk private + route terproteksi, rate limit OTP, RBAC per-aksi di semua endpoint admin |
 | NFR-005 | Availability | 99% uptime pada jam operasional |
-| NFR-006 | Auditability | Seluruh aksi tulis tercatat di activity_logs dengan snapshot user |
+| NFR-006 | Auditability | Seluruh aksi tulis tercatat di file log JSONL harian dengan snapshot user |
 
 ### 5.2 Technology Stack
 
@@ -527,7 +504,7 @@ setiap endpoint admin per aksi; `role.scope:super_admin` membatasi modul sensiti
 | Database | MySQL | 8.0 |
 | Frontend Framework | Bootstrap | 5 |
 | Icon Library | Font Awesome 6, Feather Icons | 6.x |
-| CSS/Build Tool | Vite | 7.x |
+| CSS | CSS statis di `public/css` (tanpa build tool) | — |
 | Testing | PHPUnit | 11.5 |
 | Runtime & Infra | Docker Compose (app + db), FrankenPHP | — |
 
@@ -539,54 +516,52 @@ PLN-UP-IMY/
 │   ├── Http/
 │   │   ├── Controllers/
 │   │   │   ├── Admin/            # Dashboard, News, Announcement, Gallery,
-│   │   │   │                     # Page, PageSection, Menu, User, Role,
-│   │   │   │                     # Tamu, HariLibur, WorkLink, ActivityLog,
-│   │   │   │                     # Notification, AdminSearch, Settings,
-│   │   │   │                     # DataKaryawan, MasterBidang,
+│   │   │   │                     # User, Role, Tamu, HariLibur, WorkLink,
+│   │   │   │                     # ActivityLog, Notification, AdminSearch,
+│   │   │   │                     # Settings, DataKaryawan, MasterBidang,
 │   │   │   │                     # MasterJabatan, EmployeeProfile
 │   │   │   ├── Auth/             # Login, ForgotPassword (OTP)
 │   │   │   ├── Karyawan/         # PortalController (dashboard, informasi,
-│   │   │   │                     # layanan, link, profil)
+│   │   │   │                     # layanan, link, profil), CRUD konten
 │   │   │   ├── HomeController.php
-│   │   │   ├── PageDisplayController.php
 │   │   │   ├── TamuController.php
 │   │   │   └── TamuDocumentController.php
 │   │   ├── Middleware/           # PermissionMiddleware, RoleMiddleware,
 │   │   │                         # EnsureKaryawan, EnsureNotKaryawan,
-│   │   │                         # EnsurePageVisible
+│   │   │                         # MustChangePassword
 │   │   └── Requests/
 │   ├── Models/                   # User, Role, Permission, Department, News,
-│   │                             # Announcement, Gallery, Page, PageSection,
-│   │                             # Menu, Tamu, WorkLink, ActivityLog, ...
-│   └── Services/                 # MenuBuilderService, PortalContentService,
-│                                 # ActivityLogger, NotificationService
+│   │                             # Announcement, Gallery, Tamu, WorkLink,
+│   │                             # Karyawan, Bidang, Jabatan, ...
+│   └── Services/                 # PortalContentService, ActivityLogger,
+│                                 # NotificationService, PublicPageCache
 ├── config/
 ├── database/
-│   ├── migrations/               # 49 migrasi (users, RBAC, konten, tamus,
+│   ├── migrations/               # 48 migrasi (users, RBAC, konten, tamus,
 │   │                             # hari_liburs, karyawans, bidangs/jabatans,
 │   │                             # work_links, departments, ...)
 │   └── seeders/                  # AdminUserSeeder, KaryawanUserSeeder,
 │                                 # PermissionSeeder, MasterMenuSeeder,
-│                                 # MasterBidangJabatanSeeder, MenuSeeder,
-│                                 # WorkLinkSeeder
+│                                 # MasterBidangJabatanSeeder, WorkLinkSeeder
 ├── docker-compose.yml            # app (FrankenPHP) + db (MySQL 8)
 ├── Dockerfile
 ├── public/
+├── public/
+│   ├── css/  js/                # CSS & JS statis (tanpa build tool)
+│   └── assets/                 # gambar & logo
 ├── resources/
-│   ├── css/  js/
 │   └── views/
 │       ├── layouts/              # app (publik), admin, karyawan, navbar, footer
 │       ├── admin/                # login, dashboard, news/, announcements/,
-│       │                         # galeri/, pages/, menus/, users/, roles/,
-│       │                         # tamu/, work_links/, activity-logs/
+│       │                         # galeri/, users/, roles/, tamu/,
+│       │                         # work_links/, activity-logs/
 │       ├── karyawan/             # dashboard, informasi, layanan, link, profil
 │       ├── informasi/            # berita, pengumuman, galeri, layanan
 │       ├── tentang_kami/         # profil, sejarah, visi_misi, struktur_organisasi
-│       ├── layanan/              # faq, form-registrasi-tamu
-│       └── pages/                # index, show (CMS)
+│       └── layanan/              # faq, form-registrasi-tamu
 ├── routes/
 │   └── web.php
-├── tests/Feature/                # 561 test (RBAC, Tamu, Portal, Menu,
+├── tests/Feature/                # 34 file test (RBAC, Tamu, Portal,
 │                                 # Data Karyawan, Master Bidang/Jabatan, ...)
 └── storage/
 ```
@@ -725,11 +700,10 @@ tabrakan dengan MySQL Laragon).
 | Informasi | `/informasi/berita`, `/informasi/pengumuman`, `/informasi/galeri`, `/informasi/layanan` | GET |
 | FAQ | `/layanan/faq` | GET |
 | Registrasi Tamu (publik) | `/layanan/form-registrasi-tamu` | GET / POST |
-| Halaman CMS | `/halaman`, `/halaman/{slug}` | GET |
 | Login | `/admin/login` | GET / POST |
 | Lupa password (OTP) | `/forgot-password/otp`, `/forgot-password/reset` | POST |
 | Portal Karyawan | `/karyawan/dashboard`, `/karyawan/informasi`, `/karyawan/layanan`, `/karyawan/link`, `/karyawan/kunjungan-tamu`, `/karyawan/profil` | GET / POST / PUT |
-| Panel Admin | `/admin/dashboard`, `/admin/news`, `/admin/announcements`, `/admin/galeri`, `/admin/pages`, `/admin/menus`, `/admin/users`, `/admin/roles`, `/admin/tamu`, `/admin/hari-libur`, `/admin/work-links`, `/admin/data-karyawan`, `/admin/master-bidang`, `/admin/master-jabatan`, `/admin/activity-logs` | GET/POST/PUT/PATCH/DELETE |
+| Panel Admin | `/admin/dashboard`, `/admin/news`, `/admin/announcements`, `/admin/galeri`, `/admin/users`, `/admin/roles`, `/admin/tamu`, `/admin/hari-libur`, `/admin/work-links`, `/admin/data-karyawan`, `/admin/master-bidang`, `/admin/master-jabatan`, `/admin/activity-logs` | GET/POST/PUT/PATCH/DELETE |
 | Pengaturan & utilitas admin | `/admin/settings`, `/admin/search`, `/admin/cari`, `/admin/notifications/poll` | GET / PUT / POST |
 | Logout | `/admin/logout` | POST |
 
@@ -739,8 +713,8 @@ tabrakan dengan MySQL Laragon).
 php artisan test
 ```
 
-Seluruh **561 test** harus lulus (mencakup RBAC, buku tamu, portal karyawan, menu,
-berita/pengumuman, halaman, data karyawan, master bidang/jabatan, dan log
+Seluruh **537 test** harus lulus (mencakup RBAC, buku tamu, portal karyawan,
+berita/pengumuman/galeri, data karyawan, master bidang/jabatan, dan log
 aktivitas). Di dalam container, test suite
 butuh override koneksi ke host `db`:
 
@@ -786,8 +760,6 @@ docker compose exec -e DB_HOST=db -e DB_PASSWORD=root app php artisan test
 #### 8.3.2 Mengelola Konten
 - **Berita / Pengumuman:** Tambah → isi judul, kategori, target publikasi (publik / portal karyawan / keduanya), ringkasan, isi, gambar → Simpan → Publish
 - **Galeri:** unggah foto, pilih kategori & status (publikasi/draft)
-- **Halaman:** buat halaman, susun section (banner, teks, cards, file, FAQ), atur urutan, publish; halaman dapat dibatasi per role
-- **Menu:** kelola navbar publik — tambah item (route/halaman/URL), ikon, urutan, sub-menu, aktif/nonaktif
 
 #### 8.3.3 Mengelola Buku Tamu
 1. Buka **Data Tamu**; gunakan filter pencarian, rentang tanggal, dan status (berkunjung/selesai)
@@ -818,7 +790,7 @@ docker compose exec -e DB_HOST=db -e DB_PASSWORD=root app php artisan test
 | Masalah | Solusi |
 |---------|--------|
 | Halaman tidak muncul | Pastikan container berjalan: `docker compose ps`, refresh halaman |
-| CSS/aset tidak ter-load | Jalankan `npm install && npm run build` |
+| CSS/aset tidak ter-load | Jalankan `php artisan optimize:clear`, lalu hard-refresh browser |
 | Error koneksi database | Cek `DB_HOST=db` di `.env` (dalam container) dan status container `db` |
 | Test gagal di dalam container | Gunakan override: `docker compose exec -e DB_HOST=db -e DB_PASSWORD=root app php artisan test` |
 | Lupa password admin | Gunakan alur OTP di halaman login, atau reset oleh Super Admin lain (permission `user.reset-password`) |

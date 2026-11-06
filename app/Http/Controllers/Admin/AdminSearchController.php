@@ -100,17 +100,6 @@ class AdminSearchController extends Controller
                 ->get(['id', 'name', 'status'])
             : collect();
 
-        $messages = Gate::allows('contact_messages.view')
-            ? ContactMessage::query()
-                ->where(function ($w) use ($q) {
-                    $w->where('subjek', 'like', "%{$q}%")
-                      ->orWhere('nama', 'like', "%{$q}%");
-                })
-                ->latest()
-                ->limit(5)
-                ->get(['id', 'subjek', 'nama', 'status'])
-            : collect();
-
         // Log aktivitas: tabel paling cepat tumbuh — pencarian teks
         // dibatasi 30 hari terakhir; pencarian berbasis waktu memakai
         // range created_at yang terindeks (lihat parseTimeQuery()).
@@ -174,7 +163,7 @@ class AdminSearchController extends Controller
                 'items' => $logs->map(fn (array $l) => [
                     'title' => $l['description'],
                     'url'   => route('admin.activity-logs.index'),
-                    'meta'  => $l['timestamp']->format('Y-m-d H:i'),
+                    'meta'  => $l['timestamp']->format('d M Y H:i'),
                 ])->all(),
             ],
         ]);

@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\ActivityLog;
-use App\Models\ContactMessage;
 use App\Models\News;
 use App\Models\Role;
 use App\Models\User;

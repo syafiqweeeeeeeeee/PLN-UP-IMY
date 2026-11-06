@@ -1607,7 +1607,6 @@
 <script>
     /* ===== Buka/tutup modal generik ===== */
     function openTamuModal(id) {
-        console.log('[Modal] openTamuModal dipanggil:', id);
         const el = document.getElementById(id);
         if (!el) {
             console.error('[Modal] Elemen tidak ditemukan:', id);
@@ -1617,7 +1616,6 @@
         }
         el.classList.add('show');
         document.body.style.overflow = 'hidden';
-        console.log('[Modal] Modal', id, 'dibuka. classList:', el.classList.contains('show'));
     }
     function closeTamuModal(id) {
         document.getElementById(id).classList.remove('show');

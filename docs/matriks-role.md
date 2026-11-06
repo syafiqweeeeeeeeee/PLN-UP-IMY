@@ -1,7 +1,12 @@
 # Matriks Role × Akses — Portal Internal UP Indramayu
 
+> ⚠️ **DOKUMEN HISTORIS (perencanaan awal).** Implementasi aktual memakai tiga
+> role dasar — **Super Admin, Admin Bidang, Karyawan** — dengan RBAC per-aksi +
+> Direct Permission. Modul Halaman CMS, Menu Builder, dan Permohonan/Pesan sudah
+> dihapus. Untuk kondisi terkini lihat `SRD_E-PPID_PLN.md` dan `DEVELOPER_GUIDE.md`.
+>
 > Acuan untuk menentukan role mana yang perlu dibuat di sistem (Role Management).
-> Dibuat: 2026-09-16 · **Diperbarui (Revisi 2): 2026-09-17** — disinkronkan dengan implementasi RBAC per-aksi & keputusan SRD 1.1.
+> Dibuat: 2026-09-16 · Revisi 2: 2026-09-17.
 
 ---
 

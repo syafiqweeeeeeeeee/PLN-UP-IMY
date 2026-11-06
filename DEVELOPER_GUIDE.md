@@ -59,8 +59,8 @@ PLN UP Indramayu. Aplikasi punya **tiga area besar**:
 |---|---|---|
 | Framework | Laravel | 12.x (PHP ≥ 8.2) |
 | Database | MySQL | 8.0 (via Laragon) |
-| Frontend | Blade template + Bootstrap/Tailwind util + FontAwesome | — |
-| Asset bundler | Vite | — |
+| Frontend | Blade template + Bootstrap + FontAwesome | — |
+| Asset | CSS/JS statis di `public/` (tanpa build tool) | — |
 | Testing | PHPUnit | 11.x |
 | Linter | Laravel Pint (`vendor/bin/pint`) | — |
 | Runtime | Laragon (Apache 2.4 + PHP 8.3 + MySQL 8) | — |
@@ -84,7 +84,6 @@ composer install
 # 3. Setup Laravel
 php artisan key:generate
 php artisan migrate --seed
-npm install && npm run build
 ```
 
 Nyalakan **Apache & MySQL** dari menu Laragon, lalu buka
@@ -121,7 +120,7 @@ jadi `.env` tidak perlu diubah.
 |---|---|
 | Laragon → **Start All** | Nyalakan Apache (port 80) + MySQL (port 3306) |
 | `docker compose up -d` / `down` | Nyalakan / matikan container (cadangan) |
-| `composer dev` | Jalankan 4 proses sekaligus: `php artisan serve` + queue listener + log pail + `npm run dev` |
+| `composer dev` | Jalankan server pengembangan (`php artisan serve`) |
 | `php artisan test` | Jalankan seluruh test suite |
 | `vendor/bin/pint` | Auto-format kode (PHP) |
 | `php artisan optimize:clear` | Bersihkan semua cache (route, config, view, event) |
@@ -251,11 +250,11 @@ Tabel terkait lain dari skeleton Laravel:
 
 #### `tamus` — Buku tamu (registrasi kunjungan)
 
-Kolom penting: `nama`, `email`, `no_hp`, `alamat`, `instansi`,
-`tanggal_kunjungan`, `foto_ktp` (setelah migrasi `2026_10_01_...` ber-type
-**json** — array file), `dokumen_zip` (menggantikan `surat_jalan`),
-`status_verifikasi` (migrasi `2026_10_05_...` — siklus verifikasi tamu),
-`checkout_at`, `user_id` (petugas penanggung jawab), timestamps.
+Kolom penting: `nik`, `nama`, `instansi`, `no_hp`, `email`, `dokumen_zip`
+(arsip privat KTP + surat permohonan), `tujuan_ditemui`, `jabatan_ditemui`,
+`orang_ditemui`, `orang_ditemui_user_id` (akun karyawan yang ditemui),
+`jumlah_tamu`, `tanggal_kunjungan`, `keperluan`, `status_verifikasi`,
+`verified_at`, `verified_by`, `checked_in_at`, `checked_out_at`, timestamps.
 
 ### 4.2 Tabel RBAC — ⭐ inti sistem hak akses
 
@@ -366,8 +365,8 @@ dipakai hard-coded di banyak tempat. Total matriks = **47 permission**
 | `news` | `2026_09_11_000001` | Berita publik: `title`, `slug`, `content`, `image`, `status` (draft/publish), `published_at`, **`target_publication`** (migrasi `2026_09_29_000001`) |
 | `announcements` | `2026_09_14_000001` | Pengumuman internal + `target_publication` |
 | `galleries` | `2026_09_14_000002` | Album/foto galeri landing |
-| `activity_logs` | `2026_09_14_000002` | Audit trail: `user_id`, `action`, `description`, timestamps — diisi via `ActivityLogger::log(...)` |
-| `contact_messages` | `2026_09_15_000001` | Pesan dari form kontak landing |
+| `activity_logs` | `2026_09_14_000002` | **Legacy** — log runtime kini file JSONL harian (`storage/logs/activity-*.jsonl`); tabel hanya dipakai command migrasi `logs:migrate-db-to-file` |
+| `contact_messages` | `2026_09_15_000001` | **Dihapus** oleh migrasi `2026_09_21_000001` (modul kontak dihentikan) |
 | `work_links` | `2026_09_29_000002` + `2026_10_26_000001` | Link kerja terhubung Master Bidang (`bidang_id`); `department`/`sub_department` diturunkan otomatis dari baris Bidang |
 
 > Contoh lama `contact_locations` & `contact_social_media` sudah **dihapus**

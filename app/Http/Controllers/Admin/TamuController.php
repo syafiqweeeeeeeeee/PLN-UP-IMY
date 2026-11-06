@@ -109,8 +109,8 @@ class TamuController extends Controller
             'jumlah'    => $t->jumlah_tamu,
             'tanggal'   => $t->tanggal_kunjungan?->format('Y-m-d H:i'),
             'daftar'    => $t->created_at->format('Y-m-d H:i'),
-            'checkin'   => $t->checked_in_at?->format('Y-m-d H:i'),
-            'checkout'  => $t->checked_out_at?->format('Y-m-d H:i'),
+            'checkin'   => $t->checked_in_at?->format('d M Y, H:i'),
+            'checkout'  => $t->checked_out_at?->format('d M Y, H:i'),
             'status'    => $t->verifikasi_label === 'Disetujui'
                 ? ($t->checked_out_at ? 'Selesai' : ($t->checked_in_at ? 'Berkunjung' : 'Belum Check-In'))
                 : $t->verifikasi_label,

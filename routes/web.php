@@ -315,28 +315,18 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
             ->name('global-search');
 
         // CRUD Pengguna — gate per aksi. `show` sengaja terbuka (profil saya di topbar).
+        // Aksi tulis (create/store, toggle-status, reset-password, destroy)
+        // didaftarkan SEKALI di grup role.scope:super_admin di bawah agar
+        // tidak ada definisi route duplikat yang saling menimpa.
         Route::middleware('permission:users.view')->group(function () {
             Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
         });
-        Route::middleware('permission:users.create')->group(function () {
+        // Route statis create/store WAJIB di atas wildcard users/{user}.
+        Route::middleware(['role.scope:super_admin', 'permission:users.create'])->group(function () {
             Route::get('users/create', [\App\Http\Controllers\Admin\UserController::class, 'create'])->name('users.create');
             Route::post('users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
         });
         Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
-        // Toggle status akun (Aktif ⇄ Nonaktif) — pengganti fitur Edit Pengguna.
-        Route::middleware('permission:users.edit')->group(function () {
-            Route::patch('users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
-        });
-        // Reset password → password sementara sekali pakai (user wajib
-        // ganti password saat login berikutnya). Permission khusus
-        // user.reset-password — divalidasi di BACKEND via middleware,
-        // bukan sekadar disembunyikan tombolnya di UI.
-        Route::middleware('permission:user.reset-password')->group(function () {
-            Route::patch('users/{user}/reset-password', [\App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
-        });
-        Route::middleware('permission:users.delete')->group(function () {
-            Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
-        });
         // Edit Pengguna + Direct Permission (hak akses per akun).
         // Pengecualian: user SELALU boleh mengedit profil milik sendiri
         // (auth()->id() == $user->id), meskipun role/tidak punya permission
@@ -374,10 +364,6 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         // Admin Bidang dilarang mengelola akun/role lain.
         // ============================================================
         Route::middleware('role.scope:super_admin')->group(function () {
-            Route::middleware('permission:users.create')->group(function () {
-                Route::get('users/create', [\App\Http\Controllers\Admin\UserController::class, 'create'])->name('users.create');
-                Route::post('users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
-            });
             Route::middleware('permission:users.edit')->group(function () {
                 Route::patch('users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
             });

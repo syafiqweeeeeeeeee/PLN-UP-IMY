@@ -528,8 +528,7 @@
                                     @csrf
                                     <input type="hidden" name="keputusan" value="setuju">
                                     <button type="submit" class="kt-act-btn approve"
-                                            title="Setujui kunjungan tamu {{ $tamu->nama }}"
-                                            onclick="return confirm('Setujui kunjungan \"{{ $tamu->nama }}\" pada {{ $tamu->tanggal_kunjungan?->translatedFormat('d F Y H:i') }}?');">
+                                            title="Setujui kunjungan tamu {{ $tamu->nama }}">
                                         <i class="fas fa-check"></i> Setujui
                                     </button>
                                 </form>
@@ -540,8 +539,7 @@
                                     @csrf
                                     <input type="hidden" name="keputusan" value="tolak">
                                     <button type="submit" class="kt-act-btn cancel"
-                                            title="Batalkan kunjungan tamu {{ $tamu->nama }}"
-                                            onclick="return confirm('Batalkan kunjungan \"{{ $tamu->nama }}\" pada {{ $tamu->tanggal_kunjungan?->translatedFormat('d F Y H:i') }}?');">
+                                            title="Batalkan kunjungan tamu {{ $tamu->nama }}">
                                         <i class="fas fa-xmark"></i> Batalkan
                                     </button>
                                 </form>

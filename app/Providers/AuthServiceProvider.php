@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -12,8 +11,6 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         //
     ];
-
-    protected bool $gatesRegistered = false;
 
     public function boot(): void
     {
@@ -67,49 +64,6 @@ class AuthServiceProvider extends ServiceProvider
             return $roleName === 'super admin' || $roleName === 'admin' || ($user->role_id ?? null) == 1;
         });
 
-
-        if (! $this->gatesRegistered) {
-            static $bootStarted = false;
-            if ($bootStarted) {
-                return;
-            }
-
-            if (! app('db')->connection()->getTablePrefix()) {
-                return;
-            }
-            $bootStarted = true;
-
-            if (!app()->make('cache')->store()->get('permission.gates.registered', false)) {
-                foreach (Permission::whereNotNull('name')->pluck('name') as $permission) {
-                    $this->registerPermissionGate($permission);
-                }
-                // Registrasi ulang gate custom (non-permission) agar
-                // tidak hilang jika cache permission gates disetel ulang.
-                Gate::define('users.edit:self', function ($user, $targetUser = null) {
-                    // A. Super Admin SELALU diizinkan mengedit siapapun.
-                    if ($user->role === 'Super Admin' || ($user->role_id ?? null) === 1) {
-                        return true;
-                    }
-
-                    // B. Ambil target user dari parameter Gate atau dari Route URL.
-                    $target = $targetUser ?? request()->route('user');
-
-                    // Route parameter bisa berupa objek User yang sudah di-bind
-                    // (Laravel route model binding) atau string/integer ID.
-                    if ($target instanceof \App\Models\User) {
-                        return (int) $user->id === (int) $target->id;
-                    }
-
-                    if (is_numeric($target)) {
-                        return (int) $user->id === (int) $target;
-                    }
-
-                    return false;
-                });
-                app()->make('cache')->store()->put('permission.gates.registered', true, 60);
-            }
-            $this->gatesRegistered = true;
-        }
     }
 
     /**
@@ -131,11 +85,4 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\User::flushPermissionStateCache();
     }
 
-    protected function registerPermissionGate(string $permission): void
-    {
-        $this->app->make('validator')->extend("permission:{$permission}", function ($attribute, $value, $parameters, $validator) use ($permission) {
-            $user = $validator->getData();
-            return $user instanceof \App\Models\User && $user->hasPermission($permission);
-        });
-    }
 }

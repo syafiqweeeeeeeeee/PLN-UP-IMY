@@ -658,11 +658,4 @@ class PortalContentService
         ];
     }
 
-    /**
-     * Satu layanan internal berdasar slug (null bila tidak ada).
-     */
-    public static function internalService(string $slug): ?array
-    {
-        return collect(self::internalServices())->firstWhere('slug', $slug);
-    }
 }

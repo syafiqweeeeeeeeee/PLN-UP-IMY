@@ -61,7 +61,7 @@ Matriks lengkap: `docs/matriks-role.md` · Spesifikasi: `SRD_E-PPID_PLN.md`
 
 - Laravel 12 (Blade + Bootstrap 5, tanpa SPA framework)
 - MySQL 8, sesi & cache berbasis database
-- Font Awesome 6, Feather Icons, Vite
+- Font Awesome 6, Feather Icons, CSS/JS statis (tanpa build tool)
 - Web server: **Laragon** (Apache 2.4 + PHP 8.3 + MySQL 8) — Docker
   (FrankenPHP + MySQL) tersedia sebagai cadangan
 
@@ -154,20 +154,20 @@ sub-bidang Operasi) untuk Portal Karyawan.
 php artisan test
 ```
 
-Seluruh 128 test harus lulus. Test memakai database terpisah sesuai `phpunit.xml`.
+Seluruh 537 test harus lulus. Test memakai database terpisah sesuai `phpunit.xml`.
 
 ## Struktur Penting
 
 ```
 app/
-├── Http/Controllers/Admin/    # CRUD admin (News, Announcement, Gallery, Page,
-│                              #   Menu, User, Role, Tamu, WorkLink, ActivityLog)
+├── Http/Controllers/Admin/    # CRUD admin (News, Announcement, Gallery,
+│                              #   User, Role, Tamu, WorkLink, ActivityLog)
 ├── Http/Controllers/Auth/     # Login + lupa password OTP
 ├── Http/Controllers/Karyawan/ # Portal Karyawan (dashboard, informasi, layanan, link, profil)
 ├── Http/Controllers/          # TamuController + TamuDocumentController (buku tamu publik & dokumen privat)
-├── Http/Middleware/           # permission:, role.scope:, page.visible, admin.access, karyawan.access
-├── Models/                    # News, Announcement, Page, Menu, Role, Permission,
-│                              #   Tamu, WorkLink, Department, ActivityLog, ...
+├── Http/Middleware/           # permission:, role.scope:, admin.access, karyawan.access, must.password
+├── Models/                    # News, Announcement, Role, Permission, Tamu,
+│                              #   WorkLink, Department, ActivityLog, ...
 └── Services/
     ├── PortalContentService.php  # Data portal karyawan (layanan internal & link kerja + scope hirarki)
     ├── ActivityLogger.php        # Pencatat log aktivitas otomatis

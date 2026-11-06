@@ -235,7 +235,9 @@
                         @endcan
                         @can('hari_libur.delete')
                             <form method="POST" action="{{ route('admin.hari-libur.destroy', $libur) }}"
-                                  onsubmit="return confirm('Hapus tanggal {{ $libur->tanggal->format('d M Y') }} ({{ addslashes($libur->keterangan) }})? Status tanggal ini kembali mengikuti aturan default.')">
+                                  data-swal-confirm-title="Hapus Tanggal?"
+                                  data-swal-confirm-tone="danger"
+                                  data-swal-confirm="Hapus tanggal {{ $libur->tanggal->format('d M Y') }} ({{ $libur->keterangan }})? Status tanggal ini kembali mengikuti aturan default.">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="hl-action-btn delete" title="Hapus">

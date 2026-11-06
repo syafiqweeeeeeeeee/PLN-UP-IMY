@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Announcement;
-use App\Models\ActivityLog;
 use App\Models\Gallery;
 use App\Models\News;
 use App\Models\User;
