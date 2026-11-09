@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\HariLibur;
 use App\Models\Jabatan;
+use App\Models\Karyawan;
 use App\Models\Tamu;
 use Illuminate\Http\Request;
 
@@ -75,6 +76,9 @@ class TamuController extends Controller
             // jabatans (dropdown bertingkat mengikuti bidang tujuan).
             // Nilai dikirim sebagai NAMA jabatan; dicocokkan ke master
             // untuk mencegah isian bebas (relasi bidang ⇄ jabatan).
+            // DIBATASI 3 LEVEL (Jabatan::TAMU_LEVELS: Asisten Manajer,
+            // Junior, Staff) — jabatan Manager/Senior Manager & level lain
+            // ditolak di server, bukan hanya disembunyikan di dropdown.
             'jabatan_ditemui' => [
                 'required',
                 'string',
@@ -86,14 +90,23 @@ class TamuController extends Controller
                         return; // biarkan rule required tujuan_ditemui yang menolak
                     }
 
-                    $cocok = Jabatan::query()
+                    $jabatan = Jabatan::query()
                         ->where('nama', $value)
                         ->whereHas('bidang', fn ($q) => $q->where('nama', $divisi))
-                        ->exists();
+                        ->first();
 
-                    if (! $cocok) {
+                    if ($jabatan === null) {
                         $fail("Jabatan \"{$value}\" bukan jabatan pada bidang \"{$divisi}\". "
                             . 'Silakan pilih ulang bidang dan jabatan yang ditemui.');
+
+                        return;
+                    }
+
+                    // Level di luar 3 kategori yang boleh ditemui tamu.
+                    if (Jabatan::tamuLevel($jabatan->nama) === null) {
+                        $level = implode(', ', array_values(Jabatan::TAMU_LEVELS));
+                        $fail("Jabatan \"{$value}\" tidak tersedia untuk pendaftaran tamu. "
+                            . "Pilih jabatan level {$level}.");
                     }
                 },
             ],
@@ -102,6 +115,86 @@ class TamuController extends Controller
             // Nama orang yang ditemui — WAJIB (teks bebas / pilih
             // dari daftar pengguna, pelengkap bidang & jabatan).
             'orang_ditemui' => ['required', 'string', 'max:150'],
+
+            /* =====================================================
+               KUNCI PRIMER DEPENDENT DROPDOWN (opsional)
+               -----------------------------------------------------
+               Form registrasi mengirim bidang_id → jabatan_id →
+               karyawan_id bersama nama tampilannya. Semua nullable agar
+               klien lama (hanya nama) tetap diterima, tetapi bila
+               dikirim, pasangannya DIVALIDASI di server — bukan hanya
+               dipercaya dari dropdown:
+               - jabatan harus milik bidang_id & berlevel tamu;
+               - karyawan harus aktif dan benar-benar menduduki
+                 jabatan tersebut (jabatan_id, atau teks legacy).
+               ===================================================== */
+            'bidang_id' => ['nullable', 'integer', 'exists:bidangs,id'],
+            'jabatan_id' => [
+                'nullable',
+                'integer',
+                function (string $attribute, mixed $value, \Closure $fail) use ($request) {
+                    $jabatan = Jabatan::query()->forTamu()->find((int) $value);
+
+                    if ($jabatan === null) {
+                        $fail('Jabatan yang dipilih tidak tersedia untuk pendaftaran tamu.');
+
+                        return;
+                    }
+
+                    $namaDikirim = trim((string) $request->input('jabatan_ditemui'));
+
+                    if ($namaDikirim !== ''
+                        && mb_strtoupper($jabatan->nama) !== mb_strtoupper($namaDikirim)) {
+                        $fail('Jabatan yang dipilih tidak cocok dengan nama jabatan.');
+
+                        return;
+                    }
+
+                    $bidangId = (int) $request->input('bidang_id');
+
+                    if ($bidangId > 0 && (int) $jabatan->bidang_id !== $bidangId) {
+                        $fail('Jabatan yang dipilih tidak berada pada bidang yang ditemui.');
+                    }
+                },
+            ],
+            'karyawan_id' => [
+                'nullable',
+                'integer',
+                'exists:karyawans,id',
+                function (string $attribute, mixed $value, \Closure $fail) use ($request) {
+                    $karyawan = Karyawan::query()->find((int) $value);
+
+                    if ($karyawan === null) {
+                        return; // rule exists sudah menolak
+                    }
+
+                    if (! $karyawan->isAktif()) {
+                        $fail('Karyawan yang dipilih sudah tidak aktif.');
+
+                        return;
+                    }
+
+                    $jabatanId = (int) $request->input('jabatan_id');
+                    $namaJabatan = trim((string) $request->input('jabatan_ditemui'));
+
+                    $cocokJabatan = ($jabatanId > 0 && (int) $karyawan->jabatan_id === $jabatanId)
+                        || ($karyawan->jabatan_id === null
+                            && mb_strtoupper(trim((string) $karyawan->jabatan)) === mb_strtoupper($namaJabatan));
+
+                    if (! $cocokJabatan) {
+                        $fail('Orang yang dipilih tidak menduduki jabatan tersebut.');
+
+                        return;
+                    }
+
+                    $namaOrang = trim((string) $request->input('orang_ditemui'));
+
+                    if ($namaOrang !== ''
+                        && mb_strtolower(trim((string) $karyawan->nama)) !== mb_strtolower($namaOrang)) {
+                        $fail('Orang yang dipilih tidak cocok dengan nama karyawan.');
+                    }
+                },
+            ],
 
             // Penjadwalan: tanggal & jam dikirim terpisah dari form.
             // Jam harus salah satu slot operasional (sesi pagi/siang).

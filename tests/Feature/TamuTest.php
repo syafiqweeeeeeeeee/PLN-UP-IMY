@@ -17,15 +17,25 @@ class TamuTest extends TestCase
 
     /**
      * Master data minimal — validasi bertingkat form registrasi
-     * mewajibkan jabatan yang dipilih sesuai bidang tujuan.
+     * mewajibkan jabatan yang dipilih sesuai bidang tujuan DAN berada
+     * pada 3 level yang boleh ditemui tamu (Asisten Manajer, Junior,
+     * Staff — lihat Jabatan::TAMU_LEVELS).
      */
     protected function setUp(): void
     {
         parent::setUp();
 
         $bidang = Bidang::firstOrCreate(['nama' => 'Divisi Humas']);
+
+        // Level diizinkan (Asisten Manajer) — dipakai payload sukses.
         Jabatan::firstOrCreate([
-            'nama'      => 'Kepala Bagian Humas',
+            'nama'      => 'ASISTEN MANAJER HUMAS',
+            'bidang_id' => $bidang->id,
+        ]);
+
+        // Level DI LUAR whitelist (Manager) — dipakai test penolakan.
+        Jabatan::firstOrCreate([
+            'nama'      => 'MANAGER HUMAS',
             'bidang_id' => $bidang->id,
         ]);
     }
@@ -72,7 +82,7 @@ class TamuTest extends TestCase
             'tujuan_ditemui' => 'Divisi Humas',
             // Jabatan wajib & harus terdaftar pada bidang tujuan;
             // orang yang ditemui wajib (teks bebas / pilihan daftar)
-            'jabatan_ditemui' => 'Kepala Bagian Humas',
+            'jabatan_ditemui' => 'ASISTEN MANAJER HUMAS',
             'orang_ditemui'   => 'Siti Aminah',
             'jumlah_tamu'    => '2',
             // Penjadwalan: tanggal & jam dikirim terpisah dari form.
@@ -97,6 +107,24 @@ class TamuTest extends TestCase
             // Whitelist format pada atribut accept input file
             ->assertSee('.zip,.rar,.pdf,.jpg,.jpeg,.png', false)
             ->assertSee('Maksud &amp; Keperluan Kunjungan', false);
+    }
+
+    public function test_form_only_lists_jabatan_level_asisten_manajer_junior_staff(): void
+    {
+        $bidang = Bidang::firstOrCreate(['nama' => 'Divisi Humas']);
+        Jabatan::firstOrCreate(['nama' => 'JUNIOR OFFICER HUMAS', 'bidang_id' => $bidang->id]);
+        Jabatan::firstOrCreate(['nama' => 'TECHNICIAN HUMAS', 'bidang_id' => $bidang->id]);
+        Jabatan::firstOrCreate(['nama' => 'SENIOR MANAGER HUMAS', 'bidang_id' => $bidang->id]);
+
+        $this->get(route('layanan.registrasi-tamu'))
+            ->assertOk()
+            // Tiga level yang diizinkan tetap tampil (nama lengkap dipertahankan).
+            ->assertSee('data-value="ASISTEN MANAJER HUMAS"', false)
+            ->assertSee('data-value="JUNIOR OFFICER HUMAS"', false)
+            ->assertSee('data-value="TECHNICIAN HUMAS"', false)
+            // Manager (level di luar whitelist) tidak dirender sebagai opsi.
+            ->assertDontSee('data-value="MANAGER HUMAS"', false)
+            ->assertDontSee('SENIOR MANAGER HUMAS');
     }
 
     /* =========================================================
@@ -226,6 +254,22 @@ class TamuTest extends TestCase
             'tujuan_ditemui' => '',
             'keperluan'      => '',
         ]))->assertSessionHasErrors(['nama', 'no_hp', 'tujuan_ditemui', 'keperluan']);
+    }
+
+    public function test_store_rejects_jabatan_di_luar_tiga_level(): void
+    {
+        // "MANAGER HUMAS" ada di master & bidangnya cocok, tetapi levelnya
+        // (Manager) tidak termasuk Asisten Manajer / Junior / Staff.
+        $this->post(route('layanan.registrasi-tamu.store'), $this->validPayload([
+            'jabatan_ditemui' => 'MANAGER HUMAS',
+        ]))
+            ->assertSessionHasErrors([
+                // Pesan dibangun dari Jabatan::TAMU_LEVELS — label 3 level
+                // yang diizinkan ikut tampil agar pengguna tahu pilihannya.
+                'jabatan_ditemui' => 'Jabatan "MANAGER HUMAS" tidak tersedia untuk pendaftaran tamu. '
+                    . 'Pilih jabatan level Asisten Manajer, Junior, Staff.',
+            ])
+            ->assertSessionHas('_old_input.nama', 'Budi Santoso');
     }
 
     public function test_store_requires_tanggal_kunjungan(): void

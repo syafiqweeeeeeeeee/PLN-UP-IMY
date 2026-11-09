@@ -161,18 +161,82 @@
 
 .pln-cal-head {
     display: grid;
-    grid-template-columns: 26px 1fr 26px;
+    grid-template-columns: 26px minmax(0, 1fr) 26px;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.25rem;
     margin-bottom: 0.45rem;
 }
 
 .pln-cal-title {
-    text-align: center;
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    min-width: 0;
     color: #1f2937;
+}
+
+/* Dropdown BULAN & TAHUN di header — lompat cepat ke tahun lampau
+   (mis. tanggal lahir) tanpa klik panah berkali-kali.
+   Tampil sebagai dua chip sejajar: panah native disembunyikan dan
+   diganti chevron sendiri agar teks "September" tidak terpotong. */
+.pln-cal-picker {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    flex: 0 1 auto;
+}
+
+.pln-cal-picker-caret {
+    position: absolute;
+    right: 0.42rem;
+    font-size: 0.46rem;
+    color: var(--dp-muted, #94a3b8);
+    pointer-events: none;
+}
+
+.pln-cal-select {
+    appearance: none;
+    -webkit-appearance: none;
+    max-width: 7.6rem;
+    min-width: 0;
+    height: 26px;
+    border: 1px solid var(--dp-line, #e2e8f0);
+    border-radius: 7px;
+    background: var(--dp-panel-soft, #f8fafc);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--dp-ink, #1e293b);
+    padding: 0 1.3rem 0 0.5rem;
+    cursor: pointer;
+    text-align: left;
+    text-align-last: left;
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pln-cal-select-year {
+    max-width: 5.2rem;
+    padding-left: 0.45rem;
+}
+
+.pln-cal-select:hover {
+    background: var(--dp-hover, #e6f2fb);
+    border-color: #cbd5e1;
+}
+
+.pln-cal-select:focus {
+    outline: none;
+    border-color: var(--dp-accent, #00A3E0);
+    box-shadow: 0 0 0 2px rgba(0, 163, 224, 0.16);
+}
+
+.pln-cal-select option {
+    color: #1e293b;
+    background: #ffffff;
 }
 
 .pln-cal-nav {
@@ -343,6 +407,22 @@ html.theme-dark .pln-cal { box-shadow: 0 16px 38px rgba(0, 0, 0, 0.45); }
 
 html.theme-dark .pln-cal-title { color: #f1f5f9; }
 
+html.theme-dark .pln-cal-select {
+    color: #f1f5f9;
+    background: #273449;
+    border-color: #334155;
+}
+
+html.theme-dark .pln-cal-select:hover {
+    background: #2f3f57;
+    border-color: #475569;
+}
+
+html.theme-dark .pln-cal-select option {
+    color: #e2e8f0;
+    background: #1e293b;
+}
+
 html.theme-dark .pln-cal-day { color: #e2e8f0; }
 
 html.theme-dark .pln-cal {
@@ -382,7 +462,8 @@ html.theme-dark .pln-cal-clear:hover { background: rgba(255, 255, 255, 0.06); co
 
 /* ---------- AKSESIBILITAS & MOTION ---------- */
 .pln-dp .pln-dp-input:focus-visible,
-.pln-cal button:focus-visible {
+.pln-cal button:focus-visible,
+.pln-cal select:focus-visible {
     outline: 2px solid var(--dp-accent, #00A3E0);
     outline-offset: 1px;
 }

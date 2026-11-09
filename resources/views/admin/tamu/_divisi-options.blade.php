@@ -21,7 +21,10 @@
     dibuka lewat judul optgroup tersebut.
 --}}
 @php
-    $bidangRows = \App\Models\Bidang::treeOrdered();
+    // Opsi bisa dioper dari pemanggil (form registrasi tamu menyembunyikan
+    // unit induk struktural lewat Bidang::treeOrderedTujuanTamu()). Bawaan:
+    // seluruh hierarki — dipakai modal Tambah/Edit admin & portal karyawan.
+    $bidangRows = $bidangRows ?? \App\Models\Bidang::treeOrdered();
 @endphp
 
 <div class="dropdown-option" data-value="" data-selected="true">— Pilih Bidang —</div>
@@ -44,6 +47,7 @@
          &nbsp; supaya teks yang tampil / tersimpan tetap bersih. --}}
     <div class="dropdown-option dd-depth-{{ min($depth, 2) }}"
          data-value="{{ $node->nama }}"
+         data-id="{{ $node->id }}"
          @if ($depth > 0) title="{{ $currentGroup }}" @endif>
         {{ $node->nama }}
     </div>

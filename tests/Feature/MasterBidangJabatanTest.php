@@ -889,4 +889,50 @@ class MasterBidangJabatanTest extends TestCase
 
         return compact('root', 'operasi', 'sub', 'fuzzy', 'bebas');
     }
+
+    /* =========================================================
+       LEVEL JABATAN UNTUK TAMU (Jabatan::tamuLevel / forTamu)
+       ========================================================= */
+
+    public function test_tamu_level_hanya_mengenali_asisten_manajer_junior_staff(): void
+    {
+        // Asisten Manajer — variasi penulisan yang beredar di master.
+        $this->assertSame('asisten_manager', Jabatan::tamuLevel('ASSISTANT MANAGER KEUANGAN'));
+        $this->assertSame('asisten_manager', Jabatan::tamuLevel('ASISTEN ANALIS SO TURBIN & AUXILIARY'));
+        $this->assertSame('asisten_manager', Jabatan::tamuLevel('ASMAN  SYSTEM OWNER COMMON AUX'));
+
+        // Junior — menang atas "TECHNICIAN" karena prefix dicek berurutan.
+        $this->assertSame('junior', Jabatan::tamuLevel('JUNIOR OFFICER KEUANGAN'));
+        $this->assertSame('junior', Jabatan::tamuLevel('JUNIOR TECHNICIAN PEMELIHARAAN LISTRIK'));
+
+        // Staff — OFFICER/TECHNICIAN non-junior.
+        $this->assertSame('staff', Jabatan::tamuLevel('OFFICER RENDAL PEMELIHARAAN'));
+        $this->assertSame('staff', Jabatan::tamuLevel('TECHNICIAN CBM'));
+
+        // Di luar whitelist.
+        $this->assertNull(Jabatan::tamuLevel('MANAGER OPERASI'));
+        $this->assertNull(Jabatan::tamuLevel('SENIOR MANAGER UP INDRAMAYU'));
+        $this->assertNull(Jabatan::tamuLevel('Kepala Bagian Humas'));
+        $this->assertNull(Jabatan::tamuLevel(null));
+    }
+
+    public function test_scope_for_tamu_memfilter_query_master(): void
+    {
+        $bidang = Bidang::create(['nama' => 'BIDANG OPERASI']);
+
+        foreach ([
+            'ASSISTANT MANAGER PRODUKSI A',
+            'JUNIOR OFFICER KEUANGAN',
+            'TECHNICIAN CBM',
+            'MANAGER OPERASI',
+            'SENIOR MANAGER UP INDRAMAYU',
+        ] as $nama) {
+            Jabatan::create(['nama' => $nama, 'bidang_id' => $bidang->id]);
+        }
+
+        $this->assertSame(
+            ['ASSISTANT MANAGER PRODUKSI A', 'JUNIOR OFFICER KEUANGAN', 'TECHNICIAN CBM'],
+            Jabatan::query()->forTamu()->orderBy('nama')->pluck('nama')->all()
+        );
+    }
 }

@@ -14,6 +14,9 @@
     'disabled' => false,
     'icon' => 'fa-calendar-days',
     'wrapperClass' => '',
+    'placement' => 'auto',
+    'yearStart' => null,
+    'yearEnd' => null,
 ])
 
 @php
@@ -31,9 +34,21 @@
          :work-dates="['2026-11-07' => 'Lembur']" → override weekend
          :clearable="true"            → tombol "Bersihkan" (untuk filter)
 
+         placement="auto"|"bottom"    → auto (bawaan) boleh membalik ke atas
+                                        bila tidak ada ruang; "bottom" SELALU
+                                        membuka ke bawah.
+         year-start="1950"            → tahun awal pilihan dropdown Tahun
+         year-end="2026"              → tahun akhir pilihan dropdown Tahun
+                                        (bawaan: dari min/max, atau 100 tahun
+                                        ke belakang s.d. 10 tahun ke depan).
+
+       Kalender punya dropdown BULAN & TAHUN di header sehingga tanggal
+       lahir lama bisa dicapai tanpa klik panah berkali-kali.
+
        Contoh:
          <x-date-picker name="tanggal_kunjungan" min="today" required />
-         <x-date-picker name="tanggal_lahir" placeholder="Tgl lahir" />
+         <x-date-picker name="tanggal_lahir" placement="bottom"
+                        year-start="1950" :year-end="now()->year" />
        ------------------------------------------------------------ */
 
     $normalizeMap = static function ($items) {
@@ -96,7 +111,10 @@
      data-block-weekends="{{ $blockWeekends ? '1' : '0' }}"
      data-blocked="{{ json_encode((object) $blockedMap) }}"
      data-work-dates="{{ json_encode((object) $workMap) }}"
-     data-clearable="{{ $clearable ? '1' : '0' }}">
+     data-clearable="{{ $clearable ? '1' : '0' }}"
+     data-placement="{{ strtolower((string) $placement) === 'bottom' ? 'bottom' : 'auto' }}"
+     data-year-start="{{ $yearStart }}"
+     data-year-end="{{ $yearEnd }}">
     <input type="text"
            id="{{ $fieldId }}"
            @if ($name) name="{{ $name }}" @endif

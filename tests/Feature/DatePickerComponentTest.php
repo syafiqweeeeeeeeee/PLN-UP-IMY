@@ -84,6 +84,31 @@ class DatePickerComponentTest extends TestCase
         $this->assertStringContainsString('&quot;2026-11-07&quot;:&quot;Lembur Sabtu&quot;', $html);
     }
 
+    public function test_komponen_bawaan_membiarkan_posisi_otomatis_tanpa_batas_tahun(): void
+    {
+        $html = Blade::render('<x-date-picker name="tanggal" />');
+
+        // "auto" = perilaku lama: boleh membalik ke atas bila ruang kurang.
+        $this->assertStringContainsString('data-placement="auto"', $html);
+        $this->assertStringContainsString('data-year-start=""', $html);
+        $this->assertStringContainsString('data-year-end=""', $html);
+    }
+
+    public function test_komponen_mendukung_posisi_bawah_dan_rentang_tahun_lahir(): void
+    {
+        $html = Blade::render(
+            '<x-date-picker name="tanggal_lahir" max="today" placement="bottom"'
+            .' year-start="1950" :year-end="2026" />'
+        );
+
+        // Popup dikunci ke bawah (tidak pernah flip ke atas).
+        $this->assertStringContainsString('data-placement="bottom"', $html);
+
+        // Rentang dropdown Tahun: 1950 s.d. tahun berjalan.
+        $this->assertStringContainsString('data-year-start="1950"', $html);
+        $this->assertStringContainsString('data-year-end="2026"', $html);
+    }
+
     public function test_komponen_menandai_error_validasi_dan_status_required(): void
     {
         $html = Blade::render('<x-date-picker name="tanggal" required />');
@@ -116,6 +141,35 @@ class DatePickerComponentTest extends TestCase
             ->assertSee('name="sampai"', false)
             ->assertSee('js/date-picker.js', false)
             ->assertDontSee('type="date"', false);
+    }
+
+    public function test_form_data_karyawan_mengunci_popup_tanggal_lahir_ke_bawah(): void
+    {
+        $admin = $this->adminWithPermissions(['karyawan_data.create']);
+
+        $html = $this->actingAs($admin)
+            ->get(route('admin.karyawan_data.create'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertMatchesRegularExpression(
+            '/name="tanggal_lahir"[^>]*data-placement="bottom"|data-placement="bottom"[\s\S]{0,600}?name="tanggal_lahir"/',
+            $html,
+            'Field TGL LAHIR harus memakai datepicker yang selalu terbuka ke bawah.'
+        );
+
+        $this->assertMatchesRegularExpression(
+            '/name="tanggal_lahir"[^>]*data-year-start="1950"|data-year-start="1950"[\s\S]{0,600}?name="tanggal_lahir"/',
+            $html,
+            'Field TGL LAHIR harus punya dropdown tahun mulai 1950.'
+        );
+
+        $this->assertMatchesRegularExpression(
+            '/name="tanggal_lahir"[^>]*data-year-end="'.preg_quote((string) now()->year, '/').'"|'
+            .'data-year-end="'.preg_quote((string) now()->year, '/').'"[\s\S]{0,600}?name="tanggal_lahir"/',
+            $html,
+            'Dropdown tahun TGL LAHIR harus berakhir di tahun berjalan.'
+        );
     }
 
     public function test_halaman_hari_libur_memakai_komponen_datepicker(): void

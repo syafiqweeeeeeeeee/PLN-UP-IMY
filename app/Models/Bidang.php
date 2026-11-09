@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\Hierarchical;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 /**
  * MASTER BIDANG — satu baris per nama bidang, boleh berhirarki
@@ -93,6 +94,37 @@ class Bidang extends Model
         'SUB BIDANG PENGADAAN' => ['business_support', 'asmen_pengadaan'],
         'SUB BIDANG ADMINISTRASI GUDANG' => ['pemeliharaan', 'asmen_inventori'],
     ];
+
+    /**
+     * Bidang STRUKTURAL — unit induk tertinggi yang bukan tujuan kunjungan
+     * tamu, sehingga tidak ditawarkan sebagai pilihan "Bidang yang Ditemui"
+     * pada form registrasi publik (hanya dipakai sebagai induk hierarki).
+     *
+     * Nama lama "PLTU INDRAMAYU" disertakan agar data hasil rename tetap
+     * tersaring. Admin & portal karyawan TIDAK memakai daftar ini — di sana
+     * seluruh bidang tetap tampil.
+     *
+     * @var array<int, string>
+     */
+    public const BUKAN_TUJUAN_TAMU = [
+        'SM UP INDRAMAYU',
+        'PLTU INDRAMAYU',
+    ];
+
+    /**
+     * Daftar bidang berjenjang untuk dropdown "Bidang yang Ditemui" pada
+     * form registrasi tamu — tanpa unit induk struktural (BUKAN_TUJUAN_TAMU).
+     *
+     * Kedalaman (depth) TIDAK dinormalkan: anak dari unit induk tetap
+     * berada di depth 1 sehingga partial _divisi-options tidak membuat
+     * judul kelompok baru (judul hanya dibuat untuk baris depth 0).
+     */
+    public static function treeOrderedTujuanTamu(): Collection
+    {
+        return static::treeOrdered()
+            ->reject(fn (array $row) => in_array($row['node']->nama, self::BUKAN_TUJUAN_TAMU, true))
+            ->values();
+    }
 
     /**
      * Kode Bidang Utama legacy (`users.department`) untuk baris ini.
@@ -219,6 +251,19 @@ class Bidang extends Model
     public function jabatans(): HasMany
     {
         return $this->hasMany(Jabatan::class);
+    }
+
+    /**
+     * Data karyawan (master HR) yang terikat pada bidang ini.
+     *
+     * Dipakai dependent dropdown form registrasi tamu:
+     * Bidang → Jabatan → Orang (karyawans.bidang_id / jabatan_id).
+     * Kolom FK boleh NULL untuk data lama, jadi relasi ini TIDAK
+     * menggantikan kolom teks `karyawans.bidang`.
+     */
+    public function karyawans(): HasMany
+    {
+        return $this->hasMany(Karyawan::class, 'bidang_id');
     }
 
     /** Link Kerja yang menargetkan bidang ini (tabel work_links). */

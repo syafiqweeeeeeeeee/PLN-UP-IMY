@@ -1255,12 +1255,23 @@
                                      partial juga dipakai modal Tambah/Edit admin
                                      & portal karyawan agar nilainya selalu sinkron. --}}
                                 <div class="dropdown-options custom-scroll-content" id="divisi-options">
-                                    @include('admin.tamu._divisi-options')
+                                    {{-- Unit induk struktural (SM UP INDRAMAYU) BUKAN
+                                         tujuan kunjungan → tidak ditawarkan di form
+                                         publik; admin & portal tetap memakai daftar
+                                         lengkap (partial tanpa argumen). --}}
+                                    @include('admin.tamu._divisi-options', [
+                                        'bidangRows' => \App\Models\Bidang::treeOrderedTujuanTamu(),
+                                    ])
                                 </div>
                                 <div class="dd-search-empty" id="divisi-search-empty" style="display: none;">Tidak ada bidang yang cocok.</div>
                             </div>
                         </div>
                         <input type="hidden" name="tujuan_ditemui" id="tujuan_ditemui" value="{{ old('tujuan_ditemui', '') }}">
+                        {{-- Kunci primer bidang (bidangs.id) — dipakai cascading
+                             dropdown Jabatan & Orang. Nama di atas tetap dikirim
+                             agar kolom string `tamus.tujuan_ditemui` dan seluruh
+                             data lama tidak berubah. --}}
+                        <input type="hidden" name="bidang_id" id="bidang_id" value="{{ old('bidang_id', '') }}">
                         {{-- Proxy <select> (ID: bidang_select) — jembatan event 'change'
                              untuk dependent dropdown "Orang yang Ditemui". Nilainya selalu
                              sinkron dengan hidden input tujuan_ditemui di atas (dua arah),
@@ -1268,8 +1279,11 @@
                              .hidden sehingga tampilan custom dropdown tidak berubah. --}}
                         <select id="bidang_select" class="hidden" aria-hidden="true" tabindex="-1">
                             <option value="">— Pilih Bidang —</option>
-                            @foreach (\App\Models\Bidang::treeOrdered() as $bidangRow)
+                            {{-- Sama dengan partial di atas: unit induk struktural
+                                 tidak ikut sebagai pilihan bidang. --}}
+                            @foreach (\App\Models\Bidang::treeOrderedTujuanTamu() as $bidangRow)
                                 <option value="{{ $bidangRow['node']->nama }}"
+                                    data-id="{{ $bidangRow['node']->id }}"
                                     @selected(old('tujuan_ditemui') === $bidangRow['node']->nama)>
                                     {{ $bidangRow['node']->nama }}
                                 </option>
@@ -1310,15 +1324,20 @@
                             </div>
                         </div>
                         <input type="hidden" name="jabatan_ditemui" id="jabatan_ditemui" value="{{ old('jabatan_ditemui', '') }}">
+                        {{-- Kunci primer jabatan (jabatans.id) — dikirim bersama
+                             nama jabatan; dipakai sebagai filter "Orang yang
+                             Ditemui" (karyawans.jabatan_id). --}}
+                        <input type="hidden" name="jabatan_id" id="jabatan_id" value="{{ old('jabatan_id', '') }}">
                         {{-- Proxy <select> (ID: jabatan_select) — pasangan bidang_select di
-                             atas; sumber nilai "jabatan" untuk request /api/get-pegawai.
-                             Semua opsi master tersedia (tidak dibatasi bidang) agar nilai
-                             apa pun bisa diset; penyaringan tampilan tetap di custom
-                             dropdown jabatan. TIDAK ikut disubmit. --}}
+                             atas; sumber nilai "jabatan" untuk request /api/get-karyawan.
+                             Opsi DIBATASI 3 LEVEL (Jabatan::TAMU_LEVELS: Asisten Manajer,
+                             Junior, Staff) lewat scope forTamu() — sama dengan partial
+                             _jabatan-options di atas. TIDAK ikut disubmit. --}}
                         <select id="jabatan_select" class="hidden" aria-hidden="true" tabindex="-1">
                             <option value="">— Pilih Jabatan —</option>
-                            @foreach (\App\Models\Jabatan::with('bidang:id,nama')->orderBy('nama')->get() as $jabatanRow)
+                            @foreach (\App\Models\Jabatan::query()->forTamu()->with('bidang:id,nama')->orderBy('nama')->get() as $jabatanRow)
                                 <option value="{{ $jabatanRow->nama }}" data-bidang="{{ $jabatanRow->bidang?->nama }}"
+                                    data-id="{{ $jabatanRow->id }}" data-bidang-id="{{ $jabatanRow->bidang_id }}"
                                     @selected(old('jabatan_ditemui') === $jabatanRow->nama)>
                                     {{ $jabatanRow->nama }}
                                 </option>
@@ -1331,14 +1350,14 @@
 
                     {{-- Orang yang Ditemui — CUSTOM DROPDOWN dengan pencarian
                          (pola sama dengan dropdown Divisi & Jabatan di atas),
-                         kini bersifat DEPENDENT: daftar opsi diambil dari
-                         GET /api/get-pegawai sesuai pasangan "Bidang" + "Jabatan"
-                         yang dipilih. Endpoint hanya mengembalikan akun ber-role
-                         karyawan/staff — akun Super Admin & Admin Bidang TIDAK
-                         ditampilkan di form publik.
-                         Input TIDAK readonly: mengetik = memfilter opsi (search)
-                         dan isian bebas di luar daftar tetap diperbolehkan
-                         (field opsional, teks bebas). --}}
+                         bersifat DEPENDENT: daftar opsi diambil dari
+                         GET /api/get-karyawan?jabatan_id=... — hanya karyawan
+                         AKTIF pada jabatan terpilih, dan hanya pada 3 level
+                         yang boleh ditemui tamu (Asisten Manajer, Junior,
+                         Staff — Jabatan::TAMU_LEVELS). Nilai yang dikirim:
+                         nama (orang_ditemui) + karyawan_id + akun tertaut
+                         (orang_ditemui_id, bila ada) untuk portal karyawan.
+                         Input TIDAK readonly: mengetik = memfilter opsi (search). --}}
                     <div>
                         <label for="orang_ditemui" class="pln-label" data-i18n="form.label_orang">
                             Orang yang Ditemui <span class="required">*</span>
@@ -1357,6 +1376,10 @@
                                  (server tetap memvalidasi nama ⇄ akun). --}}
                             <input type="hidden" name="orang_ditemui_id" id="orang_ditemui_id"
                                    value="{{ old('orang_ditemui_id', '') }}" />
+                            {{-- Kunci primer karyawan (karyawans.id) — diisi saat
+                                 memilih opsi dari daftar hasil /api/get-karyawan. --}}
+                            <input type="hidden" name="karyawan_id" id="karyawan_id"
+                                   value="{{ old('karyawan_id', '') }}" />
                             <i class="fas fa-chevron-down dropdown-arrow"></i>
                             <div id="orang-dropdown" class="custom-dropdown-menu custom-scroll-menu" role="listbox" style="display: none;">
                                 <div class="dropdown-options custom-scroll-content" id="orang-options">
@@ -1366,7 +1389,7 @@
                                          pada pasangan bidang + jabatan tersebut). Sebelumnya
                                          kedua dropdown kosong — tampil sebagai petunjuk. --}}
                                     <div class="dropdown-placeholder orang-empty">
-                                        Pilih Bidang &amp; Jabatan terlebih dahulu untuk menampilkan daftar nama.
+                                        Pilih Jabatan yang Ditemui terlebih dahulu untuk menampilkan daftar nama.
                                     </div>
                                 </div>
                             </div>
@@ -1380,9 +1403,9 @@
                             <option value="">— Pilih Pengguna —</option>
                         </select>
                         <p class="pln-hint" style="margin: 0.25rem 0 0;">
-                            Daftar nama mengikuti Bidang &amp; Jabatan yang dipilih di atas.
-                            Ketik untuk mencari, atau klik untuk memilih dari daftar —
-                            mengetik nama lain di luar daftar tetap diperbolehkan.
+                            Daftar nama mengikuti Jabatan yang dipilih di atas — hanya
+                            karyawan aktif level Asisten Manajer, Junior, dan Staff.
+                            Ketik untuk mencari, atau klik untuk memilih dari daftar.
                         </p>
                         @error('orang_ditemui')
                             <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
@@ -1851,6 +1874,11 @@
                 opt.classList.add('selected');
                 inputDisplay.value = opt.textContent.trim();
                 inputHidden.value = opt.getAttribute('data-value');
+
+                // Kunci primer bidang — sumber filter dropdown Jabatan.
+                var bidangIdInput = document.getElementById('bidang_id');
+                if (bidangIdInput) bidangIdInput.value = opt.getAttribute('data-id') || '';
+
                 close();
                 // Trigger change untuk jam dropdown
                 inputHidden.dispatchEvent(new Event('change', { bubbles: true }));
@@ -2011,6 +2039,11 @@
                 opt.classList.add('selected');
                 jabatanDisplay.value = opt.textContent.trim();
                 jabatanHidden.value = opt.getAttribute('data-value');
+
+                // Kunci primer jabatan — sumber filter dropdown Orang.
+                var jabatanIdInput = document.getElementById('jabatan_id');
+                if (jabatanIdInput) jabatanIdInput.value = opt.getAttribute('data-id') || '';
+
                 jClose();
                 // Seperti dropdown divisi: kabarkan perubahan lewat event
                 // 'change' supaya dependent dropdown "Orang yang Ditemui"
@@ -2037,12 +2070,18 @@
                bila cocok bidang DAN cocok dengan teks pencarian. */
             function filterJabatanOpsi(divisiNama) {
                 var q = jabatanSearch ? jabatanSearch.value.trim().toLowerCase() : '';
+                var bidangIdInput = document.getElementById('bidang_id');
+                var bidangId = bidangIdInput ? (bidangIdInput.value || '').trim() : '';
                 var adaCocok = false;
 
                 jabatanOptionsContainer.querySelectorAll('.dropdown-option').forEach(function (o) {
                     if (o.classList.contains('dropdown-jabatan-placeholder')) return;
 
-                    var cocokBidang = divisiNama !== '' && o.getAttribute('data-bidang') === divisiNama;
+                    // Utama: relasi kunci primer (jabatans.bidang_id). Fallback
+                    // nama tetap ada agar halaman lama/data tanpa id tidak kosong.
+                    var cocokId = bidangId !== '' && o.getAttribute('data-bidang-id') === bidangId;
+                    var cocokNama = divisiNama !== '' && o.getAttribute('data-bidang') === divisiNama;
+                    var cocokBidang = cocokId || cocokNama;
                     var teks = (o.getAttribute('data-value') || o.textContent || '').toLowerCase();
                     var cocokCari = q === '' || teks.indexOf(q) !== -1;
                     var tampil = cocokBidang && cocokCari;
@@ -2115,6 +2154,8 @@
                     var sebelumnya = jabatanHidden.value;
                     jabatanHidden.value = '';
                     jabatanDisplay.value = '';
+                    var jabatanIdInput = document.getElementById('jabatan_id');
+                    if (jabatanIdInput) jabatanIdInput.value = '';
                     jabatanOptionsContainer.querySelectorAll('.dropdown-option').forEach(function (o) {
                         o.classList.remove('selected');
                     });
@@ -2145,9 +2186,16 @@
                 jabatanOptionsContainer.querySelectorAll('.dropdown-option').forEach(function (o) {
                     if (o.classList.contains('dropdown-jabatan-placeholder')) return;
                     if (o.getAttribute('data-value') === jabatanAwal
-                        && o.getAttribute('data-bidang') === divisiAwal) {
+                        && (o.getAttribute('data-bidang') === divisiAwal
+                            || o.getAttribute('data-bidang-id') === (document.getElementById('bidang_id') || {}).value)) {
                         o.classList.add('selected');
                         jabatanDisplay.value = o.textContent.trim();
+
+                        // Lengkapi kunci primer saat halaman lama hanya membawa nama.
+                        var jabatanIdInput = document.getElementById('jabatan_id');
+                        if (jabatanIdInput && !jabatanIdInput.value) {
+                            jabatanIdInput.value = o.getAttribute('data-id') || '';
+                        }
                     }
                 });
             })();
@@ -2201,15 +2249,26 @@
                 var html = '';
 
                 items.forEach(function (p) {
-                    var nama = String((p && (p.name || p.nama)) || '').trim();
+                    var nama = String((p && (p.nama || p.name)) || '').trim();
                     if (!nama) return;
 
+                    var nid = String((p && p.nid) || '').trim();
+                    var userId = String((p && (p.user_id || p.userId)) || '').trim();
+                    var jabatan = String((p && p.jabatan) || '').trim();
+
+                    // Tampilan opsi: NAMA + JABATAN saja. NID hanya dipakai
+                    // sebagai indeks pencarian (data-search), TIDAK ditampilkan.
                     html += '<div class="dropdown-option orang-option"'
                         + ' data-value="' + escapeHtml(nama) + '"'
                         + ' data-id="' + escapeHtml(String((p && p.id) || '')) + '"'
-                        + ' data-search="' + escapeHtml(nama.toLowerCase()) + '">'
-                        + '<div style="min-width: 0;"><div style="font-weight: 600;">'
-                        + escapeHtml(nama) + '</div></div></div>';
+                        + ' data-user-id="' + escapeHtml(userId) + '"'
+                        + ' data-search="' + escapeHtml((nama + ' ' + nid + ' ' + jabatan).toLowerCase()) + '">'
+                        + '<div style="min-width: 0;">'
+                        + '<div style="font-weight: 600;">' + escapeHtml(nama) + '</div>'
+                        + (jabatan !== ''
+                            ? '<div style="font-size: 0.72rem; opacity: 0.75;">' + escapeHtml(jabatan) + '</div>'
+                            : '')
+                        + '</div></div>';
                 });
 
                 if (html === '') {
@@ -2248,6 +2307,15 @@
 
             function oToggle() {
                 oIsOpen = !oIsOpen;
+
+                if (oIsOpen) {
+                    // MUTUALLY EXCLUSIVE: tutup Bidang & Jabatan lebih dulu —
+                    // hanya SATU menu boleh terbuka dalam satu waktu.
+                    window.__registrasiDropdownClosers.forEach(function (closer) {
+                        if (closer.owner !== 'orang') closer.close();
+                    });
+                }
+
                 orangMenu.style.display = oIsOpen ? 'block' : 'none';
                 orangInput.setAttribute('aria-expanded', oIsOpen ? 'true' : 'false');
                 if (orangInput.parentElement) orangInput.parentElement.classList.toggle('dropdown-open', oIsOpen);
@@ -2261,17 +2329,28 @@
                 if (orangInput.parentElement) orangInput.parentElement.classList.remove('dropdown-open');
             }
 
+            // Daftarkan ke registry bersama sehingga membuka dropdown lain
+            // ikut menutup menu ini (bidang & jabatan sudah terdaftar).
+            window.__registrasiDropdownClosers.push({ owner: 'orang', close: oClose });
+
             function oSelect(opt) {
                 orangOptionList.forEach(function (o) { o.classList.remove('selected'); });
                 opt.classList.add('selected');
                 orangInput.value = opt.getAttribute('data-value') || opt.textContent.trim();
 
-                // Pilihan eksplisit dari daftar → simpan id akunnya.
-                var hiddenOrangId = document.getElementById('orang_ditemui_id');
-                if (hiddenOrangId) hiddenOrangId.value = opt.getAttribute('data-id') || '';
+                // Pilihan eksplisit dari daftar → simpan kunci primer karyawan
+                // DAN akun login yang tertaut (bila ada) untuk portal karyawan.
+                var hiddenKaryawanId = document.getElementById('karyawan_id');
+                if (hiddenKaryawanId) hiddenKaryawanId.value = opt.getAttribute('data-id') || '';
 
+                var hiddenOrangId = document.getElementById('orang_ditemui_id');
+                if (hiddenOrangId) hiddenOrangId.value = opt.getAttribute('data-user-id') || '';
+
+                // Kembalikan fokus ke input TANPA membuka ulang menu.
+                fokusSetelahPilih = true;
                 oClose();
                 orangInput.focus();
+                fokusSetelahPilih = false;
             }
 
             /* FITUR SEARCH — filter opsi berdasarkan nama. */
@@ -2291,14 +2370,24 @@
                 }
             }
 
-            /* Buka dropdown saat fokus/klik, filter saat mengetik. */
-            orangInput.addEventListener('focus', function () { if (!oIsOpen) oToggle(); });
+            /* Buka dropdown saat fokus/klik, filter saat mengetik.
+               `fokusSetelahPilih` mencegah menu terbuka lagi tepat setelah
+               opsi dipilih (focus() programatis) — auto-close wajib menang. */
+            var fokusSetelahPilih = false;
+
+            orangInput.addEventListener('focus', function () {
+                if (fokusSetelahPilih) return;
+                if (!oIsOpen) oToggle();
+            });
             orangInput.addEventListener('click', function (e) { e.stopPropagation(); if (!oIsOpen) oToggle(); });
             orangInput.addEventListener('input', function () {
-                // Mengetik bebas = bukan pilihan dari daftar → id akun dikosongkan
-                // (server akan mencocokkan ulang dari nama).
+                // Mengetik bebas = bukan pilihan dari daftar → kedua kunci
+                // (karyawan & akun) dikosongkan; server mencocokkan ulang
+                // dari nama agar tautan akun tidak bisa dipalsukan.
                 var hiddenOrangId = document.getElementById('orang_ditemui_id');
                 if (hiddenOrangId) hiddenOrangId.value = '';
+                var hiddenKaryawanId = document.getElementById('karyawan_id');
+                if (hiddenKaryawanId) hiddenKaryawanId.value = '';
 
                 if (!oIsOpen) oToggle();
                 else oFilter();
@@ -2317,6 +2406,16 @@
             /* Restore nilai lama (old()/edit): tandai opsi yang cocok. */
             var orangInitVal = orangInput.value.trim();
             if (orangInitVal) {
+                // old() hanya membawa nama — lengkapi karyawan_id dari opsi
+                // yang namanya cocok agar cascading tetap konsisten.
+                var karyawanIdInput = document.getElementById('karyawan_id');
+                if (karyawanIdInput && !karyawanIdInput.value) {
+                    var initMatch = orangOptionList.filter(function (o) {
+                        return o.getAttribute('data-value') === orangInitVal;
+                    })[0];
+                    if (initMatch) karyawanIdInput.value = initMatch.getAttribute('data-id') || '';
+                }
+
                 var orangMatch = orangOptionList.filter(function (o) {
                     return o.getAttribute('data-value') === orangInitVal;
                 })[0];
@@ -2325,20 +2424,23 @@
         })();
 
         /* ============================================================
-           DEPENDENT DROPDOWN "ORANG YANG DITEMUI" (AJAX)
+           DEPENDENT DROPDOWN "ORANG YANG DITEMUI" (AJAX, BERBASIS ID)
            ------------------------------------------------------------
-           Opsi "Orang yang Ditemui" difilter OTOMATIS mengikuti pasangan
-           "Bidang yang Ditemui" (#bidang_select) dan "Jabatan yang Ditemui"
-           (#jabatan_select):
+           Rantai nilai form registrasi tamu:
+             Bidang  → #bidang_id  (bidangs.id)
+             Jabatan → #jabatan_id (jabatans.id, difilter #bidang_id)
+             Orang   → #karyawan_id (karyawans.id, difilter #jabatan_id)
+           Nama tetap dikirim lewat hidden tujuan_ditemui/jabatan_ditemui
+           agar kolom string `tamus` dan seluruh data lama tidak berubah.
 
            1. Proxy <select> tersembunyi (bidang_select / jabatan_select /
               orang_ditemui_select) selalu sinkron DUA ARAH dengan hidden
-              input tujuan_ditemui & jabatan_ditemui milik custom dropdown —
-              nilai yang disubmit form tidak berubah sama sekali.
-           2. Event 'change' pada kedua proxy memicu Fetch API ke
-              /api/get-pegawai?bidang=...&jabatan=... (hanya saat KEDUANYA
-              terisi), lalu hasilnya menulis ulang opsi #orang_ditemui_select
-              sekaligus daftar custom dropdown #orang-options.
+              input milik custom dropdown — nilai yang disubmit tidak berubah.
+           2. Event 'change' pada proxy jabatan memicu Fetch API ke
+              /api/get-karyawan?jabatan_id=... (hanya saat jabatan terisi),
+              lalu menulis ulang opsi #orang_ditemui_select + #orang-options.
+              Endpoint hanya mengembalikan karyawan AKTIF level Asisten
+              Manajer / Junior / Staff.
            3. Komponen UI berbasis <select> (mis. TomSelect bila dipakai)
               ikut disinkronkan lewat syncTomSelect().
            ============================================================ */
@@ -2354,8 +2456,8 @@
                 return;
             }
 
-            var ENDPOINT = '{{ route('api.get-pegawai') }}';
-            var HINT_KOSONG = 'Pilih Bidang & Jabatan terlebih dahulu untuk menampilkan daftar nama.';
+            var ENDPOINT = '{{ route('api.get-karyawan') }}';
+            var HINT_KOSONG = 'Pilih Jabatan yang Ditemui terlebih dahulu untuk menampilkan daftar nama.';
             var HINT_GAGAL  = 'Gagal memuat daftar nama — silakan coba lagi.';
 
             /* Penanda request terakhir: respons dari pilihan yang sudah
@@ -2447,11 +2549,12 @@
                 orangSelect.appendChild(new Option('— Pilih Pengguna —', ''));
 
                 (list || []).forEach(function (row) {
-                    var nama = String((row && (row.name || row.nama)) || '').trim();
+                    var nama = String((row && (row.nama || row.name)) || '').trim();
                     if (!nama) return;
 
                     var option = new Option(nama, nama);
                     if (row.id) option.setAttribute('data-id', String(row.id));
+                    if (row.user_id) option.setAttribute('data-user-id', String(row.user_id));
                     orangSelect.appendChild(option);
                 });
 
@@ -2467,20 +2570,37 @@
                 syncTomSelect(orangSelect);
             }
 
-            /* Ambil daftar pegawai sesuai bidang + jabatan terpilih. */
+            /* Kosongkan pilihan Orang saat jabatan induknya berubah sehingga
+               nama dari daftar lama tidak diam-diam terkirim bersama jabatan
+               yang baru (cascading reset berjenjang). */
+            function resetOrangPilihan() {
+                var input = document.getElementById('orang_ditemui');
+                if (input) input.value = '';
+
+                var karyawanId = document.getElementById('karyawan_id');
+                if (karyawanId) karyawanId.value = '';
+
+                var userId = document.getElementById('orang_ditemui_id');
+                if (userId) userId.value = '';
+
+                orangSelect.value = '';
+            }
+
+            /* Ambil daftar karyawan aktif sesuai JABATAN terpilih
+               (karyawans.jabatan_id) — endpoint memvalidasi level jabatan
+               (Asisten Manajer / Junior / Staff) di sisi server. */
             function loadOrang() {
-                var bidang  = (bidangSelect.value || '').trim();
-                var jabatan = (jabatanSelect.value || '').trim();
+                var jabatanIdInput = document.getElementById('jabatan_id');
+                var jabatanId = jabatanIdInput ? (jabatanIdInput.value || '').trim() : '';
                 var mySeq = ++seq;
 
-                // Kedua induk belum lengkap → daftar dikosongkan + petunjuk.
-                if (!bidang || !jabatan) {
+                // Induk belum dipilih → daftar dikosongkan + petunjuk.
+                if (!jabatanId) {
                     render([], HINT_KOSONG);
                     return;
                 }
 
-                var query = '?bidang=' + encodeURIComponent(bidang)
-                    + '&jabatan=' + encodeURIComponent(jabatan);
+                var query = '?jabatan_id=' + encodeURIComponent(jabatanId);
 
                 fetch(ENDPOINT + query, { headers: { 'Accept': 'application/json' } })
                     .then(function (res) {
@@ -2516,17 +2636,93 @@
 
             bidangSelect.addEventListener('change', function () {
                 hiddenDariSelect(bidangSelect, bidangHidden, 'tujuan_ditemui_display', 'divisi-options');
+
+                // Sinkronkan kunci primer bidang dari proxy <select>.
+                var bidangIdInput = document.getElementById('bidang_id');
+                var opsi = bidangSelect.options[bidangSelect.selectedIndex];
+                if (bidangIdInput) bidangIdInput.value = opsi ? (opsi.getAttribute('data-id') || '') : '';
+
                 loadOrang();
             });
+            /* ---- RESET BERJENJANG ----
+               Mengganti jabatan mengosongkan pilihan Orang (nama + kedua
+               hidden id) karena daftar lama tidak lagi relevan. Saat init
+               (restore old()) reset dilewati supaya isian tidak hilang. */
+            var sedangInit = true;
+
             jabatanSelect.addEventListener('change', function () {
                 hiddenDariSelect(jabatanSelect, jabatanHidden, 'jabatan_ditemui_display', 'jabatan-options');
+
+                // Sinkronkan kunci primer jabatan dari proxy <select>.
+                var jabatanIdInput = document.getElementById('jabatan_id');
+                var opsi = jabatanSelect.options[jabatanSelect.selectedIndex];
+                if (jabatanIdInput) jabatanIdInput.value = opsi ? (opsi.getAttribute('data-id') || '') : '';
+
+                if (!sedangInit) resetOrangPilihan();
+
                 loadOrang();
             });
 
             /* ---- INIT: samakan dengan nilai awal (old()/restore), lalu muat ---- */
             selectDariHidden(bidangHidden, bidangSelect);
             selectDariHidden(jabatanHidden, jabatanSelect);
+
+            // Halaman lama hanya mengirim nama — lengkapi id dari opsi proxy.
+            (function lengkapiIdAwal() {
+                var bidangIdInput = document.getElementById('bidang_id');
+                if (bidangIdInput && !bidangIdInput.value && bidangSelect.value) {
+                    var opsiBidang = Array.prototype.slice.call(bidangSelect.options).filter(function (o) {
+                        return o.value === bidangSelect.value;
+                    })[0];
+                    if (opsiBidang) bidangIdInput.value = opsiBidang.getAttribute('data-id') || '';
+                }
+
+                var jabatanIdInput = document.getElementById('jabatan_id');
+                if (jabatanIdInput && !jabatanIdInput.value && jabatanSelect.value) {
+                    var opsiJabatan = Array.prototype.slice.call(jabatanSelect.options).filter(function (o) {
+                        return o.value === jabatanSelect.value;
+                    })[0];
+                    if (opsiJabatan) jabatanIdInput.value = opsiJabatan.getAttribute('data-id') || '';
+                }
+            })();
+
             loadOrang();
+            sedangInit = false;
+        })();
+
+        /* ===== KETERBUKAAN DROPDOWN — HANYA SATU TERBUKA =====
+           (1) Menekan/membuka satu dropdown menutup dua dropdown lain lewat
+               registry window.__registrasiDropdownClosers (terdaftar di
+               blok Bidang, Jabatan, dan Orang di atas).
+           (2) Listener CAPTURE di bawah menutup SEMUA menu saat klik terjadi
+               di luar ketiga komponen — capture dipakai karena beberapa
+               widget lain (mis. input Tanggal Kunjungan & kalender) memanggil
+               stopPropagation(), yang akan memblokir listener click biasa
+               sehingga menu bisa tertinggal terbuka. */
+        (function () {
+            function wrappersDropdown() {
+                return ['tujuan_ditemui_display', 'jabatan_ditemui_display', 'orang_ditemui']
+                    .map(function (id) {
+                        var el = document.getElementById(id);
+                        return el && el.closest ? el.closest('.pln-input-icon') : null;
+                    })
+                    .filter(Boolean);
+            }
+
+            document.addEventListener('click', function (e) {
+                var target = e.target;
+                if (!target || !target.closest) return;
+
+                var diDalamDropdown = wrappersDropdown().some(function (wrapper) {
+                    return wrapper.contains(target);
+                });
+
+                if (diDalamDropdown) return;
+
+                (window.__registrasiDropdownClosers || []).forEach(function (closer) {
+                    closer.close();
+                });
+            }, true);
         })();
 
         /* Tanggal hari ini (Y-m-d) — dipakai pembatas tanggal lewat dan

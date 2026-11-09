@@ -51,6 +51,33 @@
         box-shadow: 0 0 0 3px rgba(0, 143, 168, 0.12);
     }
 
+    /* Input tanggal (<x-date-picker />) diselaraskan dengan field lain:
+       tinggi, font, radius, warna & fokus sama dengan .form-control. */
+    .dk-form-card .pln-dp .pln-dp-input {
+        height: 43px;
+        padding: 0 2.2rem;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background: #fff;
+        color: #1f2937;
+    }
+    /* Tema gelap: aturan global datepicker lebih spesifik, jadi input
+       tanggal dikembalikan ke putih seperti .form-control di halaman ini. */
+    html.theme-dark .dk-form-card .pln-dp .pln-dp-input {
+        background: #fff;
+        color: #1f2937;
+    }
+    .dk-form-card .pln-dp .pln-dp-input:focus {
+        border-color: var(--pln-blue);
+        box-shadow: 0 0 0 3px rgba(0, 143, 168, 0.12);
+    }
+    .dk-form-card .pln-dp .pln-dp-icon,
+    .dk-form-card .pln-dp .pln-dp-chevron {
+        color: #94a3b8;
+    }
+
     .dk-form-actions {
         display: flex; gap: 0.6rem; margin-top: 1.5rem;
         padding-top: 1.25rem; border-top: 1px solid var(--border-color);
@@ -142,7 +169,13 @@
             </div>
             <div class="col-md-4">
                 <label class="form-label">TGL LAHIR</label>
+                {{-- Popup dikunci ke bawah + dropdown bulan/tahun
+                     (1950 s.d. tahun berjalan) agar tanggal lahir lama
+                     bisa dipilih tanpa klik panah berkali-kali. --}}
                 <x-date-picker name="tanggal_lahir" max="today"
+                               placement="bottom"
+                               year-start="1950"
+                               :year-end="now()->year"
                                :value="old('tanggal_lahir', $karyawan?->tanggal_lahir?->format('Y-m-d'))"
                                :class="$errors->has('tanggal_lahir') ? 'is-invalid' : ''"
                                placeholder="Pilih tanggal lahir" />

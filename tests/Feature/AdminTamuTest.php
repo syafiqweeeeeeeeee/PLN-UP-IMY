@@ -690,6 +690,33 @@ class AdminTamuTest extends TestCase
         $response->assertSee('col-id', false);
     }
 
+    public function test_print_menampilkan_kolom_detail_tamu_lengkap(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $this->createTamu([
+            'nama'             => 'Budi Detail',
+            'jabatan_ditemui'  => 'JUNIOR OFFICER KEUANGAN',
+            'orang_ditemui'    => 'Siti Aminah',
+        ]);
+
+        $content = $this->actingAs($admin)
+            ->get(route('admin.tamu.print', ['style' => 'excel']))
+            ->assertOk()
+            ->getContent();
+
+        // Header memakai istilah yang sama dengan modal Detail Tamu.
+        $this->assertStringContainsString('Bidang Ditemui', $content);
+        $this->assertStringContainsString('Jabatan Ditemui', $content);
+        $this->assertStringContainsString('Orang yang Ditemui', $content);
+
+        // Nilai jabatan & orang ikut tercetak (sebelumnya tidak ada kolomnya).
+        $this->assertStringContainsString('JUNIOR OFFICER KEUANGAN', $content);
+        $this->assertStringContainsString('Siti Aminah', $content);
+
+        // Kolom bertambah 2 → penomoran abjad Excel berlanjut sampai P.
+        $this->assertStringContainsString('<span class="col-id">P</span>', $content);
+    }
+
     public function test_print_pdf_style_renders_formal_report(): void
     {
         $admin = $this->adminWithPermissions(['tamu.view']);

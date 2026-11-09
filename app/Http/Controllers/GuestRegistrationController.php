@@ -2,22 +2,130 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Jabatan;
+use App\Models\Karyawan;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * REGISTRASI TAMU (halaman publik form-registrasi-tamu) — endpoint AJAX.
+ * REGISTRASI TAMU (halaman publik form-registrasi-tamu) — endpoint AJAX
+ * untuk DEPENDENT DROPDOWN berjenjang:
  *
- * Satu-satunya tanggung jawab saat ini: menyuplai daftar "Orang yang
- * Ditemui" yang sudah DIFILTER oleh pasangan "Bidang yang Ditemui" +
- * "Jabatan yang Ditemui" lewat GET /api/get-pegawai (lihat
- * routes/web.php). Tanpa auth — halaman registrasi bersifat publik,
- * sehingga response hanya memuat data ringan (id & nama) yang memang
- * ditampilkan pada form.
+ *   1. Bidang yang Ditemui  (bidangs)          → bidang_id
+ *   2. Jabatan yang Ditemui (jabatans)         → jabatan_id
+ *   3. Orang yang Ditemui   (karyawans)        → karyawan_id
+ *
+ * Alur nilai mengikuti kunci primer (BUKAN nama) sehingga relasi
+ * Eloquent yang dipakai benar-benar:
+ *
+ *   Bidang::jabatans()  (jabatans.bidang_id)
+ *   Bidang::karyawans() (karyawans.bidang_id)
+ *   Jabatan::karyawans() (karyawans.jabatan_id)
+ *   Karyawan::jabatanMaster() / Karyawan::bidangMaster()
+ *
+ * Semua route bersifat PUBLIK (tanpa auth) karena form registrasi tamu
+ * dapat diakses pengunjung. Response sengaja ringan — hanya data yang
+ * memang ditampilkan pada dropdown (tanpa email/HP/NIK lengkap).
+ *
+ * Catatan kompatibilitas: getPegawai() (endpoint lama berbasis nama
+ * bidang + jabatan pada tabel users/employee_profiles) DIPERTAHANKAN
+ * agar tautan/klien lama tidak rusak. Form registrasi sekarang memakai
+ * endpoint ID di atas.
  */
 class GuestRegistrationController extends Controller
 {
+    /**
+     * Endpoint 1 — GET /api/get-jabatan?bidang_id=...
+     *
+     * Jabatan milik satu bidang (jabatans.bidang_id = bidang_id), DIBATASI
+     * 3 level yang boleh ditemui tamu (Jabatan::TAMU_LEVELS: Asisten
+     * Manajer, Junior, Staff) lewat scope forTamu(). Dipakai dropdown
+     * "Jabatan yang Ditemui" setiap kali bidang berubah.
+     *
+     * Response: [{id, nama, level}, ...] urut nama.
+     */
+    public function getJabatanByBidang(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'bidang_id' => ['required', 'integer', 'exists:bidangs,id'],
+        ]);
+
+        $jabatans = Jabatan::query()
+            ->where('bidang_id', (int) $data['bidang_id'])
+            ->forTamu()
+            ->orderBy('nama')
+            ->get(['id', 'nama'])
+            ->map(fn (Jabatan $jabatan) => [
+                'id'    => (int) $jabatan->id,
+                'nama'  => (string) $jabatan->nama,
+                'level' => Jabatan::tamuLevel($jabatan->nama),
+            ])
+            ->values();
+
+        return response()->json($jabatans);
+    }
+
+    /**
+     * Endpoint 2 — GET /api/get-karyawan?jabatan_id=...
+     *
+     * Orang yang menduduki satu jabatan (karyawans.jabatan_id = jabatan_id).
+     * Filter ketat:
+     * - hanya jabatan pada 3 level tamu (jabatan_id harus forTamu(); bila
+     *   bukan, response kosong — bukan daftar seluruh karyawan),
+     * - hanya karyawan AKTIF (karyawans.status = aktif; lihat scope
+     *   withStatus — status kosong/NULL pada data lama dianggap aktif).
+     *
+     * Jalur cadangan: baris karyawan lama yang belum punya `jabatan_id`
+     * (kolom teks `jabatan` masih terisi) tetap ditampilkan bila teksnya
+     * SAMA PERSIS dengan nama jabatan master — sama seperti pola filter
+     * master pada Data Karyawan, jadi data lama tidak hilang dari form.
+     *
+     * Response: [{id, nama, nid, jabatan_id, jabatan, level, user_id}, ...].
+     * `user_id` = akun login yang tertaut lewat employee_profiles (nullable);
+     * dipakai form untuk mengisi hidden `orang_ditemui_id` (tautan portal).
+     */
+    public function getKaryawanByJabatan(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'jabatan_id' => ['required', 'integer', 'exists:jabatans,id'],
+        ]);
+
+        // Level di luar Asisten Manajer/Junior/Staff → TIDAK ada pilihan.
+        $jabatan = Jabatan::query()
+            ->forTamu()
+            ->find((int) $data['jabatan_id']);
+
+        if ($jabatan === null) {
+            return response()->json([]);
+        }
+
+        $karyawans = Karyawan::query()
+            ->withStatus(null) // default scope: hanya karyawan aktif
+            ->where(function (Builder $query) use ($jabatan) {
+                $query->where('jabatan_id', $jabatan->id)
+                    ->orWhere(fn (Builder $legacy) => $legacy
+                        ->whereNull('jabatan_id')
+                        ->where('jabatan', $jabatan->nama));
+            })
+            ->with(['employeeProfile:id,user_id,karyawan_id'])
+            ->orderBy('nama')
+            ->get(['id', 'nama', 'nid', 'jabatan_id', 'jabatan'])
+            ->map(fn (Karyawan $karyawan) => [
+                'id'         => (int) $karyawan->id,
+                'nama'       => (string) $karyawan->nama,
+                'nid'        => (string) $karyawan->nid,
+                'jabatan_id' => (int) $jabatan->id,
+                'jabatan'    => (string) $jabatan->nama,
+                'level'      => Jabatan::tamuLevel($jabatan->nama),
+                'user_id'    => $karyawan->employeeProfile?->user_id,
+            ])
+            ->values();
+
+        return response()->json($karyawans);
+    }
+
     /**
      * Role yang dianggap "karyawan/staff" — aktor NON-admin yang boleh
      * muncul sebagai orang yang ditemui. Mencakup kolom legacy
@@ -35,7 +143,11 @@ class GuestRegistrationController extends Controller
     ];
 
     /**
-     * Daftar pegawai sesuai bidang & jabatan — GET /api/get-pegawai.
+     * LEGACY — GET /api/get-pegawai?bidang=...&jabatan=...
+     *
+     * Endpoint lama (berbasis NAMA bidang & jabatan pada akun pengguna).
+     * Dipertahankan untuk kompatibilitas; alur baru registrasi tamu
+     * memakai getJabatanByBidang() + getKaryawanByJabatan().
      *
      * Query: model User dengan filter role bertipe karyawan/staff, lalu
      * mencocokkan RELASI DETAIL KEPEGAWAIAN (employee_profiles.bidang &
@@ -45,8 +157,7 @@ class GuestRegistrationController extends Controller
      * akun yang mengikat unit kerjanya lewat form Pengguna tetap muncul.
      *
      * Response: JSON array ringan [{id, name, bidang, jabatan}, ...]
-     * urut nama — dikonsumsi skrip dependent dropdown pada view
-     * form-registrasi-tamu.blade.php.
+     * urut nama.
      */
     public function getPegawai(Request $request): JsonResponse
     {

@@ -137,15 +137,26 @@ async function main() {
             return JSON.stringify(t) === JSON.stringify(['MIN','SEN','SEL','RAB','KAM','JUM','SAB']);
         })()`));
 
-    check('judul bulan + tahun Bahasa Indonesia (tebal, tengah)', await evl(`(() => {
+    check('header memakai dropdown BULAN & TAHUN Bahasa Indonesia (tebal, tengah)', await evl(`(() => {
         const panel = window.__dpPanel('input[name="dari"]');
-        const title = panel.querySelector('[data-dp-title]');
-        const cs = getComputedStyle(title);
         const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli',
                        'Agustus','September','Oktober','November','Desember'];
-        const ok = /^[A-Za-z]+ \\d{4}$/.test(title.textContent.trim()) &&
-            bulan.some(b => title.textContent.startsWith(b));
-        return ok && cs.fontWeight === '700' && cs.textAlign === 'center';
+        const m = panel.querySelector('[data-dp-month]');
+        const y = panel.querySelector('[data-dp-year]');
+        if (!m || !y) return false;
+        const nama = [...m.options].map(o => o.textContent);
+        const cs = getComputedStyle(m);
+        return JSON.stringify(nama) === JSON.stringify(bulan) &&
+            m.selectedIndex === new Date().getMonth() &&
+            /^\\d{4}$/.test(y.value) &&
+            cs.fontWeight === '700' &&
+            (cs.appearance === 'none' || cs.webkitAppearance === 'none') &&
+            parseFloat(cs.borderRadius) >= 6;
+    })()`));
+
+    check('dropdown TAHUN mencakup tahun lampau (navigasi cepat tanggal lahir)', await evl(`(() => {
+        const y = window.__dpPanel('input[name="dari"]').querySelector('[data-dp-year]');
+        return y.options.length >= 50 && Number(y.options[0].value) <= new Date().getFullYear() - 50;
     })()`));
 
     // Merah tema terang #DC2626 (rgb 220,38,38) / tema gelap #EF4444 (239,68,68)
@@ -203,7 +214,7 @@ async function main() {
             selected: panel.querySelectorAll('.pln-cal-day.is-selected').length,
             selectedText: (panel.querySelector('.pln-cal-day.is-selected') || {}).textContent,
             pastDisabled: [...panel.querySelectorAll('.pln-cal-day.is-past')].every(b => b.disabled),
-            header: panel.querySelector('[data-dp-title]').textContent
+            header: panel.querySelector('[data-dp-title]').getAttribute('aria-label')
         };
     })()`);
 

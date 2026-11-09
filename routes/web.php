@@ -23,10 +23,16 @@ Route::post('/layanan/form-registrasi-tamu', [\App\Http\Controllers\TamuControll
     ->middleware('throttle:10,1')
     ->name('layanan.registrasi-tamu.store');
 
-// API daftar pegawai (dipakai fetch JS dependent dropdown "Orang yang
-// Ditemui"): ?bidang=...&jabatan=... -> JSON daftar karyawan/staff pada
-// pasangan bidang & jabatan tersebut. Publik, tanpa auth — sama seperti
-// halaman form registrasi-nya.
+// API DEPENDENT DROPDOWN registrasi tamu (publik, tanpa auth — sama
+// seperti halaman form registrasi-nya):
+//   1. /api/get-jabatan?bidang_id  -> jabatan milik bidang (3 level tamu)
+//   2. /api/get-karyawan?jabatan_id -> karyawan aktif pada jabatan itu
+//   3. /api/get-pegawai (LEGACY, berbasis nama) -> dipertahankan untuk
+//      kompatibilitas klien lama.
+Route::get('/api/get-jabatan', [\App\Http\Controllers\GuestRegistrationController::class, 'getJabatanByBidang'])
+    ->name('api.get-jabatan');
+Route::get('/api/get-karyawan', [\App\Http\Controllers\GuestRegistrationController::class, 'getKaryawanByJabatan'])
+    ->name('api.get-karyawan');
 Route::get('/api/get-pegawai', [\App\Http\Controllers\GuestRegistrationController::class, 'getPegawai'])->name('api.get-pegawai');
 
 Route::get('/tentang-kami/sejarah', [HomeController::class, 'sejarah'])->name('sejarah');

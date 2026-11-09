@@ -174,6 +174,11 @@
         font-size: 0.74rem;
         line-height: 1.35;
         vertical-align: top;
+        /* 16 kolom (setara Detail Tamu): teks panjang seperti email,
+           nama jabatan & keperluan boleh pecah agar tabel tidak
+           melebar keluar kertas. Kolom terstruktur (tanggal, NIK,
+           No. HP) tetap nowrap lewat .num/.ctr di bawah. */
+        overflow-wrap: anywhere;
     }
 
     .sheet table.grid thead th {
@@ -293,6 +298,11 @@
         tr { page-break-inside: avoid; }
 
         .sheet table.grid thead th { position: static; }
+
+        /* A4 landscape: perkecil font sheet secukupnya agar 16 kolom
+           tercetak utuh (tidak terpotong di kolom terakhir). */
+        .sheet table.grid th,
+        .sheet table.grid td { font-size: 0.64rem; padding: 0.22rem 0.3rem; }
 
         /* Tanggal cetak kecil di bawah tabel */
         .printed-at { margin-top: 0.8rem; font-size: 0.68rem; color: #64748b; }
@@ -430,28 +440,39 @@
                     @if ($style === 'excel')<span class="col-id">H</span>@endif
                     Instansi
                 </th>
-                <th>
+                {{-- Label kolom mengikuti modal DETAIL TAMU (satu
+                     sumber istilah): "Bidang Ditemui" + "Jabatan
+                     Ditemui" + "Orang yang Ditemui". --}}
+                <th style="width:9rem;">
                     @if ($style === 'excel')<span class="col-id">I</span>@endif
-                    Tujuan Ditemui
+                    Bidang Ditemui
+                </th>
+                <th style="width:9.5rem;">
+                    @if ($style === 'excel')<span class="col-id">J</span>@endif
+                    Jabatan Ditemui
+                </th>
+                <th style="width:9rem;">
+                    @if ($style === 'excel')<span class="col-id">K</span>@endif
+                    Orang yang Ditemui
                 </th>
                 <th style="width:3.4rem;">
-                    @if ($style === 'excel')<span class="col-id">J</span>@endif
+                    @if ($style === 'excel')<span class="col-id">L</span>@endif
                     Jml
                 </th>
                 <th>
-                    @if ($style === 'excel')<span class="col-id">K</span>@endif
+                    @if ($style === 'excel')<span class="col-id">M</span>@endif
                     Keperluan
                 </th>
                 <th style="width:7.5rem;">
-                    @if ($style === 'excel')<span class="col-id">L</span>@endif
+                    @if ($style === 'excel')<span class="col-id">N</span>@endif
                     Check-In
                 </th>
                 <th style="width:7.5rem;">
-                    @if ($style === 'excel')<span class="col-id">M</span>@endif
+                    @if ($style === 'excel')<span class="col-id">O</span>@endif
                     Check-Out
                 </th>
                 <th style="width:6rem;">
-                    @if ($style === 'excel')<span class="col-id">N</span>@endif
+                    @if ($style === 'excel')<span class="col-id">P</span>@endif
                     Status
                 </th>
             </tr>
@@ -467,7 +488,11 @@
                     <td class="ctr">{{ $tamu->no_hp }}</td>
                     <td>{{ $tamu->email ?? '—' }}</td>
                     <td>{{ $tamu->instansi ?? '—' }}</td>
-                    <td>{{ $tamu->tujuan_ditemui }}</td>
+                    <td>{{ $tamu->tujuan_ditemui ?: '—' }}</td>
+                    {{-- Jabatan & orang yang ditemui ditampilkan sama seperti
+                         di modal Detail Tamu; data lama bisa NULL → "—". --}}
+                    <td>{{ $tamu->jabatan_ditemui ?: '—' }}</td>
+                    <td>{{ $tamu->orang_ditemui ?: '—' }}</td>
                     <td class="num">{{ $tamu->jumlah_tamu }}</td>
                     <td>{{ \Illuminate\Support\Str::limit($tamu->keperluan, 120) }}</td>
                     <td class="ctr">{{ $tamu->checked_in_at?->format('Y-m-d H:i') ?? '—' }}</td>
@@ -496,7 +521,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="14">
+                    <td colspan="16">
                         <div class="empty">
                             <i class="fas fa-inbox"></i>
                             Tidak ada data tamu untuk kombinasi filter ini.
