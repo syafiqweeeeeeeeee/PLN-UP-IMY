@@ -43,7 +43,14 @@
              di bar navbar tanpa harus membuka menu hamburger dulu.
              Hanya tampil di <992px (d-lg-none); di desktop tetap pakai
              tombol yang berada di dalam collapse. --}}
-        <div class="d-flex align-items-center ms-auto d-lg-none me-2">
+        <div class="d-flex align-items-center ms-auto d-lg-none me-2 gap-2">
+            {{-- Tema terang/gelap — tersedia juga di mobile (di luar
+                 hamburger) agar bisa diganti tanpa membuka menu. --}}
+            <button type="button" class="theme-btn" data-theme-toggle
+                    aria-pressed="false" title="Mode terang aktif — klik untuk mode gelap"
+                    aria-label="Aktifkan mode gelap">
+                <i class="fas fa-moon" data-theme-icon></i>
+            </button>
             <a href="{{ route('login') }}" class="btn btn-login">
                 <span data-i18n="nav.login">Login</span>
             </a>
@@ -168,6 +175,11 @@
             {{-- Login Button (desktop saja) — di mobile disembunyikan karena
              sudah digantikan tombol login terpisah di samping hamburger --}}
             <div class="nav-login-wrap d-none d-lg-flex align-items-center ms-lg-3">
+                <button type="button" class="theme-btn" data-theme-toggle
+                        aria-pressed="false" title="Mode terang aktif — klik untuk mode gelap"
+                        aria-label="Aktifkan mode gelap">
+                    <i class="fas fa-moon" data-theme-icon></i>
+                </button>
                 <a href="{{ route('login') }}" class="btn btn-login">
                     <span data-i18n="nav.login">Login</span>
                 </a>

@@ -28,6 +28,12 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\MustChangePassword::class,
         ]);
 
+        /* ---- Cookie preferensi tema (`pln_theme`) ditulis oleh JavaScript
+           (public/js/theme.js), bukan Laravel — jangan didekripsi. Tanpa
+           pengecualian ini, cookie terbaca null dan server selalu merender
+           tema default sebelum skrip berjalan. */
+        $middleware->encryptCookies(except: ['pln_theme']);
+
         /* ---- Trust semua proxy (ngrok / cloudflare tunnel / LB) ----
            Tanpa ini, akses lewat ngrok membuat Laravel menganggap
            request "http" (padahal browser di https): cookie session

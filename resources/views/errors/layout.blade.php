@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="{{ \App\Support\Theme::htmlClass(request()) }}" data-theme-pref="{{ \App\Support\Theme::preference(request()) }}" data-user-id="{{ auth()->id() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>@yield('title', 'Terjadi Kesalahan') — PLN Nusantara Power</title>
+
+    @include('layouts.partials.theme-head')
+
     <link rel="icon" type="image/png" href="{{ asset('assets/images/logo-pln1.png') }}">
+    <link rel="stylesheet" href="{{ asset('css/theme.css') }}?v={{ @filemtime(public_path('css/theme.css')) }}">
     <style>
         :root {
             --brand: #005B9C;
@@ -115,7 +119,7 @@
         }
     </style>
 </head>
-<body>
+<body class="err-page">
     <main class="err-card" role="main">
         <img src="{{ asset('assets/images/logo-pln1.png') }}" alt="PLN Nusantara Power" class="err-logo">
 

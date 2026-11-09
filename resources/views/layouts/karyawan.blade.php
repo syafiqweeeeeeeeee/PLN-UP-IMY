@@ -12,7 +12,7 @@
      ============================================================ -->
 @if(request()->header('X-Partial') === '1' && request()->header('X-Requested-With') === 'XMLHttpRequest')
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="{{ \App\Support\Theme::htmlClass(request()) }}" data-theme-pref="{{ \App\Support\Theme::preference(request()) }}" data-user-id="{{ auth()->id() }}">
 <head>
     <meta charset="utf-8">
     <title>@yield('title', 'Portal Karyawan — PLN Nusantara Power')</title>
@@ -39,13 +39,15 @@
 </html>
 @else
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="{{ \App\Support\Theme::htmlClass(request()) }}" data-theme-pref="{{ \App\Support\Theme::preference(request()) }}" data-user-id="{{ auth()->id() }}">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Portal Karyawan — PLN Nusantara Power" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Portal Karyawan — PLN Nusantara Power')</title>
+
+    @include('layouts.partials.theme-head')
 
     <link rel="icon" type="image/png" href="{{ asset('assets/images/logo-pln1.png') }}" />
 
@@ -61,6 +63,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    {{-- Token & tema terpusat (light/dark) — dimuat sebelum css portal. --}}
+    <link rel="stylesheet" href="{{ asset('css/theme.css') }}?v={{ @filemtime(public_path('css/theme.css')) }}" />
 
     <link rel="stylesheet" href="{{ asset('css/karyawan.css') }}" />
 
@@ -570,6 +575,13 @@
             </nav>
 
             <div class="kry-topbar-user">
+                {{-- Tema terang/gelap — preferensi tersimpan per pengguna. --}}
+                <button type="button" class="kry-theme-btn" data-theme-toggle
+                        aria-pressed="false" title="Mode terang aktif — klik untuk mode gelap"
+                        aria-label="Aktifkan mode gelap">
+                    <i class="fas fa-moon" data-theme-icon></i>
+                </button>
+
                 <a href="{{ route('karyawan.profil') }}" class="kry-user-chip"
                    title="Edit Profil Saya">
                     <span class="kry-avatar">{{ $karyawanUser['initials'] }}</span>
@@ -701,6 +713,9 @@
     {{-- Datepicker global: inisialisasi otomatis seluruh input
          <x-date-picker /> maupun input class=".datepicker". --}}
     <script src="{{ asset('js/date-picker.js') }}?v={{ @filemtime(public_path('js/date-picker.js')) }}" defer></script>
+
+    {{-- Engine tema bersama (localStorage + cookie + preferensi sistem). --}}
+    <script src="{{ asset('js/theme.js') }}?v={{ @filemtime(public_path('js/theme.js')) }}" defer></script>
 
     {{-- Client-side router: pindah halaman tanpa reload layout,
          cache memori per halaman, micro-transition 60ms --}}

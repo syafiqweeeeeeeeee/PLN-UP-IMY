@@ -13,13 +13,13 @@
      ============================================================ -->
 @if(request()->header('X-Partial') === '1' && request()->header('X-Requested-With') === 'XMLHttpRequest')
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="{{ \App\Support\Theme::htmlClass(request()) }}" data-theme-pref="{{ \App\Support\Theme::preference(request()) }}" data-user-id="{{ auth()->id() }}">
     <head>
         <meta charset="utf-8">
         <title>@yield('title', 'Admin — E-PPID PLN')</title>
         @stack('styles')
     </head>
-    <body data-partial-content=".admin-content">
+    <body class="admin-body" data-partial-content=".admin-content">
         <main class="admin-content" data-pt-animate>
             @yield('content')
             @stack('scripts')
@@ -28,13 +28,15 @@
 </html>
 @else
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="{{ \App\Support\Theme::htmlClass(request()) }}" data-theme-pref="{{ \App\Support\Theme::preference(request()) }}" data-user-id="{{ auth()->id() }}">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="E-PPID PLN — Dashboard Admin" />
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>@yield('title', 'Admin — E-PPID PLN')</title>
+
+        @include('layouts.partials.theme-head')
 
         <link rel="icon" type="image/png" href="{{ asset('assets/images/logo-pln1.png') }}" />
 
@@ -54,28 +56,16 @@
         {{-- Cache-busting: versi ikut filemtime admin.css — setiap kali CSS
              diubah (mis. setelah pull), URL berubah → browser WAJIB unduh
              versi baru, tidak lagi memakai salinan lama dari cache. --}}
+        {{-- Token & tema terpusat (light/dark) — dimuat SEBELUM css portal
+             agar aturan `html.theme-dark` menang atas deklarasi terang. --}}
+        <link href="{{ asset('css/theme.css') }}?v={{ @filemtime(public_path('css/theme.css')) }}" rel="stylesheet" />
+
         <link href="{{ asset('css/admin.css') }}?v={{ @filemtime(public_path('css/admin.css')) }}" rel="stylesheet" />
 
         {{-- Datepicker global (<x-date-picker />) — tampilan seragam dengan
              Form Registrasi Tamu. Dimuat setelah admin.css agar menang
              spesifisitas atas style input bawaan admin. --}}
         <link href="{{ asset('css/date-picker.css') }}?v={{ @filemtime(public_path('css/date-picker.css')) }}" rel="stylesheet" />
-
-        {{-- ============================================================
-             THEME BOOTSTRAP (anti-FOUC) — jalan SEBELUM render.
-             Membaca localStorage 'admin-theme' (light|dark|system),
-             fallback: preferensi sistem. Dipakai halaman Pengaturan.
-             ============================================================ --}}
-        <script>
-            (function () {
-                try {
-                    var pref = localStorage.getItem('admin-theme') || 'system';
-                    var dark = pref === 'dark' ||
-                        (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                    document.documentElement.classList.toggle('theme-dark', dark);
-                } catch (e) { /* localStorage diblokir → default light */ }
-            })();
-        </script>
 
         <style>
             @keyframes pt-fade-slide-in {
@@ -198,7 +188,7 @@
  
         @stack('styles')
     </head>
-    <body data-partial-content=".admin-content">
+    <body class="admin-body" data-partial-content=".admin-content">
 
         {{-- ============================================
              SIDEBAR OVERLAY (mobile)
@@ -409,8 +399,10 @@
                         <i class="fas fa-search"></i>
                     </button>
 
-                    <button class="topbar-icon-btn" id="themeToggle" title="Ganti tema terang/gelap" aria-label="Ganti tema">
-                        <i class="fas fa-moon"></i>
+                    <button class="topbar-icon-btn" id="themeToggle" type="button"
+                            data-theme-toggle aria-pressed="false"
+                            title="Mode terang aktif — klik untuk mode gelap" aria-label="Aktifkan mode gelap">
+                        <i class="fas fa-moon" data-theme-icon></i>
                     </button>
 
                     {{-- NOTIFIKASI — dropdown dari data nyata (tamu baru belum dibaca, draft) --}}
@@ -526,6 +518,10 @@
 
         {{-- Client-side router: pindah halaman tanpa reload layout,
              cache memori per halaman, micro-transition 60ms --}}
+        {{-- Engine tema bersama: sinkron localStorage ↔ cookie, ikon tombol,
+             preferensi sistem, dan event `admin:theme-changed` (Pengaturan). --}}
+        <script src="{{ asset('js/theme.js') }}?v={{ @filemtime(public_path('js/theme.js')) }}" defer></script>
+
         <script src="{{ asset('js/router.js') }}" defer></script>
 
         <script>
@@ -682,83 +678,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- ============================================================
-             THEME MANAGER — terang / gelap / sistem
-             - Toggle topbar: light ↔ dark (disimpan eksplisit).
-             - Halaman Pengaturan bisa set light/dark/system via
-               window.AdminTheme.set('light'|'dark'|'system').
-             - Ikon topbar di-sync otomatis (moon = sedang terang).
-             - Ikuti perubahan preferensi OS saat mode "system".
-             ============================================================ --}}
-        <script>
-            (function () {
-                'use strict';
-
-                var KEY = 'admin-theme';
-
-                function pref() {
-                    try { return localStorage.getItem(KEY) || 'system'; }
-                    catch (e) { return 'system'; }
-                }
-
-                function systemDark() {
-                    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-                }
-
-                function apply(prefName) {
-                    var dark = prefName === 'dark' ||
-                        (prefName === 'system' && systemDark());
-                    document.documentElement.classList.toggle('theme-dark', dark);
-                    syncIcons();
-                }
-
-                function syncIcons() {
-                    var dark = document.documentElement.classList.contains('theme-dark');
-                    var btn = document.getElementById('themeToggle');
-                    if (btn) {
-                        btn.innerHTML = dark
-                            ? '<i class="fas fa-sun"></i>'
-                            : '<i class="fas fa-moon"></i>';
-                        btn.title = dark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap';
-                    }
-                    document.querySelectorAll('[data-theme-label]')
-                        .forEach(function (el) { el.textContent = dark ? 'Gelap' : 'Terang'; });
-                }
-
-                function set(next) {
-                    try { localStorage.setItem(KEY, next); } catch (e) {}
-                    apply(next);
-                    document.dispatchEvent(new CustomEvent('admin:theme-changed', {
-                        detail: { theme: next, dark: document.documentElement.classList.contains('theme-dark') }
-                    }));
-                }
-
-                /* ---- Toggle topbar: light ↔ dark ---- */
-                document.addEventListener('click', function (e) {
-                    var btn = e.target.closest ? e.target.closest('#themeToggle') : null;
-                    if (!btn) return;
-                    var dark = document.documentElement.classList.contains('theme-dark');
-                    set(dark ? 'light' : 'dark');
-                });
-
-                /* ---- Ikuti perubahan OS saat mode "system" ---- */
-                var mq = window.matchMedia('(prefers-color-scheme: dark)');
-                if (mq.addEventListener) {
-                    mq.addEventListener('change', function () { if (pref() === 'system') apply('system'); });
-                }
-
-                /* ---- State awal + sync ikon ---- */
-                apply(pref());
-
-                /* ---- API publik untuk halaman Pengaturan ---- */
-                window.AdminTheme = {
-                    get: pref,
-                    set: set,
-                    isDark: function () { return document.documentElement.classList.contains('theme-dark'); }
-                };
-            })();
-        </script>
 
         {{-- ============================================================
              LONCENG NOTIFIKASI — polling tamu baru (badge angka saja)

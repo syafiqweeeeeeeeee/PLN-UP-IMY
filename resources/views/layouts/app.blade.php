@@ -13,7 +13,7 @@
      ============================================================ --}}
 @if(request()->header('X-Partial') === '1' && request()->header('X-Requested-With') === 'XMLHttpRequest')
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="{{ \App\Support\Theme::htmlClass(request()) }}" data-theme-pref="{{ \App\Support\Theme::preference(request()) }}" data-user-id="{{ auth()->id() }}">
     <head>
         <meta charset="utf-8" />
         <title>@yield('title', 'PLN Nusantara Power')</title>
@@ -28,11 +28,13 @@
 </html>
 @else
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="{{ \App\Support\Theme::htmlClass(request()) }}" data-theme-pref="{{ \App\Support\Theme::preference(request()) }}" data-user-id="{{ auth()->id() }}">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>@yield('title', 'PLN Nusantara Power')</title>
+
+        @include('layouts.partials.theme-head')
 
         <link rel="icon" type="image/png" href="{{ asset('assets/images/logo-pln1.png') }}" />
 
@@ -67,22 +69,12 @@
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
+        {{-- Token & tema terpusat (terang/gelap) — semua warna brand,
+             permukaan, teks, border, dan komponen berasal dari sini. --}}
+        <link href="{{ asset('css/theme.css') }}?v={{ @filemtime(public_path('css/theme.css')) }}" rel="stylesheet" />
+
         {{-- Custom PLN Styles --}}
         <style>
-            :root {
-                /* Disamakan dengan biru teal pada section "Mulai Pengalaman
-                   Baru di PLN Mobile" (gradient #00c2d1 → #008fa8); dipakai
-                   navbar, footer, hero, dan elemen brand lainnya */
-                --pln-blue:    #008fa8;
-                --pln-yellow:  #FFE600;
-                --pln-red:     #ED1C24;
-                /* Aksen teal muda — selaras dengan gradasi biru teal baru
-                   (dipakai hover, highlight, dan elemen aksen) */
-                --pln-cyan:    #00c2d1;
-                --pln-dark:    #1a1a2e;
-                --pln-gray:    #F8F9FA;
-                --pln-text:    #333333;
-            }
 
             body {
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -724,7 +716,7 @@
 
         @stack('styles')
     </head>
-    <body data-partial-content=".pt-main">
+    <body class="portal-body" data-partial-content=".pt-main">
         @include('layouts.navbar')
 
         {{-- data-pt-container = jangkar konten untuk router.js (swap hanya
@@ -766,6 +758,10 @@
         {{-- Datepicker global: inisialisasi otomatis seluruh input
              <x-date-picker /> maupun input class=".datepicker". --}}
         <script src="{{ asset('js/date-picker.js') }}?v={{ @filemtime(public_path('js/date-picker.js')) }}" defer></script>
+
+        {{-- Engine tema bersama: persistensi (localStorage + cookie),
+             preferensi sistem, sinkron antar-tab, dan tombol tema. --}}
+        <script src="{{ asset('js/theme.js') }}?v={{ @filemtime(public_path('js/theme.js')) }}" defer></script>
 
         {{-- Client-side router (AJAX/SPA): klik link internal hanya menukar
              konten halaman — navbar & footer tetap utuh, tanpa reload. --}}

@@ -473,7 +473,7 @@
                     <i class="fas fa-circle-info"></i>
                     Tema aktif saat ini: <strong data-theme-label>Terang</strong>
                     <span style="opacity: 0.5;">·</span>
-                    <span>Perubahan tersimpan otomatis di browser ini</span>
+                    <span>Tersimpan otomatis untuk akun ini di perangkat ini</span>
                 </div>
             </div>
         </div>
@@ -623,7 +623,6 @@
            TEMA — integrasi dengan window.AdminTheme (layouts/admin)
            ============================================================ */
         var radios = document.querySelectorAll('#themeOptions input[name="theme"]');
-        var hasAdminTheme = typeof window.AdminTheme !== 'undefined';
 
         function showToast(text, isError) {
             var toast = document.getElementById('settingsToast');
@@ -645,7 +644,14 @@
             if (err) showToast(err.getAttribute('data-flash-error'), true);
         })();
 
-        if (hasAdminTheme) {
+        /* Mesin tema dimuat dengan `defer` (public/js/theme.js), jadi inisialisasi
+           ditunda sampai DOMContentLoaded agar window.AdminTheme sudah tersedia
+           — termasuk setelah navigasi SPA yang mengeksekusi ulang blok ini. */
+        function initThemeOptions() {
+            if (typeof window.AdminTheme === 'undefined') {
+                return;
+            }
+
             // Tandai pilihan tersimpan
             var current = window.AdminTheme.get();
             radios.forEach(function (r) { r.checked = r.value === current; });
@@ -662,6 +668,12 @@
             document.addEventListener('admin:theme-changed', function (e) {
                 radios.forEach(function (r) { r.checked = r.value === e.detail.theme; });
             });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initThemeOptions);
+        } else {
+            initThemeOptions();
         }
 
         /* ============================================================
