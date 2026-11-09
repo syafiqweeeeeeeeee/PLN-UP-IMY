@@ -468,7 +468,8 @@ class KaryawanPortalTest extends TestCase
         $this->actingAs($user)->get(route('karyawan.profil'))
             ->assertOk()
             ->assertSee('Naufal Adzmi')
-            ->assertSee('Edit Profil Saya');
+            ->assertSee('Informasi Akun')
+            ->assertSee('Pengaturan Akun');
 
         $this->actingAs($user)->put(route('karyawan.profil.update'), [
             'name'   => 'Naufal Adzmi Update',

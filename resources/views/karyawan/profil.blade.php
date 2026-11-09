@@ -78,7 +78,7 @@
 
                 <hr class="kry-divider">
 
-                <h3><i class="fas fa-lock"></i> Ganti Kata Sandi <small style="font-weight:500; color:#64748b;">(opsional)</small></h3>
+                <h3 id="keamanan"><i class="fas fa-lock"></i> Ganti Kata Sandi <small style="font-weight:500; color:#64748b;">(opsional)</small></h3>
 
                 <div class="kry-field">
                     <label for="current_password">Kata Sandi Saat Ini</label>

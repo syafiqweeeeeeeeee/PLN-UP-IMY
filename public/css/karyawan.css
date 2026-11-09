@@ -33,6 +33,12 @@
 
 * { box-sizing: border-box; }
 
+/* Cegah scroll horizontal: elemen lebar (tabel, teks panjang, dropdown)
+   tidak boleh keluar dari batas viewport. `clip` dipakai (bukan
+   `hidden`) karena tidak membuat scroll container — topbar
+   `position: sticky` tetap bekerja seperti biasa. */
+html { overflow-x: clip; }
+
 .kry-body {
     margin: 0;
     background: var(--kry-bg);
@@ -55,6 +61,14 @@
 a { text-decoration: none; color: inherit; }
 
 /* ================= TOPBAR ================= */
+
+/* Anchor "Pengaturan Akun" dari dropdown profil topbar. Nilai
+   scroll-margin memberi ruang untuk topbar sticky. */
+#keamanan { scroll-margin-top: 96px; }
+
+@media (max-width: 767.98px) {
+    #keamanan { scroll-margin-top: 130px; }
+}
 
 .kry-topbar {
     /* Header toska gelap — persis navbar publik (.navbar-pln) */
@@ -148,21 +162,6 @@ a { text-decoration: none; color: inherit; }
     flex-shrink: 0;
 }
 
-.kry-user-chip {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 5px 12px 5px 5px;
-    border-radius: 999px;
-    border: 1px solid transparent;
-    transition: border-color .18s ease, background .18s ease;
-}
-
-.kry-user-chip:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.25);
-}
-
 .kry-avatar {
     width: 34px;
     height: 34px;
@@ -175,39 +174,6 @@ a { text-decoration: none; color: inherit; }
     font-size: 0.78rem;
     font-weight: 700;
     flex-shrink: 0;
-}
-
-.kry-user-meta {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
-}
-
-.kry-user-name {
-    font-size: 0.83rem;
-    font-weight: 700;
-    color: #fff;
-    white-space: nowrap;
-}
-
-.kry-user-role {
-    font-size: 0.68rem;
-    color: rgba(255, 255, 255, 0.75);
-}
-
-.kry-avatar-btn {
-    border: none;
-    background: transparent;
-    color: rgba(255, 255, 255, 0.85);
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 8px;
-    font-size: 0.7rem;
-}
-
-.kry-avatar-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
 }
 
 /* ---- Dropdown akun ---- */
@@ -1628,8 +1594,6 @@ textarea.form-input {
     .kry-topbar-inner { flex-wrap: wrap; padding: 10px 0; gap: 12px; }
 
     .kry-nav { order: 3; width: 100%; overflow-x: auto; padding-bottom: 4px; }
-
-    .kry-user-meta { display: none; }
 
     .kry-link-grid { grid-template-columns: 1fr; }
 

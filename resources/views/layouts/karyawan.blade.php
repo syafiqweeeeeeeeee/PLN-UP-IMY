@@ -90,8 +90,10 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 1.5rem;
-            height: 64px;
+            flex-wrap: nowrap;
+            min-width: 0;
+            padding: 0.5rem 1.5rem;
+            min-height: 64px;
             gap: 1.5rem;
         }
 
@@ -136,17 +138,19 @@
         .kry-nav {
             display: flex;
             align-items: center;
-            gap: 0.25rem;
-            flex: 1;
+            flex-wrap: wrap;
+            gap: 0.15rem 0.25rem;
+            flex: 1 1 auto;
+            min-width: 0;
             justify-content: center;
         }
 
         .kry-nav-link {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.85rem;
-            font-size: 0.9rem;
+            gap: 0.4rem;
+            padding: 0.45rem 0.55rem;
+            font-size: 0.85rem;
             font-weight: 500;
             color: rgba(255,255,255,0.85);
             text-decoration: none;
@@ -203,8 +207,8 @@
             left: 0;
             min-width: 210px;
             padding: 0.5rem 0;
-            background: var(--kry-card-bg, #fff);
-            border: 1px solid rgba(0,0,0,0.08);
+            background: var(--dropdown-bg, #fff);
+            border: 1px solid var(--line, rgba(0,0,0,0.08));
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.18);
             z-index: 1000;
@@ -286,9 +290,9 @@
         .kry-nav-btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
-            padding: 0.5rem 0.85rem;
-            font-size: 0.9rem;
+            gap: 0.35rem;
+            padding: 0.45rem 0.55rem;
+            font-size: 0.85rem;
             font-weight: 500;
             color: rgba(255,255,255,0.85);
             background: transparent;
@@ -324,27 +328,50 @@
             transform: rotate(180deg);
         }
 
-        /* ---- PROFIL PENGGUNA (KANAN) ---- */
+        /* ---- PROFIL PENGGUNA (KANAN) --------------------------------
+           Hanya avatar (tanpa nama/jabatan di header) agar tidak
+           memakan ruang tombol navbar lain. Identitas lengkap tetap
+           tersedia di dropdown profil. */
         .kry-topbar-user {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            justify-content: flex-end;
+            gap: 0.4rem;
+            flex-shrink: 0;
+            min-width: 0;
+        }
+
+        .kry-user-wrap {
+            position: relative;
             flex-shrink: 0;
         }
 
-        .kry-user-chip {
-            display: flex;
+        .kry-user-btn {
+            display: inline-flex;
             align-items: center;
-            gap: 0.6rem;
-            padding: 0.35rem 0.75rem 0.35rem 0.35rem;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            padding: 0;
             background: rgba(255,255,255,0.12);
-            border-radius: 100px;
-            text-decoration: none;
-            transition: background 0.2s ease;
+            border: 1px solid transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
         }
 
-        .kry-user-chip:hover {
-            background: rgba(255,255,255,0.2);
+        .kry-user-btn:hover {
+            background: rgba(255,255,255,0.22);
+        }
+
+        .kry-user-btn:focus-visible {
+            outline: 2px solid #FFE600;
+            outline-offset: 2px;
+        }
+
+        .kry-user-btn[aria-expanded="true"] {
+            background: rgba(255,255,255,0.24);
+            border-color: rgba(255,255,255,0.35);
         }
 
         .kry-avatar {
@@ -360,61 +387,69 @@
             font-weight: 700;
             font-size: 0.85rem;
             letter-spacing: 0.5px;
+            flex-shrink: 0;
         }
 
-        .kry-user-meta {
+        .kry-user-btn .kry-avatar {
+            width: 30px;
+            height: 30px;
+            min-width: 30px;
+            font-size: 0.8rem;
+        }
+
+        /* ---- DROPDOWN PROFIL ---- */
+        .kry-profile-menu {
+            left: auto;
+            right: 0;
+            width: 290px;
+            max-width: calc(100vw - 1.5rem);
+            padding: 0.4rem;
+        }
+
+        .kry-profile-head {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            padding: 0.55rem 0.6rem 0.7rem;
+            min-width: 0;
+        }
+
+        .kry-profile-head .kry-avatar {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            font-size: 0.9rem;
+        }
+
+        .kry-profile-ident {
             display: flex;
             flex-direction: column;
-            line-height: 1.3;
+            gap: 2px;
+            min-width: 0;
         }
 
-        .kry-user-name {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #fff;
-            max-width: 120px;
+        .kry-profile-name {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--ink-heading, #0f172a);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        .kry-user-role {
-            font-size: 0.7rem;
-            font-weight: 400;
-            color: rgba(255,255,255,0.65);
-            max-width: 140px;
+        .kry-profile-job,
+        .kry-profile-mail {
+            font-size: 0.72rem;
+            color: var(--ink-muted, #64748b);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        .kry-avatar-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            padding: 0;
-            background: transparent;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            color: rgba(255,255,255,0.7);
-            transition: all 0.2s ease;
-        }
-
-        .kry-avatar-btn:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.15);
-        }
-
-        .kry-avatar-btn .fa-chevron-down {
-            font-size: 0.6rem;
-            transition: transform 0.2s ease;
-        }
-
-        .kry-dropdown-wrap.open .kry-avatar-btn .fa-chevron-down {
-            transform: rotate(180deg);
+        .kry-profile-mail i {
+            margin-right: 0.3rem;
+            font-size: 0.68rem;
+            color: var(--kry-teal, #008fa8);
         }
 
         /* ============================================
@@ -445,20 +480,65 @@
             background: #FFE600;
         }
 
-        html.theme-dark .kry-user-chip {
+        html.theme-dark .kry-user-btn {
             background: rgba(255,255,255,0.08);
         }
 
-        html.theme-dark .kry-user-chip:hover {
-            background: rgba(255,255,255,0.14);
+        html.theme-dark .kry-user-btn:hover {
+            background: rgba(255,255,255,0.16);
         }
 
-        html.theme-dark .kry-user-name {
-            color: #f0f4f8;
+        html.theme-dark .kry-dropdown-divider {
+            background: var(--line);
         }
 
-        html.theme-dark .kry-user-role {
-            color: rgba(240,244,248,0.55);
+        html.theme-dark .kry-dropdown-item.as-danger:hover {
+            background: rgba(239, 68, 68, 0.16);
+        }
+
+        /* ============================================
+           RESPONSIF TOPBAR — desktop → tablet → HP
+           Semua elemen memakai Flexbox dengan min-width: 0
+           agar tidak ada yang meluber keluar viewport.
+           ============================================ */
+        @media (max-width: 1099.98px) {
+            .kry-topbar-inner {
+                flex-wrap: wrap;
+                padding: 0.5rem 1.25rem;
+                gap: 0.5rem 1rem;
+            }
+            .kry-brand { order: 1; }
+            .kry-topbar-user { order: 2; margin-left: auto; }
+            .kry-nav {
+                order: 3;
+                flex: 1 1 100%;
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                overflow: visible;
+                row-gap: 0.15rem;
+            }
+            .kry-nav-link,
+            .kry-nav-btn { padding: 0.4rem 0.5rem; font-size: 0.83rem; }
+        }
+
+        @media (max-width: 767.98px) {
+            .kry-topbar-inner { padding: 0.55rem 1rem; gap: 0.45rem 0.75rem; }
+            .kry-brand img { height: 30px; }
+            .kry-brand-text small { display: none; }
+            .kry-brand-text strong { font-size: 0.95rem; }
+            .kry-nav { gap: 0.1rem; }
+            .kry-nav-link,
+            .kry-nav-btn { padding: 0.35rem 0.5rem; font-size: 0.8rem; }
+            .kry-profile-menu { max-width: calc(100vw - 1.25rem); }
+        }
+
+        @media (max-width: 575.98px) {
+            .kry-brand-text { display: none; }
+            .kry-user-btn { width: 34px; height: 34px; }
+            .kry-user-btn .kry-avatar { width: 28px; height: 28px; min-width: 28px; font-size: 0.75rem; }
+            .kry-nav-link i,
+            .kry-nav-btn i:first-child { display: none; }
         }
     </style>
     @endpush
@@ -582,28 +662,44 @@
                     <i class="fas fa-moon" data-theme-icon></i>
                 </button>
 
-                <a href="{{ route('karyawan.profil') }}" class="kry-user-chip"
-                   title="Edit Profil Saya">
-                    <span class="kry-avatar">{{ $karyawanUser['initials'] }}</span>
-                    <span class="kry-user-meta">
-                        <span class="kry-user-name">{{ $karyawanUser['name'] }}</span>
-                        <span class="kry-user-role">{{ $karyawanUser['jabatan'] }}</span>
-                    </span>
-                </a>
-
-                <div class="kry-dropdown-wrap">
-                    <button type="button" class="kry-avatar-btn" id="kryUserMenuBtn"
-                            aria-haspopup="true" aria-expanded="false" aria-label="Menu akun">
-                        <i class="fas fa-chevron-down"></i>
+                <div class="kry-dropdown-wrap kry-user-wrap">
+                    <button type="button" class="kry-user-btn" id="kryUserMenuBtn"
+                            aria-haspopup="true" aria-expanded="false"
+                            aria-controls="kryUserDropdown"
+                            aria-label="Menu akun {{ $karyawanUser['name'] }}"
+                            title="{{ $karyawanUser['name'] }} — {{ $karyawanUser['jabatan'] }}">
+                        <span class="kry-avatar" aria-hidden="true">{{ $karyawanUser['initials'] }}</span>
                     </button>
-                    <div class="kry-dropdown" id="kryUserDropdown" role="menu">
+
+                    <div class="kry-dropdown kry-profile-menu" id="kryUserDropdown"
+                         role="menu" aria-labelledby="kryUserMenuBtn">
+                        {{-- Identitas lengkap — tetap terbaca walau nama di
+                             topbar ter-truncate. --}}
+                        <div class="kry-profile-head">
+                            <span class="kry-avatar" aria-hidden="true">{{ $karyawanUser['initials'] }}</span>
+                            <span class="kry-profile-ident">
+                                <span class="kry-profile-name">{{ $karyawanUser['name'] }}</span>
+                                <span class="kry-profile-job">{{ $karyawanUser['jabatan'] }}</span>
+                                <span class="kry-profile-mail">
+                                    <i class="fas fa-envelope" aria-hidden="true"></i>{{ $karyawanUser['email'] }}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="kry-dropdown-divider"></div>
                         <a href="{{ route('karyawan.profil') }}" class="kry-dropdown-item" role="menuitem">
-                            <i class="fas fa-user-pen"></i> Edit Profil Saya
+                            <i class="fas fa-user" aria-hidden="true"></i> Profil Saya
                         </a>
-                        <form method="POST" action="{{ route('logout') }}" role="menuitem">
+                        {{-- data-no-router: biar browser memuat halaman lalu
+                             menggulir ke bagian ubah kata sandi (#keamanan). --}}
+                        <a href="{{ route('karyawan.profil') }}#keamanan" class="kry-dropdown-item"
+                           role="menuitem" data-no-router>
+                            <i class="fas fa-gear" aria-hidden="true"></i> Pengaturan Akun
+                        </a>
+                        <div class="kry-dropdown-divider"></div>
+                        <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="kry-dropdown-item as-danger">
-                                <i class="fas fa-right-from-bracket"></i> Logout
+                            <button type="submit" class="kry-dropdown-item as-danger" role="menuitem">
+                                <i class="fas fa-right-from-bracket" aria-hidden="true"></i> Logout
                             </button>
                         </form>
                     </div>
@@ -672,6 +768,13 @@
                     userDD.classList.toggle('open', willOpen);
                     userBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
                     if (willOpen) closeAdminDD();
+                });
+            }
+
+            // Memilih item menu → tutup dropdown (navigasi tetap berjalan).
+            if (userDD) {
+                userDD.querySelectorAll('a, button').forEach(function (el) {
+                    el.addEventListener('click', closeUserDD);
                 });
             }
 
