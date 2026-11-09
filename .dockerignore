@@ -6,7 +6,18 @@ public/build/
 # container, menunjuk ke path absolut Linux) — tidak boleh masuk build
 # context: Docker di Windows gagal dengan "invalid file request".
 public/storage
+# Data runtime tidak ikut ke image: unggahan (KTP/galeri), log, cache, sesi.
+# Di produksi isinya ada di volume app_storage; entrypoint membuat direktorinya.
+storage/app
+storage/logs
+storage/pail
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+storage/framework/testing
+bootstrap/cache/*.php
 .env
 .env.backup
+.env.production
 .phpunit.result.cache
 auth.json

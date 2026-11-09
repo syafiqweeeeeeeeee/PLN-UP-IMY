@@ -135,7 +135,41 @@ jalankan:
 php artisan optimize:clear
 ```
 
----
+---Saya sudah membaca  AGENTS_deploy.md  dan menerapkannya ke repo ini. Tidak ada deploy/infra yang saya jalankan — hanya perubahan source yang membuat aplikasi memenuhi kontrak deploy.
+
+Stack terdeteksi
+
+Laravel 12 (PHP  ^8.2 ), Blade + Bootstrap, MySQL 8.0, sesi/cache/queue berbasis database, upload di filesystem lokal. Web server: FrankenPHP.
+
+Yang saya ubah/tambah
+
+-  Dockerfile  — multi-stage:  development  (dipakai compose lokal),  vendor  (composer  --no-dev ),  production . Versi di-pin ( 1-php8.2 , bukan  latest ), opcache +  expose_php=Off  via  docker/php-prod.ini , jalan sebagai  www-data  (non-root),  EXPOSE 8000 ,  HEALTHCHECK /up , log ke stderr, default  DB_CONNECTION=mysql .
+-  docker/entrypoint.sh  —  storage:link , migrasi opt-in ( RUN_MIGRATIONS=true ) dengan retry,  php artisan optimize  (config/route/view cache), lalu  exec frankenphp php-server --listen 0.0.0.0:8000 . Tanpa input interaktif.
+-  docker-compose.prod.yml  — tanpa bind mount dan tanpa port publik (hanya  expose: 8000 ), MySQL privat tanpa  ports , volume  app_storage  →  /app/storage/app  dan  db_data , env wajib divalidasi ( APP_KEY ,  DB_* ), healthcheck DB.
+-  docker-compose.yml  — ditandai dev-only +  target: development  agar port DB/phpMyAdmin lokal tidak disalahartikan sebagai konfigurasi produksi.
+-  .dockerignore  — data runtime ( storage/app , log, cache, sesi) dan  .env.production  tidak ikut ke image.
+-  .env.example  — template lokal diperjelas; nama variabel entrypoint ditambahkan (tanpa nilai rahasia).
+-  docs/deployment-coolify.md  — kontrak deploy lengkap (port, env, migrasi, storage, health, catatan Coolify, checklist verifikasi, rollback) + 4 Change Plan untuk hal yang butuh persetujuan manusia.
+-  README.md  — bagian menjalankan container produksi.
+
+Verifikasi yang benar-benar dijalankan
+
+-  docker build --target production  → sukses (exit 0).
+-  docker compose -f docker-compose.prod.yml config  → valid; tidak ada port yang di-publish.
+- Uji end-to-end dengan MySQL baru: migrasi berjalan sampai migrasi terakhir ( 2026_11_05... ), container  healthy ,  /  → 200,  /admin/login  → 200,  /up  → 200.
+-  id  di container →  uid=33(www-data) , PHP 8.2.35.
+- File uji di  storage/app/public  masih ada setelah  restart app  (volume persisten).
+- Semua container/volume/image uji sudah dibersihkan; cache lokal  php artisan optimize:clear  sudah dijalankan. Docker Desktop saya nyalakan untuk verifikasi dan masih berjalan.
+
+Belum dilakukan / batasan
+
+- Tidak ada deploy ke Coolify/Proxmox, tidak ada perubahan DNS/firewall/secret/backup, dan belum ada UAT — itu HUMAN ACTION REQUIRED (detail di dokumen).
+- Perubahan masih uncommitted di branch  main . Sesuai aturan, sebelum commit/push pindahkan dulu ke  feature/*  (repo ini belum punya  develop ), dan jangan merge/deploy tanpa instruksi eksplisit.
+- Port 8000/health dicek dari dalam container; akses HTTPS via Traefik belum bisa diuji karena di luar repo.
+
+Ringkasan kontrak deploy
+
+Port internal 8000, health  /up , volume persisten  /app/storage/app , migrasi opt-in lewat  RUN_MIGRATIONS , env wajib:  APP_KEY ,  APP_URL ,  DB_CONNECTION/HOST/PORT/DATABASE/USERNAME/PASSWORD ,  LOG_CHANNEL=stderr ,  SESSION_SECURE_COOKIE ,  RUN_MIGRATIONS ; opsional  MAIL_* ,  ADMIN_EMAIL/PASSWORD  hanya saat seed awal.
 
 ## 3. Struktur Folder & Alur Request
 

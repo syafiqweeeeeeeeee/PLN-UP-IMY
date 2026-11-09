@@ -1,8 +1,12 @@
+# Compose DEVELOPMENT saja — jangan dipakai di produksi.
+# Produksi memakai docker-compose.prod.yml (tanpa bind mount, tanpa port
+# publik, non-root, volume persisten).
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      target: development
     ports:
       - "8000:8000"
     volumes:
@@ -23,6 +27,7 @@ services:
   db:
     image: mysql:8.0
     ports:
+      # Hanya untuk dev lokal. Di produksi MySQL tidak boleh di-publish.
       # 3307 di host karena 3306 dipakai MySQL Laragon; koneksi antar-container tetap 3306
       - "3307:3306"
     environment:

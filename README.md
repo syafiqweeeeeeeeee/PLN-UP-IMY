@@ -99,9 +99,11 @@ Koneksi database dari aplikasi pengelola (HeidiSQL/DBeaver): host
 `127.0.0.1`, port **3306** (MySQL Laragon), user `root`, password kosong,
 database `pln_up_imy` (testing: `pln_up_imy_testing`).
 
-### Alternatif: Docker (cadangan)
+### Alternatif: Docker (development)
 
-Repo tetap menyimpan `Dockerfile` + `docker-compose.yml` sebagai cadangan:
+`docker-compose.yml` adalah lingkungan **development** (bind mount kode, port
+DB & phpMyAdmin terbuka, bukan untuk produksi). `Dockerfile` memakai target
+`development` di sini, sehingga PHPUnit/Faker tetap tersedia:
 
 ```bash
 docker compose up -d --build
@@ -116,6 +118,29 @@ docker compose exec app php artisan storage:link
 > `.env` yang menunjuk Laragon tidak perlu diubah saat memakai Docker.
 > Untuk test di container:
 > `docker compose exec -e DB_DATABASE=pln_up_imy_testing app php artisan test`.
+
+### Container Produksi (Coolify / on-premises)
+
+Produksi memakai target image `production` (non-root, tanpa dev dependency,
+opcache, healthcheck `/up`, log ke stderr) dan `docker-compose.prod.yml`
+(tanpa port publik, MySQL privat, volume persisten).
+
+```bash
+# isi APP_KEY, APP_URL, DB_*, DB_ROOT_PASSWORD, RUN_MIGRATIONS di .env
+# (jangan commit .env), lalu:
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d
+# port tidak di-publish ke host, jadi health check dijalankan dari dalam container
+docker compose -f docker-compose.prod.yml exec app curl -fsS http://127.0.0.1:8000/up
+```
+
+Port internal **8000**, health path **`/up`**, dan volume persisten
+`/app/storage/app`. Prosedur lengkap, daftar environment variable, checklist
+verifikasi, rollback, dan langkah yang butuh persetujuan manusia ada di
+[`docs/deployment-coolify.md`](docs/deployment-coolify.md).
+
+> Jangan deploy dari working tree yang kotor atau langsung ke `main`;
+ikuti alur `feature/*` → `develop` → `main` di dokumen tersebut.
 
 ### Akun Default
 
