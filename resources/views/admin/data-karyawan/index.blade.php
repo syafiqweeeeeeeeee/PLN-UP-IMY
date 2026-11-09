@@ -511,8 +511,8 @@
             <button type="button" class="btn-corp btn-corp-soft" onclick="document.getElementById('importModal').classList.add('show')">
                 <i class="fas fa-file-import me-1"></i> Impor Data
             </button>
-            <a href="{{ route('admin.karyawan_data.template') }}" class="btn-corp btn-corp-soft" title="Unduh template CSV 24 kolom">
-                <i class="fas fa-file-csv me-1"></i> Template
+            <a href="{{ route('admin.karyawan_data.template') }}" class="btn-corp btn-corp-soft" title="Unduh template Excel (.xlsx) 24 kolom">
+                <i class="fas fa-file-excel me-1"></i> Template
             </a>
             @endcan
             <a href="{{ route('admin.karyawan_data.export', request()->only(['q', 'bidang', 'status'])) }}"
@@ -1010,7 +1010,7 @@
         </div>
         <div class="dk-modal-body">
             <p style="color:#6b7280; font-size:0.8rem; margin:0 0 0.8rem;">
-                Unggah file <b>CSV/TXT</b> atau <b>Excel (.xlsx)</b> dengan 24 kolom sesuai <a href="{{ route('admin.karyawan_data.template') }}">template</a>.
+                Unggah file <b>Excel (.xlsx)</b> atau <b>CSV/TXT</b> dengan 24 kolom sesuai <a href="{{ route('admin.karyawan_data.template') }}">template Excel</a> — unduh, isi, lalu unggah kembali.
                 File .xlsx dibaca langsung (tanpa konversi manual) — sel tanggal, angka, dan teks Excel didukung.
                 Baris dengan NID yang sudah ada <b>tidak ditimpa</b> — dilewati agar data lama aman.
                 Seluruh baris tervalidasi dulu, baru disimpan dalam satu transaksi (tidak ada data setengah tersimpan).

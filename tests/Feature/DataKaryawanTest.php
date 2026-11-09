@@ -10,6 +10,8 @@ use App\Models\Karyawan;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\XlsxReader;
+use App\Services\XlsxWriter as AppXlsxWriter;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -684,17 +686,53 @@ class DataKaryawanTest extends TestCase
        4. IMPOR CSV — TEMPLATE, 300 BARIS, DUPLIKAT, TRANSAKSI
        ========================================================= */
 
-    public function test_template_download_lists_24_columns(): void
+    public function test_template_download_is_xlsx_with_24_columns(): void
     {
         $response = $this->actingAs($this->hrUser())
             ->get(route('admin.karyawan_data.template'));
 
         $response->assertOk();
+        $this->assertSame(
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            $response->headers->get('Content-Type'),
+        );
+        $this->assertStringContainsString(
+            'template-data-karyawan.xlsx',
+            (string) $response->headers->get('Content-Disposition'),
+        );
+
         $content = $response->streamedContent();
 
-        foreach (array_values(Karyawan::COLUMNS_LABELS) as $label) {
-            $this->assertStringContainsString($label, $content, "Template harus memuat kolom {$label}.");
-        }
+        // Berkas harus benar-benar arsip XLSX (ZIP), bukan CSV yang
+        // disamarkan dengan ekstensi .xlsx.
+        $this->assertStringStartsWith("PK\x03\x04", $content);
+
+        // Header dibaca oleh parser impor sendiri — urutan & nama kolom
+        // template tidak mungkin berbeda dengan yang dikenali impor.
+        $path = tempnam(sys_get_temp_dir(), 'dk-template-');
+        file_put_contents($path, $content);
+
+        $sheet = (new XlsxReader)->read($path);
+
+        unlink($path);
+
+        $this->assertNull($sheet['error']);
+        $this->assertSame(
+            array_values(Karyawan::COLUMNS_LABELS),
+            $sheet['rows'][0]['cells'],
+            'Header template harus tepat 24 kolom sesuai spesifikasi.',
+        );
+
+        // Unggah balik template tanpa diisi: header dikenali (bukan
+        // ditolak sebagai format salah), hanya belum ada baris data.
+        $file = UploadedFile::fake()->createWithContent('template.xlsx', $content);
+
+        $this->actingAs($this->hrUser())
+            ->post(route('admin.karyawan_data.import'), ['file' => $file, 'mode' => 'skip'])
+            ->assertRedirect(route('admin.karyawan_data.index'))
+            ->assertSessionHas('warning', fn ($message) => str_contains($message, 'hanya berisi baris header'));
+
+        $this->assertSame(0, Karyawan::query()->count());
     }
 
     public function test_import_300_rows_succeeds(): void
@@ -875,18 +913,21 @@ class DataKaryawanTest extends TestCase
         $this->assertSame('00422', Karyawan::first()->nid);
     }
 
-    public function test_import_template_roundtrip_with_bom_is_accepted(): void
+    public function test_import_xlsx_written_by_app_writer_keeps_values(): void
     {
-        // Alur nyata: unduh template resmi (BOM + koma), isi satu baris,
-        // impor ulang — tidak boleh ditolak.
-        $template = $this->actingAs($this->hrUser())
-            ->get(route('admin.karyawan_data.template'))
-            ->streamedContent();
+        // Penulis template produksi (App\Services\XlsxWriter) → parser
+        // impor (XlsxReader): baris terisi harus terbaca utuh, termasuk
+        // NID dengan nol di depan dan angka FTE.
+        $rows = [
+            array_values(Karyawan::COLUMNS_LABELS),
+            explode(',', $this->csvRowComma([0 => '00999'])),
+        ];
 
-        $file = UploadedFile::fake()->createWithContent(
-            'template-diisi.csv',
-            $template.$this->csvRowComma([0 => '00999'])."\n"
-        );
+        $rows[1][17] = 1.5; // FTE sebagai sel angka, bukan teks
+
+        $content = AppXlsxWriter::build($rows, ['sheet' => 'Data Karyawan', 'header_row' => true]);
+
+        $file = UploadedFile::fake()->createWithContent('template-diisi.xlsx', $content);
 
         $this->actingAs($this->hrUser())
             ->post(route('admin.karyawan_data.import'), ['file' => $file, 'mode' => 'skip'])
@@ -894,6 +935,7 @@ class DataKaryawanTest extends TestCase
 
         $this->assertSame(1, Karyawan::query()->count());
         $this->assertSame('00999', Karyawan::first()->nid);
+        $this->assertSame('1.5', (string) Karyawan::first()->fte);
     }
 
     public function test_import_rejects_csv_with_wrong_column_count_before_validation(): void

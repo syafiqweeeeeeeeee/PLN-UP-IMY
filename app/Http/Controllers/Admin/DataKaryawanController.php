@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\ActivityLogger;
 use App\Services\MasterOrgMatcher;
 use App\Services\XlsxReader;
+use App\Services\XlsxWriter;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -41,6 +42,8 @@ use Throwable;
  * `App\Services\XlsxReader` (parsing ZIP+XML native, tanpa ext-zip).
  * Header 24 kolom dipetakan lewat `mapHeaderRow()` yang DIPAKAI
  * BERSAMA kedua jalur. Ekspor tetap CSV (Excel membukanya langsung).
+ * TEMPLATE diunduh sebagai Excel (.xlsx) lewat `XlsxWriter` native —
+ * siap diisi lalu diunggah kembali tanpa konversi manual.
  * Seluruh kolom mengikuti 24 kolom spesifikasi di
  * Karyawan::COLUMNS_LABELS.
  *
@@ -966,23 +969,35 @@ class DataKaryawanController extends Controller
     }
 
     /* =========================================================
-       TEMPLATE — unduh kerangka CSV 24 kolom
+       TEMPLATE — unduh kerangka Excel (.xlsx) 24 kolom
+       ------------------------------------------------------------
+       Berkas dibuat dengan `XlsxWriter` native (tanpa ext-zip, tanpa
+       paket eksternal) sehingga pengguna tidak perlu membuka/mengubah
+       file CSV: unduh → isi → unggah kembali lewat Impor Data. Header
+       ditebalkan, baris pertama dibekukan, dan diberi filter agar
+       kolom mudah ditelusuri; urutan & nama kolom persis sama dengan
+       yang dikenali mapHeaderRow() saat impor.
        ========================================================= */
 
     public function template(): StreamedResponse
     {
         Gate::authorize('karyawan_data.create');
 
-        return response()->streamDownload(function () {
-            $out = fopen('php://output', 'w');
+        $content = XlsxWriter::build(
+            [array_values(Karyawan::COLUMNS_LABELS)],
+            [
+                'sheet' => 'Data Karyawan',
+                'header_row' => true,
+                'freeze_header' => true,
+                'auto_filter' => true,
+                'column_width' => 18,
+            ],
+        );
 
-            // BOM UTF-8 agar Excel membaca karakter dengan benar.
-            fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, array_values(Karyawan::COLUMNS_LABELS));
-
-            fclose($out);
-        }, 'template-data-karyawan.csv', [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+        return response()->streamDownload(function () use ($content): void {
+            echo $content;
+        }, 'template-data-karyawan.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
     }
 
