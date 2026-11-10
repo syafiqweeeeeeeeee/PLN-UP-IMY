@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Kelola Berita — E-PPID PLN')
+@section('title', 'Kelola Berita — Portal PLTU Indramayu')
 @section('page-title', 'Kelola Berita')
 
 @push('styles')
@@ -544,7 +544,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-newspaper" style="color: var(--pln-blue); margin-right: 0.5rem;"></i>Daftar Berita</h5>
-            <p>Kelola berita yang akan ditampilkan di situs informasi</p>
+            <p>Kelola berita untuk situs informasi.</p>
         </div>
         @can('news.create')
         <a href="{{ route('admin.news.create') }}" class="btn-corp btn-corp-add">

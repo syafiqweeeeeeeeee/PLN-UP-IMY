@@ -3,7 +3,7 @@
 > ⚠️ **DOKUMEN HISTORIS (perencanaan awal).** Implementasi aktual memakai tiga
 > role dasar — **Super Admin, Admin Bidang, Karyawan** — dengan RBAC per-aksi +
 > Direct Permission. Modul Halaman CMS, Menu Builder, dan Permohonan/Pesan sudah
-> dihapus. Untuk kondisi terkini lihat `SRD_E-PPID_PLN.md` dan `DEVELOPER_GUIDE.md`.
+> dihapus. Untuk kondisi terkini lihat `SRD_Portal_PLTU_Indramayu.md` dan `DEVELOPER_GUIDE.md`.
 >
 > Acuan untuk menentukan role mana yang perlu dibuat di sistem (Role Management).
 > Dibuat: 2026-09-16 · Revisi 2: 2026-09-17.

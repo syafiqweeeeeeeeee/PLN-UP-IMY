@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Kelola Pengumuman — E-PPID PLN')
+@section('title', 'Kelola Pengumuman — Portal PLTU Indramayu')
 @section('page-title', 'Kelola Pengumuman')
 
 @push('styles')
@@ -139,7 +139,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-bullhorn header-icon"></i>Daftar Pengumuman</h5>
-            <p>Kelola pengumuman resmi yang ditampilkan di halaman publik</p>
+            <p>Kelola pengumuman resmi untuk publik.</p>
         </div>
         @can('announcements.create')
         <a href="{{ route('admin.announcements.create') }}" class="btn-corp btn-corp-add">

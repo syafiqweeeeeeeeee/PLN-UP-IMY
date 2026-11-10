@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Tambah Role — E-PPID PLN')
+@section('title', 'Tambah Role — Portal PLTU Indramayu')
 @section('page-title', 'Tambah Role')
 
 @push('styles')
@@ -137,7 +137,7 @@
         </a>
         <div>
             <h4 class="form-page-title">Tambah Role Baru</h4>
-            <p class="form-page-subtitle">Buat role baru dan tetapkan hak akses menu</p>
+            <p class="form-page-subtitle">Buat role dan atur hak aksesnya</p>
         </div>
     </div>
 </div>

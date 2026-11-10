@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Foto Galeri — E-PPID PLN')
+@section('title', 'Edit Foto Galeri — Portal PLTU Indramayu')
 @section('page-title', 'Edit Foto Galeri')
 
 @section('content')

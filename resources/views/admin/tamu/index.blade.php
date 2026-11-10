@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Manajemen Data Tamu — E-PPID PLN')
+@section('title', 'Manajemen Data Tamu — Portal PLTU Indramayu')
 @section('page-title', 'Manajemen Data Tamu')
 
 @push('styles')
@@ -851,7 +851,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-id-card" style="color: var(--pln-blue); margin-right: 0.5rem;"></i>Manajemen Data Tamu</h5>
-            <p>Daftar riwayat dan verifikasi pendaftaran kunjungan tamu PLN Nusantara Power.</p>
+            <p>Riwayat dan verifikasi kunjungan tamu.</p>
         </div>
         <div class="header-actions">
             <a href="{{ route('admin.tamu.jadwal') }}" class="btn-corp btn-corp-primary"

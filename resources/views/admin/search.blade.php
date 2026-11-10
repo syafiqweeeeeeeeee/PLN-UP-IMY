@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Hasil Pencarian — E-PPID PLN')
+@section('title', 'Hasil Pencarian — Portal PLTU Indramayu')
 @section('page-title', 'Hasil Pencarian')
 
 @section('content')

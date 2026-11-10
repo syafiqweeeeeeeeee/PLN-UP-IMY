@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Detail Pengumuman — E-PPID PLN')
+@section('title', 'Detail Pengumuman — Portal PLTU Indramayu')
 @section('page-title', 'Detail Pengumuman')
 
 @push('styles')
@@ -88,7 +88,7 @@
         </a>
         <div>
             <h4 class="form-page-title">Detail Pengumuman</h4>
-            <p class="form-page-subtitle">Pratinjau pengumuman sesuai data yang tersimpan</p>
+            <p class="form-page-subtitle">Pratinjau pengumuman</p>
         </div>
     </div>
     <div class="form-topbar-actions">

@@ -25,7 +25,7 @@ services:
     expose:
       - "8000"
     environment:
-      APP_NAME: ${APP_NAME:-E-PPID PLN}
+      APP_NAME: ${APP_NAME:-Portal PLTU Indramayu}
       APP_ENV: production
       APP_DEBUG: "false"
       APP_KEY: ${APP_KEY:?APP_KEY wajib diisi — hasil `php artisan key:generate --show`}
@@ -58,7 +58,7 @@ services:
       MAIL_USERNAME: ${MAIL_USERNAME:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@example.com}
-      MAIL_FROM_NAME: ${APP_NAME:-E-PPID PLN}
+      MAIL_FROM_NAME: ${APP_NAME:-Portal PLTU Indramayu}
 
       # Migrasi dijalankan entrypoint hanya bila true; review dulu migrasinya.
       RUN_MIGRATIONS: ${RUN_MIGRATIONS:-false}

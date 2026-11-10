@@ -1,5 +1,5 @@
 # SOFTWARE REQUIREMENT DOCUMENTATION (SRD)
-## E-PPID PLN — Sistem Informasi Internal UP PLTU Indramayu
+## Portal PLTU Indramayu — Sistem Informasi Internal UP PLTU Indramayu
 
 ---
 
@@ -10,7 +10,7 @@
 
 > **Catatan Revisi 2.0:** Pada versi sebelumnya (1.1) sistem diposisikan sebagai
 > *portal informasi publik PPID* yang melayani masyarakat umum. Berdasarkan
-> perkembangan kebutuhan, **E-PPID PLN kini adalah sistem informasi INTERNAL**
+> perkembangan kebutuhan, **Portal PLTU Indramayu kini adalah sistem informasi INTERNAL**
 > untuk karyawan dan pengelola UP PLTU Indramayu — bukan web informasi publik.
 > Seluruh requirement, arsitektur, dan manual pada dokumen ini telah disesuaikan
 > dengan implementasi aktual yang sudah dibangun.
@@ -41,7 +41,7 @@ memudahkan karyawan mengakses informasi perusahaan, layanan internal, dan alat
 kerja digital sehari-hari — sekaligus menyediakan sarana pengelolaan konten dan
 operasional front office bagi pengelola.
 
-E-PPID PLN dikembangkan untuk menjawab kebutuhan tersebut: sebuah aplikasi web
+Portal PLTU Indramayu dikembangkan untuk menjawab kebutuhan tersebut: sebuah aplikasi web
 internal yang menggabungkan **manajemen konten (CMS)**, **portal karyawan**,
 **buku registrasi tamu**, dan **tata kelola akses berbasis role (RBAC)** dalam
 satu sistem.
@@ -49,14 +49,14 @@ satu sistem.
 ### 1.2 Tujuan Dokumen
 
 Dokumen ini bertujuan untuk:
-- Memaparkan requirement dan spesifikasi sistem E-PPID PLN sesuai implementasi aktual
+- Memaparkan requirement dan spesifikasi sistem Portal PLTU Indramayu sesuai implementasi aktual
 - Menjadi acuan dalam pengembangan, pemeliharaan, dan evolusi sistem
 - Menjadi referensi untuk testing dan validasi sistem
 - Menjamin kesesuaian sistem dengan kebutuhan pemangku kepentingan internal
 
 ### 1.3 Ruang Lingkup
 
-Sistem E-PPID PLN mencakup:
+Sistem Portal PLTU Indramayu mencakup:
 - **Landing page internal** profil UP (Beranda, Tentang Kami, Informasi, FAQ)
 - **Portal Karyawan** (area internal ter-autentikasi): informasi, layanan internal, link kerja, profil
 - **Panel Admin (CMS)**: berita, pengumuman, galeri, halaman dinamis, menu builder
@@ -84,7 +84,7 @@ Sebelum adanya sistem:
 
 ### 2.2 Solusi Sistem
 
-E-PPID PLN menyediakan solusi berbasis web:
+Portal PLTU Indramayu menyediakan solusi berbasis web:
 - **Satu pintu informasi internal** — konten dikelola lewat CMS, target publikasi per konten dapat diarahkan ke publik/portal/keduanya
 - **Portal Karyawan** ter-autentikasi — informasi, layanan internal, dan link kerja yang ter-scope sesuai bidang pengguna
 - **Buku tamu digital** — registrasi mandiri oleh tamu (termasuk upload KTP & surat permohonan), proses check-in/check-out oleh front office, notifikasi ke pengelola
@@ -122,7 +122,7 @@ E-PPID PLN menyediakan solusi berbasis web:
                     | HTTPS (tanpa akun)                | HTTPS (login)
                     v                                   v
         +----------------------------------------------------------+
-        |                E-PPID PLN (Web Application)               |
+        |                Portal PLTU Indramayu (Web Application)               |
         |  Landing Page | Portal Karyawan | Panel Admin | Buku Tamu |
         |  Frontend: Blade + Bootstrap 5                              |
         |  Backend : Laravel 12 (PHP 8.2+)                            |
@@ -652,7 +652,7 @@ php artisan serve       # http://127.0.0.1:8000
 File `.env` utama (nilai bawaan `.env.example` disetel untuk Docker):
 
 ```env
-APP_NAME="E-PPID PLN"
+APP_NAME="Portal PLTU Indramayu"
 APP_ENV=local
 APP_KEY=base64:...
 APP_DEBUG=true
@@ -800,7 +800,7 @@ docker compose exec -e DB_HOST=db -e DB_PASSWORD=root app php artisan test
 
 ## 9. KESIMPULAN
 
-E-PPID PLN merupakan **sistem informasi internal** berbasis web untuk UP PLTU
+Portal PLTU Indramayu merupakan **sistem informasi internal** berbasis web untuk UP PLTU
 Indramayu yang menyatukan manajemen konten, portal karyawan, buku tamu digital,
 dan tata kelola akses dalam satu aplikasi. Sistem ini telah menerapkan:
 
@@ -823,4 +823,4 @@ Sistem siap digunakan dan dapat dikembangkan lebih lanjut sesuai kebutuhan.
 
 ---
 
-*Dokumen ini merupakan milik PT PLN (Persero) dan digunakan untuk keperluan pengembangan sistem E-PPID.*
+*Dokumen ini merupakan milik PT PLN (Persero) dan digunakan untuk keperluan pengembangan sistem Portal PLTU Indramayu.*

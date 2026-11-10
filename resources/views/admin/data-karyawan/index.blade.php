@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Data Karyawan — E-PPID PLN')
+@section('title', 'Data Karyawan — Portal PLTU Indramayu')
 @section('page-title', 'Data Karyawan')
 
 @push('styles')
@@ -501,7 +501,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-users-gear" style="color: var(--pln-blue); margin-right: 0.5rem;"></i>Data Karyawan</h5>
-            <p>Master data karyawan UP Indramayu — {{ $totalAll }} karyawan {{ $status === 'nonaktif' ? 'nonaktif' : 'aktif' }}.</p>
+            <p>{{ $totalAll }} karyawan {{ $status === 'nonaktif' ? 'nonaktif' : 'aktif' }}.</p>
         </div>
         <div class="header-actions">
             @can('karyawan_data.create')

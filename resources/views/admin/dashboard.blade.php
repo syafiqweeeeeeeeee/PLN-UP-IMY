@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard Admin — E-PPID PLN')
+@section('title', 'Dashboard Admin — Portal PLTU Indramayu')
 @section('page-title', 'Dashboard')
 
 @section('content')
@@ -26,9 +26,9 @@
                         </h4>
                         <p style="opacity: 0.8; font-size: 0.88rem; margin: 0;">
                             @if($stats['is_department_admin'])
-                                Ringkasan kondisi sistem E-PPID PLN untuk {{ $stats['sub_department_name'] ?? $stats['department_name'] }} hari ini.
+                                Ringkasan kondisi sistem Portal PLTU Indramayu untuk {{ $stats['sub_department_name'] ?? $stats['department_name'] }} hari ini.
                             @else
-                                Berikut ringkasan kondisi sistem E-PPID PLN hari ini.
+                                Berikut ringkasan kondisi sistem Portal PLTU Indramayu hari ini.
                             @endif
                         </p>
                     </div>

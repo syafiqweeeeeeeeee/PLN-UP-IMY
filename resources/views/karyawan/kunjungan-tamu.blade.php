@@ -323,7 +323,7 @@
         <div class="header-row">
             <div class="header-left">
                 <h5><i class="fas fa-door-open"></i> Kunjungan Tamu</h5>
-                <p>Daftar pendaftaran tamu dari form registrasi publik yang menunjuk Anda sebagai orang yang ditemui. Anda dapat menyetujui atau membatalkan kunjungan — cukup sekali, sebelum diproses Admin.</p>
+                <p>Tamu yang menemui Anda — setujui atau batalkan sebelum diproses Admin.</p>
             </div>
             <span class="kt-scope-chip" title="Hanya tamu yang menyebut nama akun Anda">
                 <i class="fas fa-user-shield"></i> Khusus: {{ $user->name }}

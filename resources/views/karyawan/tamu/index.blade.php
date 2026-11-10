@@ -805,7 +805,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-id-card" style="color: var(--kry-teal); margin-right: 0.5rem;"></i>Data Tamu</h5>
-            <p>Daftar riwayat dan verifikasi pendaftaran kunjungan tamu PLN Nusantara Power.</p>
+            <p>Riwayat dan verifikasi kunjungan tamu.</p>
         </div>
         <div class="header-actions">
             @can('tamu.create')

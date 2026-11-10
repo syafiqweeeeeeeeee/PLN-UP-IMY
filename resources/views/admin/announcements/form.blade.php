@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', ($announcement ? 'Edit Pengumuman' : 'Tambah Pengumuman') . ' — E-PPID PLN')
+@section('title', ($announcement ? 'Edit Pengumuman' : 'Tambah Pengumuman') . ' — Portal PLTU Indramayu')
 @section('page-title', ($announcement ? 'Edit Pengumuman' : 'Tambah Pengumuman'))
 
 @push('styles')
@@ -103,7 +103,7 @@
         </a>
         <div>
             <h4 class="form-page-title">{{ $announcement ? 'Edit Pengumuman' : 'Tambah Pengumuman Baru' }}</h4>
-            <p class="form-page-subtitle">{{ $announcement ? 'Perbarui informasi pengumuman yang sudah ada' : 'Buat pengumuman resmi baru untuk publikasi' }}</p>
+            <p class="form-page-subtitle">{{ $announcement ? 'Perbarui pengumuman' : 'Buat pengumuman baru' }}</p>
         </div>
     </div>
 </div>

@@ -382,7 +382,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-images" style="color: var(--pln-blue); margin-right: 0.4rem;"></i>Kelola Galeri</h5>
-            <p>Foto galeri yang dapat Anda kelola berdasarkan hak akses</p>
+            <p>Foto galeri yang dapat Anda kelola.</p>
         </div>
         @can('galleries.create')
         <a href="{{ route('karyawan.galeri.create') }}" class="btn btn-primary">

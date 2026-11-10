@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', ($bidang ? 'Edit Bidang' : 'Tambah Bidang') . ' — E-PPID PLN')
+@section('title', ($bidang ? 'Edit Bidang' : 'Tambah Bidang') . ' — Portal PLTU Indramayu')
 @section('page-title', $bidang ? 'Edit Bidang' : 'Tambah Bidang')
 
 @push('styles')
@@ -172,7 +172,7 @@
         <div>
             <h4 class="form-page-title">{{ $bidang ? 'Edit Bidang' : 'Tambah Bidang Baru' }}</h4>
             <p class="form-page-subtitle">
-                {{ $bidang ? 'Perbarui nama atau posisi bidang dalam hierarki' : 'Buat bidang baru — boleh tingkat atas atau sub-bidang' }}
+                {{ $bidang ? 'Perbarui data bidang' : 'Buat bidang baru' }}
             </p>
         </div>
     </div>

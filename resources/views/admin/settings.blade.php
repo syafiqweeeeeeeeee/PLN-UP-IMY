@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Pengaturan — E-PPID PLN')
+@section('title', 'Pengaturan — Portal PLTU Indramayu')
 @section('page-title', 'Pengaturan')
 
 @push('styles')
@@ -403,7 +403,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-gear header-icon"></i>Pengaturan</h5>
-            <p>Sesuaikan tampilan dan preferensi panel admin</p>
+            <p>Atur tampilan dan preferensi panel.</p>
         </div>
     </div>
 </div>
@@ -583,7 +583,7 @@
                 <div class="head-icon violet"><i class="fas fa-circle-info"></i></div>
                 <div>
                     <h6>Tentang Sistem</h6>
-                    <p>Status dan informasi versi E-PPID PLN</p>
+                    <p>Status dan informasi versi Portal PLTU Indramayu</p>
                 </div>
             </div>
             <div class="settings-card-body">
@@ -593,7 +593,7 @@
                     <span class="sys-badge"><i class="fas fa-triangle-exclamation" style="color:#f59e0b;"></i> Storage: Perhatian</span>
                 </div>
                 <div class="sys-version">
-                    <strong>E-PPID PLN — Panel Admin</strong> · Versi 2.4.1<br>
+                    <strong>Portal PLTU Indramayu — Panel Admin</strong> · Versi 2.4.1<br>
                     Dikembangkan untuk UP PLTU Indramayu · © {{ date('Y') }} PT PLN (Persero)
                 </div>
             </div>

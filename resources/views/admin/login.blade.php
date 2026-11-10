@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Login Admin — E-PPID PLN')
+@section('title', 'Login Admin — Portal PLTU Indramayu')
 
 @push('styles')
 <style>
@@ -381,7 +381,7 @@
     <div class="login-card" id="loginCard">
         {{-- Header --}}
         <div class="login-header">
-            <div class="login-overline">E-PPID · PLN Nusantara Power</div>
+            <div class="login-overline">Portal PLTU Indramayu · PLN Nusantara Power</div>
             <h2>Selamat Datang</h2>
             <p>Silakan masuk ke panel yang tersedia</p>
         </div>
@@ -476,7 +476,7 @@
     <div class="login-card" id="resetCard" hidden>
         {{-- Header --}}
         <div class="login-header">
-            <div class="login-overline">E-PPID · PLN Nusantara Power</div>
+            <div class="login-overline">Portal PLTU Indramayu · PLN Nusantara Power</div>
             <h2>Atur Password Baru</h2>
             <p>Isi password baru, kirim kode OTP, lalu periksa email Anda</p>
         </div>

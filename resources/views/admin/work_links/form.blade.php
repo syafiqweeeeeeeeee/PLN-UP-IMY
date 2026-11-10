@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', ($link ? 'Edit Link Kerja' : 'Tambah Link Kerja') . ' — E-PPID PLN')
+@section('title', ($link ? 'Edit Link Kerja' : 'Tambah Link Kerja') . ' — Portal PLTU Indramayu')
 @section('page-title', 'Link Kerja')
 
 @push('styles')
@@ -118,7 +118,7 @@
         </a>
         <div>
             <h4 class="form-page-title">{{ $link ? 'Edit Link Kerja' : 'Tambah Link Kerja' }}</h4>
-            <p class="form-page-subtitle">{{ $link ? 'Perbarui tautan alat kerja yang sudah ada' : 'Buat tautan alat kerja baru untuk Portal Karyawan' }}</p>
+            <p class="form-page-subtitle">{{ $link ? 'Perbarui link kerja' : 'Buat link kerja baru' }}</p>
         </div>
     </div>
 </div>

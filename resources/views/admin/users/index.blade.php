@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Kelola Pengguna — E-PPID PLN')
+@section('title', 'Kelola Pengguna — Portal PLTU Indramayu')
 @section('page-title', 'Kelola Pengguna')
 
 @push('styles')
@@ -333,7 +333,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-users header-icon"></i>Daftar Pengguna</h5>
-            <p>Kelola semua akun pengguna di sistem</p>
+            <p>Kelola akun pengguna.</p>
         </div>
         @can('users.create')
         <a href="{{ route('admin.users.create') }}" class="btn-corp btn-corp-add">

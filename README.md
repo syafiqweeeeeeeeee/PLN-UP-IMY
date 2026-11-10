@@ -1,4 +1,4 @@
-# E-PPID PLN — Sistem Informasi Internal UP PLTU Indramayu
+# Portal PLTU Indramayu — Sistem Informasi Internal UP PLTU Indramayu
 
 Aplikasi web internal untuk PT PLN Nusantara Power UP PLTU Indramayu berbasis
 Laravel. Sistem menyatukan **manajemen konten (CMS)**, **Portal Karyawan**,
@@ -6,7 +6,7 @@ Laravel. Sistem menyatukan **manajemen konten (CMS)**, **Portal Karyawan**,
 aplikasi — bukan web informasi publik untuk masyarakat umum.
 
 > Repositori sistem mengikuti reposisi pada SRD versi 2.0
-> (`SRD_E-PPID_PLN.md`): fokus pada kebutuhan internal — informasi karyawan,
+> (`SRD_Portal_PLTU_Indramayu.md`): fokus pada kebutuhan internal — informasi karyawan,
 > layanan internal, alat kerja, dan operasional front office.
 
 ## Fitur Utama
@@ -55,7 +55,7 @@ Area internal terpisah dari panel admin, hanya untuk akun ber-role **Karyawan**:
 | Super Admin (Sekretariat/Humas) | Panel admin penuh kecuali manajemen user/role |
 | Administrator | Akses penuh termasuk User, Role, dan Log Aktivitas |
 
-Matriks lengkap: `docs/matriks-role.md` · Spesifikasi: `SRD_E-PPID_PLN.md`
+Matriks lengkap: `docs/matriks-role.md` · Spesifikasi: `SRD_Portal_PLTU_Indramayu.md`
 
 ## Teknologi
 
@@ -209,5 +209,5 @@ database/seeders/              # PermissionSeeder, AdminUserSeeder,
 
 ## Dokumentasi Tambahan
 
-- `SRD_E-PPID_PLN.md` — Software Requirement Document (versi 2.0, reposisi internal)
+- `SRD_Portal_PLTU_Indramayu.md` — Software Requirement Document (versi 2.0, reposisi internal)
 - `docs/matriks-role.md` — matriks role × permission & keputusan RBAC

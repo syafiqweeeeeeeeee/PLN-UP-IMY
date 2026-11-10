@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Tambah Foto Galeri — E-PPID PLN')
+@section('title', 'Tambah Foto Galeri — Portal PLTU Indramayu')
 @section('page-title', 'Tambah Foto Galeri')
 
 @section('content')
@@ -12,7 +12,7 @@
         </a>
         <div>
             <h4 class="form-page-title">Tambah Foto Galeri Baru</h4>
-            <p class="form-page-subtitle">Unggah foto baru untuk halaman galeri publik</p>
+            <p class="form-page-subtitle">Unggah foto baru</p>
         </div>
     </div>
 </div>

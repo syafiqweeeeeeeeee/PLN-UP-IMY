@@ -143,9 +143,7 @@
         <div>
             <h4 class="form-page-title">{{ $isEdit ? 'Edit Pengguna' : 'Tambah Pengguna Baru' }}</h4>
             <p class="form-page-subtitle">
-                {{ $isEdit
-                    ? 'Perbarui data akun, unit kerja, dan Hak Akses Fitur (Direct Permission)'
-                    : 'Isi formulir di bawah untuk mendaftarkan pengguna baru' }}
+                {{ $isEdit ? 'Perbarui akun dan hak akses' : 'Daftarkan pengguna baru' }}
             </p>
         </div>
     </div>

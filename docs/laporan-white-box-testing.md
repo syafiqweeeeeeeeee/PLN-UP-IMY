@@ -1,4 +1,4 @@
-# Laporan White-Box Testing — E-PPID PLN / Portal
+# Laporan White-Box Testing — Portal PLTU Indramayu
 
 **Tanggal:** 2 November 2026
 **Kode diuji:** commit `96763dd` ("syafiq 30 oktober — memperbarui seeder hari libur dan menyelaraskanya")

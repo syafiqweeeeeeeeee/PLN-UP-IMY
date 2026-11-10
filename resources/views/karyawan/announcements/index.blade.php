@@ -372,7 +372,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-bullhorn" style="color: var(--pln-blue); margin-right: 0.4rem;"></i>Kelola Pengumuman</h5>
-            <p>Pengumuman yang dapat Anda kelola berdasarkan hak akses</p>
+            <p>Pengumuman yang dapat Anda kelola.</p>
         </div>
         @can('announcements.create')
         <a href="{{ route('karyawan.announcements.create') }}" class="btn btn-primary">

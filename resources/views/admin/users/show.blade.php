@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Detail Pengguna — E-PPID PLN')
+@section('title', 'Detail Pengguna — Portal PLTU Indramayu')
 @section('page-title', 'Detail Pengguna')
 
 @push('styles')

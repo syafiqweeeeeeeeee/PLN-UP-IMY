@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', ($karyawan ? 'Edit' : 'Tambah') . ' Data Karyawan — E-PPID PLN')
+@section('title', ($karyawan ? 'Edit' : 'Tambah') . ' Data Karyawan — Portal PLTU Indramayu')
 @section('page-title', ($karyawan ? 'Edit' : 'Tambah') . ' Data Karyawan')
 
 @push('styles')

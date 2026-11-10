@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Hari Libur — E-PPID PLN')
+@section('title', 'Hari Libur — Portal PLTU Indramayu')
 @section('page-title', 'Hari Libur')
 
 @push('styles')
@@ -151,9 +151,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-calendar-xmark" style="color: #dc2626; margin-right: 0.5rem;"></i>Hari Libur / Tanggal Merah</h5>
-            <p>Dua tipe status tanggal: <b>Libur</b> — diblokir pada form registrasi tamu publik
-               (/layanan/form-registrasi-tamu); <b>Masuk Kerja</b> — mengubah Sabtu/Minggu yang defaultnya
-               libur menjadi <b>bisa dipilih</b> pengunjung (override weekend).</p>
+            <p>Atur tanggal libur dan hari kerja pengganti.</p>
         </div>
         <div class="header-actions">
             @can('hari_libur.create')

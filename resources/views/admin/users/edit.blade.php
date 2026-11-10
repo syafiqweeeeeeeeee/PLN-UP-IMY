@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Pengguna — ' . ($user->name ?? '') . ' — E-PPID PLN')
+@section('title', 'Edit Pengguna — ' . ($user->name ?? '') . ' — Portal PLTU Indramayu')
 @section('page-title', 'Edit Pengguna')
 
 @php

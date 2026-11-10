@@ -402,7 +402,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-newspaper" style="color: var(--pln-blue); margin-right: 0.4rem;"></i>Kelola Berita</h5>
-            <p>Berita yang dapat Anda kelola berdasarkan hak akses</p>
+            <p>Berita yang dapat Anda kelola.</p>
         </div>
         @can('news.create')
         <a href="{{ route('karyawan.news.create') }}" class="btn btn-primary">

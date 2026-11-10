@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Ganti Password — E-PPID PLN')
+@section('title', 'Ganti Password — Portal PLTU Indramayu')
 
 @push('styles')
 <style>

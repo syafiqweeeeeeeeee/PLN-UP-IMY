@@ -1,5 +1,5 @@
 #!/bin/sh
-# Entrypoint produksi E-PPID.
+# Entrypoint produksi Portal PLTU Indramayu.
 # Tugas: siapkan path persisten, opsional migrasi, cache konfigurasi, lalu
 # serahkan PID 1 ke FrankenPHP. Tidak ada input interaktif di runtime.
 set -eu

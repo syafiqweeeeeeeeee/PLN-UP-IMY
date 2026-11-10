@@ -28,7 +28,7 @@ class OtpMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Kode OTP Reset Password — E-PPID PLN Nusantara Power',
+            subject: 'Kode OTP Reset Password — Portal PLTU Indramayu',
         );
     }
 
@@ -62,7 +62,7 @@ class OtpMail extends Mailable
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.06);">
                     <tr>
                         <td style="background:linear-gradient(135deg,#005b9c,#00b4d8);padding:22px 28px;color:#ffffff;">
-                            <div style="font-size:18px;font-weight:bold;">E-PPID PLN Nusantara Power</div>
+                            <div style="font-size:18px;font-weight:bold;">Portal PLTU Indramayu</div>
                             <div style="font-size:12px;opacity:0.9;margin-top:4px;">Reset Password — Kode OTP</div>
                         </td>
                     </tr>

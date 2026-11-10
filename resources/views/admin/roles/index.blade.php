@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Kelola Role — E-PPID PLN')
+@section('title', 'Kelola Role — Portal PLTU Indramayu')
 @section('page-title', 'Kelola Role')
 
 @if (session('success'))
@@ -114,7 +114,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-user-tag header-icon"></i>Daftar Role</h5>
-            <p>Kelola role pengguna — buat, edit, dan atur hak akses menu untuk setiap role</p>
+            <p>Kelola role dan hak aksesnya.</p>
         </div>
         {{-- Tombol "+ Tambah Role" — mengarah ke form pembuatan role baru.
              Hak akses diatur via Gate 'roles.create'. --}}

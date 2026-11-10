@@ -32,7 +32,7 @@
         </a>
         <div>
             <h4 class="form-page-title">{{ $announcement ? 'Edit Pengumuman' : 'Tambah Pengumuman Baru' }}</h4>
-            <p class="form-page-subtitle">{{ $announcement ? 'Perbarui informasi pengumuman yang sudah ada' : 'Buat pengumuman resmi baru untuk portal' }}</p>
+            <p class="form-page-subtitle">{{ $announcement ? 'Perbarui pengumuman' : 'Buat pengumuman baru' }}</p>
         </div>
     </div>
 </div>

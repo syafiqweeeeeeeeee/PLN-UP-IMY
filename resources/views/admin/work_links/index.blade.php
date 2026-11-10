@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Manajemen Link Kerja — E-PPID PLN')
+@section('title', 'Manajemen Link Kerja — Portal PLTU Indramayu')
 @section('page-title', 'Link Kerja')
 
 @push('styles')
@@ -399,7 +399,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-link header-icon"></i>Manajemen Link Kerja</h5>
-            <p>Kelola tautan alat kerja yang tampil di Portal Karyawan</p>
+            <p>Kelola tautan alat kerja Portal Karyawan.</p>
         </div>
         @can('work_links.create')
         <a href="{{ route('admin.work-links.create') }}" class="btn-corp btn-corp-add">

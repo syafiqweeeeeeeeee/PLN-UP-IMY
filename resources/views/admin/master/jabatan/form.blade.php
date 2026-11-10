@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', ($jabatan ? 'Edit Jabatan' : 'Tambah Jabatan') . ' — E-PPID PLN')
+@section('title', ($jabatan ? 'Edit Jabatan' : 'Tambah Jabatan') . ' — Portal PLTU Indramayu')
 @section('page-title', $jabatan ? 'Edit Jabatan' : 'Tambah Jabatan')
 
 @push('styles')
@@ -165,7 +165,7 @@
         <div>
             <h4 class="form-page-title">{{ $jabatan ? 'Edit Jabatan' : 'Tambah Jabatan Baru' }}</h4>
             <p class="form-page-subtitle">
-                {{ $jabatan ? 'Perbarui nama, bidang, atau posisi jabatan dalam hierarki' : 'Buat jabatan baru — pilih bidangnya dan opsional induk jabatan' }}
+                {{ $jabatan ? 'Perbarui data jabatan' : 'Buat jabatan baru' }}
             </p>
         </div>
     </div>

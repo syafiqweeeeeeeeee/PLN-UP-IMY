@@ -1,6 +1,6 @@
 # Deployment Produksi — Coolify (Proxmox, on-premises)
 
-Dokumen ini menerapkan `AGENTS_deploy.md` pada aplikasi E-PPID PLN. Isinya
+Dokumen ini menerapkan `AGENTS_deploy.md` pada aplikasi Portal PLTU Indramayu. Isinya
 kontrak deploy, konfigurasi yang sudah disiapkan di repo, dan hal-hal yang
 **wajib dikerjakan manusia** (infrastruktur, DNS, secret, backup).
 

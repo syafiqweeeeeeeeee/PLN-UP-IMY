@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $pengumuman->title . ' — E-PPID PLN')
+@section('title', $pengumuman->title . ' — Portal PLTU Indramayu')
 
 @section('content')
 <style>

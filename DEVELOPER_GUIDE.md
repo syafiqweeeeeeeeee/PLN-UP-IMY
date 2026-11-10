@@ -1,7 +1,7 @@
-# 🛠️ Developer Guide — E-PPID PLN (Laravel 12)
+# 🛠️ Developer Guide — Portal PLTU Indramayu (Laravel 12)
 
 Dokumen ini adalah **panduan lengkap untuk developer** yang bekerja pada
-proyek E-PPID PLN: mulai dari setup lingkungan, penjelasan arsitektur,
+proyek Portal PLTU Indramayu: mulai dari setup lingkungan, penjelasan arsitektur,
 penjelasan struktur **database**, sistem **RBAC (Role-Based Access Control)**,
 sampai **SOP langkah-demi-langkah menambah module/fitur baru** beserta
 contoh kodenya.
@@ -27,7 +27,7 @@ contoh kodenya.
 
 ## 1. Ringkasan Proyek
 
-**E-PPID PLN** adalah aplikasi web berbasis **Laravel 12** untuk pengelolaan
+**Portal PLTU Indramayu** adalah aplikasi web berbasis **Laravel 12** untuk pengelolaan
 website PPID (Pejabat Pengelola Informasi dan Dokumentasi) unit pembangkit
 PLN UP Indramayu. Aplikasi punya **tiga area besar**:
 

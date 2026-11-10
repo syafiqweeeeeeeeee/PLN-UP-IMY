@@ -16,7 +16,7 @@
 <html lang="id" class="{{ \App\Support\Theme::htmlClass(request()) }}" data-theme-pref="{{ \App\Support\Theme::preference(request()) }}" data-user-id="{{ auth()->id() }}">
     <head>
         <meta charset="utf-8">
-        <title>@yield('title', 'Admin — E-PPID PLN')</title>
+        <title>@yield('title', 'Admin — Portal PLTU Indramayu')</title>
         @stack('styles')
     </head>
     <body class="admin-body" data-partial-content=".admin-content">
@@ -32,9 +32,9 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="E-PPID PLN — Dashboard Admin" />
+        <meta name="description" content="Portal PLTU Indramayu — Dashboard Admin" />
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>@yield('title', 'Admin — E-PPID PLN')</title>
+        <title>@yield('title', 'Admin — Portal PLTU Indramayu')</title>
 
         @include('layouts.partials.theme-head')
 
@@ -208,7 +208,7 @@
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                 />
                 <div class="sidebar-brand-text d-none">
-                    E-PPID PLN
+                    Portal PLTU Indramayu
                     <small>Admin Panel</small>
                 </div>
             </div>

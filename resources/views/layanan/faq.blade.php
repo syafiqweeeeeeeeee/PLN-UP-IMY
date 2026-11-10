@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'E-PPID PLN — FAQ')
+@section('title', 'Portal PLTU Indramayu — FAQ')
 
 @section('content')
 <style>

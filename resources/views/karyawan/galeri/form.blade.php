@@ -39,7 +39,7 @@
         </a>
         <div>
             <h4 class="form-page-title">{{ $isEdit ? 'Edit Foto Galeri' : 'Tambah Foto Galeri' }}</h4>
-            <p class="form-page-subtitle">{{ $isEdit ? 'Perbarui data foto galeri yang sudah ada' : 'Unggah foto kegiatan baru ke galeri' }}</p>
+            <p class="form-page-subtitle">{{ $isEdit ? 'Perbarui foto' : 'Unggah foto baru' }}</p>
         </div>
     </div>
 </div>

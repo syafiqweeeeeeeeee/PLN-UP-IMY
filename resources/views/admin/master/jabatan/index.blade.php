@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Master Jabatan — E-PPID PLN')
+@section('title', 'Master Jabatan — Portal PLTU Indramayu')
 @section('page-title', 'Master Jabatan')
 
 @push('styles')

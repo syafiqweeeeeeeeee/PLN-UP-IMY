@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Jadwal Tamu — E-PPID PLN')
+@section('title', 'Jadwal Tamu — Portal PLTU Indramayu')
 @section('page-title', 'Jadwal Tamu')
 
 @push('styles')
@@ -532,7 +532,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-calendar-days" style="color: var(--pln-blue); margin-right: 0.5rem;"></i>Jadwal Tamu</h5>
-            <p>Kalender kunjungan tamu — dalam diizinkan, ditolak, dan yang menunggu verifikasi.</p>
+            <p>Kalender kunjungan: disetujui, ditolak, dan menunggu.</p>
         </div>
         <div class="header-actions">
             <a href="{{ route('admin.tamu.index') }}" class="btn-corp btn-corp-primary" title="Kembali ke halaman Data Tamu">

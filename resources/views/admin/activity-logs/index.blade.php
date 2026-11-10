@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Log Aktivitas — E-PPID PLN')
+@section('title', 'Log Aktivitas — Portal PLTU Indramayu')
 @section('page-title', 'Log Aktivitas')
 
 @push('styles')
@@ -270,7 +270,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-clipboard-list header-icon"></i>Riwayat Aktivitas</h5>
-            <p>Semua aksi admin/karyawan terhadap berita, pengumuman, akun, dan sistem tercatat di sini (file log JSONL harian)</p>
+            <p>Catatan aktivitas admin dan karyawan di sistem.</p>
         </div>
         <button type="button" class="btn-corp btn-corp-danger-soft" onclick="document.getElementById('clearAllModal').classList.add('show')" @if($total === 0) disabled @endif>
             <i class="fas fa-broom"></i> Bersihkan Semua

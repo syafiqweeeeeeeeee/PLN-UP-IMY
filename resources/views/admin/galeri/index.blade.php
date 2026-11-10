@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Kelola Galeri — E-PPID PLN')
+@section('title', 'Kelola Galeri — Portal PLTU Indramayu')
 @section('page-title', 'Kelola Galeri')
 
 @push('styles')
@@ -286,7 +286,7 @@
     <div class="header-row">
         <div class="header-left">
             <h5><i class="fas fa-images header-icon"></i>Daftar Galeri</h5>
-            <p>Kelola foto kegiatan, fasilitas, dokumentasi, dan seremonial UP PLTU Indramayu</p>
+            <p>Kelola foto kegiatan dan dokumentasi.</p>
         </div>
         @can('galleries.create')
         <a href="{{ route('admin.galeri.create') }}" class="btn-corp btn-corp-add">
