@@ -756,6 +756,66 @@ class User extends Authenticatable
     }
 
     /**
+     * Role utama akun — kolom users.role_id, fallback baris pivot
+     * role_user pertama (akun yang dibuat sebelum role_id dipakai).
+     */
+    public function primaryRole(): ?Role
+    {
+        if (! $this->exists) {
+            return null;
+        }
+
+        if ($this->role_id) {
+            $role = $this->role()->first();
+
+            if ($role !== null) {
+                return $role;
+            }
+        }
+
+        $roles = $this->relationLoaded('roles') ? $this->roles : $this->roles()->get();
+
+        return $roles->first();
+    }
+
+    /**
+     * Dashboard setelah login untuk akun ini — mengikuti pilihan
+     * "Dashboard Setelah Login" pada role yang dipakai (kolom
+     * roles.dashboard). Akun tanpa role memakai fallback lama:
+     * Karyawan → portal, lainnya → panel admin.
+     */
+    public function dashboardType(): string
+    {
+        if (! $this->exists) {
+            return Role::DASHBOARD_ADMIN;
+        }
+
+        $role = $this->primaryRole();
+
+        if ($role !== null) {
+            return $role->dashboardType();
+        }
+
+        return $this->isKaryawan()
+            ? Role::DASHBOARD_KARYAWAN
+            : Role::DASHBOARD_ADMIN;
+    }
+
+    /** Apakah akun ini diarahkan ke Portal Karyawan setelah login? */
+    public function usesKaryawanDashboard(): bool
+    {
+        return $this->dashboardType() === Role::DASHBOARD_KARYAWAN;
+    }
+
+    /** Nama route dashboard tujuan akun ini (dipakai redirect login). */
+    public function dashboardRouteName(): string
+    {
+        return $this->usesKaryawanDashboard()
+            ? 'karyawan.dashboard'
+            : 'admin.dashboard';
+    }
+
+    /**
      * Apakah akun ini akun admin / pengelola (role apa pun selain
      * Karyawan)? Akun tanpa role sama sekali dianggap bukan admin.
      */

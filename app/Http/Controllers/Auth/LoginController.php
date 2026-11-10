@@ -73,15 +73,16 @@ class LoginController extends Controller
 
         ActivityLogger::log('login', $user, [
             'module'      => 'autentikasi',
-            'description' => $user->isKaryawan()
+            'description' => $user->usesKaryawanDashboard()
                 ? 'melakukan login ke portal karyawan'
                 : 'melakukan login ke panel admin',
         ]);
 
         $request->session()->regenerate();
 
-        // Karyawan → portal karyawan; role lain → panel admin.
-        $fallback = $user->isKaryawan() ? route('karyawan.dashboard') : route('admin.dashboard');
+        // Dashboard tujuan mengikuti pilihan pada Role akun
+        // (Tambah/Edit Role → Dashboard Setelah Login).
+        $fallback = route($user->dashboardRouteName());
 
         $intended = $request->session()->pull('url.intended', $fallback);
 

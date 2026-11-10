@@ -575,12 +575,12 @@ class DataKaryawanTest extends TestCase
 
         // Ekspor mengikuti status yang sedang dipakai (1 baris header).
         $aktif = $this->actingAs($user)->get(route('admin.karyawan_data.export'))->streamedContent();
-        $this->assertSame(31, substr_count($aktif, "\n"));
+        $this->assertCount(31, $this->readExportedXlsx($aktif));
 
         $nonaktif = $this->actingAs($user)
             ->get(route('admin.karyawan_data.export', ['status' => 'nonaktif']))
             ->streamedContent();
-        $this->assertSame(6, substr_count($nonaktif, "\n"));
+        $this->assertCount(6, $this->readExportedXlsx($nonaktif));
     }
 
     public function test_toggle_status_updates_status_without_deleting_and_keeps_filter(): void
@@ -834,14 +834,52 @@ class DataKaryawanTest extends TestCase
             ->get(route('admin.karyawan_data.export', ['bidang' => 'Operasi']));
 
         $response->assertOk();
+        $response->assertHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        );
+
         $content = $response->streamedContent();
 
-        $this->assertStringContainsString('80001', $content);
-        $this->assertStringNotContainsString('80002', $content, 'Baris di luar filter tidak boleh ikut terekspor.');
+        // Berkas harus benar-benar Excel (.xlsx = arsip ZIP), bukan CSV.
+        $this->assertStringStartsWith("PK\x03\x04", $content);
+        $this->assertStringContainsString(
+            '.xlsx',
+            (string) $response->headers->get('Content-Disposition'),
+        );
 
-        foreach (array_values(Karyawan::COLUMNS_LABELS) as $label) {
-            $this->assertStringContainsString($label, $content, "Ekspor harus memuat header kolom {$label}.");
-        }
+        $rows = $this->readExportedXlsx($content);
+
+        $this->assertSame(
+            array_values(Karyawan::COLUMNS_LABELS),
+            $rows[0]['cells'],
+            'Baris pertama ekspor harus header 24 kolom.',
+        );
+
+        $nids = array_map(fn (array $row) => $row['cells'][0] ?? '', $rows);
+
+        $this->assertContains('80001', $nids);
+        $this->assertNotContains('80002', $nids, 'Baris di luar filter tidak boleh ikut terekspor.');
+    }
+
+    /**
+     * Baca konten unduhan ekspor (.xlsx) menjadi baris sel memakai
+     * parser yang sama dengan fitur impor.
+     *
+     * @return list<array{row: int, cells: array<int, string>}>
+     */
+    private function readExportedXlsx(string $content): array
+    {
+        $path = tempnam(sys_get_temp_dir(), 'dk-export-');
+        file_put_contents($path, $content);
+
+        $sheet = (new XlsxReader)->read($path);
+
+        unlink($path);
+
+        $this->assertNull($sheet['error'], 'Berkas ekspor harus berupa XLSX yang valid.');
+
+        return $sheet['rows'];
     }
 
     /* =========================================================

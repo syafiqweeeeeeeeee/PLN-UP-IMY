@@ -1330,7 +1330,6 @@ html.theme-dark .kry-greeting p,
 html.theme-dark .kry-breadcrumb,
 html.theme-dark .kry-news-date,
 html.theme-dark .kry-news-body p,
-html.theme-dark .kry-service-card p,
 html.theme-dark .kry-link-desc,
 html.theme-dark .kry-empty,
 html.theme-dark .kry-detail-meta,
@@ -1346,7 +1345,6 @@ html.theme-dark .form-group-label .optional { color: var(--ink-muted); }
 
 html.theme-dark .kry-breadcrumb a,
 html.theme-dark .kry-link-more,
-html.theme-dark .kry-service-link,
 html.theme-dark .form-back-btn { color: var(--accent); }
 
 html.theme-dark .kry-stat-value { color: var(--ink-heading); }

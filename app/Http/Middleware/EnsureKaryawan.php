@@ -9,9 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Melindungi area /karyawan/* agar hanya diakses akun Karyawan murni.
  *
- * - Role Karyawan (murni)         → diteruskan.
- * - Role admin/pengelola lain     → 403 + redirect panel admin.
- * - Login tanpa role sama sekali  → 403 (tidak termasuk karyawan).
+ * - Role Karyawan (murni)                      → diteruskan.
+ * - Role kustom yang memilih Dashboard
+ *   Karyawan di form Tambah/Edit Role           → diteruskan.
+ * - Role admin/pengelola lain                  → 403 + redirect panel admin.
+ * - Login tanpa role sama sekali               → 403 (tidak termasuk karyawan).
  *
  * Catatan: halaman profil sendiri di admin (admin.users.show) tetap
  * terbuka untuk semua — middleware ini hanya memagari prefix karyawan.
@@ -22,7 +24,7 @@ class EnsureKaryawan
     {
         $user = $request->user();
 
-        if (! $user || ! $user->isKaryawan()) {
+        if (! $user || ! ($user->isKaryawan() || $user->usesKaryawanDashboard())) {
             if ($request->expectsJson()) {
                 abort(403, 'Halaman ini khusus akun Karyawan.');
             }

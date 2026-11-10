@@ -76,6 +76,9 @@ class RoleController extends Controller
             'name'        => ['required', 'string', 'max:100', 'unique:roles,name'],
             'description' => ['nullable', 'string', 'max:255'],
             'status'      => ['required', 'in:active,inactive'],
+            // Dashboard setelah login: admin (panel) / karyawan (portal).
+            // Opsional agar payload lama tetap diterima → default admin.
+            'dashboard'   => ['nullable', 'in:admin,karyawan'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['integer', 'exists:permissions,id'],
         ]);
@@ -84,6 +87,7 @@ class RoleController extends Controller
             'name'        => $validated['name'],
             'description' => $validated['description'],
             'status'      => $validated['status'] === 'active',
+            'dashboard'   => $validated['dashboard'] ?? Role::DASHBOARD_ADMIN,
         ]);
 
         ActivityLogger::log('create', null, [
@@ -126,6 +130,7 @@ class RoleController extends Controller
             'name'          => ['required', 'string', 'max:100', $isBaseRole ? "in:{$role->name}" : 'unique:roles,name,' . $role->id],
             'description'   => ['nullable', 'string', 'max:255'],
             'status'        => ['required', 'in:active,inactive'],
+            'dashboard'     => ['nullable', 'in:admin,karyawan'],
             'permissions'   => ['nullable', 'array'],
             'permissions.*' => ['integer', 'exists:permissions,id'],
         ]);
@@ -134,6 +139,7 @@ class RoleController extends Controller
             'name'        => $isBaseRole ? $role->name : $validated['name'],
             'description' => $validated['description'],
             'status'      => $validated['status'] === 'active',
+            'dashboard'   => $validated['dashboard'] ?? $role->dashboardType(),
         ]);
 
         // REVISI RBAC — simpan matriks hak akses granular secara dinamis

@@ -62,7 +62,6 @@ class PortalController extends Controller
             'announcements'    => $this->publishedAnnouncements(3),
             'news'             => $this->publishedNews(3),
             'totalInformasi'   => $this->publishedAnnouncements()->count() + $this->publishedNews()->count(),
-            'internalServices' => PortalContentService::internalServicesFor($user),
             // Dashboard menampilkan campuran seimbang Umum + Khusus sub-bidang;
             // "Lihat Semua" (halaman Link) tetap memakai workLinksFor() lengkap.
             'workLinks'        => PortalContentService::workLinksBalancedFor($user),
@@ -117,36 +116,6 @@ class PortalController extends Controller
             'item'    => $item,
             'type'    => $type,
             'terkait' => $terkait,
-        ]);
-    }
-
-    /**
-     * Tab Layanan: grid layanan internal (view only), ter-scope hierarki user.
-     */
-    public function layanan(): View
-    {
-        return view('karyawan.layanan', [
-            'services' => PortalContentService::internalServicesFor(auth()->user()),
-        ]);
-    }
-
-    /**
-     * Detail prosedur satu layanan internal.
-     */
-    public function layananDetail(string $slug): View
-    {
-        $user    = auth()->user();
-        $service = collect(PortalContentService::internalServicesFor($user))
-            ->firstWhere('slug', $slug);
-
-        // Layanan di luar scope hierarki user → 404.
-        abort_if($service === null, 404);
-
-        return view('karyawan.layanan_detail', [
-            'service' => $service,
-            'others'  => collect(PortalContentService::internalServicesFor($user))
-                ->reject(fn ($s) => $s['slug'] === $slug)
-                ->values(),
         ]);
     }
 

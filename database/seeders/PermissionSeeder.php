@@ -150,7 +150,7 @@ class PermissionSeeder extends Seeder
 
         $superAdmin = Role::firstOrCreate(
             ['name' => User::SUPER_ADMIN_ROLE],
-            ['description' => 'Super Admin — Sekretariat/Humas, akses penuh seluruh fitur', 'status' => true]
+            ['description' => 'Super Admin — Sekretariat/Humas, akses penuh seluruh fitur', 'status' => true, 'dashboard' => Role::DASHBOARD_ADMIN]
         );
 
         // Super Admin: akses penuh = TEPAT seluruh 47 permission matriks
@@ -161,7 +161,7 @@ class PermissionSeeder extends Seeder
         // Internal & Link Kerja). Menu sensitif TIDAK diberikan.
         $adminBidang = Role::firstOrCreate(
             ['name' => User::DEPARTMENT_ADMIN_ROLE],
-            ['description' => 'Admin Bidang — pengelola konten terbatas satu bidang', 'status' => true]
+            ['description' => 'Admin Bidang — pengelola konten terbatas satu bidang', 'status' => true, 'dashboard' => Role::DASHBOARD_ADMIN]
         );
 
         $adminBidang->permissions()->sync(array_intersect_key($permissionIds, array_flip([
@@ -174,9 +174,11 @@ class PermissionSeeder extends Seeder
         // Karyawan: baseline portal — SATU sumber di
         // User::KARYAWAN_BASELINE_PERMISSIONS (dipotong ke permission yang
         // benar-benar terdaftar).
+        // Dashboard Karyawan → setelah login akun role ini mendarat di
+        // Portal Karyawan (bukan panel admin).
         $karyawan = Role::firstOrCreate(
             ['name' => 'Karyawan'],
-            ['description' => 'Pengguna internal / karyawan', 'status' => true]
+            ['description' => 'Pengguna internal / karyawan', 'status' => true, 'dashboard' => Role::DASHBOARD_KARYAWAN]
         );
 
         $karyawan->permissions()->sync(array_intersect_key(

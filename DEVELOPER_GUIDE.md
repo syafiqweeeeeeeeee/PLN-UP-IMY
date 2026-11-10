@@ -35,7 +35,7 @@ PLN UP Indramayu. Aplikasi punya **tiga area besar**:
 |---|---|---|
 | **Portal Publik** | `/` | Landing page: berita, pengumuman, galeri, halaman statis, buku tamu (registrasi tamu), informasi publik |
 | **Admin Panel** | `/admin` | CMS: berita, pengumuman, galeri, halaman, menu, data tamu, hari libur, pengguna, role, link kerja, data karyawan, master bidang/jabatan, log aktivitas, pengaturan |
-| **Portal Karyawan** | `/karyawan/*` | Portal internal: informasi, layanan internal, link kerja, kunjungan tamu, profil |
+| **Portal Karyawan** | `/karyawan/*` | Portal internal: informasi, link kerja, kunjungan tamu, profil |
 
 **Aktor (role) yang ada — HANYA 3:**
 
@@ -1114,9 +1114,9 @@ Admin dapat semua secara bawaan (lihat PermissionSeeder):
 - **Model** `App\Models\Karyawan` — `COLUMNS_LABELS` (urutan kolom →
   label), scope `search()`/`filtered()` dipakai daftar & ekspor.
 - **Controller** `Admin\DataKaryawanController` — CRUD + `template()`
-  (unduh kerangka CSV), `import()` (validasi per baris di memori →
+  (unduh kerangka Excel .xlsx), `import()` (validasi per baris di memori →
   transaksi; duplikat dilewati tanpa menimpa; ringkasan sukses/gagal/
-  duplikat), `export()` (CSV mengikuti filter aktif).
+  duplikat), `export()` (Excel .xlsx mengikuti filter aktif).
 - **Impor** menerima **CSV/TXT ATAU Excel (.xlsx)** dalam satu endpoint
   `POST admin/karyawan_data/import` — pemilihan pembaca dari ekstensi
   file (validasi ekstensi, bukan `mimes:` karena file .xlsx terdeteksi
@@ -1213,7 +1213,6 @@ tersebut **atau** permission ekstra di luar baseline).
 |---|---|---|
 | Dashboard karyawan | `GET /karyawan/dashboard` | Sapaan, statistik, link kerja ter-scope (`PortalContentService::workLinksBalancedFor`) |
 | Informasi | `GET /karyawan/informasi(/{type}/{slug})` | Berita & pengumuman internal — type `berita\|pengumuman`, content di-scope bidang untuk pengumuman |
-| Layanan internal | `GET /karyawan/layanan(/{slug})` | Panduan/prosedur statis dari `PortalContentService::internalServicesFor()` — ter-scope hirarki user |
 | Link Kerja | `GET /karyawan/link` | Link dari tabel `work_links`; aturan scope: Senior Manager/Admin = semua, Manager Bidang = bidang+umum, Asmen/Staf = terkunci sub-bidang sendiri + umum (`PortalContentService::linkAccessFor()`) |
 | Kunjungan Tamu | `GET /karyawan/kunjungan-tamu`, `POST .../{tamu}/verifikasi` | Tamu yang menunjuk akun ini sebagai orang yang ditemui (scoping nama akun login) — aksi Setujui/Batalkan sekali jalan, **tanpa** permission khusus |
 | Profil saya | `GET/PUT /karyawan/profil` | Nama, no HP, alamat, ganti password (wajib password lama) |
@@ -1235,7 +1234,7 @@ tersebut **atau** permission ekstra di luar baseline).
 |---|---|
 | `App\Services\ActivityLogger` | Audit trail (`activity_logs`); selalu log SEBELUM delete |
 | `App\Services\NotificationService` | Isi notifikasi topbar admin (tamu baru/belum dibaca per akun) |
-| `App\Services\PortalContentService` | Seluruh konten portal karyawan: link kerja & layanan internal ter-scope hirarki |
+| `App\Services\PortalContentService` | Konten portal karyawan: link kerja ter-scope hirarki |
 | `App\Services\XlsxReader` | Baca file .xlsx impor Data Karyawan tanpa ext-zip (parser ZIP native + DOM XML) |
 | `App\Http\Controllers\Concerns\ScopesToDepartment` | Trait filter data per-bidang di controller modul bidang |
 | `App\Models\Scopes\ScopedToUserDepartment` | Global scope data-scoping bidang — dimatikan eksplisit di halaman publik pengumuman |

@@ -11,8 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * Aturan akses:
  * - Belum login        → ditangani middleware `auth` (redirect ke login).
- * - Karyawan murni TANPA permission ekstra → 403 + redirect ke portal
- *   karyawan (browser follow redirect → halaman portal).
+ * - Karyawan murni TANPA permission ekstra, atau role kustom yang
+ *   memilih Dashboard Karyawan tanpa permission ekstra → 403 + redirect
+ *   ke portal karyawan (browser follow redirect → halaman portal).
  * - Karyawan murni DENGAN permission ekstra (di luar baseline karyawan,
  *   mis. users.view yang diberikan lewat Edit Role) → DIZINKAN masuk
  *   /admin. Route tetap dijaga `permission:` masing-masing dan sidebar
@@ -26,7 +27,9 @@ class EnsureNotKaryawan
     {
         $user = $request->user();
 
-        if ($user && $user->isKaryawan() && ! $user->hasExtraKaryawanPermission()) {
+        if ($user
+            && ($user->isKaryawan() || $user->usesKaryawanDashboard())
+            && ! $user->hasExtraKaryawanPermission()) {
             // AJAX/JSON: tolak langsung tanpa redirect agar fetch tidak
             // diam-diam menerima HTML halaman portal.
             if ($request->expectsJson()) {

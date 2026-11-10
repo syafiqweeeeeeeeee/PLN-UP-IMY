@@ -8,7 +8,7 @@
     <div class="kry-greeting">
         <div>
             <h1>Selamat datang, {{ $user->name }} 👋</h1>
-            <p>Semua informasi internal, layanan karyawan, dan alat kerja ada di satu tempat.</p>
+            <p>Semua informasi internal dan alat kerja ada di satu tempat.</p>
         </div>
         <span class="kry-greeting-badge">
             <i class="fas fa-bolt"></i> Portal Karyawan
@@ -22,13 +22,6 @@
             <div>
                 <div class="kry-stat-value">{{ $totalInformasi }}</div>
                 <div class="kry-stat-label">Informasi & Pengumuman Aktif</div>
-            </div>
-        </div>
-        <div class="kry-card kry-stat">
-            <span class="kry-stat-icon"><i class="fas fa-hand-holding-heart"></i></span>
-            <div>
-                <div class="kry-stat-value">{{ count($internalServices) }}</div>
-                <div class="kry-stat-label">Layanan Internal Tersedia</div>
             </div>
         </div>
         <div class="kry-card kry-stat">
@@ -100,31 +93,6 @@
                     Belum ada informasi yang dipublikasikan.
                 </div>
             @endif
-        </div>
-    </section>
-
-    {{-- ===== SECTION LAYANAN ===== --}}
-    <section class="kry-section">
-        <div class="kry-section-head">
-            <h2><i class="fas fa-hand-holding-heart"></i> Layanan Internal</h2>
-            <a href="{{ route('karyawan.layanan') }}" class="kry-link-more">
-                Lihat Semua <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-
-        <div class="kry-service-grid">
-            @foreach (array_slice($internalServices, 0, 3) as $service)
-                <article class="kry-card kry-service-card">
-                    <span class="kry-service-icon" style="background: {{ $service['color'] }};">
-                        <i class="fas {{ $service['icon'] }}"></i>
-                    </span>
-                    <h3>{{ $service['name'] }}</h3>
-                    <p>{{ $service['description'] }}</p>
-                    <a href="{{ route('karyawan.layanan.detail', $service['slug']) }}" class="kry-service-link">
-                        Lihat Prosedur <i class="fas fa-arrow-right"></i>
-                    </a>
-                </article>
-            @endforeach
         </div>
     </section>
 

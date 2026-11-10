@@ -172,8 +172,6 @@ Route::middleware(['auth', 'karyawan.access'])->prefix('karyawan')->name('karyaw
     Route::get('/informasi/{type}/{slug}', [\App\Http\Controllers\Karyawan\PortalController::class, 'informasiDetail'])
         ->where(['type' => 'berita|pengumuman'])
         ->name('informasi.detail');
-    Route::get('/layanan', [\App\Http\Controllers\Karyawan\PortalController::class, 'layanan'])->name('layanan');
-    Route::get('/layanan/{slug}', [\App\Http\Controllers\Karyawan\PortalController::class, 'layananDetail'])->name('layanan.detail');
     Route::get('/link', [\App\Http\Controllers\Karyawan\PortalController::class, 'link'])->name('link');
 
     // Kunjungan Tamu — daftar registrasi tamu yang menunjuk akun ini

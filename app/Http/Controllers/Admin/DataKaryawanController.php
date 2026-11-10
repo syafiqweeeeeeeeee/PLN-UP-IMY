@@ -30,7 +30,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
 /**
- * DATA KARYAWAN — CRUD + impor/ekspor CSV dari PANEL ADMIN.
+ * DATA KARYAWAN — CRUD + impor/ekspor Excel dari PANEL ADMIN.
  *
  * Otorisasi memakai RBAC yang sudah ada (permission karyawan_data.*,
  * terdaftar di PermissionSeeder): route dijaga middleware
@@ -41,9 +41,8 @@ use Throwable;
  * paket eksternal: CSV lewat fgetcsv, XLSX lewat service
  * `App\Services\XlsxReader` (parsing ZIP+XML native, tanpa ext-zip).
  * Header 24 kolom dipetakan lewat `mapHeaderRow()` yang DIPAKAI
- * BERSAMA kedua jalur. Ekspor tetap CSV (Excel membukanya langsung).
- * TEMPLATE diunduh sebagai Excel (.xlsx) lewat `XlsxWriter` native —
- * siap diisi lalu diunggah kembali tanpa konversi manual.
+ * BERSAMA kedua jalur. Ekspor & TEMPLATE diunduh sebagai Excel (.xlsx)
+ * lewat `XlsxWriter` native — siap diisi/dibuka tanpa konversi manual.
  * Seluruh kolom mengikuti 24 kolom spesifikasi di
  * Karyawan::COLUMNS_LABELS.
  *
@@ -1732,7 +1731,12 @@ class DataKaryawanController extends Controller
     }
 
     /* =========================================================
-       EKSPOR — CSV mengikuti filter yang sedang aktif
+       EKSPOR — Excel (.xlsx) mengikuti filter yang sedang aktif
+       ------------------------------------------------------------
+       Berkas dibuat dengan `XlsxWriter` native (tanpa ext-zip dan
+       tanpa paket eksternal) sehingga hasil unduhan langsung berupa
+       Excel, bukan CSV. Header ditebalkan, dibekukan, dan diberi
+       filter; urutan/nama kolom sama dengan 24 kolom spesifikasi.
        ========================================================= */
 
     public function export(Request $request): StreamedResponse
@@ -1743,27 +1747,33 @@ class DataKaryawanController extends Controller
 
         ActivityLogger::log('export', null, [
             'module' => 'karyawan',
-            'description' => 'mengekspor data karyawan ke CSV',
+            'description' => 'mengekspor data karyawan ke Excel',
         ]);
 
-        $filename = 'data-karyawan-'.now()->format('Ymd-His').'.csv';
+        // Header + seluruh baris hasil filter (data karyawan ± ratusan
+        // baris sehingga aman disusun sekaligus oleh XlsxWriter).
+        $rows = [array_values(Karyawan::COLUMNS_LABELS)];
 
-        return response()->streamDownload(function () use ($query) {
-            $out = fopen('php://output', 'w');
+        $query->orderBy('nama')->chunk(500, function ($chunk) use (&$rows): void {
+            foreach ($chunk as $karyawan) {
+                $rows[] = $this->exportRow($karyawan);
+            }
+        });
 
-            // BOM UTF-8 agar Excel membaca karakter dengan benar.
-            fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, array_values(Karyawan::COLUMNS_LABELS));
+        $content = XlsxWriter::build($rows, [
+            'sheet'         => 'Data Karyawan',
+            'header_row'    => true,
+            'freeze_header' => true,
+            'auto_filter'   => true,
+            'column_width'  => 18,
+        ]);
 
-            $query->orderBy('nama')->chunk(500, function ($rows) use ($out) {
-                foreach ($rows as $karyawan) {
-                    fputcsv($out, $this->exportRow($karyawan));
-                }
-            });
+        $filename = 'data-karyawan-'.now()->format('Ymd-His').'.xlsx';
 
-            fclose($out);
+        return response()->streamDownload(function () use ($content): void {
+            echo $content;
         }, $filename, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
     }
 

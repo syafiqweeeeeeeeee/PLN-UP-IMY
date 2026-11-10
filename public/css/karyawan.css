@@ -331,7 +331,8 @@ a { text-decoration: none; color: inherit; }
 /* Stat ringkas */
 .kry-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    /* auto-fit: jumlah kartu ringkasan bisa berubah tanpa menyisakan kolom kosong */
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 16px;
     margin-bottom: 36px;
 }
@@ -506,62 +507,6 @@ a { text-decoration: none; color: inherit; }
     border-color: var(--kry-teal);
     color: #fff;
 }
-
-/* ================= GRID LAYANAN ================= */
-
-.kry-service-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-}
-
-.kry-service-card {
-    padding: 22px;
-    display: flex;
-    flex-direction: column;
-    transition: box-shadow .2s ease, transform .2s ease;
-}
-
-.kry-service-card:hover {
-    box-shadow: var(--kry-shadow-lg);
-    transform: translateY(-2px);
-}
-
-.kry-service-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 1.05rem;
-    margin-bottom: 14px;
-}
-
-.kry-service-card h3 {
-    margin: 0 0 6px;
-    font-size: 0.98rem;
-    font-weight: 700;
-}
-
-.kry-service-card p {
-    margin: 0 0 16px;
-    font-size: 0.83rem;
-    color: var(--kry-muted);
-    flex: 1;
-}
-
-.kry-service-link {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--kry-teal);
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-}
-
-.kry-service-link:hover { gap: 11px; }
 
 /* ================= DIREKTORI LINK ================= */
 
@@ -1582,7 +1527,6 @@ textarea.form-input {
 
 @media (max-width: 900px) {
     .kry-grid-3,
-    .kry-service-grid,
     .kry-mini-grid { grid-template-columns: repeat(2, 1fr); }
 
     .kry-stats { grid-template-columns: 1fr; }
@@ -1598,7 +1542,6 @@ textarea.form-input {
     .kry-link-grid { grid-template-columns: 1fr; }
 
     .kry-grid-3,
-    .kry-service-grid,
     .kry-mini-grid { grid-template-columns: 1fr; }
 
     .kry-greeting-badge { display: none; }

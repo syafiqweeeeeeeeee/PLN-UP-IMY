@@ -516,7 +516,7 @@
             </a>
             @endcan
             <a href="{{ route('admin.karyawan_data.export', request()->only(['q', 'bidang', 'status'])) }}"
-               class="btn-corp btn-corp-soft" title="Ekspor data sesuai filter aktif ke CSV (Excel-ready)">
+               class="btn-corp btn-corp-soft" title="Ekspor data sesuai filter aktif ke Excel (.xlsx)">
                 <i class="fas fa-file-export me-1"></i> Ekspor
             </a>
             @can('karyawan_data.edit')

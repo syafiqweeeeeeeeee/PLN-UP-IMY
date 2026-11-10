@@ -11,10 +11,23 @@ class Role extends Model
 {
     use HasFactory, HasNameMarkerPivots;
 
+    /** Pilihan dashboard setelah login — panel admin. */
+    public const DASHBOARD_ADMIN = 'admin';
+
+    /** Pilihan dashboard setelah login — Portal Karyawan. */
+    public const DASHBOARD_KARYAWAN = 'karyawan';
+
+    /** Label pilihan dashboard pada form Tambah/Edit Role. */
+    public const DASHBOARDS = [
+        self::DASHBOARD_ADMIN    => 'Dashboard Admin',
+        self::DASHBOARD_KARYAWAN => 'Dashboard Karyawan',
+    ];
+
     protected $fillable = [
         'name',
         'description',
         'status',
+        'dashboard',
     ];
 
     protected $casts = [
@@ -41,6 +54,31 @@ class Role extends Model
     public function isInactive(): bool
     {
         return ! $this->status;
+    }
+
+    /**
+     * Dashboard setelah login untuk role ini.
+     *
+     * Nilai kolom `dashboard` diutamakan; bila kosong (role lama / dibuat
+     * sebelum kolom ada) → role "Karyawan" memakai portal, lainnya admin.
+     */
+    public function dashboardType(): string
+    {
+        $value = $this->dashboard;
+
+        if (array_key_exists((string) $value, self::DASHBOARDS)) {
+            return $value;
+        }
+
+        return $this->name === 'Karyawan'
+            ? self::DASHBOARD_KARYAWAN
+            : self::DASHBOARD_ADMIN;
+    }
+
+    /** Apakah role ini mengarah ke Portal Karyawan setelah login? */
+    public function usesKaryawanDashboard(): bool
+    {
+        return $this->dashboardType() === self::DASHBOARD_KARYAWAN;
     }
 
     public function hasPermission(string $permission): bool

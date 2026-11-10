@@ -167,6 +167,11 @@
                 <tr>
                     <td>
                         <div style="font-weight:600; color:var(--ink-heading);">{{ $role->name }}</div>
+                        {{-- Dashboard tujuan setelah login — diatur di form Tambah/Edit Role. --}}
+                        <span class="badge" style="margin-top:0.35rem; border-radius:20px; font-size:0.7rem; font-weight:600; padding:0.2rem 0.55rem; background:{{ $role->usesKaryawanDashboard() ? '#e0f2fe' : '#dbeafe' }}; color:{{ $role->usesKaryawanDashboard() ? '#0369a1' : '#1d4ed8' }};">
+                            <i class="fas fa-{{ $role->usesKaryawanDashboard() ? 'house-user' : 'gauge-high' }}"></i>
+                            {{ $role->usesKaryawanDashboard() ? 'Dashboard Karyawan' : 'Dashboard Admin' }}
+                        </span>
                     </td>
                     <td class="col-hide-mobile" style="color:var(--ink-muted); font-size:0.85rem;">
                         {{ $role->description ?? '-' }}

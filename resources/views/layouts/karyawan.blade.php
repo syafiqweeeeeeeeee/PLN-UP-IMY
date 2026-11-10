@@ -570,10 +570,6 @@
                    class="kry-nav-link {{ request()->routeIs('karyawan.informasi*') ? 'active' : '' }}">
                     <i class="fas fa-bullhorn"></i> Informasi
                 </a>
-                <a href="{{ route('karyawan.layanan') }}"
-                   class="kry-nav-link {{ request()->routeIs('karyawan.layanan*') ? 'active' : '' }}">
-                    <i class="fas fa-hand-holding-heart"></i> Layanan
-                </a>
                 <a href="{{ route('karyawan.link') }}"
                    class="kry-nav-link {{ request()->routeIs('karyawan.link') ? 'active' : '' }}">
                     <i class="fas fa-link"></i> Link Kerja

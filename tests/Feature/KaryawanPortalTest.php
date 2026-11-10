@@ -13,7 +13,7 @@ use Tests\TestCase;
  * Portal Karyawan (Employee Portal):
  * - Login karyawan diarahkan ke /karyawan/dashboard.
  * - Karyawan diblokir dari /admin/*.
- * - Halaman portal view-only berjalan (informasi, layanan, link, profil).
+ * - Halaman portal view-only berjalan (informasi, link, profil).
  * - Data link kerja lengkap (5 umum + 5 per bidang + 5 khusus sub-bidang).
  */
 class KaryawanPortalTest extends TestCase
@@ -69,6 +69,49 @@ class KaryawanPortalTest extends TestCase
 
         $this->post(route('login'), [
             'email'    => $admin->email,
+            'password' => 'password123',
+        ])->assertRedirect(route('admin.dashboard'));
+    }
+
+    public function test_custom_role_with_karyawan_dashboard_lands_on_portal(): void
+    {
+        $role = Role::create([
+            'name'        => 'Operator Portal Uji',
+            'description' => 'Role kustom dengan dashboard karyawan',
+            'status'      => true,
+            'dashboard'   => 'karyawan',
+        ]);
+
+        $user = User::factory()->create(['password' => 'password123']);
+        $user->role_id = $role->id;
+        $user->save();
+        $user->roles()->sync([$role->id]);
+
+        $this->post(route('login'), [
+            'email'    => $user->email,
+            'password' => 'password123',
+        ])->assertRedirect(route('karyawan.dashboard'));
+
+        // Portal karyawan terbuka untuk role kustom yang memilih dasbor ini.
+        $this->actingAs($user)->get(route('karyawan.dashboard'))->assertOk();
+    }
+
+    public function test_custom_role_with_admin_dashboard_lands_on_admin_panel(): void
+    {
+        $role = Role::create([
+            'name'        => 'Operator Admin Uji',
+            'description' => 'Role kustom dengan dashboard admin',
+            'status'      => true,
+            'dashboard'   => 'admin',
+        ]);
+
+        $user = User::factory()->create(['password' => 'password123']);
+        $user->role_id = $role->id;
+        $user->save();
+        $user->roles()->sync([$role->id]);
+
+        $this->post(route('login'), [
+            'email'    => $user->email,
             'password' => 'password123',
         ])->assertRedirect(route('admin.dashboard'));
     }
@@ -183,24 +226,6 @@ class KaryawanPortalTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('karyawan.informasi.detail', ['type' => 'tidak-ada', 'slug' => 'apa-saja']))
-            ->assertNotFound();
-    }
-
-    public function test_portal_layanan_page_lists_services_and_detail(): void
-    {
-        $user = $this->karyawanUser();
-
-        $this->actingAs($user)->get(route('karyawan.layanan'))
-            ->assertOk()
-            ->assertSee('Pengajuan Cuti')
-            ->assertSee('Layanan IT');
-
-        $this->actingAs($user)->get(route('karyawan.layanan.detail', 'layanan-it'))
-            ->assertOk()
-            ->assertSee('Layanan IT')
-            ->assertSee('it-support@pln-np.co.id');
-
-        $this->actingAs($user)->get(route('karyawan.layanan.detail', 'tidak-ada'))
             ->assertNotFound();
     }
 
@@ -375,26 +400,6 @@ class KaryawanPortalTest extends TestCase
         $this->actingAs($manager)->get(route('karyawan.dashboard'))
             ->assertOk()
             ->assertSee('Manager Bidang (Operasi)');
-    }
-
-    public function test_layanan_filtered_by_hierarchy(): void
-    {
-        // Manager Bidang Operasi: layanan umum + milik bidang operasi;
-        // layanan bidang lain disembunyikan.
-        $user = $this->karyawanUser([
-            'level_jabatan' => 'manager_bidang',
-            'department'    => 'operasi',
-        ]);
-
-        $this->actingAs($user)->get(route('karyawan.layanan'))
-            ->assertOk()
-            ->assertSee('Pengajuan Cuti')
-            ->assertDontSee('Peminjaman APD');
-
-        // Detail layanan di luar scope → 404.
-        $this->actingAs($user)
-            ->get(route('karyawan.layanan.detail', 'peminjaman-apd'))
-            ->assertNotFound();
     }
 
     public function test_portal_link_data_has_five_umum_five_bidang_and_five_khusus(): void

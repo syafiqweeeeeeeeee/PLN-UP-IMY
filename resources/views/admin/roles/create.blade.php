@@ -55,6 +55,10 @@
     .status-card.status-active .status-title { color: #166534; }
     .status-card.status-inactive .status-icon { background: #fef3c7; color: #92400e; }
     .status-card.status-inactive .status-title { color: #92400e; }
+    .status-card.status-admin .status-icon { background: #dbeafe; color: #1d4ed8; }
+    .status-card.status-admin .status-title { color: #1d4ed8; }
+    .status-card.status-karyawan .status-icon { background: #e0f2fe; color: #0369a1; }
+    .status-card.status-karyawan .status-title { color: #0369a1; }
 
     /* ============================================
        MATRIKS HAK AKSES (checkbox per ID Menu Sidebar)
@@ -235,6 +239,45 @@
     </div>
 
     {{-- ============================================
+         SECTION: Dashboard Setelah Login
+         Menentukan halaman pertama yang terbuka saat pengguna
+         dengan role ini login (panel admin / portal karyawan).
+         ============================================ --}}
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon blue">
+                <i class="fas fa-columns"></i>
+            </div>
+            <div>
+                <h6 class="form-section-title">Dashboard Setelah Login</h6>
+                <p class="form-section-desc">Pilih halaman pertama yang terbuka saat pengguna dengan role ini login</p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="status-card status-admin {{ old('dashboard', 'admin') === 'admin' ? 'active' : '' }}">
+                    <input type="radio" name="dashboard" value="admin" {{ old('dashboard', 'admin') === 'admin' ? 'checked' : '' }}>
+                    <div class="status-icon"><i class="fas fa-gauge-high"></i></div>
+                    <div class="status-title">Dashboard Admin</div>
+                    <p class="status-desc">Panel admin — kelola konten, pengguna, dan pengaturan</p>
+                </label>
+            </div>
+            <div class="col-md-6">
+                <label class="status-card status-karyawan {{ old('dashboard') === 'karyawan' ? 'active' : '' }}">
+                    <input type="radio" name="dashboard" value="karyawan" {{ old('dashboard') === 'karyawan' ? 'checked' : '' }}>
+                    <div class="status-icon"><i class="fas fa-house-user"></i></div>
+                    <div class="status-title">Dashboard Karyawan</div>
+                    <p class="status-desc">Portal karyawan — informasi, layanan, dan link kerja</p>
+                </label>
+            </div>
+        </div>
+        @error('dashboard')
+            <div class="form-error mt-2"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+        @enderror
+    </div>
+
+    {{-- ============================================
          SECTION: Matriks Hak Akses (ID Menu Sidebar × CRUD)
          Checkbox disimpan dinamis ke pivot role_permission.
          HANYA centang MANUAL yang tersimpan — semua checkbox
@@ -279,13 +322,19 @@
      karena client-side router (router.js) hanya mengeksekusi ulang
      <script> di dalam <main> setelah navigasi SPA. --}}
 <script>
+    // Toggle kartu pilihan per GROUP radio (status & dashboard terpisah):
+    // hanya kartu dengan name yang sama yang di-reset saat memilih.
     document.querySelectorAll('.status-card').forEach(card => {
         card.addEventListener('click', function () {
-            this.classList.add('active');
-            this.querySelector('input[type="radio"]').checked = true;
-            document.querySelectorAll('.status-card').forEach(c => {
-                if (c !== this) c.classList.remove('active');
+            const input = this.querySelector('input[type="radio"]');
+            if (!input) return;
+
+            document.querySelectorAll(`.status-card input[name="${input.name}"]`).forEach(other => {
+                other.closest('.status-card')?.classList.remove('active');
             });
+
+            input.checked = true;
+            this.classList.add('active');
         });
     });
 </script>

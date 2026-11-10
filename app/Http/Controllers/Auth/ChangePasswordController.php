@@ -67,7 +67,7 @@ class ChangePasswordController extends Controller
         ]);
 
         return redirect()
-            ->route($user->isKaryawan() ? 'karyawan.dashboard' : 'admin.dashboard')
+            ->route($user->dashboardRouteName())
             ->with('success', 'Password berhasil diganti. Selamat datang!');
     }
 }
