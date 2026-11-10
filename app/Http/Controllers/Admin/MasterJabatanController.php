@@ -139,6 +139,18 @@ class MasterJabatanController extends Controller
             ]);
         }
 
+        // Link Kerja kategori Khusus bisa menargetkan jabatan ini sebagai
+        // Sub-Bidang — FK restrictOnDelete menolak penghapusan di database.
+        // Beri pesan ramah sebelum query delete dijalankan.
+        $workLinkUsage = $jabatan->workLinkUsage();
+
+        if ($workLinkUsage > 0) {
+            return redirect()->route('admin.master_jabatan.index')->withErrors([
+                'delete' => "Jabatan \"{$jabatan->nama}\" tidak dapat dihapus karena masih menjadi target {$workLinkUsage} Link Kerja. "
+                    . 'Ubah target link tersebut terlebih dahulu.',
+            ]);
+        }
+
         $nama = $jabatan->nama;
         $jabatan->delete();
 

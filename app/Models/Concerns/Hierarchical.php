@@ -117,6 +117,50 @@ trait Hierarchical
     }
 
     /**
+     * Seluruh ID baris yang berada pada JALUR STRUKTUR yang sama:
+     * leluhur (atasan), baris ini sendiri, dan seluruh keturunannya
+     * (staf/bawahan).
+     *
+     * Dipakai Link Kerja kategori Khusus: memilih satu Bidang/Jabatan
+     * otomatis mencakup seluruh pegawai di jalur struktur tersebut —
+     * atasan ikut melihat target di bawahnya, dan staf di bawah otomatis
+     * mendapatkan akses link yang ditargetkan ke atasannya tanpa perlu
+     * dipilih satu per satu.
+     *
+     * Berlaku untuk Master Bidang maupun Master Jabatan (keduanya memakai
+     * trait ini dan relasi `parent_id` yang sama).
+     *
+     * @return array<int, int>
+     */
+    public function accessScopeIds(): array
+    {
+        $ids  = [(int) $this->getKey()];
+        $seen = [(int) $this->getKey() => true];
+
+        // Leluhur (atasan) — naik lewat parent_id sampai akar.
+        $parentId = $this->parent_id !== null ? (int) $this->parent_id : null;
+
+        while ($parentId !== null && ! isset($seen[$parentId])) {
+            $seen[$parentId] = true;
+            $ids[] = $parentId;
+            $parentId = static::query()->whereKey($parentId)->value('parent_id');
+            $parentId = $parentId !== null ? (int) $parentId : null;
+        }
+
+        // Keturunan (bawahan) — seluruh anak/cucu di bawah baris ini.
+        foreach ($this->descendantIds() as $childId) {
+            $childId = (int) $childId;
+
+            if (! isset($seen[$childId])) {
+                $seen[$childId] = true;
+                $ids[] = $childId;
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
      * Apakah menjadikan $parentId sebagai parent akan membentuk siklus?
      *
      * - NULL      → aman (tingkat teratas).

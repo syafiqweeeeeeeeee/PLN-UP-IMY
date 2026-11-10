@@ -124,17 +124,25 @@
                 return true;
             }
 
-            // "Semua Sub-Bidang" (Manager Bidang): semua link bidangnya + umum.
+            // "Semua Sub-Bidang" (Manager Bidang): semua link bidangnya
+            // + umum. Link tanpa kode bidang (target level UP / induk)
+            // ikut tampil karena scoping server sudah membatasinya.
             if (value === 'all') {
-                return category === 'umum' || dept === @json($authUser->department);
+                return category === 'umum' || dept === @json($authUser->department) || dept === '';
             }
 
             // Tab sub-bidang (mis. "operasi:spv_chcb_a").
+            // Link target Bidang (data-sub-department kosong) ikut tampil:
+            // pemilihan Bidang otomatis mencakup seluruh staf di bawahnya.
+            // Link lintas-UP (dept kosong) juga termasuk — scoping server
+            // sudah memastikan hanya jalur struktur user yang lolos.
             var subIdx = value.indexOf(':');
             if (subIdx !== -1) {
                 var vDept = value.slice(0, subIdx);
                 var vSub  = value.slice(subIdx + 1);
-                return category === 'umum' || (dept === vDept && sub === vSub);
+                return category === 'umum'
+                    || (dept === vDept && (sub === vSub || sub === ''))
+                    || dept === '';
             }
 
             // Filter global (Administrator/Senior Manager): kategori penuh.

@@ -311,13 +311,15 @@
         </div>
 
         {{-- Panel target — tampil hanya saat kategori Khusus.
-             Pilihan Bidang diambil LANGSUNG dari MASTER BIDANG (tabel
-             `bidangs`) lewat WorkLinkController::formContext(), berjenjang
-             induk → sub-bidang. Akun yang terkunci sub-bidang: nilai
-             terisi otomatis & read-only; server tetap memaksa nilai itu. --}}
+             DUA pilihan sederhana: **Bidang** dari MASTER BIDANG dan
+             **Sub-Bidang** dari MASTER JABATAN yang berelasi dengan
+             Bidang terpilih (jabatan koordinator/manajerial, label tanpa
+             prefix gelar). Satu pilihan otomatis berlaku untuk jabatan
+             itu beserta seluruh bawahan (parent_id) — atau seluruh
+             pegawai Bidang bila Sub-Bidang dikosongkan. --}}
         <div id="targetKhususPanel" class="{{ old('category', $link?->category ?? 'umum') === 'khusus' ? '' : 'hidden-panel' }}">
             <div class="row g-3">
-                <div class="col-md-8">
+                <div class="col-md-5">
                     <div class="form-group">
                         {{-- Label utama disembunyikan secara visual (tetap terbaca
                              screen reader) dan digantikan floating label DI DALAM box. --}}
@@ -338,6 +340,7 @@
                                 <option value=""></option>
                                 @foreach ($bidangOptions as $option)
                                     <option value="{{ $option['id'] }}"
+                                            data-parent="{{ $option['parent_id'] ?? '' }}"
                                         {{ (string) $selectedBidangId === (string) $option['id'] ? 'selected' : '' }}>
                                         {{ str_repeat('— ', max(0, $option['depth'] - 1)) }}{{ $option['nama'] }}
                                     </option>
@@ -353,7 +356,7 @@
                             <input type="hidden" name="bidang_id" value="{{ $lockedBidangId }}">
                         @else
                             <div class="form-hint flex">
-                                <i class="fas fa-sitemap"></i> Daftar dari Master Bidang — pilih bidang induk untuk seluruh sub-bidangnya, atau sub-bidang tertentu saja.
+                                <i class="fas fa-sitemap"></i> Pilih dari Master Bidang — bidang induk mencakup seluruh sub-bidang di bawahnya.
                             </div>
                         @endif
                         @error('bidang_id')
@@ -361,12 +364,42 @@
                         @enderror
                     </div>
                 </div>
+
                 <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-group-label pln-label-sr" for="jabatan_id">
+                            Sub-Bidang <span class="optional">(opsional)</span>
+                        </label>
+                        <div class="pln-select-wrap">
+                            <span class="pln-field-float">Sub-Bidang <span class="optional">(opsional)</span></span>
+                            <select id="jabatan_id" name="jabatan_id" class="form-input"
+                                    data-show-empty="1"
+                                    @if ($lockedBidangId) disabled @endif>
+                                <option value="">Semua Sub-Bidang</option>
+                                @foreach ($subBidangOptions as $option)
+                                    <option value="{{ $option['id'] }}"
+                                            data-parent="{{ $option['parent_id'] }}"
+                                        {{ (string) $selectedJabatanId === (string) $option['id'] ? 'selected' : '' }}>
+                                        {{ $option['nama'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-hint flex">
+                            <i class="fas fa-sitemap"></i> Jabatan koordinator/manajerial di Bidang terpilih — bawahan otomatis tercakup. Kosongkan untuk seluruh pegawai Bidang.
+                        </div>
+                        @error('jabatan_id')
+                            <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-group-label">Cakupan Akses</label>
                         <div class="form-hint flex" style="align-items:flex-start;">
                             <i class="fas fa-user-lock" style="margin-top:2px;"></i>
-                            <span>Link hanya tampil untuk akun yang terikat pada bidang terpilih. Bila memilih bidang induk, seluruh sub-bidang di bawahnya tercakup.</span>
+                            <span>Pilih Sub-Bidang → jabatan itu dan seluruh bawahannya otomatis mendapat akses. Kosongkan → seluruh pegawai di Bidang terpilih.</span>
                         </div>
                     </div>
                 </div>
@@ -429,12 +462,41 @@
     if (!form || form.dataset.workLinkBound) return;   // anti double-bind saat navigasi SPA
     form.dataset.workLinkBound = '1';
 
-    var catUmum   = document.getElementById('cat-umum');
-    var catKhusus = document.getElementById('cat-khusus');
-    var panel     = document.getElementById('targetKhususPanel');
-    var bidangSel = document.getElementById('bidang_id');
-    var iconSel   = document.getElementById('icon');
-    var iconEl    = document.getElementById('iconPreviewEl');
+    var catUmum      = document.getElementById('cat-umum');
+    var catKhusus    = document.getElementById('cat-khusus');
+    var panel        = document.getElementById('targetKhususPanel');
+    var bidangSel    = document.getElementById('bidang_id');
+    var subBidangSel = document.getElementById('jabatan_id');
+    var iconSel      = document.getElementById('icon');
+    var iconEl       = document.getElementById('iconPreviewEl');
+
+    /* Sub-Bidang mengikuti Bidang terpilih (data-parent = bidang_id
+       Master Jabatan). Sub-Bidang OPSIONAL: kosong = seluruh pegawai di
+       Bidang tersebut. Memilih jabatan → jabatan itu + seluruh bawahan
+       (parent_id Master Jabatan) otomatis mendapat akses. */
+    function syncSubBidangOptions() {
+        if (!subBidangSel) return;
+
+        var parentId = (bidangSel?.value ?? '').trim();
+        var current  = subBidangSel.value;
+        var keep     = current === '';
+
+        Array.prototype.forEach.call(subBidangSel.options, function (opt) {
+            if (opt.value === '') return;   // "Semua Sub-Bidang" selalu tampil
+
+            var match = parentId !== '' && opt.dataset.parent === parentId;
+            opt.hidden   = !match;
+            opt.disabled = !match;
+
+            if (match && opt.value === current) keep = true;
+        });
+
+        if (!keep) subBidangSel.value = '';
+        subBidangSel.classList.toggle('is-empty', !subBidangSel.value);
+    }
+
+    bidangSel?.addEventListener('change', syncSubBidangOptions);
+    syncSubBidangOptions();
 
     function togglePanel() {
         if (catKhusus && catKhusus.checked) {
@@ -544,8 +606,11 @@
         items = [];
         // Opsi placeholder (value kosong) TIDAK ditampilkan di panel —
         // label mengambang DI DALAM box yang berfungsi sebagai pertanyaan.
+        // Pengecualian: select bertanda data-show-empty (Sub-Bidang) —
+        // opsinya "Semua Sub-Bidang" harus tetap bisa dipilih.
         var opts = Array.prototype.slice.call(ownerSelect.options).filter(function (opt) {
-            return opt.value !== '';
+            if (opt.hidden) return false;
+            return opt.value !== '' || ownerSelect.dataset.showEmpty === '1';
         });
         if (!opts.length) {
             var emptyNote = document.createElement('div');

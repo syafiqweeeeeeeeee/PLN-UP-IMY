@@ -717,14 +717,17 @@ class MasterBidangJabatanTest extends TestCase
          lama, tidak menebak baris yang tidak cocok, dan idempoten.
        ========================================================= */
 
-    public function test_work_link_form_lists_master_bidangs_without_legacy_codes(): void
+    public function test_work_link_form_lists_bidang_and_sub_bidang_without_legacy_codes(): void
     {
         $bidang = Bidang::create(['nama' => 'BIDANG UJI LINK KERJA']);
-        $sub    = Bidang::create(['nama' => 'SUB BIDANG UJI', 'parent_id' => $bidang->id]);
+        Bidang::create(['nama' => 'BIDANG UJI LINK KERJA DUA']);
+        Jabatan::create([
+            'nama' => 'ASSISTANT MANAGER UJI LINK',
+            'bidang_id' => $bidang->id,
+        ]);
 
-        // Keduanya sengaja TANPA kode legacy — tetap harus tampil.
+        // Bidang & jabatan sengaja TANPA kode legacy — tetap harus tampil.
         $this->assertNull($bidang->departmentCode());
-        $this->assertNull($sub->departmentCode());
 
         $user = $this->masterUser(array_merge(self::ALL_PERMISSIONS, ['work_links.create']));
 
@@ -732,7 +735,9 @@ class MasterBidangJabatanTest extends TestCase
             ->get(route('admin.work-links.create'))
             ->assertOk()
             ->assertSee('BIDANG UJI LINK KERJA')
-            ->assertSee('SUB BIDANG UJI');
+            ->assertSee('BIDANG UJI LINK KERJA DUA')
+            ->assertSee('UJI LINK')
+            ->assertDontSee('ASSISTANT MANAGER UJI LINK');
     }
 
     public function test_master_bidang_form_accepts_and_validates_legacy_codes(): void

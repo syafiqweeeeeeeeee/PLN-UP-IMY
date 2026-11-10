@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Concerns\ScopesToDepartment;
 use App\Http\Controllers\Controller;
 use App\Models\Bidang;
+use App\Models\Jabatan;
 use App\Models\User;
 use App\Models\WorkLink;
 use App\Services\ActivityLogger;
@@ -31,7 +32,7 @@ class WorkLinkController extends Controller
         // katalog), tetapi tulis (tambah/edit/hapus) dibatasi ke link
         // 'umum' + 'khusus' milik bidangnya — dijaga di view (flag
         // data-can-edit) dan di guard controller.
-        $query = WorkLink::query()->with(['bidang.parent']);
+        $query = WorkLink::query()->with(['bidang.parent', 'jabatan']);
 
         if (in_array($request->query('kategori'), [WorkLink::CATEGORY_UMUM, WorkLink::CATEGORY_KHUSUS], true)) {
             $query->where('category', $request->query('kategori'));
@@ -140,6 +141,10 @@ class WorkLinkController extends Controller
             'category'     => $link->category,
             'bidang_id'    => $link->bidang_id,
             'bidang_label' => $link->department_label,
+            'jabatan_id'   => $link->jabatan_id,
+            'jabatan_label' => $link->jabatan !== null
+                ? Jabatan::subBidangLabel($link->jabatan->nama)
+                : null,
             'bidang_parent_label' => $link->bidang?->parent?->nama,
             'department'   => $link->department,
             'sub_department' => $link->sub_department,
@@ -191,30 +196,58 @@ class WorkLinkController extends Controller
     }
 
     /**
-     * Konteks view form create/edit: pilihan Bidang LANGSUNG dari tabel
-     * master `bidangs` (berjenjang — induk & sub-bidang).
+     * Konteks view form create/edit: pilihan **Bidang** dan
+     * **Sub-Bidang** LANGSUNG dari tabel master `bidangs` (berjenjang).
      *
-     * - Super Admin / Senior Manager: semua bidang ber-kode legacy.
+     * - Super Admin / Senior Manager: semua bidang.
      * - Admin Bidang terikat baris Master Bidang: hanya baris unitnya +
      *   seluruh sub-bidang di bawahnya (tidak bisa memilih bidang lain).
      * - Akun legacy tanpa `users.bidang_id`: opsi disaring lewat kode
      *   bidang lama (`users.department`).
      *
-     * Setiap opsi membawa `depth` agar tampil menjorok sesuai hierarki;
-     * `$lockedBidangId` (akun terkunci sub-bidang) membuat select
-     * read-only dan server tetap memaksa nilai tersebut.
+     * Pemilihan Sub-Bidang bersifat OPSIONAL: kosong berarti link berlaku
+     * untuk seluruh pegawai di Bidang terpilih (termasuk sub-bidang di
+     * bawahnya). Sub-Bidang diambil dari MASTER JABATAN yang berelasi
+     * dengan Bidang tersebut (jabatan koordinator/manajerial).
+     * `$lockedBidangId` (akun terkunci sub-bidang) membuat kedua select
+     * read-only dan server tetap memaksa baris unitnya.
      */
     private function formContext(?WorkLink $link): array
     {
-        // Nilai terpilih: bidang_id tersimpan, atau hasil pemetaan kode
-        // legacy (link lama belum terpetakan) supaya form Edit tidak
-        // kehilangan target saat admin menyimpan ulang.
-        $selectedBidangId = old('bidang_id', $link?->bidang_id)
+        $context = $this->bidangOptionsForUser();
+
+        // Target tersimpan: bidang_id, atau hasil pemetaan kode legacy
+        // (link lama belum terpetakan) supaya form Edit tidak kehilangan
+        // target saat admin menyimpan ulang.
+        $defaultBidangId = $link?->bidang_id
             ?? $this->bidangIdFromLegacyCodes($link?->department, $link?->sub_department);
 
-        return array_merge($this->bidangOptionsForUser(), [
-            'link'             => $link,
-            'selectedBidangId' => $selectedBidangId !== null ? (int) $selectedBidangId : null,
+        $defaultJabatanId = $link?->jabatan_id;
+
+        if ($context['lockedBidangId'] !== null) {
+            // Akun terkunci sub-bidang: Bidang unitnya read-only, Sub-Bidang
+            // (jabatan) tidak bisa dipilih — server memaksa baris unitnya.
+            // Abaikan old() saat validasi gagal.
+            $selectedBidangId  = $context['lockedBidangId'];
+            $selectedJabatanId = null;
+        } else {
+            $selectedBidangId = old('bidang_id');
+            if ($selectedBidangId === null || $selectedBidangId === '') {
+                $selectedBidangId = $defaultBidangId;
+            }
+
+            $selectedJabatanId = old('jabatan_id');
+            if ($selectedJabatanId === null) {
+                $selectedJabatanId = $defaultJabatanId;
+            }
+        }
+
+        return array_merge($context, [
+            'link'              => $link,
+            'selectedBidangId'  => $selectedBidangId !== null ? (int) $selectedBidangId : null,
+            'selectedJabatanId' => $selectedJabatanId !== null && $selectedJabatanId !== ''
+                ? (int) $selectedJabatanId
+                : null,
         ]);
     }
 
@@ -231,7 +264,7 @@ class WorkLinkController extends Controller
      * diisi lewat Master Bidang (field manual / tombol "Petakan Kode
      * Legacy") supaya visibilitas Portal Karyawan ikut terpetakan.
      *
-     * @return array{bidangOptions: \Illuminate\Support\Collection, lockedBidangId: ?int, lockedBidangLabel: ?string}
+     * @return array{bidangOptions: \Illuminate\Support\Collection, subBidangOptions: \Illuminate\Support\Collection, lockedBidangId: ?int, lockedBidangLabel: ?string}
      */
     private function bidangOptionsForUser(): array
     {
@@ -246,7 +279,10 @@ class WorkLinkController extends Controller
         $rows = Bidang::treeOrdered(Bidang::query()->with('parent'), ['parent']);
 
         if ($ownBidang !== null) {
-            $allowedIds = array_merge([(int) $ownBidang->id], $ownBidang->descendantIds());
+            // Sertakan leluhur agar pasangan Bidang → Sub-Bidang tetap
+            // tampil utuh (akun terkunci sub-bidang melihat Bidang induk
+            // & unitnya). Penulisan tetap dibatasi allowedBidangIds().
+            $allowedIds = $ownBidang->accessScopeIds();
             $rows = $rows->filter(
                 fn (array $row) => in_array((int) $row['node']->id, $allowedIds, true)
             );
@@ -256,18 +292,40 @@ class WorkLinkController extends Controller
             );
         }
 
-        $bidangOptions = $rows->map(fn (array $row) => [
-            'id'    => (int) $row['node']->id,
-            'nama'  => $row['node']->nama,
-            'depth' => (int) $row['depth'],
+        $allOptions = $rows->map(fn (array $row) => [
+            'id'        => (int) $row['node']->id,
+            'nama'      => $row['node']->nama,
+            'depth'     => (int) $row['depth'],
+            'parent_id' => $row['node']->parent_id !== null ? (int) $row['node']->parent_id : null,
         ])->values();
 
         $lockedBidangId = $scoped && $user->dataScopingLevel() === 'bidang_sub'
             ? ($ownBidang?->id)
             : null;
 
+        // Semua baris Master Bidang yang boleh dipilih (induk & sub-bidang)
+        // tetap ditampilkan — perilaku dropdown Bidang tidak berubah.
+        $bidangOptions = $allOptions;
+        $bidangIds     = $bidangOptions->pluck('id')->all();
+
+        // Sub-Bidang = jabatan KOORDINATOR/MANAJERIAL dari MASTER JABATAN
+        // yang berelasi dengan Bidang di atas (jabatans.bidang_id). Label
+        // tampilan sudah dibersihkan dari prefix gelar jabatan.
+        $subBidangOptions = Jabatan::query()
+            ->forSubBidang()
+            ->orderBy('nama')
+            ->get(['id', 'nama', 'bidang_id'])
+            ->filter(fn (Jabatan $jabatan) => in_array((int) $jabatan->bidang_id, $bidangIds, true))
+            ->map(fn (Jabatan $jabatan) => [
+                'id'        => (int) $jabatan->id,
+                'nama'      => Jabatan::subBidangLabel($jabatan->nama),
+                'parent_id' => (int) $jabatan->bidang_id,
+            ])
+            ->values();
+
         return [
             'bidangOptions'     => $bidangOptions,
+            'subBidangOptions'  => $subBidangOptions,
             'lockedBidangId'    => $lockedBidangId,
             'lockedBidangLabel' => $lockedBidangId !== null ? $ownBidang?->nama : null,
         ];
@@ -289,6 +347,9 @@ class WorkLinkController extends Controller
             'category'    => ['required', 'in:' . WorkLink::CATEGORY_UMUM . ',' . WorkLink::CATEGORY_KHUSUS],
             // Bidang target dari MASTER BIDANG (form baru).
             'bidang_id'   => ['nullable', 'integer', 'exists:bidangs,id'],
+            // Sub-Bidang target (opsional) — baris MASTER JABATAN yang
+            // berelasi dengan Bidang terpilih (jabatan manajerial).
+            'jabatan_id'  => ['nullable', 'integer', 'exists:jabatans,id'],
             // Kode legacy tetap diterima (API lama / data yang belum
             // terpetakan); nilainya diturunkan ulang dari bidang_id bila ada.
             'department'  => ['nullable', 'in:' . $departments],
@@ -301,6 +362,8 @@ class WorkLinkController extends Controller
             'category.in'      => 'Kategori link tidak valid.',
             'bidang_id.integer' => 'Bidang target tidak valid.',
             'bidang_id.exists' => 'Bidang target tidak ditemukan — pilih dari daftar bidang yang tersedia.',
+            'jabatan_id.integer' => 'Sub-Bidang target tidak valid.',
+            'jabatan_id.exists' => 'Sub-Bidang target tidak ditemukan — pilih dari daftar sub-bidang yang tersedia.',
             'department.in'    => 'Bidang Utama target tidak valid.',
             'sub_department.in' => 'Sub-Bidang target tidak valid.',
         ]);
@@ -323,19 +386,30 @@ class WorkLinkController extends Controller
      *
      * Aturan:
      * - 'umum'   → seluruh kolom target dikosongkan.
-     * - 'khusus' → utamakan `bidang_id` (baris Master Bidang); kode legacy
-     *              diturunkan dari baris itu. Bila bidang_id kosong,
-     *              kode legacy dipetakan balik ke baris master (kompatibel
-     *              dengan API lama). Kode yang tidak valid → kembali umum.
+     * - 'khusus' → target Bidang (`bidang_id`) + Sub-Bidang opsional
+     *              (`jabatan_id`, baris Master Jabatan yang berelasi dengan
+     *              Bidang itu). Tanpa Sub-Bidang → seluruh pegawai di
+     *              Bidang tersebut; dengan Sub-Bidang → jabatan itu dan
+     *              seluruh bawahannya (parent_id Master Jabatan).
+     *              Kode legacy diturunkan dari baris Bidang. Bila bidang_id
+     *              kosong, kode legacy dipetakan balik ke baris master
+     *              (kompatibel API lama). Kode tidak valid → kembali umum.
      * - Admin Bidang (bukan bypass): target di luar unit kerjanya dipaksa
      *   ke unit sendiri — akun terkunci sub-bidang SELALU persis baris
      *   unitnya. Super Admin / tanpa master → perilaku lama dipertahankan.
      */
     private function applyTargetScope(array $validated, ?WorkLink $existing = null): array
     {
+        // Sub-Bidang (Master Jabatan) hanya menentukan target jabatan —
+        // kolom DB-nya `jabatan_id`, bukan turunan kode legacy.
+        $hasJabatanField = array_key_exists('jabatan_id', $validated);
+        $jabatanId       = $this->normalizeIdInput($validated['jabatan_id'] ?? null);
+        unset($validated['jabatan_id']);
+
         if (($validated['category'] ?? '') === WorkLink::CATEGORY_UMUM) {
             return array_merge($validated, [
                 'bidang_id'      => null,
+                'jabatan_id'     => null,
                 'department'     => null,
                 'sub_department' => null,
             ]);
@@ -387,8 +461,24 @@ class WorkLinkController extends Controller
         }
 
         if ($bidang !== null) {
+            // Jabatan target harus benar-benar berelasi dengan Bidang yang
+            // dipilih ("Master Jabatan → Bidang yang dipilih"). Bila tidak,
+            // link tetap aman menjadi target level Bidang.
+            $jabatan = $jabatanId !== null ? Jabatan::query()->find($jabatanId) : null;
+            $finalJabatanId = null;
+
+            if ($jabatan !== null && (int) $jabatan->bidang_id === (int) $bidang->id) {
+                $finalJabatanId = (int) $jabatan->id;
+            } elseif (! $hasJabatanField && $existing?->jabatan_id !== null
+                && (int) $existing->bidang_id === (int) $bidang->id) {
+                // Update yang tidak mengirim field Sub-Bidang sama sekali →
+                // pertahankan jabatan tersimpan.
+                $finalJabatanId = (int) $existing->jabatan_id;
+            }
+
             return array_merge($validated, [
                 'bidang_id'      => (int) $bidang->id,
+                'jabatan_id'     => $finalJabatanId,
                 'department'     => $bidang->departmentCode(),
                 'sub_department' => $bidang->subDepartmentCode(),
             ]);
@@ -406,6 +496,7 @@ class WorkLinkController extends Controller
             return array_merge($validated, [
                 'category'       => WorkLink::CATEGORY_UMUM,
                 'bidang_id'      => null,
+                'jabatan_id'     => null,
                 'department'     => null,
                 'sub_department' => null,
             ]);
@@ -425,6 +516,7 @@ class WorkLinkController extends Controller
 
         return array_merge($validated, [
             'bidang_id'      => $resolvedBidangId,
+            'jabatan_id'     => null,
             'department'     => $department,
             'sub_department' => $finalSub,
         ]);

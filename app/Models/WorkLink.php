@@ -41,7 +41,26 @@ class WorkLink extends Model
         // (controller, seeder, tinker), kode legacy selalu diturunkan
         // dari baris Master Bidang yang dipilih.
         static::saving(function (WorkLink $link) {
-            if ($link->category !== self::CATEGORY_KHUSUS || $link->bidang_id === null) {
+            if ($link->category !== self::CATEGORY_KHUSUS) {
+                $link->jabatan_id = null;
+
+                return;
+            }
+
+            // Target Sub-Bidang berasal dari Master Jabatan: pastikan
+            // pasangan Bidang ↔ Jabatan selalu konsisten (bidang link = bidang
+            // tempat jabatan itu berada).
+            if ($link->jabatan_id !== null) {
+                $jabatan = Jabatan::query()->find($link->jabatan_id);
+
+                if ($jabatan !== null) {
+                    $link->bidang_id = (int) $jabatan->bidang_id;
+                } else {
+                    $link->jabatan_id = null;
+                }
+            }
+
+            if ($link->bidang_id === null) {
                 return;
             }
 
@@ -61,86 +80,112 @@ class WorkLink extends Model
      * Kontrak global scope ScopedToUserDepartment: terjemahkan tingkat
      * akses user login menjadi WHERE filter sesuai skema tabel ini.
      *
-     * REVISI — unit kerja = bidang + sub-bidang:
-     * - Terikat sub (Admin Bidang baru & Karyawan Asmen/Staff) → link
-     *   'umum' + link khusus sub-bidangnya SAJA; data level bidang &
-     *   sub lain dikelola Super Admin.
-     * - Terikat bidang tanpa sub (legacy Admin Bidang / Karyawan
-     *   Manager Bidang) → link 'umum' + seluruh link bidangnya.
+     * REVISI — Kategori Khusus dengan target Bidang & Sub-Bidang:
+     * - Target JABATAN (`jabatan_id` terisi, dari Master Jabatan): link
+     *   tampil untuk jabatan itu beserta seluruh bawahannya mengikuti
+     *   relasi `parent_id` Master Jabatan (mis. ASSISTANT MANAGER
+     *   KEUANGAN → JUNIOR OFFICER KEUANGAN), sekaligus atasan pada jalur
+     *   struktur yang sama.
+     * - Target BIDANG (`jabatan_id` NULL): link tampil untuk seluruh
+     *   pegawai yang berada di Bidang itu / sub-bidang di bawahnya,
+     *   beserta atasan pada jalur struktur tersebut.
+     * - Link legacy tanpa `bidang_id` tetap memakai aturan kode lama
+     *   (`department` / `sub_department`).
      * - Super Admin / Senior Manager / tanpa binding → tidak difilter
      *   (scope utama sudah bypass).
+     *
+     * OTOMATISASI: admin cukup memilih satu Bidang / Sub-Bidang — tidak
+     * ada pemilihan pegawai satu per satu.
      */
     public function applyDataScoping(Builder $query, User $user): void
     {
-        $bidang         = $user->bidangCode();
-        $sub            = $user->subBidangId();
-        $masterBidangId = $user->bidang_id !== null ? (int) $user->bidang_id : null;
-        $level          = $user->dataScopingLevel();
+        $bidang          = $user->bidangCode();
+        $sub             = $user->subBidangId();
+        $masterBidangId  = $user->bidang_id !== null ? (int) $user->bidang_id : null;
+        $masterJabatanId = $user->jabatan_id !== null ? (int) $user->jabatan_id : null;
+        $level           = $user->dataScopingLevel();
 
-        $query->where(function (Builder $q) use ($bidang, $sub, $masterBidangId, $level) {
+        // Jalur struktur user: atasan → unit → bawahan.
+        $bidangScopeIds  = self::bidangScopeIds($masterBidangId);
+        $jabatanScopeIds = $masterJabatanId !== null
+            ? Jabatan::query()->find($masterJabatanId)?->accessScopeIds() ?? [$masterJabatanId]
+            : [];
+
+        $query->where(function (Builder $q) use ($bidang, $sub, $level, $bidangScopeIds, $jabatanScopeIds) {
+            // Link 'umum' selalu tampil untuk semua akun.
             $q->where('category', self::CATEGORY_UMUM);
 
-            if ($level === 'bidang_sub') {
-                // Terkunci sub-bidang: link 'umum' + link khusus unit
-                // kerjanya SAJA — link khusus level bidang & sub lain
-                // tidak ditampilkan.
-                $q->orWhere(function (Builder $q2) use ($bidang, $sub, $masterBidangId) {
-                    if ($masterBidangId !== null) {
-                        $q2->where(function (Builder $q3) use ($bidang, $sub, $masterBidangId) {
-                            // Target persis baris Master Bidang unit kerja…
-                            $q3->where('bidang_id', $masterBidangId)
-                               ->orWhere(function (Builder $q4) use ($bidang, $sub) {
-                                   // …atau link legacy yang belum terpetakan.
-                                   $q4->whereNull('bidang_id')
-                                      ->where('department', $bidang)
-                                      ->where('sub_department', $sub);
-                               });
-                        });
-                    } else {
-                        $q2->where('department', $bidang)
-                           ->where('sub_department', $sub);
-                    }
+            // === 1) Target JABATAN / Sub-Bidang (Master Jabatan) ===
+            if ($jabatanScopeIds !== []) {
+                $q->orWhere(function (Builder $q2) use ($jabatanScopeIds) {
+                    $q2->whereNotNull('jabatan_id')
+                       ->whereIn('jabatan_id', $jabatanScopeIds);
                 });
-
-                return;
             }
 
-            // Terikat bidang saja: link 'umum' + seluruh link bidangnya
-            // (baris master user beserta semua sub-bidang di bawahnya).
-            $q->orWhere(function (Builder $q2) use ($bidang, $masterBidangId) {
-                if ($masterBidangId !== null) {
-                    $q2->where(function (Builder $q3) use ($bidang, $masterBidangId) {
-                        $q3->whereIn('bidang_id', self::bidangScopeIds($masterBidangId))
-                           ->orWhere(function (Builder $q4) use ($bidang) {
-                               $q4->whereNull('bidang_id')->where('department', $bidang);
-                           });
+            // === 2) Target BIDANG (seluruh pegawai di bidang tersebut) ===
+            $q->orWhere(function (Builder $q2) use ($bidang, $sub, $level, $bidangScopeIds) {
+                // Link ber-target jabatan tidak ikut aturan bidang.
+                $q2->whereNull('jabatan_id');
+
+                if ($bidangScopeIds !== []) {
+                    $q2->where(function (Builder $q3) use ($bidang, $sub, $level, $bidangScopeIds) {
+                        $q3->whereIn('bidang_id', $bidangScopeIds);
+
+                        // Data legacy yang belum terpetakan ke Master Bidang.
+                        if ($level === 'bidang_sub') {
+                            $q3->orWhere(function (Builder $q4) use ($bidang, $sub) {
+                                $q4->whereNull('bidang_id')
+                                   ->where('department', $bidang)
+                                   ->where('sub_department', $sub);
+                            });
+                        } elseif ($bidang !== null) {
+                            $q3->orWhere(function (Builder $q4) use ($bidang) {
+                                $q4->whereNull('bidang_id')->where('department', $bidang);
+                            });
+                        }
                     });
-                } else {
+                } elseif ($level === 'bidang_sub') {
+                    $q2->where('department', $bidang)->where('sub_department', $sub);
+                } elseif ($bidang !== null) {
                     $q2->where('department', $bidang);
+                } else {
+                    // Tanpa pengikatan apa pun — jangan bocorkan link khusus.
+                    $q2->whereRaw('1 = 0');
                 }
             });
         });
     }
 
     /**
-     * ID baris Master Bidang yang tercakup unit kerja level bidang:
-     * baris user + seluruh keturunannya (sub-bidang).
+     * ID Bidang pada jalur struktur user (atasan + unit + bawahan).
      *
      * @return array<int, int>
      */
-    private static function bidangScopeIds(int $bidangId): array
+    private static function bidangScopeIds(?int $bidangId): array
     {
+        if ($bidangId === null) {
+            return [];
+        }
+
         $row = Bidang::query()->find($bidangId);
 
-        return $row !== null
-            ? array_values(array_unique(array_merge([$bidangId], $row->descendantIds())))
-            : [$bidangId];
+        return $row !== null ? $row->accessScopeIds() : [$bidangId];
     }
 
     /** Bidang target link (master organisasi; NULL untuk link 'umum'). */
     public function bidang(): BelongsTo
     {
         return $this->belongsTo(Bidang::class, 'bidang_id');
+    }
+
+    /**
+     * Sub-Bidang target link — baris Master Jabatan (koordinator/
+     * manajerial). NULL berarti link berlaku untuk seluruh Bidang.
+     */
+    public function jabatan(): BelongsTo
+    {
+        return $this->belongsTo(Jabatan::class, 'jabatan_id');
     }
 
     /**
@@ -190,6 +235,7 @@ class WorkLink extends Model
         'icon',
         'category',
         'bidang_id',
+        'jabatan_id',
         'department',
         'sub_department',
         'is_active',
@@ -251,6 +297,10 @@ class WorkLink extends Model
             'url'            => $this->url,
             'category'       => $isKhusus ? ($this->department ?? self::CATEGORY_KHUSUS) : self::CATEGORY_UMUM,
             'bidang_id'      => $isKhusus && $this->bidang_id !== null ? (int) $this->bidang_id : null,
+            'jabatan_id'     => $isKhusus && $this->jabatan_id !== null ? (int) $this->jabatan_id : null,
+            'jabatan_label'  => $isKhusus && $this->jabatan !== null
+                ? Jabatan::subBidangLabel($this->jabatan->nama)
+                : null,
             'department'     => $isKhusus ? $this->department : null,
             'sub_department' => $isKhusus ? $this->sub_department : null,
             'icon'           => $this->short_icon,

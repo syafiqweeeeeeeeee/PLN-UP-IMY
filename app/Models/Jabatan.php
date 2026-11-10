@@ -84,6 +84,91 @@ class Jabatan extends Model
     }
 
     /**
+     * Prefix jabatan KOORDINATOR/MANAJERIAL yang ditawarkan sebagai
+     * pilihan **Sub-Bidang** pada Link Kerja kategori Khusus — level 2/3
+     * (Senior Manager/Manager bidang & Assistant Manager), bukan staf
+     * pelaksana (Officer/Junior/Technician).
+     *
+     * @var array<int, string>
+     */
+    public const SUB_BIDANG_PREFIXES = [
+        'SENIOR MANAGER',
+        'ASSISTANT MANAGER',
+        'ASISTEN MANAGER',
+        'ASMAN',
+        'MANAGER',
+        'KOORDINATOR',
+        'COORDINATOR',
+    ];
+
+    /**
+     * Prefix "gelar jabatan" yang DIBUANG dari label pilihan Sub-Bidang
+     * agar yang tampil hanya nama bagian/fungsinya.
+     *
+     * Contoh: ASSISTANT MANAGER KEUANGAN → KEUANGAN.
+     * URUTAN PENTING: frasa dua kata didahulukan (JUNIOR OFFICER sebelum
+     * JUNIOR) supaya sisa label tidak kehilangan konteks.
+     *
+     * @var array<int, string>
+     */
+    public const ROLE_PREFIXES = [
+        'SENIOR MANAGER',
+        'ASSISTANT MANAGER',
+        'ASISTEN MANAGER',
+        'ASISTEN',
+        'ASMAN',
+        'MANAGER',
+        'JUNIOR OFFICER',
+        'JUNIOR',
+        'KOORDINATOR',
+        'COORDINATOR',
+        'SUPERVISOR',
+        'SPV',
+        'OFFICER',
+        'TECHNICIAN',
+        'STAFF',
+        'STAF',
+    ];
+
+    /**
+     * Scope: hanya jabatan koordinator/manajerial (SUB_BIDANG_PREFIXES).
+     * Dipakai dropdown Sub-Bidang form Link Kerja.
+     */
+    public function scopeForSubBidang(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q) {
+            foreach (self::SUB_BIDANG_PREFIXES as $prefix) {
+                $q->orWhere('nama', 'like', $prefix . '%');
+            }
+        });
+    }
+
+    /**
+     * Label tampilan Sub-Bidang: nama jabatan tanpa prefix gelar.
+     * "ASSISTANT MANAGER KEUANGAN" → "KEUANGAN",
+     * "MANAGER BUSINESS SUPPORT" → "BUSINESS SUPPORT".
+     */
+    public static function subBidangLabel(?string $nama): ?string
+    {
+        $nama = trim((string) $nama);
+
+        if ($nama === '') {
+            return null;
+        }
+
+        $pattern = '/^(?:'
+            . implode('|', array_map(
+                fn (string $prefix): string => preg_quote($prefix, '/'),
+                self::ROLE_PREFIXES
+            ))
+            . ')\s+/i';
+
+        $label = trim((string) preg_replace($pattern, '', $nama));
+
+        return $label !== '' ? $label : $nama;
+    }
+
+    /**
      * Scope: hanya jabatan pada 3 level yang boleh dipilih tamu
      * (Asisten Manajer, Junior, Staff). Satu sumber aturan untuk
      * partial _jabatan-options (dropdown tampilan), proxy <select> pada
@@ -140,5 +225,17 @@ class Jabatan extends Model
     public function userUsage(): int
     {
         return User::query()->where('jabatan_id', $this->id)->count();
+    }
+
+    /** Link Kerja yang menargetkan jabatan ini sebagai Sub-Bidang. */
+    public function workLinks(): HasMany
+    {
+        return $this->hasMany(WorkLink::class, 'jabatan_id');
+    }
+
+    /** Jumlah Link Kerja yang masih memakai jabatan ini (proteksi hapus). */
+    public function workLinkUsage(): int
+    {
+        return $this->workLinks()->count();
     }
 }

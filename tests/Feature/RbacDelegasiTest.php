@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Announcement;
 use App\Models\Bidang;
 use App\Models\Department;
+use App\Models\Jabatan;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\WorkLink;
@@ -450,11 +451,9 @@ class RbacDelegasiTest extends TestCase
     public function test_work_link_form_limits_bidang_options_to_admin_unit(): void
     {
         $ops = Bidang::create(['nama' => 'BIDANG OPERASI', 'department_code' => 'operasi']);
-        Bidang::create([
-            'nama' => 'SUB BIDANG PRODUKSI A',
-            'parent_id' => $ops->id,
-            'department_code' => 'operasi',
-            'sub_department_code' => 'asmen_prod_a',
+        Jabatan::create([
+            'nama' => 'ASSISTANT MANAGER PRODUKSI A',
+            'bidang_id' => $ops->id,
         ]);
         Bidang::create(['nama' => 'BIDANG PEMELIHARAAN', 'department_code' => 'pemeliharaan']);
 
@@ -466,10 +465,12 @@ class RbacDelegasiTest extends TestCase
             ->assertOk()
             ->getContent();
 
-        // Sumber opsi = tabel bidangs, dibatasi unit kerja admin.
+        // Bidang dari Master Bidang, Sub-Bidang dari Master Jabatan —
+        // keduanya dibatasi unit kerja admin. Prefix gelar jabatan dibuang.
         $this->assertStringContainsString('id="bidang_id" name="bidang_id" class="form-input"', $html);
         $this->assertStringContainsString('BIDANG OPERASI', $html);
-        $this->assertStringContainsString('SUB BIDANG PRODUKSI A', $html);
+        $this->assertStringContainsString('PRODUKSI A', $html);
+        $this->assertStringNotContainsString('ASSISTANT MANAGER PRODUKSI A', $html);
         $this->assertStringNotContainsString('BIDANG PEMELIHARAAN', $html);
     }
 
@@ -560,6 +561,223 @@ class RbacDelegasiTest extends TestCase
         $this->assertContains('Link Prod A', $titles);
         $this->assertNotContains('Link Prod B', $titles);
         $this->assertNotContains('Link Pemeliharaan', $titles);
+    }
+
+    public function test_work_link_form_uses_bidang_and_sub_bidang_from_master(): void
+    {
+        // Struktur seperti data nyata: BUSINESS SUPPORT adalah anak UP dan
+        // TIDAK punya sub-bidang sendiri — tetap harus muncul sebagai
+        // pilihan Bidang (sumber Sub-Bidang-nya adalah Master Jabatan).
+        $up = Bidang::create(['nama' => 'SM UP INDRAMAYU', 'department_code' => 'business_support']);
+        $bidang = Bidang::create([
+            'nama' => 'BIDANG BUSINESS SUPPORT',
+            'parent_id' => $up->id,
+            'department_code' => 'business_support',
+        ]);
+        $keuangan = Jabatan::create([
+            'nama' => 'ASSISTANT MANAGER KEUANGAN',
+            'bidang_id' => $bidang->id,
+        ]);
+        Jabatan::create([
+            'nama' => 'JUNIOR OFFICER KEUANGAN',
+            'bidang_id' => $bidang->id,
+            'parent_id' => $keuangan->id,
+        ]);
+
+        $html = $this->actingAs($this->superAdmin())
+            ->get(route('admin.work-links.create'))
+            ->assertOk()
+            ->getContent();
+
+        // Bidang dari Master Bidang, Sub-Bidang dari Master Jabatan.
+        $this->assertStringContainsString('id="bidang_id" name="bidang_id" class="form-input"', $html);
+        $this->assertStringContainsString('id="jabatan_id" name="jabatan_id" class="form-input"', $html);
+        $this->assertStringContainsString('BIDANG BUSINESS SUPPORT', $html);
+        // Bidang leaf (anak UP) tetap jadi opsi; Sub-Bidang mengikuti
+        // jabatan yang berelasi dengan Bidang itu.
+        $this->assertStringContainsString('data-parent="' . $up->id . '"', $html);
+        $this->assertStringContainsString('data-parent="' . $bidang->id . '"', $html);
+        $this->assertStringContainsString('Semua Sub-Bidang', $html);
+
+        // Hanya jabatan koordinator/manajerial, label tanpa prefix gelar.
+        $this->assertStringContainsString('KEUANGAN', $html);
+        $this->assertStringNotContainsString('ASSISTANT MANAGER KEUANGAN', $html);
+        $this->assertStringNotContainsString('JUNIOR OFFICER KEUANGAN', $html);
+        $this->assertStringNotContainsString('name="sub_bidang_id"', $html);
+
+        // Contoh pembersihan prefix gelar jabatan.
+        $this->assertSame('KEUANGAN', Jabatan::subBidangLabel('ASSISTANT MANAGER KEUANGAN'));
+        $this->assertSame('PENGADAAN', Jabatan::subBidangLabel('ASSISTANT MANAGER PENGADAAN'));
+        $this->assertSame('K3', Jabatan::subBidangLabel('ASSISTANT MANAGER K3'));
+        $this->assertSame('LINGKUNGAN', Jabatan::subBidangLabel('ASSISTANT MANAGER LINGKUNGAN'));
+        $this->assertSame('BUSINESS SUPPORT', Jabatan::subBidangLabel('MANAGER BUSINESS SUPPORT'));
+        $this->assertSame('UP INDRAMAYU', Jabatan::subBidangLabel('SENIOR MANAGER UP INDRAMAYU'));
+        $this->assertSame('KEUANGAN', Jabatan::subBidangLabel('JUNIOR OFFICER KEUANGAN'));
+
+        // Form Edit memilih kembali pasangan Bidang + Jabatan tersimpan.
+        $link = WorkLink::create([
+            'title' => 'Link Edit Target',
+            'url' => 'https://edit-target.co.id',
+            'category' => 'khusus',
+            'bidang_id' => $bidang->id,
+            'jabatan_id' => $keuangan->id,
+            'is_active' => true,
+        ]);
+
+        $editHtml = $this->actingAs($this->superAdmin())
+            ->get(route('admin.work-links.edit', $link))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertMatchesRegularExpression('/value="' . $bidang->id . '"[^>]*selected/s', $editHtml);
+        $this->assertMatchesRegularExpression('/value="' . $keuangan->id . '"[^>]*selected/s', $editHtml);
+    }
+
+    public function test_work_link_targeted_to_bidang_grants_access_to_all_staff_below(): void
+    {
+        $ops = Bidang::create(['nama' => 'BIDANG OPERASI', 'department_code' => 'operasi']);
+        $prodA = Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI A',
+            'parent_id' => $ops->id,
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_a',
+        ]);
+        $prodB = Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI B',
+            'parent_id' => $ops->id,
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_b',
+        ]);
+
+        // Admin cukup memilih Bidang (Sub-Bidang dikosongkan).
+        $this->actingAs($this->superAdmin())
+            ->post(route('admin.work-links.store'), [
+                'title' => 'Link Seluruh Bidang Operasi',
+                'url' => 'https://ops-semua.co.id',
+                'category' => 'khusus',
+                'bidang_id' => $ops->id,
+                'jabatan_id' => '',
+                'is_active' => '1',
+            ])->assertRedirect(route('admin.work-links.index'));
+
+        $link = WorkLink::where('title', 'Link Seluruh Bidang Operasi')->firstOrFail();
+        $this->assertSame((int) $ops->id, (int) $link->bidang_id);
+        $this->assertNull($link->jabatan_id);
+
+        // Staf di sub-bidang bawah OTOMATIS mendapat akses.
+        $staf = $this->karyawanWithHierarchy('operasi', 'staf', 'asmen_prod_a');
+        $staf->update(['bidang_id' => $prodA->id]);
+
+        $this->actingAs($staf);
+        $this->assertContains('Link Seluruh Bidang Operasi', WorkLink::query()->pluck('title')->all());
+
+        app()->forgetInstance('portal.work_links');
+        $portalNames = collect(\App\Services\PortalContentService::workLinksFor($staf))->pluck('name')->all();
+        $this->assertContains('Link Seluruh Bidang Operasi', $portalNames);
+
+        // Halaman Link Kerja portal ikut menampilkan link induk tersebut.
+        $this->actingAs($staf)->get(route('karyawan.link'))
+            ->assertOk()
+            ->assertSee('Link Seluruh Bidang Operasi');
+
+        // Atasan (Manager Bidang) juga melihat link tersebut.
+        $manager = $this->karyawanWithHierarchy('operasi', 'manager_bidang');
+        $manager->update(['bidang_id' => $ops->id]);
+
+        $this->actingAs($manager);
+        $this->assertContains('Link Seluruh Bidang Operasi', WorkLink::query()->pluck('title')->all());
+
+        // Staf sub-bidang lain di bidang yang sama juga tercakup.
+        $stafB = $this->karyawanWithHierarchy('operasi', 'staf', 'asmen_prod_b');
+        $stafB->update(['bidang_id' => $prodB->id]);
+
+        $this->actingAs($stafB);
+        $this->assertContains('Link Seluruh Bidang Operasi', WorkLink::query()->pluck('title')->all());
+    }
+
+    public function test_work_link_targeted_to_sub_bidang_inherits_to_all_subordinates(): void
+    {
+        $bs = Bidang::create(['nama' => 'BIDANG BUSINESS SUPPORT', 'department_code' => 'business_support']);
+        $pml = Bidang::create(['nama' => 'BIDANG PEMELIHARAAN', 'department_code' => 'pemeliharaan']);
+
+        // Master Jabatan: Manager → Assistant Manager → Junior Officer.
+        $managerJabatan = Jabatan::create([
+            'nama' => 'MANAGER BUSINESS SUPPORT',
+            'bidang_id' => $bs->id,
+        ]);
+        $amKeuangan = Jabatan::create([
+            'nama' => 'ASSISTANT MANAGER KEUANGAN',
+            'bidang_id' => $bs->id,
+            'parent_id' => $managerJabatan->id,
+        ]);
+        $joKeuangan = Jabatan::create([
+            'nama' => 'JUNIOR OFFICER KEUANGAN',
+            'bidang_id' => $bs->id,
+            'parent_id' => $amKeuangan->id,
+        ]);
+        $amPengadaan = Jabatan::create([
+            'nama' => 'ASSISTANT MANAGER PENGADAAN',
+            'bidang_id' => $bs->id,
+            'parent_id' => $managerJabatan->id,
+        ]);
+        $joPengadaan = Jabatan::create([
+            'nama' => 'JUNIOR OFFICER PENGADAAN',
+            'bidang_id' => $bs->id,
+            'parent_id' => $amPengadaan->id,
+        ]);
+
+        // Admin memilih Bidang BUSINESS SUPPORT + Sub-Bidang KEUANGAN.
+        $this->actingAs($this->superAdmin())
+            ->post(route('admin.work-links.store'), [
+                'title' => 'Link Hanya Keuangan',
+                'url' => 'https://hanya-keuangan.co.id',
+                'category' => 'khusus',
+                'bidang_id' => $bs->id,
+                'jabatan_id' => $amKeuangan->id,
+                'is_active' => '1',
+            ])->assertRedirect(route('admin.work-links.index'));
+
+        $link = WorkLink::where('title', 'Link Hanya Keuangan')->firstOrFail();
+        $this->assertSame((int) $bs->id, (int) $link->bidang_id);
+        $this->assertSame((int) $amKeuangan->id, (int) $link->jabatan_id);
+
+        // Staf Junior Officer Keuangan — bawahan langsung — dapat akses.
+        $joUser = $this->karyawanWithHierarchy('business_support', 'staf', 'asmen_keuangan');
+        $joUser->update(['bidang_id' => $bs->id, 'jabatan_id' => $joKeuangan->id]);
+        $this->actingAs($joUser);
+        $this->assertContains('Link Hanya Keuangan', WorkLink::query()->pluck('title')->all());
+
+        // Assistant Manager Keuangan (jabatan target) sendiri dapat akses.
+        $amUser = $this->karyawanWithHierarchy('business_support', 'asisten_manager', 'asmen_keuangan');
+        $amUser->update(['bidang_id' => $bs->id, 'jabatan_id' => $amKeuangan->id]);
+        $this->actingAs($amUser);
+        $this->assertContains('Link Hanya Keuangan', WorkLink::query()->pluck('title')->all());
+
+        // Portal Karyawan menampilkan link + badge Sub-Bidang tanpa prefix
+        // gelar jabatan (ASSISTANT MANAGER KEUANGAN → KEUANGAN).
+        app()->forgetInstance('portal.work_links');
+        $this->actingAs($amUser)->get(route('karyawan.link'))
+            ->assertOk()
+            ->assertSee('Link Hanya Keuangan')
+            ->assertSee('KEUANGAN');
+
+        // Staf sub-bidang lain (Pengadaan) tidak mendapat akses.
+        $pengadaanUser = $this->karyawanWithHierarchy('business_support', 'staf', 'asmen_pengadaan');
+        $pengadaanUser->update(['bidang_id' => $bs->id, 'jabatan_id' => $joPengadaan->id]);
+        $this->actingAs($pengadaanUser);
+        $this->assertNotContains('Link Hanya Keuangan', WorkLink::query()->pluck('title')->all());
+
+        // Atasan (Manager Business Support) tetap melihat target di bawahnya.
+        $managerUser = $this->karyawanWithHierarchy('business_support', 'manager_bidang');
+        $managerUser->update(['bidang_id' => $bs->id, 'jabatan_id' => $managerJabatan->id]);
+        $this->actingAs($managerUser);
+        $this->assertContains('Link Hanya Keuangan', WorkLink::query()->pluck('title')->all());
+
+        // Bidang lain sama sekali tidak melihat link tersebut.
+        $pmlUser = $this->karyawanWithHierarchy('pemeliharaan', 'staf', 'asmen_listrik');
+        $pmlUser->update(['bidang_id' => $pml->id]);
+        $this->actingAs($pmlUser);
+        $this->assertNotContains('Link Hanya Keuangan', WorkLink::query()->pluck('title')->all());
     }
 
     /* =========================================================

@@ -45,9 +45,15 @@ class PortalContentService
      * Aturan akses:
      * - Administrator (legacy) / Senior Manager → semua link (global).
      * - Manager Bidang → link bidang miliknya + link 'umum' (Akses Umum).
-     * - Asisten Manager / Staf (legacy 'staf_spv') → HANYA link
-     *   sub-bidangnya (department:subDepartment) + link 'umum' (Akses Umum).
+     * - Asisten Manager / Staf (legacy 'staf_spv') → link sub-bidangnya
+     *   (department:subDepartment) + link 'umum' (Akses Umum).
      * - Tanpa data hierarki (akun lama) → hanya link umum.
+     *
+     * KATEGORI KHUSUS DARI MASTER BIDANG: link yang punya `bidang_id`
+     * sudah disaring oleh global scope model (jalur struktur bidang /
+     * sub-bidang user), sehingga link induk otomatis ikut terlihat oleh
+     * seluruh staf di bawahnya. Filter kode legacy di bawah hanya berlaku
+     * untuk link lama yang belum terpetakan ke Master Bidang.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -67,28 +73,37 @@ class PortalContentService
         $department     = $user->department;
         $subDepartment  = $user->sub_department;
 
+        // Link target Master Bidang: scoping sudah dilakukan query model.
+        $isMasterTargeted = fn (array $l): bool => ($l['bidang_id'] ?? null) !== null;
+
         // Manager Bidang: semua link bidang miliknya + link umum.
         if ($user->level_jabatan === 'manager_bidang') {
             if ($department === null) {
-                return array_values(array_filter($links, fn ($l) => $l['category'] === 'umum'));
-            }
-
-            return array_values(array_filter($links, fn ($l) =>
-                $l['category'] === 'umum' || ($l['department'] ?? null) === $department
-            ));
-}
-
-        // Asisten Manager / Staf (legacy 'staf_spv'): terkunci pada
-        // sub-bidangnya. HANYA 10 link: 5 Link Umum + 5 Link Khusus
-        // sub-bidang sendiri. Link level bidang (mis. SCADA untuk seluruh
-        // Bidang Operasi) tidak ditampilkan untuk level ini.
-        if (\App\Models\User::subDepartmentRequired($user->level_jabatan)) {
-            if ($department === null || $subDepartment === null) {
-                return array_values(array_filter($links, fn ($l) => $l['category'] === 'umum'));
+                return array_values(array_filter($links, fn ($l) =>
+                    $l['category'] === 'umum' || $isMasterTargeted($l)
+                ));
             }
 
             return array_values(array_filter($links, fn ($l) =>
                 $l['category'] === 'umum'
+                || $isMasterTargeted($l)
+                || ($l['department'] ?? null) === $department
+            ));
+        }
+
+        // Asisten Manager / Staf (legacy 'staf_spv'): terkunci pada
+        // sub-bidangnya. Link target Master Bidang pada jalur strukturnya
+        // (termasuk link level induk/bidang) otomatis ikut terlihat.
+        if (\App\Models\User::subDepartmentRequired($user->level_jabatan)) {
+            if ($department === null || $subDepartment === null) {
+                return array_values(array_filter($links, fn ($l) =>
+                    $l['category'] === 'umum' || $isMasterTargeted($l)
+                ));
+            }
+
+            return array_values(array_filter($links, fn ($l) =>
+                $l['category'] === 'umum'
+                || $isMasterTargeted($l)
                 || (($l['department'] ?? null) === $department && ($l['sub_department'] ?? null) === $subDepartment)
             ));
         }
@@ -185,6 +200,11 @@ class PortalContentService
     {
         if (($link['category'] ?? '') === 'umum') {
             return 'Umum';
+        }
+
+        // Sub-Bidang dari Master Jabatan → label tanpa prefix gelar.
+        if (($link['jabatan_label'] ?? null) !== null) {
+            return $link['jabatan_label'];
         }
 
         $sub = $link['sub_department'] ?? null;
@@ -337,6 +357,7 @@ class PortalContentService
             }
 
             return \App\Models\WorkLink::query()
+                ->with('jabatan')
                 ->active()
                 ->orderBy('category')
                 ->orderBy('title')
