@@ -311,6 +311,40 @@ class DataKaryawanTest extends TestCase
             ->get(route('admin.karyawan_data.edit', $karyawan))->assertOk()->assertSee($karyawan->nid);
     }
 
+    public function test_form_karyawan_memakai_topbar_kembali_standar_seperti_form_berita(): void
+    {
+        $karyawan = Karyawan::factory()->create(['nid' => '9101', 'nama' => 'Rina Kartika']);
+
+        foreach ([route('admin.karyawan_data.create'), route('admin.karyawan_data.edit', $karyawan)] as $url) {
+            $html = $this->actingAs($this->hrUser())->get($url)->assertOk()->getContent();
+
+            // Standar Design System Form (sama dengan form Berita): tombol
+            // Kembali di kiri-atas lewat .form-topbar, sebaris judul halaman.
+            $this->assertStringContainsString('class="form-topbar"', $html, $url);
+            $this->assertStringContainsString('class="form-back-btn"', $html, $url);
+            $this->assertLessThan(
+                strpos($html, '<div class="dk-form-card">'),
+                strpos($html, 'form-back-btn'),
+                'Tombol Kembali harus berada di atas kartu form.'
+            );
+
+            // Tombol Kembali tidak lagi diulang di footer — footer memakai
+            // "Batal" seperti form Berita.
+            $this->assertSame(1, preg_match('/class="dk-form-actions"[\s\S]*?<\/div>/', $html, $footer));
+            $this->assertStringNotContainsString('Kembali', $footer[0]);
+            $this->assertStringContainsString('Batal', $footer[0]);
+
+            // Judul halaman tidak diduplikasi lagi di header kartu.
+            $this->assertStringNotContainsString('<h5>', $html);
+
+            // Info konteks edit tetap tampil — kini di subtitle topbar.
+            if ($url === route('admin.karyawan_data.edit', $karyawan)) {
+                $this->assertStringContainsString('Sedang mengubah', $html);
+                $this->assertStringContainsString('Rina Kartika', $html);
+            }
+        }
+    }
+
     public function test_index_table_shows_only_four_columns_in_order(): void
     {
         $karyawan = Karyawan::factory()->create([

@@ -194,6 +194,7 @@
     font-size: 0.46rem;
     color: var(--dp-muted, #94a3b8);
     pointer-events: none;
+    transition: transform 0.15s ease, color 0.15s ease;
 }
 
 .pln-cal-select {
@@ -222,6 +223,106 @@
     max-width: 5.2rem;
     padding-left: 0.45rem;
 }
+
+/* ---------- SATU PANAH SAJA (fix panah ganda) ----------
+   Layout admin/portal/karyawan punya aturan global
+   `select { background-image: url(chevron) !important }` yang ikut
+   menempel pada dropdown bulan/tahun, sehingga tampil DUA panah:
+   panah global layout + chevron .pln-cal-picker-caret milik kalender.
+
+   Selector `.pln-cal .pln-cal-select` (0,2,0) sengaja dibuat lebih
+   spesifik daripada `select:not(.pln-input)` (0,1,1) dan `select`
+   (0,0,1) milik layout, sehingga deklarasi !important di bawah selalu
+   menang: panah native & panah global dihapus, tersisa satu chevron. */
+.pln-cal .pln-cal-select,
+.pln-cal .pln-cal-select-year {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: none !important;
+    background-repeat: no-repeat !important;
+    background-position: right 8px center !important;
+    padding-right: 1.3rem !important;
+}
+
+/* ---------- DROPDOWN BULAN & TAHUN KUSTOM (di DALAM popup) ----------
+   <select> native tidak bisa dibatasi tingginya: daftar opsinya
+   digambar oleh OS (panjang, font & highlight bawaan sistem) sehingga
+   bisa menjulang keluar kalender dan menutupi section form di bawahnya.
+   Klik pada select bulan/tahun diarahkan JS ke daftar kustom ini (nilai
+   tetap disimpan di <select> yang sama) dengan tinggi maksimum 200px +
+   scroll internal, gayanya seragam untuk bulan maupun tahun. */
+.pln-cal-month,
+.pln-cal-year {
+    position: relative;
+}
+
+.pln-cal-month.is-open .pln-cal-picker-caret,
+.pln-cal-year.is-open .pln-cal-picker-caret {
+    transform: rotate(180deg);
+    color: var(--dp-accent-deep, #005B9C);
+}
+
+.pln-cal-nav-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 6;
+    min-width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0.18rem;
+    background: var(--dp-panel, #ffffff);
+    border: 1px solid var(--dp-line, #e2e8f0);
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.pln-cal-nav-menu[hidden] { display: none; }
+
+.pln-cal-nav-menu::-webkit-scrollbar { width: 4px; }
+.pln-cal-nav-menu::-webkit-scrollbar-track { background: transparent; }
+.pln-cal-nav-menu::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+.pln-cal-nav-menu::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+.pln-cal-nav-option {
+    display: block;
+    width: 100%;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    padding: 0.3rem 0.5rem;
+    font-family: inherit;
+    font-size: 0.76rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--dp-ink, #1e293b);
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.pln-cal-nav-option:hover,
+.pln-cal-nav-option:focus-visible {
+    background: var(--dp-hover, #e6f2fb);
+    color: var(--dp-accent-deep, #005B9C);
+    outline: none;
+}
+
+.pln-cal-nav-option.is-selected {
+    background: var(--dp-hover, #e6f2fb);
+    color: var(--dp-accent-deep, #005B9C);
+    font-weight: 700;
+}
+
+/* Daftar bulan sedikit lebih lebar agar "September" tidak terpotong. */
+.pln-cal-month-menu { min-width: 6.4rem; }
 
 .pln-cal-select:hover {
     background: var(--dp-hover, #e6f2fb);
@@ -422,6 +523,22 @@ html.theme-dark .pln-cal-select option {
     color: #e2e8f0;
     background: #1e293b;
 }
+
+html.theme-dark .pln-cal-nav-menu {
+    border-color: #334155;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+html.theme-dark .pln-cal-nav-option { color: #e2e8f0; }
+
+html.theme-dark .pln-cal-nav-option:hover,
+html.theme-dark .pln-cal-nav-option:focus-visible,
+html.theme-dark .pln-cal-nav-option.is-selected {
+    background: rgba(0, 163, 224, 0.16);
+    color: var(--dp-accent, #22B8EF);
+}
+
+html.theme-dark .pln-cal-nav-menu::-webkit-scrollbar-thumb { background: #475569; }
 
 html.theme-dark .pln-cal-day { color: #e2e8f0; }
 

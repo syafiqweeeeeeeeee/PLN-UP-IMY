@@ -86,6 +86,18 @@
         padding: 2rem 2.25rem;
     }
 
+    /* Gaya Excel: 16 kolom butuh kertas lebih lebar di layar supaya
+       setiap nilai terbaca dalam satu baris. Toolbar & footnote ikut
+       selebar kertas agar tetap rata. Print tetap A4 landscape
+       (lihat @media print — max-width di-reset). */
+    @media screen {
+        .is-excel .print-toolbar,
+        .is-excel .paper,
+        .is-excel .print-footnote {
+            max-width: min(1720px, calc(100vw - 3rem));
+        }
+    }
+
     /* ---------- Kop laporan (gaya pdf) ---------- */
     .kop {
         display: flex;
@@ -165,21 +177,37 @@
     .ringkasan .chip b { color: var(--pln-blue); }
 
     /* ================== TABEL GAYA EXCEL ================== */
-    .sheet table.grid { border-collapse: collapse; width: 100%; }
+    /* table-layout: fixed + <colgroup> → lebar kolom TETAP dan
+       proporsional (tidak dihitung dari isi), sehingga tidak ada
+       kolom yang menyusut sampai satu karakter per baris. */
+    .sheet table.grid {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+    }
 
     .sheet table.grid th,
     .sheet table.grid td {
         border: 1px solid #b6c2d2;
-        padding: 0.3rem 0.45rem;
+        padding: 0.3rem 0.35rem;
         font-size: 0.74rem;
         line-height: 1.35;
         vertical-align: top;
-        /* 16 kolom (setara Detail Tamu): teks panjang seperti email,
-           nama jabatan & keperluan boleh pecah agar tabel tidak
-           melebar keluar kertas. Kolom terstruktur (tanggal, NIK,
-           No. HP) tetap nowrap lewat .num/.ctr di bawah. */
-        overflow-wrap: anywhere;
+        /* Pecah kata HANYA bila benar-benar tidak muat (mis. email
+           panjang). Jangan `anywhere`: itu membuat kata pendek pun
+           pecah per karakter. */
+        overflow-wrap: break-word;
+        word-break: normal;
     }
+
+    /* Lebar kolom sheet sudah ditentukan <colgroup>; atribut width
+       inline pada <th> tidak boleh menimpanya (dipakai kedua gaya). */
+    .paper table.grid thead th { width: auto !important; }
+
+    /* Tanggal & jam ditumpuk dua baris agar tidak perlu kolom lebar. */
+    .paper .dt,
+    .paper .tm { display: block; }
+    .paper .tm { font-size: 0.94em; color: #64748b; }
 
     .sheet table.grid thead th {
         background: #dce6f1;
@@ -195,8 +223,8 @@
 
     .sheet table.grid tbody tr:nth-child(even) td { background: #f6f9fd; }
 
-    .sheet table.grid td.num { text-align: right; white-space: nowrap; }
-    .sheet table.grid td.ctr { text-align: center; white-space: nowrap; }
+    .sheet table.grid td.num { text-align: right; }
+    .sheet table.grid td.ctr { text-align: center; }
 
     .sheet .rownum {
         background: #eef2f7;
@@ -207,23 +235,34 @@
     }
 
     /* ================== TABEL GAYA PDF (laporan) ================== */
-    .report table.grid { border-collapse: collapse; width: 100%; }
+    /* Kolom memakai <colgroup> yang sama dengan gaya Excel supaya tabel
+       tetap di dalam kartu (sebelumnya melebar keluar kertas karena
+       lebar kolom dihitung dari isi terpanjang). */
+    .report table.grid {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+    }
 
     .report table.grid th {
         background: var(--pln-blue);
         color: #fff;
-        font-size: 0.74rem;
+        font-size: 0.72rem;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
-        padding: 0.55rem 0.5rem;
+        letter-spacing: 0.03em;
+        padding: 0.5rem 0.32rem;
         text-align: left;
     }
 
     .report table.grid td {
         border-bottom: 1px solid #e2e8f0;
-        padding: 0.5rem;
-        font-size: 0.78rem;
+        padding: 0.45rem 0.32rem;
+        font-size: 0.76rem;
         vertical-align: top;
+        /* Token panjang (NIK, email, instansi) dipecah hanya bila
+           tidak muat, supaya tabel tidak melebar keluar kartu. */
+        overflow-wrap: break-word;
+        word-break: normal;
     }
 
     .report table.grid tbody tr:nth-child(even) td { background: #f8fafc; }
@@ -299,10 +338,13 @@
 
         .sheet table.grid thead th { position: static; }
 
-        /* A4 landscape: perkecil font sheet secukupnya agar 16 kolom
-           tercetak utuh (tidak terpotong di kolom terakhir). */
+        /* A4 landscape: kolom memakai persentase (selalu muat), font
+           diperkecil agar isi tidak terpotong di kolom terakhir. */
         .sheet table.grid th,
-        .sheet table.grid td { font-size: 0.64rem; padding: 0.22rem 0.3rem; }
+        .sheet table.grid td { font-size: 0.6rem; padding: 0.16rem 0.22rem; }
+
+        .report table.grid th { font-size: 0.58rem; padding: 0.24rem 0.2rem; }
+        .report table.grid td { font-size: 0.6rem; padding: 0.2rem; }
 
         /* Tanggal cetak kecil di bawah tabel */
         .printed-at { margin-top: 0.8rem; font-size: 0.68rem; color: #64748b; }
@@ -311,7 +353,7 @@
     .printed-at { margin-top: 0.8rem; font-size: 0.7rem; color: #64748b; }
 </style>
 </head>
-<body>
+<body class="{{ $style === 'excel' ? 'is-excel' : 'is-report' }}">
 
 {{-- Toolbar pengaturan (tidak ikut tercetak) --}}
 <div class="print-toolbar">
@@ -406,6 +448,29 @@
 
     {{-- ================= TABEL DATA ================= --}}
     <table class="grid">
+        @if ($style === 'excel')
+            {{-- Lebar kolom tetap (dipakai bersama table-layout: fixed).
+                 Total 100% → tabel selalu muat di kertas, tidak ada
+                 kolom yang runtuh jadi satu karakter per baris. --}}
+            <colgroup>
+                <col style="width:2.2%">{{-- No --}}
+                <col style="width:6.4%">{{-- Waktu Daftar --}}
+                <col style="width:6.4%">{{-- Tgl Kunjungan --}}
+                <col style="width:6.8%">{{-- Nama --}}
+                <col style="width:7%">{{-- NIK --}}
+                <col style="width:6%">{{-- No. HP --}}
+                <col style="width:9.6%">{{-- Email --}}
+                <col style="width:5.4%">{{-- Instansi --}}
+                <col style="width:6.4%">{{-- Bidang Ditemui --}}
+                <col style="width:6.4%">{{-- Jabatan Ditemui --}}
+                <col style="width:7.2%">{{-- Orang yang Ditemui --}}
+                <col style="width:2.4%">{{-- Jml --}}
+                <col style="width:9.6%">{{-- Keperluan --}}
+                <col style="width:6.4%">{{-- Check-In --}}
+                <col style="width:6.4%">{{-- Check-Out --}}
+                <col style="width:5.4%">{{-- Status --}}
+            </colgroup>
+        @endif
         <thead>
             <tr>
                 <th style="width:2.6rem;">
@@ -481,8 +546,25 @@
             @forelse ($tamus as $tamu)
                 <tr>
                     <td class="{{ $style === 'excel' ? 'rownum' : 'ctr' }}">{{ $loop->iteration }}</td>
-                    <td class="ctr">{{ $tamu->created_at?->format('Y-m-d H:i') }}</td>
-                    <td class="ctr">{{ $tamu->tanggal_kunjungan?->format('Y-m-d H:i') }}</td>
+                    {{-- Tanggal & jam ditumpuk dua baris supaya kolom
+                         tanggal tidak perlu lebar (tetap rapi saat
+                         dicetak A4 landscape). --}}
+                    <td class="ctr">
+                        @if ($tamu->created_at)
+                            <span class="dt">{{ $tamu->created_at->format('Y-m-d') }}</span>
+                            <span class="tm">{{ $tamu->created_at->format('H:i') }}</span>
+                        @else
+                            —
+                        @endif
+                    </td>
+                    <td class="ctr">
+                        @if ($tamu->tanggal_kunjungan)
+                            <span class="dt">{{ $tamu->tanggal_kunjungan->format('Y-m-d') }}</span>
+                            <span class="tm">{{ $tamu->tanggal_kunjungan->format('H:i') }}</span>
+                        @else
+                            —
+                        @endif
+                    </td>
                     <td><strong>{{ $tamu->nama }}</strong></td>
                     <td class="ctr">{{ $tamu->nik }}</td>
                     <td class="ctr">{{ $tamu->no_hp }}</td>
@@ -495,8 +577,22 @@
                     <td>{{ $tamu->orang_ditemui ?: '—' }}</td>
                     <td class="num">{{ $tamu->jumlah_tamu }}</td>
                     <td>{{ \Illuminate\Support\Str::limit($tamu->keperluan, 120) }}</td>
-                    <td class="ctr">{{ $tamu->checked_in_at?->format('Y-m-d H:i') ?? '—' }}</td>
-                    <td class="ctr">{{ $tamu->checked_out_at?->format('Y-m-d H:i') ?? '—' }}</td>
+                    <td class="ctr">
+                        @if ($tamu->checked_in_at)
+                            <span class="dt">{{ $tamu->checked_in_at->format('Y-m-d') }}</span>
+                            <span class="tm">{{ $tamu->checked_in_at->format('H:i') }}</span>
+                        @else
+                            —
+                        @endif
+                    </td>
+                    <td class="ctr">
+                        @if ($tamu->checked_out_at)
+                            <span class="dt">{{ $tamu->checked_out_at->format('Y-m-d') }}</span>
+                            <span class="tm">{{ $tamu->checked_out_at->format('H:i') }}</span>
+                        @else
+                            —
+                        @endif
+                    </td>
                     <td class="ctr">
                         @php
                             /* Alur sama dengan tabel index: Disetujui

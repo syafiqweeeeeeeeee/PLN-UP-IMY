@@ -10,6 +10,11 @@
       - panel di <body> (portal) + fixed + z-index 9999 → tidak
         terpotong/tertutup modal (overlay memakai backdrop-filter),
       - header bulan/tahun Bahasa Indonesia, hari MIN..SAB,
+      - header HANYA punya satu chevron per dropdown (panah native &
+        panah global layout dihapus; dulu tampil dua panah),
+      - daftar BULAN & TAHUN terbuka DI DALAM popup (bukan popup
+        native OS): max-height 200px, scroll internal, tidak mengubah
+        tinggi popup, memilih opsi mengisi nilai & menutup daftar,
       - Sabtu/Minggu berwarna merah,
       - footer "Hari ini" mengisi nilai YYYY-MM-DD & menutup popup,
       - tombol "Bersihkan" mengosongkan nilai,
@@ -158,6 +163,180 @@ async function main() {
         const y = window.__dpPanel('input[name="dari"]').querySelector('[data-dp-year]');
         return y.options.length >= 50 && Number(y.options[0].value) <= new Date().getFullYear() - 50;
     })()`));
+
+    /* ---------- SATU PANAH SAJA (bukan panah ganda) ---------- */
+    const arrowInfo = await evl(`(() => {
+        const panel = window.__dpPanel('input[name="dari"]');
+        const grab = (el) => {
+            const cs = getComputedStyle(el);
+            const r = el.getBoundingClientRect();
+            const caret = el.parentNode.querySelector('.pln-cal-picker-caret');
+            const cr = caret ? caret.getBoundingClientRect() : null;
+            return {
+                bgImage: cs.backgroundImage,
+                appearance: cs.appearance,
+                caretCount: el.parentNode.querySelectorAll('.pln-cal-picker-caret').length,
+                caretInside: !!cr && cr.left >= r.left && cr.right <= r.right && cr.top >= r.top && cr.bottom <= r.bottom
+            };
+        };
+        return {
+            month: grab(panel.querySelector('[data-dp-month]')),
+            year: grab(panel.querySelector('[data-dp-year]'))
+        };
+    })()`);
+
+    check('header bulan/tahun: panah native & panah global layout dihapus',
+        arrowInfo.month.appearance === 'none' && arrowInfo.year.appearance === 'none' &&
+        arrowInfo.month.bgImage === 'none' && arrowInfo.year.bgImage === 'none',
+        `month=${arrowInfo.month.bgImage} year=${arrowInfo.year.bgImage}`);
+
+    check('header bulan/tahun: tepat SATU chevron kustom di dalam tiap chip',
+        arrowInfo.month.caretCount === 1 && arrowInfo.year.caretCount === 1 &&
+        arrowInfo.month.caretInside && arrowInfo.year.caretInside,
+        `month=${arrowInfo.month.caretCount} year=${arrowInfo.year.caretCount}`);
+
+    /* ---------- DAFTAR TAHUN DI DALAM POPUP (max-height + scroll) ---------- */
+    const yearMenu = await evl(`(async () => {
+        const panel = window.__dpPanel('input[name="dari"]');
+        const sel = panel.querySelector('[data-dp-year]');
+        const before = panel.getBoundingClientRect();
+        sel.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+        await new Promise(r => setTimeout(r, 120));
+        const menu = panel.querySelector('[data-dp-year-menu]');
+        const ms = getComputedStyle(menu);
+        const mr = menu.getBoundingClientRect();
+        const pr = panel.getBoundingClientRect();
+        return {
+            open: !!menu && !menu.hidden,
+            maxHeight: ms.maxHeight,
+            overflowY: ms.overflowY,
+            height: Math.round(mr.height),
+            clipped: menu.scrollHeight > menu.clientHeight,
+            insidePanel: mr.top >= pr.top && mr.bottom <= pr.bottom &&
+                         mr.left >= pr.left && mr.right <= pr.right,
+            panelHeightUnchanged: Math.round(pr.height) === Math.round(before.height),
+            activeYear: (menu.querySelector('.pln-cal-year-option.is-selected') || {}).textContent,
+            ariaExpanded: sel.getAttribute('aria-expanded')
+        };
+    })()`);
+
+    check('daftar tahun terbuka DI DALAM popup (tidak menutupi form di bawahnya)',
+        yearMenu.open && yearMenu.insidePanel && yearMenu.panelHeightUnchanged,
+        `h=${yearMenu.height} max=${yearMenu.maxHeight}`);
+    check('daftar tahun dibatasi max-height 200px + scroll internal',
+        yearMenu.maxHeight === '200px' && yearMenu.overflowY === 'auto' &&
+        yearMenu.height <= 200 && yearMenu.clipped,
+        `max=${yearMenu.maxHeight} height=${yearMenu.height}`);
+    check('tahun aktif ditandai + aria-expanded=true',
+        yearMenu.ariaExpanded === 'true' && String(yearMenu.activeYear).trim() ===
+            await evl(`window.__dpPanel('input[name="dari"]').querySelector('[data-dp-year]').value`),
+        `active=${yearMenu.activeYear}`);
+
+    const yearPicked = await evl(`(async () => {
+        const panel = window.__dpPanel('input[name="dari"]');
+        const sel = panel.querySelector('[data-dp-year]');
+        const menu = panel.querySelector('[data-dp-year-menu]');
+        const current = sel.value;
+        const next = [...menu.querySelectorAll('[data-dp-year-option]')]
+            .find(o => o.getAttribute('data-dp-year-option') !== current);
+        const wanted = next.getAttribute('data-dp-year-option');
+        next.click();
+        await new Promise(r => setTimeout(r, 120));
+        const result = {
+            wanted: wanted,
+            value: sel.value,
+            menuClosed: menu.hidden,
+            panelOpen: !panel.hidden
+        };
+        // Kembalikan ke tahun semula agar langkah berikutnya tidak terpengaruh.
+        sel.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+        await new Promise(r => setTimeout(r, 80));
+        const back = menu.querySelector('[data-dp-year-option="' + current + '"]');
+        if (back) { back.click(); }
+        await new Promise(r => setTimeout(r, 120));
+        result.restored = sel.value === current;
+        return result;
+    })()`);
+
+    check('memilih tahun dari daftar mengisi nilai & menutup daftar',
+        yearPicked.value === yearPicked.wanted && yearPicked.menuClosed && yearPicked.panelOpen,
+        `value=${yearPicked.value}`);
+    check('daftar tahun bisa dikembalikan ke tahun semula', yearPicked.restored);
+
+    /* ---------- DAFTAR BULAN DI DALAM POPUP (seragam dengan tahun) ---------- */
+    const monthMenu = await evl(`(async () => {
+        const panel = window.__dpPanel('input[name="dari"]');
+        const sel = panel.querySelector('[data-dp-month]');
+        const before = panel.getBoundingClientRect();
+        sel.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+        await new Promise(r => setTimeout(r, 120));
+        const menu = panel.querySelector('[data-dp-month-menu]');
+        const ms = getComputedStyle(menu);
+        const mr = menu.getBoundingClientRect();
+        const pr = panel.getBoundingClientRect();
+        const active = menu.querySelector('.pln-cal-month-option.is-selected');
+        return {
+            open: !!menu && !menu.hidden,
+            maxHeight: ms.maxHeight,
+            overflowY: ms.overflowY,
+            height: Math.round(mr.height),
+            clipped: menu.scrollHeight > menu.clientHeight,
+            insidePanel: mr.top >= pr.top && mr.bottom <= pr.bottom &&
+                         mr.left >= pr.left && mr.right <= pr.right,
+            panelHeightUnchanged: Math.round(pr.height) === Math.round(before.height),
+            options: menu.querySelectorAll('[data-dp-month-option]').length,
+            active: active ? active.textContent.trim() : null,
+            selectedName: [...sel.options][sel.selectedIndex].textContent,
+            ariaExpanded: sel.getAttribute('aria-expanded'),
+            style: ms.backgroundColor + '/' + ms.borderTopColor
+        };
+    })()`);
+
+    check('daftar BULAN terbuka DI DALAM popup (12 bulan, bukan popup native)',
+        monthMenu.open && monthMenu.insidePanel && monthMenu.panelHeightUnchanged && monthMenu.options === 12,
+        `h=${monthMenu.height} opsi=${monthMenu.options}`);
+    check('daftar bulan memakai batas tinggi & scroll yang sama (200px)',
+        monthMenu.maxHeight === '200px' && monthMenu.overflowY === 'auto' &&
+        monthMenu.height <= 200 && monthMenu.clipped,
+        `max=${monthMenu.maxHeight} height=${monthMenu.height}`);
+    check('bulan aktif ditandai + aria-expanded=true',
+        monthMenu.ariaExpanded === 'true' && monthMenu.active === monthMenu.selectedName,
+        `active=${monthMenu.active}`);
+
+    const monthPicked = await evl(`(async () => {
+        const panel = window.__dpPanel('input[name="dari"]');
+        const sel = panel.querySelector('[data-dp-month]');
+        const menu = panel.querySelector('[data-dp-month-menu]');
+        const current = sel.value;
+        const next = [...menu.querySelectorAll('[data-dp-month-option]')]
+            .find(o => o.getAttribute('data-dp-month-option') !== current);
+        const wanted = next.getAttribute('data-dp-month-option');
+        const wantedName = next.textContent.trim();
+        next.click();
+        await new Promise(r => setTimeout(r, 150));
+        const result = {
+            wanted: wanted,
+            value: sel.value,
+            menuClosed: menu.hidden,
+            panelOpen: !panel.hidden,
+            header: panel.querySelector('[data-dp-title]').getAttribute('aria-label')
+        };
+        // Kembalikan ke bulan semula agar langkah berikutnya tidak terpengaruh.
+        sel.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+        await new Promise(r => setTimeout(r, 80));
+        const back = menu.querySelector('[data-dp-month-option="' + current + '"]');
+        if (back) { back.click(); }
+        await new Promise(r => setTimeout(r, 120));
+        result.restored = sel.value === current;
+        result.wantedName = wantedName;
+        return result;
+    })()`);
+
+    check('memilih bulan dari daftar mengisi nilai, menutup daftar & render ulang',
+        monthPicked.value === monthPicked.wanted && monthPicked.menuClosed &&
+        monthPicked.panelOpen && monthPicked.header.indexOf(monthPicked.wantedName) === 0,
+        `value=${monthPicked.value} header=${monthPicked.header}`);
+    check('daftar bulan bisa dikembalikan ke bulan semula', monthPicked.restored);
 
     // Merah tema terang #DC2626 (rgb 220,38,38) / tema gelap #EF4444 (239,68,68)
     check('Sabtu & Minggu berwarna MERAH', await evl(`(() => {

@@ -121,6 +121,64 @@ class DatePickerComponentTest extends TestCase
        ASET GLOBAL & HALAMAN HASIL MIGRASI
        ========================================================= */
 
+    /* =========================================================
+       ASET — HEADER BULAN/TAHUN
+       ========================================================= */
+
+    public function test_css_header_hanya_satu_panah_dan_daftar_bulan_tahun_dibatasi(): void
+    {
+        $css = file_get_contents(public_path('css/date-picker.css'));
+
+        // Panah native + panah global layout (background-image !important)
+        // dihapus khusus untuk select header — cukup satu chevron kustom.
+        $this->assertMatchesRegularExpression(
+            '/\.pln-cal \.pln-cal-select[^{]*\{[^}]*appearance:\s*none\s*!important/s',
+            $css,
+            'Select header wajib appearance:none !important agar panah native hilang.'
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.pln-cal \.pln-cal-select[^{]*\{[^}]*background-image:\s*none\s*!important/s',
+            $css,
+            'Panah global layout (background-image) harus dihapus dari select header.'
+        );
+
+        // Daftar bulan & tahun memakai satu kelas menu: 200px + scroll.
+        $this->assertMatchesRegularExpression(
+            '/\.pln-cal-nav-menu\s*\{[^}]*max-height:\s*200px/s',
+            $css,
+            'Daftar bulan/tahun harus dibatasi 200px.'
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.pln-cal-nav-menu\s*\{[^}]*overflow-y:\s*auto/s',
+            $css,
+            'Daftar bulan/tahun harus bisa digulir sendiri.'
+        );
+
+        // Bulan ikut memakai mesin menu kustom yang sama dengan tahun.
+        $this->assertStringContainsString('.pln-cal-month-menu', $css);
+        $this->assertStringContainsString('.pln-cal-month,', $css);
+        $this->assertStringContainsString('.pln-cal-year {', $css);
+    }
+
+    public function test_js_daftar_bulan_dan_tahun_dirender_di_dalam_popup(): void
+    {
+        $js = file_get_contents(public_path('js/date-picker.js'));
+
+        // Select bulan/tahun tetap sumber nilai, tetapi daftar yang terlihat
+        // adalah menu kustom di dalam panel (popup native tidak bisa dibatasi
+        // tinggi dan gayanya mengikuti OS).
+        $this->assertStringContainsString('data-dp-month-menu', $js);
+        $this->assertStringContainsString('data-dp-month-option', $js);
+        $this->assertStringContainsString('data-dp-year-menu', $js);
+        $this->assertStringContainsString('data-dp-year-option', $js);
+        $this->assertStringContainsString('pln-cal-month-menu', $js);
+        $this->assertStringContainsString('pln-cal-year-menu', $js);
+        $this->assertStringContainsString('openNavMenu', $js);
+
+        // Rentang tahun bawaan relevan: 50 tahun ke belakang.
+        $this->assertStringContainsString('nowYear - 50', $js);
+    }
+
     public function test_layout_publik_memuat_aset_datepicker_global(): void
     {
         $this->get(route('layanan.registrasi-tamu'))

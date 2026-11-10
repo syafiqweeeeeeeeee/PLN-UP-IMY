@@ -39,11 +39,14 @@
                                         membuka ke bawah.
          year-start="1950"            → tahun awal pilihan dropdown Tahun
          year-end="2026"              → tahun akhir pilihan dropdown Tahun
-                                        (bawaan: dari min/max, atau 100 tahun
+                                        (bawaan: dari min/max, atau 50 tahun
                                         ke belakang s.d. 10 tahun ke depan).
 
        Kalender punya dropdown BULAN & TAHUN di header sehingga tanggal
-       lahir lama bisa dicapai tanpa klik panah berkali-kali.
+       lahir lama bisa dicapai tanpa klik panah berkali-kali. Kedua daftar
+       dibuka di DALAM popup (max-height 200px + scroll, gaya seragam)
+       agar tidak menjulang menutupi form di bawahnya, dan hanya memakai
+       satu ikon panah (lihat public/css/date-picker.css).
 
        Contoh:
          <x-date-picker name="tanggal_kunjungan" min="today" required />

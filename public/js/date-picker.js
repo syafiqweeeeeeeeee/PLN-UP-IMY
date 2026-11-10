@@ -17,6 +17,11 @@
      - Footer "Hari ini" (dan opsional "Bersihkan").
      - Popup fixed, z-index 9999, dijepit ke viewport agar tidak
        terpotong modal/card.
+     - Header bulan/tahun: HANYA satu chevron (panah global layout
+       dihapus lewat date-picker.css). Daftar BULAN & TAHUN dibuka
+       sebagai menu kustom setinggi maksimal 200px di dalam popup,
+       karena popup <select> native tidak bisa dibatasi tingginya dan
+       gayanya mengikuti OS (tidak seragam dengan kalender).
 
    Pemakaian:
      1. Komponen Blade: <x-date-picker name="tanggal" ... />
@@ -110,6 +115,8 @@
         this._onInputClick = this.onInputClick.bind(this);
         this._onInputKeydown = this.onInputKeydown.bind(this);
         this._onPanelClick = this.onPanelClick.bind(this);
+        this._onPanelMouseDown = this.onPanelMouseDown.bind(this);
+        this._onPanelKeydown = this.onPanelKeydown.bind(this);
         this._onNavChange = this.onNavChange.bind(this);
         this._onReposition = this.position.bind(this);
 
@@ -148,18 +155,28 @@
         var monthOptions = BULAN.map(function (nama, index) {
             return '<option value="' + index + '">' + nama + '</option>';
         }).join('');
+        var monthMenuOptions = BULAN.map(function (nama, index) {
+            return '<button type="button" class="pln-cal-month-option pln-cal-nav-option" role="option"'
+                + ' data-dp-month-option="' + index + '" aria-selected="false">' + nama + '</button>';
+        }).join('');
         var html = ''
             + '<div class="pln-cal-head">'
             + '  <button type="button" class="pln-cal-nav" data-dp-prev aria-label="Bulan sebelumnya">'
             + '    <i class="fas fa-chevron-left" aria-hidden="true"></i></button>'
             + '  <div class="pln-cal-title" data-dp-title aria-live="polite">'
-            + '    <span class="pln-cal-picker">'
-            + '      <select class="pln-cal-select" data-dp-month aria-label="Pilih bulan">' + monthOptions + '</select>'
+            + '    <span class="pln-cal-picker pln-cal-month">'
+            + '      <select class="pln-cal-select" data-dp-month aria-label="Pilih bulan"'
+            + '              aria-haspopup="listbox" aria-expanded="false">' + monthOptions + '</select>'
             + '      <i class="fas fa-chevron-down pln-cal-picker-caret" aria-hidden="true"></i>'
+            + '      <div class="pln-cal-nav-menu pln-cal-month-menu" data-dp-month-menu role="listbox"'
+            + '           aria-label="Daftar bulan" hidden>' + monthMenuOptions + '</div>'
             + '    </span>'
-            + '    <span class="pln-cal-picker">'
-            + '      <select class="pln-cal-select pln-cal-select-year" data-dp-year aria-label="Pilih tahun"></select>'
+            + '    <span class="pln-cal-picker pln-cal-year">'
+            + '      <select class="pln-cal-select pln-cal-select-year" data-dp-year aria-label="Pilih tahun"'
+            + '              aria-haspopup="listbox" aria-expanded="false"></select>'
             + '      <i class="fas fa-chevron-down pln-cal-picker-caret" aria-hidden="true"></i>'
+            + '      <div class="pln-cal-nav-menu pln-cal-year-menu" data-dp-year-menu role="listbox"'
+            + '           aria-label="Daftar tahun" hidden></div>'
             + '    </span>'
             + '  </div>'
             + '  <button type="button" class="pln-cal-nav" data-dp-next aria-label="Bulan berikutnya">'
@@ -186,11 +203,25 @@
 
         this.titleEl = panel.querySelector('[data-dp-title]');
         this.monthSel = panel.querySelector('[data-dp-month]');
+        this.monthPicker = panel.querySelector('.pln-cal-month');
+        this.monthMenu = panel.querySelector('[data-dp-month-menu]');
         this.yearSel = panel.querySelector('[data-dp-year]');
+        this.yearPicker = panel.querySelector('.pln-cal-year');
+        this.yearMenu = panel.querySelector('[data-dp-year-menu]');
         this.daysEl = panel.querySelector('[data-dp-days]');
         this.prevBtn = panel.querySelector('[data-dp-prev]');
         this.nextBtn = panel.querySelector('[data-dp-next]');
         this.panelReady = true;
+
+        if (this.monthMenu && this.monthSel) {
+            if (!this.monthMenu.id) { this.monthMenu.id = this.id + '-month-menu'; }
+            this.monthSel.setAttribute('aria-controls', this.monthMenu.id);
+        }
+
+        if (this.yearMenu && this.yearSel) {
+            if (!this.yearMenu.id) { this.yearMenu.id = this.id + '-year-menu'; }
+            this.yearSel.setAttribute('aria-controls', this.yearMenu.id);
+        }
 
         this.input.setAttribute('aria-controls', panel.id);
         this.input.setAttribute('aria-haspopup', 'dialog');
@@ -198,8 +229,6 @@
     };
 
     DatePicker.prototype.bind = function () {
-        var self = this;
-
         if (this.input.dataset.dpBound !== '1') {
             this.input.dataset.dpBound = '1';
             this.input.setAttribute('autocomplete', 'off');
@@ -214,10 +243,9 @@
         if (this.panel && this.panel.dataset.dpBound !== '1') {
             this.panel.dataset.dpBound = '1';
             this.panel.addEventListener('click', this._onPanelClick);
+            this.panel.addEventListener('mousedown', this._onPanelMouseDown);
             this.panel.addEventListener('change', this._onNavChange);
-            this.panel.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') { e.preventDefault(); self.close(true); }
-            });
+            this.panel.addEventListener('keydown', this._onPanelKeydown);
         }
 
         // Reset form → nilai ikut dikosongkan (native date melakukan ini).
@@ -249,7 +277,9 @@
     /* ---------- DROPDOWN BULAN & TAHUN ---------- */
 
     /** Rentang tahun yang masuk akal: dari data-year-start/data-year-end,
-     *  atau diturunkan dari min/max, atau 100 tahun ke belakang. */
+     *  atau diturunkan dari min/max, atau 50 tahun ke belakang s.d. 10
+     *  tahun ke depan (mis. tanggal lahir / service date tetap relevan,
+     *  tanggal libur tahun depan tetap bisa dipilih). */
     DatePicker.prototype.yearRange = function () {
         var b = this.bounds();
         var nowYear = new Date().getFullYear();
@@ -257,7 +287,7 @@
         var end = parseInt(this.root.getAttribute('data-year-end'), 10);
 
         if (!start || isNaN(start)) {
-            start = b.min ? Number(b.min.slice(0, 4)) : nowYear - 100;
+            start = b.min ? Number(b.min.slice(0, 4)) : nowYear - 50;
         }
         if (!end || isNaN(end)) {
             end = b.max ? Number(b.max.slice(0, 4)) : nowYear + 10;
@@ -281,17 +311,160 @@
         var key = range.start + ':' + range.end;
 
         if (this.yearSel && this._yearKey !== key) {
-            var html = '';
+            var optionsHtml = '';
+            var menuHtml = '';
             for (var year = range.start; year <= range.end; year++) {
-                html += '<option value="' + year + '">' + year + '</option>';
+                optionsHtml += '<option value="' + year + '">' + year + '</option>';
+                menuHtml += '<button type="button" class="pln-cal-year-option pln-cal-nav-option" role="option"'
+                    + ' data-dp-year-option="' + year + '" aria-selected="false">' + year + '</button>';
             }
-            this.yearSel.innerHTML = html;
+            this.yearSel.innerHTML = optionsHtml;
+            if (this.yearMenu) { this.yearMenu.innerHTML = menuHtml; }
             this._yearKey = key;
         }
 
         if (this.yearSel) {
             this.yearSel.value = String(this.viewYear);
         }
+
+        this.syncNavMenuSelection('month');
+        this.syncNavMenuSelection('year');
+    };
+
+    /* ---------- DROPDOWN BULAN & TAHUN KUSTOM (di dalam popup) ----------
+       Keduanya memakai satu mesin yang sama: klik pada <select> diarahkan
+       ke daftar kustom (nilai tetap disimpan di <select>). Popup native
+       tidak bisa dibatasi tingginya dan gayanya mengikuti OS. */
+
+    /** Deskriptor dropdown header yang dipakai (`kind` = 'month'|'year'). */
+    DatePicker.prototype.navPicker = function (kind) {
+        if (kind === 'month') {
+            return {
+                sel: this.monthSel,
+                menu: this.monthMenu,
+                wrap: this.monthPicker,
+                option: '[data-dp-month-option]',
+                selected: '.pln-cal-month-option.is-selected',
+                attr: 'data-dp-month-option',
+                value: String(this.viewMonth)
+            };
+        }
+
+        return {
+            sel: this.yearSel,
+            menu: this.yearMenu,
+            wrap: this.yearPicker,
+            option: '[data-dp-year-option]',
+            selected: '.pln-cal-year-option.is-selected',
+            attr: 'data-dp-year-option',
+            value: String(this.viewYear)
+        };
+    };
+
+    /** Tandai nilai aktif (bulan/tahun) di daftar kustom. */
+    DatePicker.prototype.syncNavMenuSelection = function (kind) {
+        var p = this.navPicker(kind);
+        if (!p.menu) { return; }
+
+        Array.prototype.forEach.call(p.menu.querySelectorAll(p.option), function (option) {
+            var active = option.getAttribute(p.attr) === p.value;
+            option.classList.toggle('is-selected', active);
+            option.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+    };
+
+    DatePicker.prototype.navMenuOpen = function (kind) {
+        var p = this.navPicker(kind);
+        return !!p.menu && !p.menu.hidden;
+    };
+
+    /** Bawa satu opsi ke area pandang daftar (max-height 200px). */
+    function scrollNavOptionIntoView(menu, option, center) {
+        var menuRect = menu.getBoundingClientRect();
+        var optRect = option.getBoundingClientRect();
+
+        if (center) {
+            menu.scrollTop += (optRect.top - menuRect.top)
+                - Math.round((menu.clientHeight - option.offsetHeight) / 2);
+            return;
+        }
+
+        if (optRect.top < menuRect.top) {
+            menu.scrollTop -= (menuRect.top - optRect.top) + 2;
+        } else if (optRect.bottom > menuRect.bottom) {
+            menu.scrollTop += (optRect.bottom - menuRect.bottom) + 2;
+        }
+    }
+
+    DatePicker.prototype.openNavMenu = function (kind) {
+        var p = this.navPicker(kind);
+        if (!p.sel || !p.menu) { return; }
+
+        // Hanya satu daftar terbuka pada satu waktu.
+        this.closeNavMenu(kind === 'month' ? 'year' : 'month', false);
+
+        this.syncNavMenuSelection(kind);
+        p.menu.hidden = false;
+        if (p.wrap) { p.wrap.classList.add('is-open'); }
+        p.sel.setAttribute('aria-expanded', 'true');
+
+        var active = p.menu.querySelector(p.selected) || p.menu.querySelector(p.option);
+        if (!active) { return; }
+
+        try { active.focus({ preventScroll: true }); } catch (e) { active.focus(); }
+        scrollNavOptionIntoView(p.menu, active, true);
+    };
+
+    DatePicker.prototype.closeNavMenu = function (kind, refocus) {
+        var p = this.navPicker(kind);
+        if (!p.menu || p.menu.hidden) { return; }
+
+        p.menu.hidden = true;
+        if (p.wrap) { p.wrap.classList.remove('is-open'); }
+        p.sel.setAttribute('aria-expanded', 'false');
+
+        if (refocus) {
+            try { p.sel.focus({ preventScroll: true }); } catch (e) { p.sel.focus(); }
+        }
+    };
+
+    DatePicker.prototype.toggleNavMenu = function (kind) {
+        // Saat ditutup, fokus dikembalikan ke select agar navigasi keyboard
+        // tidak hilang bersama opsi yang disembunyikan.
+        if (this.navMenuOpen(kind)) { this.closeNavMenu(kind, true); } else { this.openNavMenu(kind); }
+    };
+
+    DatePicker.prototype.pickNavValue = function (kind, value) {
+        var num = Number(value);
+        if (isNaN(num)) { return; }
+
+        if (kind === 'month') {
+            this.viewMonth = num;
+            if (this.monthSel) { this.monthSel.value = String(num); }
+        } else {
+            this.viewYear = num;
+            if (this.yearSel) { this.yearSel.value = String(num); }
+        }
+
+        this.closeNavMenu(kind, true);
+        this.render();
+        this.position();
+    };
+
+    /** Jenis daftar yang sedang terbuka ('month'|'year'|null). */
+    DatePicker.prototype.openNavKind = function () {
+        if (this.navMenuOpen('month')) { return 'month'; }
+        if (this.navMenuOpen('year')) { return 'year'; }
+        return null;
+    };
+
+    /** Tutup daftar bulan/tahun yang terbuka. true bila ada yang ditutup. */
+    DatePicker.prototype.closeOpenNavMenu = function (refocus) {
+        var kind = this.openNavKind();
+        if (!kind) { return false; }
+
+        this.closeNavMenu(kind, refocus);
+        return true;
     };
 
     /* ---------- RENDER ---------- */
@@ -473,6 +646,8 @@
     DatePicker.prototype.close = function (focusInput) {
         if (!this.panel || this.panel.hidden) { return; }
 
+        this.closeNavMenu('month', false);
+        this.closeNavMenu('year', false);
         this.panel.hidden = true;
         this.root.classList.remove('dp-open');
         this.input.setAttribute('aria-expanded', 'false');
@@ -553,10 +728,25 @@
         var todayBtn = target.closest('[data-dp-today]');
         var clearBtn = target.closest('[data-dp-clear]');
         var dayBtn = target.closest('[data-dp-day], .pln-cal-day');
+        var navOption = target.closest('[data-dp-month-option], [data-dp-year-option]');
+
+        if (navOption) {
+            var isMonth = navOption.hasAttribute('data-dp-month-option');
+            this.pickNavValue(
+                isMonth ? 'month' : 'year',
+                navOption.getAttribute(isMonth ? 'data-dp-month-option' : 'data-dp-year-option')
+            );
+            return;
+        }
 
         // Dropdown bulan/tahun: klik pada <select> tidak boleh dianggap
         // klik di luar panel (panel sudah punya listener stopPropagation).
         if (target.closest('[data-dp-month], [data-dp-year]')) { return; }
+
+        // Klik di bagian lain kalender menutup daftar bulan/tahun lebih dulu.
+        if (this.openNavKind() && !target.closest('.pln-cal-month, .pln-cal-year')) {
+            this.closeOpenNavMenu(false);
+        }
 
         if (navPrev) {
             this.viewMonth--;
@@ -585,6 +775,84 @@
         }
     };
 
+    /* Select bulan/tahun dibuka sebagai daftar kustom, BUKAN popup native:
+       popup native digambar OS sehingga tingginya tidak bisa dibatasi,
+       gayanya tidak seragam, dan bisa menutupi form di bawah kalender. */
+    DatePicker.prototype.onPanelMouseDown = function (e) {
+        var target = e.target;
+        if (!target || !target.closest) { return; }
+
+        if (target.closest('[data-dp-month]')) {
+            e.preventDefault();
+            this.toggleNavMenu('month');
+            return;
+        }
+
+        if (target.closest('[data-dp-year]')) {
+            e.preventDefault();
+            this.toggleNavMenu('year');
+            return;
+        }
+
+        var openKind = this.openNavKind();
+        if (openKind && !target.closest(openKind === 'month' ? '.pln-cal-month' : '.pln-cal-year')) {
+            this.closeNavMenu(openKind, false);
+        }
+    };
+
+    DatePicker.prototype.onPanelKeydown = function (e) {
+        var target = e.target;
+
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            if (this.closeOpenNavMenu(true)) {
+                // Hentikan propagasi: handler document juga menutup panel.
+                e.stopPropagation();
+                return;
+            }
+            this.close(true);
+            return;
+        }
+
+        // Select bulan/tahun: Enter/Space/panah membuka daftar kustom.
+        var selectKind = null;
+        if (target && target.closest) {
+            if (target.closest('[data-dp-month]')) { selectKind = 'month'; }
+            else if (target.closest('[data-dp-year]')) { selectKind = 'year'; }
+        }
+        if (selectKind && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+            e.preventDefault();
+            this.openNavMenu(selectKind);
+            return;
+        }
+
+        var kind = this.openNavKind();
+        if (!kind) { return; }
+
+        var p = this.navPicker(kind);
+        var options = Array.prototype.slice.call(p.menu.querySelectorAll(p.option));
+        if (!options.length) { return; }
+
+        var index = options.indexOf(document.activeElement);
+        var next = null;
+
+        if (e.key === 'ArrowDown') {
+            next = options[Math.min(options.length - 1, index + 1)];
+        } else if (e.key === 'ArrowUp') {
+            next = options[Math.max(0, index < 0 ? options.length - 1 : index - 1)];
+        } else if (e.key === 'Home') {
+            next = options[0];
+        } else if (e.key === 'End') {
+            next = options[options.length - 1];
+        }
+
+        if (!next) { return; }
+
+        e.preventDefault();
+        try { next.focus({ preventScroll: true }); } catch (err) { next.focus(); }
+        scrollNavOptionIntoView(p.menu, next, false);
+    };
+
     /* Perubahan dropdown bulan/tahun (event `change`, bukan `click`). */
     DatePicker.prototype.onNavChange = function (e) {
         var target = e.target;
@@ -598,6 +866,7 @@
             return;
         }
 
+        this.closeOpenNavMenu(false);
         this.render();
         this.position();
     };
@@ -731,7 +1000,12 @@
     }, true);
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && openInstance) { openInstance.close(true); }
+        if (e.key !== 'Escape' || !openInstance) { return; }
+
+        // Escape menutup daftar bulan/tahun lebih dulu, baru popup kalender.
+        if (openInstance.closeOpenNavMenu(true)) { return; }
+
+        openInstance.close(true);
     });
 
     /* Router internal (public/js/router.js) menukar konten tanpa reload. */

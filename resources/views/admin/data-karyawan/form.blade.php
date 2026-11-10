@@ -111,15 +111,25 @@
             : ($jabatanText !== '' ? 'legacy' : '');
     }
 @endphp
+
+{{-- TOP NAVIGATION — standar Design System Form (sama dengan form Berita):
+     tombol Kembali di kiri-atas, sebaris dengan judul halaman. --}}
+<div class="form-topbar">
+    <div class="form-topbar-left">
+        <a href="{{ route('admin.karyawan_data.index') }}" class="form-back-btn">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+        <div>
+            <h4 class="form-page-title">{{ $karyawan ? 'Edit Data Karyawan' : 'Tambah Data Karyawan Baru' }}</h4>
+            <p class="form-page-subtitle">
+                NID dan NAMA wajib diisi; kolom lain opsional.
+                @if ($karyawan) Sedang mengubah <b>{{ $karyawan->nama }}</b> (NID {{ $karyawan->nid }}). @endif
+            </p>
+        </div>
+    </div>
+</div>
+
 <div class="dk-form-card">
-    <h5>
-        <i class="fas fa-{{ $karyawan ? 'pen' : 'user-plus' }}" style="color: var(--pln-blue); margin-right: 0.5rem;"></i>
-        {{ $karyawan ? 'Edit Data Karyawan' : 'Tambah Data Karyawan' }}
-    </h5>
-    <p>
-        NID dan NAMA wajib diisi; kolom lain opsional.
-        @if ($karyawan) Sedang mengubah <b>{{ $karyawan->nama }}</b> (NID {{ $karyawan->nid }}). @endif
-    </p>
 
     @if ($errors->any())
         <div class="alert alert-danger py-2 px-3" style="background:#fef2f2; border:1px solid #fecaca; color:#dc2626;" role="alert">
@@ -409,7 +419,7 @@
                 <i class="fas fa-floppy-disk me-1"></i> {{ $karyawan ? 'Simpan Perubahan' : 'Simpan Data' }}
             </button>
             <a href="{{ route('admin.karyawan_data.index') }}" class="btn-corp btn-corp-soft">
-                <i class="fas fa-arrow-left me-1"></i> Kembali
+                <i class="fas fa-xmark me-1"></i> Batal
             </a>
         </div>
     </form>
