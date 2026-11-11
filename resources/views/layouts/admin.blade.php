@@ -682,7 +682,10 @@
         {{-- ============================================================
              LONCENG NOTIFIKASI — polling tamu baru (badge angka saja)
              ----------------------------------------------------------
-             - Poll tiap 30 detik ke admin/notifications/poll.
+             - Poll tiap 60 detik HANYA saat berada di Dashboard admin.
+               Halaman manajemen data (Data Karyawan, Tamu, dst.) tidak
+               mengirim request poll berulang — timer dihentikan setiap
+               kali navigasi SPA pindah ke luar Dashboard.
              - Badge angka di lonceng = jumlah tamu belum dilihat
                (1, 2, 3, ... — tanpa pop-up/toast).
              - Membuka dropdown → daftar notifikasi TETAP tampil
@@ -697,6 +700,8 @@
                 var SEEN_URL  = '{{ route('admin.notifications.seen') }}';
                 var CSRF      = document.querySelector('meta[name="csrf-token"]')?.content || '';
                 var INTERVAL  = 60000; // 60 detik
+                // Path Dashboard — satu-satunya halaman yang boleh polling.
+                var DASHBOARD_PATH = '{{ route('admin.dashboard', [], false) }}';
                 var lastKnownTamuId = {{ (int) ($topbarNotifs['latest_tamu_id'] ?? 0) }};
                 var seenTamuId      = {{ (int) ($topbarNotifs['seen_tamu_id'] ?? 0) }};
                 var timer = null;
@@ -798,20 +803,70 @@
                     }).observe(notifDropdown, { attributes: true, attributeFilter: ['class'] });
                 }
 
-                /* Polling berkala */
-                function start() {
-                    if (timer) clearInterval(timer);
+                /* URL opsional: event `pt:after-swap` membawa URL TUJUAN,
+                   sedangkan history.pushState() baru dijalankan SETELAH
+                   event — tanpa parameter ini pengecekan masih membaca
+                   pathname halaman LAMA (timer tidak pernah berhenti). */
+                function isDashboard(url) {
+                    var pathname;
+
+                    try {
+                        pathname = new URL(url || window.location.href, window.location.origin).pathname;
+                    } catch (e) {
+                        pathname = window.location.pathname;
+                    }
+
+                    var path = pathname.replace(/\/+$/, '') || '/';
+                    var dashboard = DASHBOARD_PATH.replace(/\/+$/, '') || '/';
+
+                    return path === dashboard;
+                }
+
+                function stopPolling() {
+                    if (timer) {
+                        clearInterval(timer);
+                        timer = null;
+                    }
+                }
+
+                /* Timer hanya hidup di Dashboard. Di halaman manajemen
+                   data (mis. /admin/data-karyawan, /admin/tamu) tidak
+                   ada HTTP request poll sama sekali. */
+                function startPolling(event) {
+                    stopPolling();
+
+                    var targetUrl = event && event.detail ? event.detail.url : null;
+
+                    if (document.hidden || !isDashboard(targetUrl)) return;
+
+                    poll();
                     timer = setInterval(function () { poll(); }, INTERVAL);
                 }
 
-                poll();
-                start();
+                startPolling();
 
-                // Sinkron saat kembali ke tab / online kembali
+                /* Navigasi SPA (router.js) menukar konten tanpa memuat
+                   ulang layout — timer lama tetap hidup bila tidak
+                   dihentikan di sini. Event ini menjadi titik
+                   "unmount" halaman sebelumnya. */
+                document.addEventListener('pt:after-swap', startPolling);
+
+                // Tab disembunyikan → hentikan; kembali terlihat → mulai
+                // lagi (hanya bila sedang di Dashboard).
                 document.addEventListener('visibilitychange', function () {
-                    if (!document.hidden) poll();
+                    if (document.hidden) {
+                        stopPolling();
+                    } else {
+                        startPolling();
+                    }
                 });
-                window.addEventListener('online', function () { poll(); });
+
+                window.addEventListener('online', function () {
+                    if (isDashboard()) poll();
+                });
+
+                // Bersihkan timer saat halaman ditinggalkan/di-unmount.
+                window.addEventListener('pagehide', stopPolling);
             })();
         </script>
 

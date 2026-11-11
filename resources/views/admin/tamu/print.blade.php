@@ -86,15 +86,23 @@
         padding: 2rem 2.25rem;
     }
 
-    /* Gaya Excel: 16 kolom butuh kertas lebih lebar di layar supaya
-       setiap nilai terbaca dalam satu baris. Toolbar & footnote ikut
-       selebar kertas agar tetap rata. Print tetap A4 landscape
-       (lihat @media print — max-width di-reset). */
+    /* 16 kolom butuh kertas lebih lebar di layar supaya setiap nilai
+       terbaca tanpa pecah per karakter. Toolbar & footnote ikut selebar
+       kertas agar tetap rata. Print tetap A4 landscape (lihat
+       @media print — max-width di-reset). */
     @media screen {
         .is-excel .print-toolbar,
         .is-excel .paper,
         .is-excel .print-footnote {
             max-width: min(1720px, calc(100vw - 3rem));
+        }
+
+        /* Gaya Laporan: lebih lebar dari A4 di layar supaya tanggal tidak
+           terpecah jadi tiga baris. */
+        .is-report .print-toolbar,
+        .is-report .paper,
+        .is-report .print-footnote {
+            max-width: min(1400px, calc(100vw - 3rem));
         }
     }
 
@@ -249,10 +257,15 @@
         color: #fff;
         font-size: 0.72rem;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
-        padding: 0.5rem 0.32rem;
+        letter-spacing: 0;
+        line-height: 1.25;
+        padding: 0.5rem 0.3rem;
         text-align: left;
     }
+
+    /* Kolom sempit: tetap di tengah agar judul tidak menggantung. */
+    .report table.grid th:nth-child(1),
+    .report table.grid th:nth-child(12) { text-align: center; }
 
     .report table.grid td {
         border-bottom: 1px solid #e2e8f0;
@@ -272,10 +285,11 @@
 
     .report .badge {
         display: inline-block;
-        padding: 0.12rem 0.55rem;
+        padding: 0.12rem 0.5rem;
         border-radius: 999px;
         font-size: 0.68rem;
         font-weight: 700;
+        white-space: nowrap;
     }
 
     .report .badge.menunggu  { background: #fef3c7; color: #b45309; }
@@ -345,6 +359,9 @@
 
         .report table.grid th { font-size: 0.58rem; padding: 0.24rem 0.2rem; }
         .report table.grid td { font-size: 0.6rem; padding: 0.2rem; }
+
+        /* Badge status ikut mengecil agar muat di kolom sempit A4. */
+        .report table.grid .badge { font-size: 0.55rem; padding: 0.1rem 0.26rem; }
 
         /* Tanggal cetak kecil di bawah tabel */
         .printed-at { margin-top: 0.8rem; font-size: 0.68rem; color: #64748b; }
@@ -448,40 +465,40 @@
 
     {{-- ================= TABEL DATA ================= --}}
     <table class="grid">
-        @if ($style === 'excel')
-            {{-- Lebar kolom tetap (dipakai bersama table-layout: fixed).
-                 Total 100% → tabel selalu muat di kertas, tidak ada
-                 kolom yang runtuh jadi satu karakter per baris. --}}
-            <colgroup>
-                <col style="width:2.2%">{{-- No --}}
-                <col style="width:6.4%">{{-- Waktu Daftar --}}
-                <col style="width:6.4%">{{-- Tgl Kunjungan --}}
-                <col style="width:6.8%">{{-- Nama --}}
-                <col style="width:7%">{{-- NIK --}}
-                <col style="width:6%">{{-- No. HP --}}
-                <col style="width:9.6%">{{-- Email --}}
-                <col style="width:5.4%">{{-- Instansi --}}
-                <col style="width:6.4%">{{-- Bidang Ditemui --}}
-                <col style="width:6.4%">{{-- Jabatan Ditemui --}}
-                <col style="width:7.2%">{{-- Orang yang Ditemui --}}
-                <col style="width:2.4%">{{-- Jml --}}
-                <col style="width:9.6%">{{-- Keperluan --}}
-                <col style="width:6.4%">{{-- Check-In --}}
-                <col style="width:6.4%">{{-- Check-Out --}}
-                <col style="width:5.4%">{{-- Status --}}
-            </colgroup>
-        @endif
+        {{-- Lebar kolom tetap (dipakai bersama table-layout: fixed pada
+             kedua gaya: Excel & Laporan). Total 100% → tabel selalu muat
+             di kertas, tidak ada kolom yang runtuh jadi satu karakter
+             per baris. --}}
+        <colgroup>
+            <col style="width:2.8%">{{-- No --}}
+            <col style="width:6.4%">{{-- Waktu Daftar --}}
+            <col style="width:6.4%">{{-- Tgl Kunjungan --}}
+            <col style="width:6.2%">{{-- Nama --}}
+            <col style="width:7%">{{-- NIK --}}
+            <col style="width:6.8%">{{-- No. HP --}}
+            <col style="width:9.2%">{{-- Email --}}
+            <col style="width:5.2%">{{-- Instansi --}}
+            <col style="width:6.4%">{{-- Bidang Ditemui --}}
+            <col style="width:6.4%">{{-- Jabatan Ditemui --}}
+            <col style="width:7.2%">{{-- Orang yang Ditemui --}}
+            <col style="width:2.8%">{{-- Jml --}}
+            <col style="width:8.6%">{{-- Keperluan --}}
+            <col style="width:6.4%">{{-- Check-In --}}
+            <col style="width:6.4%">{{-- Check-Out --}}
+            {{-- cukup lebar untuk badge status ("Menunggu") --}}
+            <col style="width:5.8%">{{-- Status --}}
+        </colgroup>
         <thead>
             <tr>
-                <th style="width:2.6rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">A</span>@endif
                     No
                 </th>
-                <th style="width:7.5rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">B</span>@endif
                     Waktu Daftar
                 </th>
-                <th style="width:7.5rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">C</span>@endif
                     Tgl Kunjungan
                 </th>
@@ -489,11 +506,11 @@
                     @if ($style === 'excel')<span class="col-id">D</span>@endif
                     Nama
                 </th>
-                <th style="width:10rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">E</span>@endif
                     NIK
                 </th>
-                <th style="width:7rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">F</span>@endif
                     No. HP
                 </th>
@@ -508,19 +525,19 @@
                 {{-- Label kolom mengikuti modal DETAIL TAMU (satu
                      sumber istilah): "Bidang Ditemui" + "Jabatan
                      Ditemui" + "Orang yang Ditemui". --}}
-                <th style="width:9rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">I</span>@endif
                     Bidang Ditemui
                 </th>
-                <th style="width:9.5rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">J</span>@endif
                     Jabatan Ditemui
                 </th>
-                <th style="width:9rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">K</span>@endif
                     Orang yang Ditemui
                 </th>
-                <th style="width:3.4rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">L</span>@endif
                     Jml
                 </th>
@@ -528,15 +545,15 @@
                     @if ($style === 'excel')<span class="col-id">M</span>@endif
                     Keperluan
                 </th>
-                <th style="width:7.5rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">N</span>@endif
                     Check-In
                 </th>
-                <th style="width:7.5rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">O</span>@endif
                     Check-Out
                 </th>
-                <th style="width:6rem;">
+                <th>
                     @if ($style === 'excel')<span class="col-id">P</span>@endif
                     Status
                 </th>
@@ -568,7 +585,16 @@
                     <td><strong>{{ $tamu->nama }}</strong></td>
                     <td class="ctr">{{ $tamu->nik }}</td>
                     <td class="ctr">{{ $tamu->no_hp }}</td>
-                    <td>{{ $tamu->email ?? '—' }}</td>
+                    {{-- Email: titik putus setelah "@" supaya bila tidak
+                         muat (gaya laporan/A4) pecahnya rapi menjadi
+                         "nama@" / "domain.com", bukan di tengah kata. --}}
+                    <td>
+                        @if ($tamu->email)
+                            {!! str_replace('@', '@<wbr>', e($tamu->email)) !!}
+                        @else
+                            —
+                        @endif
+                    </td>
                     <td>{{ $tamu->instansi ?? '—' }}</td>
                     <td>{{ $tamu->tujuan_ditemui ?: '—' }}</td>
                     {{-- Jabatan & orang yang ditemui ditampilkan sama seperti

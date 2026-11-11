@@ -757,6 +757,45 @@ class AdminTamuTest extends TestCase
         $this->assertStringNotContainsString('Ani Tersembunyi', $content);
     }
 
+    public function test_print_tabel_rapi_pakai_lebar_kolom_tetap_di_kedua_gaya(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $this->createTamu([
+            'nama'  => 'Budi Rapi',
+            'email' => 'budi.rapi@example.com',
+        ]);
+
+        // Kedua gaya harus memakai lebar kolom tetap (<colgroup>), bukan
+        // lebar otomatis yang membuat kolom menyusut jadi satu karakter
+        // per baris. Sebelumnya colgroup hanya ada di gaya Excel.
+        foreach (['excel', 'pdf'] as $style) {
+            $content = $this->actingAs($admin)
+                ->get(route('admin.tamu.print', ['style' => $style]))
+                ->assertOk()
+                ->getContent();
+
+            $this->assertSame(
+                1,
+                preg_match('/<colgroup>.*?<\/colgroup>/s', $content, $colgroup),
+                "gaya {$style} tanpa colgroup"
+            );
+
+            $cols = substr_count($colgroup[0], '<col ');
+            $this->assertSame(16, $cols, "gaya {$style} tidak punya 16 kolom tetap");
+
+            // Total lebar kolom harus 100% → tabel selalu muat di kertas.
+            preg_match_all('/width:([\d.]+)%/', $colgroup[0], $widths);
+            $this->assertEqualsWithDelta(100.0, array_sum(array_map('floatval', $widths[1])), 0.01, "total lebar kolom gaya {$style}");
+
+            // Tabel 16 kolom: lebar inline per <th> dilarang karena
+            // menimpa colgroup dan membuat tabel keluar kertas.
+            $this->assertStringNotContainsString('<th style="width:', $content, "gaya {$style} masih memakai lebar inline");
+        }
+
+        // Email diberi titik putus setelah "@" agar pecahnya rapi di A4.
+        $this->assertStringContainsString('budi.rapi@<wbr>example.com', $content);
+    }
+
     public function test_print_style_defaults_to_excel_for_unknown_style(): void
     {
         $admin = $this->adminWithPermissions(['tamu.view']);

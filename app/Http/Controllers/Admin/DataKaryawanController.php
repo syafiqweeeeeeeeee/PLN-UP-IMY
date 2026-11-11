@@ -116,7 +116,22 @@ class DataKaryawanController extends Controller
             $perPage = self::PER_PAGE;
         }
 
+        // Column projection + eager loading: tabel daftar hanya
+        // menampilkan NID, NAMA, BIDANG (dan tombol aksi), jadi jangan
+        // mengambil seluruh 26 kolom. Relasi master bidang di-eager-load
+        // sekaligus agar fallback bidangLabel() tidak menembak satu query
+        // per baris (N+1).
         $karyawans = $this->filteredQuery($request, $status)
+            ->select([
+                'karyawans.id',
+                'karyawans.nid',
+                'karyawans.nama',
+                'karyawans.bidang',
+                'karyawans.bidang_id',
+                'karyawans.email',
+                'karyawans.status',
+            ])
+            ->with('bidangMaster:id,nama')
             ->orderBy('nama')
             ->paginate($perPage)
             ->withQueryString();
@@ -754,8 +769,11 @@ class DataKaryawanController extends Controller
     private function masterFilterOptions(): array
     {
         return [
-            'bidangRows' => Bidang::treeOrdered(),
-            'legacyBidang' => $this->legacyValues('bidang', Bidang::query()->pluck('nama')->all()),
+            // Master jarang berubah — pakai cache bersama (lihat
+            // Hierarchical::cachedTreeOrdered/cachedList) supaya halaman
+            // daftar tidak query tabel master di setiap render.
+            'bidangRows' => Bidang::cachedTreeOrdered(),
+            'legacyBidang' => $this->legacyValues('bidang', Bidang::cachedList()->pluck('nama')->all()),
         ];
     }
 

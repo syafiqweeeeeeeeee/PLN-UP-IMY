@@ -75,20 +75,64 @@ class TamuController extends Controller
 
     public function index(Request $request)
     {
-        $query = Tamu::query()
-            ->search($request->string('q')->toString())
-            ->tanggalAntara($request->input('dari'), $request->input('sampai'))
-            ->status($request->string('status')->toString())
-            // Urut JADWAL KUNJUNGAN (terbaru di atas), bukan waktu input —
-            // berlaku untuk Panel Admin maupun Portal Karyawan (subclass).
-            ->orderByDesc('tanggal_kunjungan')
-            ->orderByDesc('id');
+        // Column projection: hanya kolom yang dibaca tabel & payload modal.
+        // Relasi `verifier` di-eager-load beserta role-nya supaya log
+        // aktivitas di modal tidak menembak query per baris (N+1).
+        $query = $this->filteredQuery($request)
+            ->select([
+                'tamus.id',
+                'tamus.nik',
+                'tamus.nama',
+                'tamus.instansi',
+                'tamus.no_hp',
+                'tamus.email',
+                'tamus.dokumen_zip',
+                'tamus.tujuan_ditemui',
+                'tamus.jabatan_ditemui',
+                'tamus.orang_ditemui',
+                'tamus.orang_ditemui_user_id',
+                'tamus.jumlah_tamu',
+                'tamus.tanggal_kunjungan',
+                'tamus.keperluan',
+                'tamus.status_verifikasi',
+                'tamus.verified_at',
+                'tamus.verified_by',
+                'tamus.checked_in_at',
+                'tamus.checked_out_at',
+                'tamus.created_at',
+            ])
+            ->with(['verifier' => fn ($verifier) => $verifier
+                ->select('id', 'name', 'role', 'role_id')
+                ->with(['roles:id,name', 'role:id,name,status'])]);
+
+        // Statistik widget: SATU query agregat untuk tiga hitungan.
+        // Sebelumnya 3 count terpisah menyalin seluruh filter.
+        $awalHari  = now()->startOfDay();
+        $akhirHari = $awalHari->copy()->addDay();
+        $awalBulan = now()->startOfMonth();
+
+        $statRow = $this->filteredQuery($request)
+            ->reorder()
+            ->selectRaw(
+                'SUM(CASE WHEN created_at >= ? AND created_at < ? THEN 1 ELSE 0 END) AS hari_ini, '
+                . 'SUM(CASE WHEN checked_out_at IS NULL THEN 1 ELSE 0 END) AS aktif, '
+                . 'SUM(CASE WHEN created_at >= ? AND created_at < ? THEN 1 ELSE 0 END) AS bulan_ini',
+                [
+                    $awalHari->toDateTimeString(),
+                    $akhirHari->toDateTimeString(),
+                    $awalBulan->toDateTimeString(),
+                    $awalBulan->copy()->addMonth()->toDateTimeString(),
+                ]
+            )
+            ->first();
 
         $stats = [
-            'hari_ini'   => (clone $query)->whereDate('created_at', today())->count(),
-            'aktif'      => (clone $query)->whereNull('checked_out_at')->count(),
-            'bulan_ini'  => (clone $query)->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
-        ];        $tamus = $query->paginate(15)->withQueryString();
+            'hari_ini'  => (int) ($statRow->hari_ini ?? 0),
+            'aktif'     => (int) ($statRow->aktif ?? 0),
+            'bulan_ini' => (int) ($statRow->bulan_ini ?? 0),
+        ];
+
+        $tamus = $query->paginate(15)->withQueryString();
 
         // Payload ringkas untuk modal detail di sisi klien (per halaman).
         $tamuData = collect($tamus->items())->map(fn (Tamu $t) => [
