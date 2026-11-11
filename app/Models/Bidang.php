@@ -51,6 +51,10 @@ class Bidang extends Model
 
         // ── Engineering ────────────────────────────────────────────
         'BIDANG ENJINIRING' => ['engineering', null],
+        // Baris tingkat 2 hasil master data bisa ditulis tanpa prefix
+        // "BIDANG"; ejaan internal "ENJINIRING" berbeda dari label RBAC
+        // "Engineering" sehingga inferensi otomatis tidak cocok.
+        'ENJINIRING' => ['engineering', null],
         'SUB BIDANG  SYSTEM OWNER TURBINE & AUX' => ['engineering', 'asmen_so'],
         'SUB BIDANG SYSTEM OWNER BOILER & AUX' => ['engineering', 'asmen_so'],
         'SUB BIDANG SYSTEM OWNER COMMON AUX' => ['engineering', 'asmen_so'],

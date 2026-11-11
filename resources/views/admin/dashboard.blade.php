@@ -17,14 +17,14 @@
             <div class="dash-card" style="background: linear-gradient(135deg, var(--pln-blue) 0%, var(--pln-blue-dark) 100%); border: none; color: #fff;">
                 <div class="d-flex align-items-center justify-content-between flex-wrap w-100 gap-3" style="min-height: 80px;">
                     <div style="min-width: 200px; flex: 1 1 300px;">
-                        <h4 style="font-weight: 700; margin-bottom: 0.25rem;">
+                        <h4 style="color: #fff; font-weight: 700; margin-bottom: 0.25rem;">
                             @if($stats['is_department_admin'])
                                 Selamat Datang, Admin {{ $stats['sub_department_name'] ?? $stats['department_name'] }} 👋
                             @else
                                 Selamat Datang, Admin 👋
                             @endif
                         </h4>
-                        <p style="opacity: 0.8; font-size: 0.88rem; margin: 0;">
+                        <p style="color: #fff; opacity: 0.8; font-size: 0.88rem; margin: 0;">
                             @if($stats['is_department_admin'])
                                 Ringkasan kondisi sistem Portal PLTU Indramayu untuk {{ $stats['sub_department_name'] ?? $stats['department_name'] }} hari ini.
                             @else

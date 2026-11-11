@@ -115,9 +115,15 @@ class UserController extends Controller
         \App\Providers\AuthServiceProvider::flushPermissionGateCache();
     }
     /**
-     * Daftar MASTER Bidang untuk dropdown form Pengguna — urut nama
-     * (pilihan murni dari tabel bidangs, bukan dari konstanta RBAC
-     * User::DEPARTMENTS yang tetap dipakai untuk scoping data).
+     * Daftar MASTER Bidang untuk dropdown form Pengguna — HANYA baris
+     * TINGKAT 2 (anak langsung unit induk, mis. BUSINESS SUPPORT,
+     * ENJINIRING, OPERASI, PEMELIHARAAN).
+     *
+     * Level puncak (unit induk seperti "SM UP INDRAMAYU") dan sub-bidang
+     * di bawahnya tidak ditawarkan karena bukan bidang operasional
+     * langsung untuk akun pengguna. Pilihan murni dari tabel bidangs,
+     * bukan dari konstanta RBAC User::DEPARTMENTS yang tetap dipakai
+     * untuk scoping data.
      */
     private static function masterBidangsForForm(): \Illuminate\Support\Collection
     {
@@ -126,12 +132,12 @@ class UserController extends Controller
         // berbasis nama dan kode induk; label yang ambigu tetap tidak cocok.
         // Kunci cache khusus dibuang otomatis oleh event CRUD master.
         return \Illuminate\Support\Facades\Cache::remember(
-            'master.user-form-bidangs.v2',
+            'master.user-form-bidangs.v4',
             now()->addMinutes(10),
-            fn () => Bidang::query()
-                ->with('parent')
-                ->orderBy('nama')
-                ->get(['id', 'nama', 'parent_id', 'department_code', 'sub_department_code'])
+            fn () => Bidang::treeOrdered(null, ['parent'])
+                // depth 0 = unit induk (level puncak), depth 1 = tingkat 2.
+                ->filter(fn (array $row) => $row['depth'] === 1)
+                ->map(fn (array $row) => $row['node'])
                 ->filter(fn (Bidang $bidang) => $bidang->hasLegacyScope())
                 ->values()
         );

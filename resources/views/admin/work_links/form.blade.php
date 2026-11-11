@@ -356,7 +356,7 @@
                             <input type="hidden" name="bidang_id" value="{{ $lockedBidangId }}">
                         @else
                             <div class="form-hint flex">
-                                <i class="fas fa-sitemap"></i> Pilih dari Master Bidang — bidang induk mencakup seluruh sub-bidang di bawahnya.
+                                <i class="fas fa-sitemap"></i> Mencakup seluruh sub-bidang di bawahnya.
                             </div>
                         @endif
                         @error('bidang_id')
@@ -386,7 +386,7 @@
                             </select>
                         </div>
                         <div class="form-hint flex">
-                            <i class="fas fa-sitemap"></i> Jabatan koordinator/manajerial di Bidang terpilih — bawahan otomatis tercakup. Kosongkan untuk seluruh pegawai Bidang.
+                            <i class="fas fa-sitemap"></i> Opsional — kosongkan jika untuk seluruh Bidang.
                         </div>
                         @error('jabatan_id')
                             <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
@@ -399,7 +399,7 @@
                         <label class="form-group-label">Cakupan Akses</label>
                         <div class="form-hint flex" style="align-items:flex-start;">
                             <i class="fas fa-user-lock" style="margin-top:2px;"></i>
-                            <span>Pilih Sub-Bidang → jabatan itu dan seluruh bawahannya otomatis mendapat akses. Kosongkan → seluruh pegawai di Bidang terpilih.</span>
+                            <span>Akses otomatis diberikan ke jabatan terpilih beserta seluruh bawahan di bawahnya.</span>
                         </div>
                     </div>
                 </div>

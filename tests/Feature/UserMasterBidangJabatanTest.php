@@ -76,13 +76,18 @@ class UserMasterBidangJabatanTest extends TestCase
 
     /**
      * Pasangan bidang + jabatan di bawahnya (untuk test dependent).
-     * Bidang induk diberi kode legacy agar muncul di dropdown form
-     * (hanya bidang dengan padanan scoping yang bisa dipilih).
+     * Struktur mengikuti data nyata: unit induk (SM UP) → bidang
+     * operasional tingkat 2. Hanya tingkat 2 yang muncul di dropdown
+     * form Pengguna, dan bidang itu diberi kode legacy agar lolos
+     * filter scoping.
      */
     private function masterPair(): array
     {
+        $induk = Bidang::create(['nama' => 'SM UP INDRAMAYU']);
+
         $bidang = Bidang::create([
             'nama' => 'BIDANG OPERASI',
+            'parent_id' => $induk->id,
             'department_code' => 'operasi',
         ]);
         $jabatan = Jabatan::create(['nama' => 'MANAGER OPERASI', 'bidang_id' => $bidang->id]);
@@ -121,12 +126,19 @@ class UserMasterBidangJabatanTest extends TestCase
     {
         // Kondisi database lama/aktif: baris master ada, tetapi kolom
         // department_code dan sub_department_code belum diisi.
-        $induk = Bidang::create(['nama' => 'BIDANG OPERASI']);
+        $root = Bidang::create(['nama' => 'SM UP INDRAMAYU']);
+        $induk = Bidang::create([
+            'nama' => 'BIDANG OPERASI',
+            'parent_id' => $root->id,
+        ]);
         $sub = Bidang::create([
             'nama' => 'SUB BIDANG PRODUKSI A',
             'parent_id' => $induk->id,
         ]);
-        $unknown = Bidang::create(['nama' => 'BIDANG UJI TANPA PADANAN']);
+        $unknown = Bidang::create([
+            'nama' => 'BIDANG UJI TANPA PADANAN',
+            'parent_id' => $root->id,
+        ]);
         $jabatanInduk = Jabatan::create(['nama' => 'MANAGER OPERASI', 'bidang_id' => $induk->id]);
         $jabatanSub = Jabatan::create(['nama' => 'ASISTEN PRODUKSI A', 'bidang_id' => $sub->id]);
 
@@ -135,11 +147,12 @@ class UserMasterBidangJabatanTest extends TestCase
         $bidangOptions = $response->viewData('bidangs');
         $jabatans = $response->viewData('jabatans');
 
+        // Tingkat 2 tampil; level puncak dan sub-bidang (tingkat 3) tidak.
         $this->assertTrue($bidangOptions->contains('id', $induk->id));
-        $this->assertTrue($bidangOptions->contains('id', $sub->id));
-        $this->assertFalse($bidangOptions->contains('id', $unknown->id), 'Bidang akar tanpa pemetaan aman tidak boleh membuat akun tanpa scope.');
+        $this->assertFalse($bidangOptions->contains('id', $root->id), 'Level puncak tidak boleh muncul di dropdown Master Bidang.');
+        $this->assertFalse($bidangOptions->contains('id', $sub->id), 'Sub-bidang bukan bidang operasional tingkat 2.');
+        $this->assertFalse($bidangOptions->contains('id', $unknown->id), 'Bidang tanpa pemetaan aman tidak boleh membuat akun tanpa scope.');
         $this->assertStringContainsString('value="' . $induk->id . '"', $html);
-        $this->assertStringContainsString('value="' . $sub->id . '"', $html);
         $this->assertTrue($jabatans->contains('id', $jabatanInduk->id));
         $this->assertTrue($jabatans->contains('id', $jabatanSub->id));
         $this->assertSame('operasi', $induk->fresh()->departmentCode());
@@ -152,8 +165,8 @@ class UserMasterBidangJabatanTest extends TestCase
         $target = User::factory()->create([
             'role' => 'Karyawan',
             'role_id' => $karyawanRole->id,
-            'bidang_id' => $sub->id,
-            'jabatan_id' => $jabatanSub->id,
+            'bidang_id' => $induk->id,
+            'jabatan_id' => $jabatanInduk->id,
         ]);
         $target->roles()->sync([$karyawanRole->id]);
 
@@ -167,10 +180,69 @@ class UserMasterBidangJabatanTest extends TestCase
         $editResponse = $this->actingAs($superAdmin)
             ->get(route('admin.users.edit', $target))
             ->assertOk();
-        $this->assertTrue($editResponse->viewData('bidangs')->contains('id', $sub->id));
-        $this->assertTrue($editResponse->viewData('jabatans')->contains('id', $jabatanSub->id));
-        $editResponse->assertSee('value="' . $sub->id . '"', false)
-            ->assertSee('value="' . $jabatanSub->id . '"', false);
+        $this->assertTrue($editResponse->viewData('bidangs')->contains('id', $induk->id));
+        $this->assertTrue($editResponse->viewData('jabatans')->contains('id', $jabatanInduk->id));
+        $editResponse->assertSee('value="' . $induk->id . '"', false);
+    }
+
+    public function test_create_form_only_offers_level_two_bidangs(): void
+    {
+        // Struktur seperti data nyata: unit induk → 4 bidang tingkat 2 →
+        // sub-bidang di bawahnya.
+        $root = Bidang::create(['nama' => 'SM UP INDRAMAYU']);
+
+        $tingkatDua = collect(['BUSINESS SUPPORT', 'ENJINIRING', 'OPERASI', 'PEMELIHARAAN'])
+            ->map(fn (string $nama) => Bidang::create([
+                'nama' => $nama,
+                'parent_id' => $root->id,
+                'department_code' => 'business_support',
+            ]));
+
+        $sub = Bidang::create([
+            'nama' => 'SUB BIDANG PRODUKSI A',
+            'parent_id' => $tingkatDua->firstWhere('nama', 'OPERASI')->id,
+            'department_code' => 'operasi',
+            'sub_department_code' => 'asmen_prod_a',
+        ]);
+
+        $bidangOptions = $this->actingAs($this->admin())
+            ->get(route('admin.users.create'))
+            ->assertOk()
+            ->viewData('bidangs');
+
+        $tingkatDua->each(function (Bidang $bidang) use ($bidangOptions): void {
+            $this->assertTrue(
+                $bidangOptions->contains('id', $bidang->id),
+                "Bidang tingkat 2 {$bidang->nama} harus muncul di dropdown."
+            );
+        });
+
+        $this->assertFalse($bidangOptions->contains('id', $root->id), 'Level puncak tidak boleh muncul.');
+        $this->assertFalse($bidangOptions->contains('id', $sub->id), 'Sub-bidang tidak boleh muncul.');
+    }
+
+    public function test_level_two_bidang_without_legacy_code_still_offered(): void
+    {
+        // "ENJINIRING" ditulis tanpa prefix "BIDANG" dan ejaannya berbeda
+        // dari label RBAC "Engineering" — tetap harus tampil sebagai
+        // bidang tingkat 2 (dan mendapat kode legacy yang benar).
+        $root = Bidang::create(['nama' => 'SM UP INDRAMAYU']);
+        $enjiniring = Bidang::create([
+            'nama' => 'ENJINIRING',
+            'parent_id' => $root->id,
+        ]);
+
+        $bidangOptions = $this->actingAs($this->admin())
+            ->get(route('admin.users.create'))
+            ->assertOk()
+            ->viewData('bidangs');
+
+        $this->assertTrue(
+            $bidangOptions->contains('id', $enjiniring->id),
+            'Bidang tingkat 2 ENJINIRING harus muncul di dropdown.'
+        );
+        $this->assertSame('engineering', $enjiniring->fresh()->departmentCode());
+        $this->assertFalse($bidangOptions->contains('id', $root->id), 'Level puncak tidak boleh muncul.');
     }
 
     public function test_store_saves_master_bidang_and_jabatan_ids(): void

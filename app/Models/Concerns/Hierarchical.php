@@ -68,6 +68,8 @@ trait Hierarchical
         // Key cache turunan yang bergantung daftar master ini.
         Cache::forget('master.user-form-bidangs');
         Cache::forget('master.user-form-bidangs.v2');
+        Cache::forget('master.user-form-bidangs.v3');
+        Cache::forget('master.user-form-bidangs.v4');
     }
 
     /** Auto-flush cache master saat baris dibuat/diubah/dihapus. */

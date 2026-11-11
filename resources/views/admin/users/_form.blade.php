@@ -415,7 +415,7 @@
                         </select>
                     </div>
                     <div class="form-hint flex" id="masterBidangHint" style="display:none;">
-                        <i class="far fa-lightbulb"></i> Wajib untuk Admin Bidang & Karyawan. Pilih sub-bidang bila akun terkunci di bagian tertentu.
+                        <i class="far fa-lightbulb"></i> Wajib untuk Admin Bidang & Karyawan. Hanya bidang operasional (tingkat 2) yang tersedia.
                     </div>
                     @error('bidang_id')
                         <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
