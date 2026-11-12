@@ -10,54 +10,32 @@
   --------------
   * SHELL (tanpa $tamu) — struktur + slot kosong. Halaman daftar mengisi
     tubuh modal dari payload tamuData lewat JS openDetailModal(t):
-        [data-role="info"]        daftar informasi utama
-        [data-role="log"]         kartu log aktivitas status
-        [data-role="keperluan-*"]  Maksud & Keperluan
-        [data-role="dokumen-*"]   Dokumen Pendukung
-        [data-role="co-slot"]     kartu dinamis check-in/out (di-clone)
+        [data-role="info"]          daftar informasi utama
+        [data-role="keperluan-*"]   Maksud & Keperluan
+        [data-role="dokumen-*"]     Dokumen Pendukung
+        [data-role="status-card"]   badge status verifikasi + info singkat
   * LENGKAP ($tamu diisi) — tubuh modal dirender langsung oleh server.
 
-  ATURAN BAGIAN ATAS (revisi desain)
-  ----------------------------------
-  Daftar informasi utama HANYA memuat identitas & jadwal pendaftaran:
-  Nama, NIK, kontak, instansi, tujuan, Jumlah Tamu, Tanggal Kunjungan,
-  Waktu Pendaftaran. Baris Check-In / Check-Out / Status DIHAPUS —
-  ketiganya pindah ke kartu dinamis di bawah, yang menangani 3 kondisi:
-
-    Kondisi 1  Belum Check-In   badge  + tombol [Check-In Tamu (Tiba)]
-    Kondisi 2  Sedang Berkunjung badge + jam Check-In aktual +
-                                tombol [Check-Out Tamu (Pulang)]
-    Kondisi 3  Selesai          jam Check-In + jam Check-Out + Durasi +
-                                alert "Kunjungan selesai"
-
-  Aksi tetap memakai fetch PATCH (JSON) sehingga jam & badge berubah
-  REAL-TIME tanpa reload halaman.
-
-  LOG AKTIVITAS (revisi — pengganti halaman detail yang DIHAPUS)
-  --------------------------------------------------------------
-  Kartu "Log Aktivitas Status" (siapa & kapan perubahan terakhir)
-  kini ikut di dalam modal:
-    * SHELL     — diisi JS dari payload tamuData[*].log (teks siap pakai)
-    * LENGKAP   — dirender server dari verified_at / verified_by
+  CARD STATUS KUNJUNGAN
+  ---------------------
+  Hanya menampilkan status verifikasi (Menunggu / Disetujui / Ditolak)
+  beserta informasi singkat siapa & kapan verifikasi terakhir dilakukan.
+  Jam Check-In / Check-Out dan tombol aksinya TIDAK lagi ditampilkan di
+  modal detail.
 
   PARAMETER (opsional)
   --------------------
     $tamu        \App\Models\Tamu  — diisi = mode lengkap
     $accentColor string            — warna aksen ikon header (tema halaman)
-    $checkinUrl  string            — URL aksi check-in  (':id' saat shell)
-    $checkoutUrl string            — URL aksi check-out (':id' saat shell)
     $dokumenUrl  string|null       — URL unduh dokumen privat (mode lengkap)
   ========================================================================== --}}
 @php
     $tamu        = $tamu ?? null;
     $isShell     = $tamu === null;
     $accentColor = $accentColor ?? 'var(--pln-blue)';
-    $checkinUrl  = $checkinUrl ?? route('admin.tamu.checkin', $tamu ?? ':id');
-    $checkoutUrl = $checkoutUrl ?? route('admin.tamu.checkout', $tamu ?? ':id');
     $dokumenUrl  = $dokumenUrl ?? null;
-    $co          = $isShell ? null : $tamu->kunjunganState();
 
-    /** Baris daftar informasi utama — TANPA Check-In / Check-Out / Status. */
+    /** Baris daftar informasi utama — identitas & jadwal pendaftaran. */
     $infoRows = $isShell ? [] : array_values(array_filter([
         ['Nama Lengkap', $tamu->nama],
         ['NIK / No. KTP', $tamu->nik],
@@ -72,13 +50,20 @@
         ['Waktu Pendaftaran', $tamu->created_at?->format('Y-m-d H:i')],
     ], fn ($row) => (string) $row[1] !== ''));
 
-    /** Teks kartu LOG AKTIVITAS — sama dengan payload `log` di modal shell. */
-    $logAktivitas = $isShell ? null : (($tamu->verified_at && $tamu->verified_by)
+    /** Badge & informasi singkat verifikasi (mode lengkap). */
+    $statusBadge = $isShell ? 'menunggu' : match ($tamu->status_verifikasi) {
+        \App\Models\Tamu::STATUS_DISETUJUI => 'disetujui',
+        \App\Models\Tamu::STATUS_DITOLAK   => 'ditolak',
+        default                            => 'menunggu',
+    };
+    $statusLabel = $isShell ? 'Menunggu' : $tamu->verifikasi_label;
+
+    $verifikasiInfo = $isShell ? null : (($tamu->verified_at && $tamu->verified_by)
         ? 'Terakhir diperbarui oleh ' . $tamu->verifier_name
             . ' (' . $tamu->verifier_role_label . ') pada '
             . $tamu->verified_at->format('Y-m-d')
             . ' jam ' . $tamu->verified_at->format('H.i')
-            . ' — status saat ini ' . $tamu->kunjunganState()['badge_label'] . '.'
+            . ' — status verifikasi saat ini ' . $tamu->verifikasi_label . '.'
         : 'Belum ada perubahan status — kunjungan menunggu verifikasi.');
 @endphp
 
@@ -121,27 +106,52 @@
     .dtm-doc-btn:hover { filter: brightness(0.97); }
     .dtm-doc-btn i { color: #dc2626; }
 
-    /* Kartu log aktivitas — pengganti kartu log di halaman detail lama. */
-    .dtm-log {
-        display: flex; align-items: flex-start; gap: 0.75rem;
-        margin-top: 1rem; padding: 0.8rem 0.95rem;
+    /* Kartu status kunjungan — badge verifikasi + info singkat. */
+    .dtm-status-card {
+        margin-top: 1rem;
+        padding: 0.85rem 1rem;
         background: var(--dtm-bg, #f8fafc);
         border: 1px solid var(--dtm-line, #eef2f7);
-        border-radius: 10px;
+        border-radius: 12px;
     }
-    .dtm-log-icon {
-        width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center;
-        background: #e7f9ee; color: #16a34a; font-size: 0.82rem;
+    .dtm-status-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-wrap: wrap;
     }
-    .dtm-log-title {
-        font-size: 0.66rem; font-weight: 700; color: #9ca3af;
-        text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.15rem;
+    .dtm-status-caption {
+        font-size: 0.66rem;
+        font-weight: 700;
+        color: var(--dtm-muted, #9ca3af);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
     }
-    .dtm-log-text { font-size: 0.8rem; color: var(--dtm-text, #374151); line-height: 1.5; }
-    html.theme-dark .dtm-log-icon { background: rgba(22,163,74,.18); color: #4ade80; }
+    .dtm-status-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.32rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+    .dtm-status-chip i { font-size: 0.6rem; }
+    .dtm-status-chip.menunggu  { background: #fef3c7; color: #b45309; }
+    .dtm-status-chip.disetujui { background: #dcfce7; color: #15803d; }
+    .dtm-status-chip.ditolak   { background: #fee2e2; color: #dc2626; }
+    .dtm-status-info {
+        margin-top: 0.55rem;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        color: var(--dtm-text, #374151);
+    }
+    .dtm-status-info:empty { display: none; }
 
-    html.theme-dark .dtm-box {
+    html.theme-dark .dtm-box,
+    html.theme-dark .dtm-status-card {
         background: var(--panel);
         border-color: var(--line);
         color: var(--ink);
@@ -151,6 +161,10 @@
         border-color: rgba(37, 99, 235, .35);
         color: #93c5fd;
     }
+    html.theme-dark .dtm-status-info { color: var(--ink-body, #cbd5e1); }
+    html.theme-dark .dtm-status-chip.menunggu  { background: rgba(180, 83, 9, .25); color: #fcd34d; }
+    html.theme-dark .dtm-status-chip.disetujui { background: rgba(21, 128, 61, .25); color: #86efac; }
+    html.theme-dark .dtm-status-chip.ditolak   { background: rgba(220, 38, 38, .25); color: #fca5a5; }
 </style>
 @endonce
 
@@ -164,18 +178,7 @@
         <div class="tamu-modal-body" id="detailModalBody">
             @if($isShell)
                 {{-- ===== SHELL — diisi JS openDetailModal(t) ===== --}}
-                {{-- Daftar informasi utama: identitas + jadwal pendaftaran.
-                     Check-In / Check-Out / Status sengaja TIDAK ada di sini. --}}
                 <div class="detail-list" data-role="info"></div>
-
-                {{-- Kartu LOG AKTIVITAS — diisi JS dari payload `log`. --}}
-                <div class="dtm-log" data-role="log" hidden>
-                    <div class="dtm-log-icon"><i class="fas fa-clock-rotate-left"></i></div>
-                    <div>
-                        <div class="dtm-log-title">Log Aktivitas Status</div>
-                        <div class="dtm-log-text" data-role="log-text"></div>
-                    </div>
-                </div>
 
                 <div data-role="keperluan-wrap" hidden>
                     <div class="dtm-label">Maksud & Keperluan</div>
@@ -187,8 +190,16 @@
                     <div data-role="dokumen"></div>
                 </div>
 
-                {{-- Card dinamis (3 kondisi status + aksi) di-clone ke sini --}}
-                <div data-role="co-slot"></div>
+                {{-- Kartu status kunjungan — diisi JS dari payload `verifikasi` & `log`. --}}
+                <div class="dtm-status-card" data-role="status-card" hidden>
+                    <div class="dtm-status-head">
+                        <span class="dtm-status-chip menunggu" data-role="status-badge">
+                            <i class="fas fa-circle"></i> <span data-role="status-label">Menunggu</span>
+                        </span>
+                        <span class="dtm-status-caption">Status Kunjungan</span>
+                    </div>
+                    <p class="dtm-status-info" data-role="status-info"></p>
+                </div>
 
             @else
                 {{-- ===== MODE LENGKAP — dirender server dari $tamu ===== --}}
@@ -199,15 +210,6 @@
                             <dd>{{ $nilai }}</dd>
                         </div>
                     @endforeach
-                </div>
-
-                {{-- Kartu LOG AKTIVITAS — siapa & kapan perubahan terakhir. --}}
-                <div class="dtm-log">
-                    <div class="dtm-log-icon"><i class="fas fa-clock-rotate-left"></i></div>
-                    <div>
-                        <div class="dtm-log-title">Log Aktivitas Status</div>
-                        <div class="dtm-log-text">{{ $logAktivitas }}</div>
-                    </div>
                 </div>
 
                 @if ($tamu->keperluan)
@@ -222,13 +224,16 @@
                     </a>
                 @endif
 
-                {{-- Card dinamis: badge + jam + durasi + aksi (AJAX real-time) --}}
-                @include('admin.tamu._checkinout', [
-                    'co'          => $co,
-                    'tamu'        => $tamu,
-                    'checkinUrl'  => $checkinUrl,
-                    'checkoutUrl' => $checkoutUrl,
-                ])
+                {{-- Kartu status kunjungan: badge verifikasi + info singkat. --}}
+                <div class="dtm-status-card">
+                    <div class="dtm-status-head">
+                        <span class="dtm-status-chip {{ $statusBadge }}">
+                            <i class="fas fa-circle"></i> {{ $statusLabel }}
+                        </span>
+                        <span class="dtm-status-caption">Status Kunjungan</span>
+                    </div>
+                    <p class="dtm-status-info">{{ $verifikasiInfo }}</p>
+                </div>
             @endif
         </div>
     </div>

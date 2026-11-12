@@ -113,7 +113,6 @@ async function main() {
     badgeClass: document.querySelector('[data-role="badge"]')?.className,
     checkin: document.querySelector('[data-role="checkin"]')?.textContent.trim(),
     checkout: document.querySelector('[data-role="checkout"]')?.textContent.trim(),
-    durasi: document.querySelector('[data-role="durasi"]')?.textContent.trim(),
     btnInVisible: (() => { const b = document.querySelector('[data-action="checkin"]'); return !!b && !b.hidden; })(),
     btnOutVisible: (() => { const b = document.querySelector('[data-action="checkout"]'); return !!b && !b.hidden; })(),
     doneVisible: (() => { const b = document.querySelector('[data-role="done"]'); return !!b && !b.hidden; })(),
@@ -126,7 +125,6 @@ async function main() {
   check('Check-Out: status & badge menjadi "Selesai"', st.status === 'Selesai' && st.badge === 'Selesai', st.status + ' / ' + st.badge);
   check('Check-Out: tombol disembunyikan, chip selesai tampil', !st.btnOutVisible && !st.btnInVisible && st.doneVisible);
   check('Check-Out: badge halaman detail ikut diperbarui', st.headBadge === 'Selesai', st.headBadge);
-  check('Check-Out: durasi terhitung', !!st.durasi && st.durasi !== '—', st.durasi);
   check('Check-Out: pesan sukses tampil', !!st.msg, st.msg);
 
   // ---------- GUARD: check-out kedua kali harus ditolak ----------

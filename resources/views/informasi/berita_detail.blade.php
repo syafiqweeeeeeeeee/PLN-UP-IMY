@@ -371,8 +371,8 @@
         <div class="container px-4 px-lg-5">
             <nav class="breadcrumb-detail" aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Beranda</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('berita') }}">Berita</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}" data-i18n="berita.bc_home">Beranda</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('berita') }}" data-i18n="berita.bc_current">Berita</a></li>
                     <li class="breadcrumb-item active" aria-current="page">{{ Str::limit($news->title, 35) }}</li>
                 </ol>
             </nav>
@@ -396,7 +396,7 @@
                         @if ($news->author)
                         <span><i class="fas fa-user-pen"></i> <span class="author-meta">{{ $news->author }}</span></span>
                         @endif
-                        <span><i class="far fa-clock"></i> {{ $news->created_at->diffForHumans() }}</span>
+                        <span><i class="far fa-clock"></i> <span data-rel-time="{{ $news->created_at->timestamp }}">{{ $news->created_at->diffForHumans() }}</span></span>
                     </div>
                 </div>
 
@@ -422,7 +422,7 @@
     @if ($related->isNotEmpty())
     <section class="berita-detail-related">
         <div class="container px-4 px-lg-5">
-            <h3>Berita Terkait</h3>
+            <h3 data-i18n="berita.related_title">Berita Terkait</h3>
             <div class="divider"></div>
 
             <div class="related-grid">
@@ -442,7 +442,7 @@
                             <span><i class="far fa-calendar-alt"></i> {{ $item->published_at?->format('Y-m-d') ?? $item->created_at->format('Y-m-d') }}</span>
                         </div>
                         <div class="related-title">{{ $item->title }}</div>
-                        <span class="related-link">Selengkapnya <i class="fas fa-arrow-right"></i></span>
+                        <span class="related-link"><span data-i18n="berita.read_more">Selengkapnya</span> <i class="fas fa-arrow-right"></i></span>
                     </div>
                 </a>
                 @endforeach

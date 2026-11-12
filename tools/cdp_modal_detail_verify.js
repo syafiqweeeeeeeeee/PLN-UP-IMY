@@ -10,7 +10,7 @@
    3. Card dinamis di slot bawah: kondisi "Belum Check-In" + tombol
       Check-In. Klik -> real-time "Berkunjung" + jam check-in.
    4. Buka ulang modal -> hanya ADA SATU kartu (slot tidak menumpuk).
-   5. Klik Check-Out -> kondisi "Selesai" (jam in/out + durasi + chip).
+   5. Klik Check-Out -> kondisi "Selesai" (jam in/out + chip).
 
    PORTAL KARYAWAN
    6. Halaman karyawan memakai parsial yang sama: baris redundan hilang,
@@ -151,16 +151,15 @@ async function main() {
     return {
       status: card.querySelector('[data-role="status"]')?.textContent.trim(),
       checkout: card.querySelector('[data-role="checkout"]')?.textContent.trim(),
-      durasi: card.querySelector('[data-role="durasi"]')?.textContent.trim(),
       btnOutVisible: !!bo && !bo.hidden,
       doneVisible: !!card.querySelector('[data-role="done"]') && !card.querySelector('[data-role="done"]').hidden,
       msg: card.querySelector('[data-role="msg"]')?.textContent.trim(),
     };
   })())`));
 
-  check('Admin Check-Out: kondisi "Selesai" (jam out + durasi + chip)',
-    s3.status === 'Selesai' && s3.checkout !== '—' && !!s3.durasi && s3.durasi !== '—' && !s3.btnOutVisible && s3.doneVisible,
-    s3.status + ' / ' + s3.checkout + ' / ' + s3.durasi);
+  check('Admin Check-Out: kondisi "Selesai" (jam out + chip)',
+    s3.status === 'Selesai' && s3.checkout !== '—' && !s3.btnOutVisible && s3.doneVisible,
+    s3.status + ' / ' + s3.checkout);
   check('Admin Check-Out: pesan sukses tampil', !!s3.msg, s3.msg);
 
   const shot1 = await send('Page.captureScreenshot', { format: 'png' });

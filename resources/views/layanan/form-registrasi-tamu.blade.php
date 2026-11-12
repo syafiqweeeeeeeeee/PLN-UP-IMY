@@ -1400,9 +1400,9 @@
                              dengannya. TIDAK ikut disubmit: nilai yang dikirim tetap input
                              teks #orang_ditemui di atas (teks bebas diperbolehkan). --}}
                         <select id="orang_ditemui_select" class="hidden" aria-hidden="true" tabindex="-1">
-                            <option value="">— Pilih Pengguna —</option>
+                            <option value="" data-i18n="form.opt_pilih_pengguna">— Pilih Pengguna —</option>
                         </select>
-                        <p class="pln-hint" style="margin: 0.25rem 0 0;">
+                        <p class="pln-hint" style="margin: 0.25rem 0 0;" data-i18n="form.hint_orang">
                             Daftar nama mengikuti Jabatan yang dipilih di atas — hanya
                             karyawan aktif level Asisten Manajer, Junior, dan Staff.
                             Ketik untuk mencari, atau klik untuk memilih dari daftar.
@@ -1426,9 +1426,12 @@
                                        value="{{ old('tanggal_kunjungan', today()->format('Y-m-d')) }}"
                                        required readonly autocomplete="off" inputmode="none"
                                        aria-label="tanggal kunjungan" aria-haspopup="dialog"
+                                       data-i18n-aria-label="form.aria_tanggal"
                                        aria-expanded="false"
                                        title="Klik untuk memilih tanggal kunjungan"
+                                       data-i18n-title="form.title_tanggal"
                                        placeholder="Pilih tanggal"
+                                       data-i18n-placeholder="cal.pick_date"
                                        class="pln-input custom-dropdown-input @error('tanggal_kunjungan') has-error @enderror" />
                                 {{-- Panah persis seperti dropdown Divisi (ikon kiri, ruang kanan lega) --}}
                                 <i class="fas fa-chevron-down dropdown-arrow"></i>
@@ -1438,27 +1441,29 @@
                                      aria-label="Kalender tanggal kunjungan" hidden>
                                     <div class="pln-cal-head">
                                         <button type="button" class="pln-cal-nav" id="cal-prev"
-                                                aria-label="Bulan sebelumnya">&lsaquo;</button>
+                                                aria-label="Bulan sebelumnya"
+                                                data-i18n-aria-label="cal.prev_month">&lsaquo;</button>
                                         <span class="pln-cal-title" id="cal-title" aria-live="polite"></span>
                                         <button type="button" class="pln-cal-nav" id="cal-next"
-                                                aria-label="Bulan berikutnya">&rsaquo;</button>
+                                                aria-label="Bulan berikutnya"
+                                                data-i18n-aria-label="cal.next_month">&rsaquo;</button>
                                     </div>
                                     <div class="pln-cal-grid pln-cal-dow" aria-hidden="true">
                                         {{-- Sunday-first: urutan ini WAJIB sama dengan offset
                                              getDay() (0 = Minggu) pada renderKalender(). --}}
-                                        <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span>
-                                        <span>Kam</span><span>Jum</span><span>Sab</span>
+                                        <span data-i18n="day.0">Min</span><span data-i18n="day.1">Sen</span><span data-i18n="day.2">Sel</span><span data-i18n="day.3">Rab</span>
+                                        <span data-i18n="day.4">Kam</span><span data-i18n="day.5">Jum</span><span data-i18n="day.6">Sab</span>
                                     </div>
                                     <div class="pln-cal-grid" id="cal-days"></div>
                                     <div class="pln-cal-foot">
-                                        <button type="button" class="pln-cal-today" id="cal-today">Hari ini</button>
+                                        <button type="button" class="pln-cal-today" id="cal-today" data-i18n="cal.today">Hari ini</button>
                                     </div>
                                 </div>
                             </div>
-                            <p class="pln-hint" style="margin: 0.25rem 0 0;">Minimal hari ini — tanggal kemarin, akhir pekan (Sabtu/Minggu, kecuali dibuka admin), hari libur &amp; tanggal merah tidak dapat dipilih.</p>
+                            <p class="pln-hint" style="margin: 0.25rem 0 0;" data-i18n="form.hint_tanggal">Minimal hari ini — tanggal kemarin, akhir pekan (Sabtu/Minggu, kecuali dibuka admin), hari libur &amp; tanggal merah tidak dapat dipilih.</p>
                             <div class="holiday-warning" id="holiday-warning" style="display: none;">
                                 <i class="fas fa-circle-exclamation"></i>
-                                <span id="holiday-warning-text">Tanggal ini adalah hari libur. Silakan pilih tanggal lain.</span>
+                                <span id="holiday-warning-text" data-i18n="form.holiday_warning">Tanggal ini adalah hari libur. Silakan pilih tanggal lain.</span>
                             </div>
                             @error('tanggal_kunjungan')
                                 <p class="pln-field-error"><i class="fas fa-circle-exclamation"></i> {{ $message }}</p>
@@ -2853,6 +2858,11 @@
             var TANGGAL_MASUK = @json((object) $tanggalMasuk);
             var sedangSetLibur = false;
 
+            /* Penerjemah untuk pesan yang dirakit JavaScript. */
+            function tr(key, fallback) {
+                return (window.PLNI18N && window.PLNI18N.t) ? window.PLNI18N.t(key, fallback) : fallback;
+            }
+
             if (!tanggal) return;
 
             /** Alasan penolakan tanggal (null = boleh dipilih). */
@@ -2868,9 +2878,8 @@
                 if (Object.prototype.hasOwnProperty.call(TANGGAL_MERAH, value)) {
                     var keterangan = TANGGAL_MERAH[value];
                     return {
-                        pesan: 'Tanggal ' + value + ' adalah hari libur'
-                            + (keterangan ? ' (' + keterangan + ')' : '')
-                            + ' dan tidak dapat dipilih untuk kunjungan.'
+                        pesan: tr('form.msg_holiday', 'Tanggal {date} adalah hari libur dan tidak dapat dipilih untuk kunjungan.')
+                            .replace('{date}', value + (keterangan ? ' (' + keterangan + ')' : ''))
                     };
                 }
 
@@ -2882,9 +2891,11 @@
                 var dow = d.getDay();
                 if (dow === 0 || dow === 6) {
                     return {
-                        pesan: 'Tanggal ' + value + ' jatuh pada '
-                            + (dow === 0 ? 'Minggu' : 'Sabtu')
-                            + ' (akhir pekan) — kunjungan hanya dapat dijadwalkan pada hari kerja.'
+                        pesan: tr('form.msg_weekend', 'Tanggal {date} jatuh pada {day} (akhir pekan) — kunjungan hanya dapat dijadwalkan pada hari kerja.')
+                            .replace('{date}', value)
+                            .replace('{day}', dow === 0
+                                ? tr('day.sunday', 'Minggu')
+                                : tr('day.saturday', 'Sabtu'))
                     };
                 }
 
@@ -2930,8 +2941,13 @@
             var kalTitle = document.getElementById('cal-title');
             var kalDays = document.getElementById('cal-days');
             var kalToday = document.getElementById('cal-today');
-            var BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            var BULAN_FALLBACK = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+            /* Nama bulan mengikuti bahasa aktif (kamus i18n). */
+            function namaBulan(index) {
+                return tr('month.long.' + (index + 1), BULAN_FALLBACK[index]);
+            }
             var tampilTahun;
             var tampilBulan;
 
@@ -2954,7 +2970,7 @@
                     var totalHari = new Date(tampilTahun, tampilBulan + 1, 0).getDate();
                     var hariPertama = new Date(tampilTahun, tampilBulan, 1).getDay(); // 0 = Min
 
-                    kalTitle.textContent = BULAN[tampilBulan] + ' ' + tampilTahun;
+                    kalTitle.textContent = namaBulan(tampilBulan) + ' ' + tampilTahun;
                     kalDays.innerHTML = '';
 
                     for (var i = 0; i < hariPertama; i++) {
@@ -2970,7 +2986,7 @@
                         var str = ymd(tampilTahun, tampilBulan, tgl);
                         var status = statusHari(str);
                         var alasan = status === 'libur' ? alasanTanggalLibur(str) : null;
-                        var nama = tgl + ' ' + BULAN[tampilBulan] + ' ' + tampilTahun;
+                        var nama = tgl + ' ' + namaBulan(tampilBulan) + ' ' + tampilTahun;
 
                         var btn = document.createElement('button');
                         btn.type = 'button';
@@ -2985,9 +3001,9 @@
 
                         if (status === 'libur' || status === 'lampau') {
                             btn.disabled = true;
-                            btn.title = alasan ? alasan.pesan : 'Tanggal sudah lewat.';
+                            btn.title = alasan ? alasan.pesan : tr('cal.past', 'Tanggal sudah lewat.');
                         } else if (status === 'masuk') {
-                            btn.title = 'Hari kerja khusus (override weekend) — bisa dipilih.';
+                            btn.title = tr('cal.special_workday', 'Hari kerja khusus (override weekend) — bisa dipilih.');
                         }
                         btn.setAttribute('aria-label', nama + (btn.title ? ' — ' + btn.title : ''));
                         kalDays.appendChild(btn);
@@ -2997,6 +3013,11 @@
                     // minggu berubah (mis. ganti bulan).
                     if (!kalender.hidden) sesuaikanRuangKalender();
                 }
+
+                /* Ganti bahasa → judul bulan & label hari ikut diperbarui. */
+                document.addEventListener('pln:languagechange', function () {
+                    renderKalender();
+                });
 
                 /* Popup selalu di bawah input (bottom-start). Karena kartu
                    memakai overflow: hidden, popup dijepit ke dalam area

@@ -8,6 +8,7 @@ use App\Models\Tamu;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -509,7 +510,7 @@ class AdminTamuTest extends TestCase
             ->get(route('admin.tamu.index'))
             ->assertOk()
             ->assertSee('id="detailModal"', false)
-            ->assertSee('Log Aktivitas Status');
+            ->assertSee('Status Kunjungan');
     }
 
     public function test_modal_detail_menampilkan_log_dan_payload_sesuai_status(): void
@@ -533,12 +534,14 @@ class AdminTamuTest extends TestCase
 
         $html = $this->actingAs($admin)->get(route('admin.tamu.index'))
             ->assertOk()
-            ->assertSee('Log Aktivitas Status')
+            ->assertSee('Status Kunjungan')
             ->getContent();
 
-        // Kartu log ada di shell modal & diisi JS dari payload `log`.
-        $this->assertStringContainsString('data-role="log"', $html);
-        $this->assertStringContainsString('data-role="log-text"', $html);
+        // Kartu status ada di shell modal & diisi JS dari payload.
+        $this->assertStringContainsString('data-role="status-card"', $html);
+        $this->assertStringContainsString('data-role="status-info"', $html);
+        $this->assertStringContainsString('data-role="status-badge"', $html);
+        $this->assertStringNotContainsString('data-role="log"', $html);
 
         // Isi log terkirim per tamu lewat payload (pengganti halaman detail).
         $this->assertStringContainsString('Terakhir diperbarui oleh', $html);
@@ -674,20 +677,28 @@ class AdminTamuTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_print_excel_style_renders_spreadsheet_layout(): void
+    public function test_print_renders_official_report_for_both_styles(): void
     {
         $admin = $this->adminWithPermissions(['tamu.view']);
         $this->createTamu(['nama' => 'Budi Cetak']);
 
-        $response = $this->actingAs($admin)
-            ->get(route('admin.tamu.print', ['style' => 'excel']))
-            ->assertOk()
-            ->assertSee('Data Tamu — Buku Registrasi')
-            ->assertSee('Budi Cetak')
-            ->assertSee('sheet', false); // class pembungkus gaya excel
+        // Kedua URL gaya cetak kini menghasilkan dokumen resmi yang sama.
+        foreach (['excel', 'pdf'] as $style) {
+            $content = $this->actingAs($admin)
+                ->get(route('admin.tamu.print', ['style' => $style]))
+                ->assertOk()
+                ->assertSee('LAPORAN BUKU REGISTRASI TAMU')
+                ->assertSee('Budi Cetak')
+                ->assertSee('PT PLN NUSANTARA POWER')
+                ->assertSee('UNIT PEMBANGKITAN INDRAMAYU')
+                ->assertSee('Periode Cetak:')
+                ->assertSee('Waktu Cetak:')
+                ->assertDontSee('Dicetak dari')
+                ->getContent();
 
-        // Kolom ber-label abjad ala Excel (A, B, C, ...)
-        $response->assertSee('col-id', false);
+            // Abjad indeks kolom ala spreadsheet sudah dihapus.
+            $this->assertStringNotContainsString('col-id', $content);
+        }
     }
 
     public function test_print_menampilkan_kolom_detail_tamu_lengkap(): void
@@ -704,17 +715,26 @@ class AdminTamuTest extends TestCase
             ->assertOk()
             ->getContent();
 
-        // Header memakai istilah yang sama dengan modal Detail Tamu.
-        $this->assertStringContainsString('Bidang Ditemui', $content);
-        $this->assertStringContainsString('Jabatan Ditemui', $content);
-        $this->assertStringContainsString('Orang yang Ditemui', $content);
+        // 8 kolom gabungan sesuai format dokumen resmi.
+        foreach ([
+            'No',
+            'Waktu &amp; Tanggal Kunjungan',
+            'Nama Tamu &amp; Instansi',
+            'NIK &amp; No. WhatsApp',
+            'Bidang &amp; Jabatan Ditemui',
+            'Personil Ditemui',
+            'Keperluan',
+            'Status Verifikasi',
+        ] as $header) {
+            $this->assertStringContainsString($header, $content);
+        }
 
-        // Nilai jabatan & orang ikut tercetak (sebelumnya tidak ada kolomnya).
+        // Nilai jabatan & personil ikut tercetak.
         $this->assertStringContainsString('JUNIOR OFFICER KEUANGAN', $content);
         $this->assertStringContainsString('Siti Aminah', $content);
 
-        // Kolom bertambah 2 → penomoran abjad Excel berlanjut sampai P.
-        $this->assertStringContainsString('<span class="col-id">P</span>', $content);
+        // Tidak ada lagi abjad indeks kolom (A, B, C, ... P).
+        $this->assertStringNotContainsString('col-id', $content);
     }
 
     public function test_print_pdf_style_renders_formal_report(): void
@@ -722,13 +742,16 @@ class AdminTamuTest extends TestCase
         $admin = $this->adminWithPermissions(['tamu.view']);
         $this->createTamu(['nama' => 'Siti Laporan']);
 
-        $response = $this->actingAs($admin)
+        $this->actingAs($admin)
             ->get(route('admin.tamu.print', ['style' => 'pdf']))
             ->assertOk()
-            ->assertSee('Laporan Daftar Tamu')
+            ->assertSee('LAPORAN BUKU REGISTRASI TAMU')
             ->assertSee('Siti Laporan')
-            ->assertSee('report', false)   // class pembungkus gaya pdf
-            ->assertSee('Petugas Front Office'); // blok tanda tangan
+            ->assertSee('PT PLN NUSANTARA POWER')
+            ->assertSee('UNIT PEMBANGKITAN INDRAMAYU')
+            ->assertSee('Jl. Raya Preteg - Sumuradem, Kec. Sukra, Kab. Indramayu, Jawa Barat 45257')
+            ->assertSee('Petugas Security / Admin Services') // blok tanda tangan
+            ->assertSee('Indramayu, ');
     }
 
     public function test_print_follows_active_filter_and_shows_all_rows(): void
@@ -760,14 +783,11 @@ class AdminTamuTest extends TestCase
     public function test_print_tabel_rapi_pakai_lebar_kolom_tetap_di_kedua_gaya(): void
     {
         $admin = $this->adminWithPermissions(['tamu.view']);
-        $this->createTamu([
-            'nama'  => 'Budi Rapi',
-            'email' => 'budi.rapi@example.com',
-        ]);
+        $this->createTamu(['nama' => 'Budi Rapi']);
 
-        // Kedua gaya harus memakai lebar kolom tetap (<colgroup>), bukan
-        // lebar otomatis yang membuat kolom menyusut jadi satu karakter
-        // per baris. Sebelumnya colgroup hanya ada di gaya Excel.
+        // Kedua URL gaya cetak harus memakai lebar kolom tetap (<colgroup>),
+        // bukan lebar otomatis yang membuat kolom menyusut jadi satu
+        // karakter per baris.
         foreach (['excel', 'pdf'] as $style) {
             $content = $this->actingAs($admin)
                 ->get(route('admin.tamu.print', ['style' => $style]))
@@ -781,30 +801,265 @@ class AdminTamuTest extends TestCase
             );
 
             $cols = substr_count($colgroup[0], '<col ');
-            $this->assertSame(16, $cols, "gaya {$style} tidak punya 16 kolom tetap");
+            $this->assertSame(8, $cols, "gaya {$style} tidak punya 8 kolom tetap");
 
             // Total lebar kolom harus 100% → tabel selalu muat di kertas.
             preg_match_all('/width:([\d.]+)%/', $colgroup[0], $widths);
             $this->assertEqualsWithDelta(100.0, array_sum(array_map('floatval', $widths[1])), 0.01, "total lebar kolom gaya {$style}");
 
-            // Tabel 16 kolom: lebar inline per <th> dilarang karena
+            // Tabel 8 kolom: lebar inline per <th> dilarang karena
             // menimpa colgroup dan membuat tabel keluar kertas.
             $this->assertStringNotContainsString('<th style="width:', $content, "gaya {$style} masih memakai lebar inline");
-        }
 
-        // Email diberi titik putus setelah "@" agar pecahnya rapi di A4.
-        $this->assertStringContainsString('budi.rapi@<wbr>example.com', $content);
+            // Teks panjang turun baris, tidak terpotong di kolom sempit.
+            $this->assertStringContainsString('word-wrap: break-word', $content);
+            $this->assertStringContainsString('white-space: normal', $content);
+        }
     }
 
-    public function test_print_style_defaults_to_excel_for_unknown_style(): void
+    public function test_print_unrecognized_style_still_renders_official_report(): void
     {
         $admin = $this->adminWithPermissions(['tamu.view']);
         $this->createTamu();
 
+        // URL gaya tidak dikenal tetap aman dan menampilkan dokumen resmi.
         $this->actingAs($admin)
             ->get(route('admin.tamu.print', ['style' => 'hack']))
             ->assertOk()
-            ->assertSee('sheet', false);
+            ->assertSee('LAPORAN BUKU REGISTRASI TAMU');
+    }
+
+    /* =========================================================
+       PRINT — FILTER STATUS & PASS INDIVIDUAL
+       ========================================================= */
+
+    public function test_print_bar_menyediakan_dropdown_filter_status(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $this->createTamu();
+
+        $html = $this->actingAs($admin)
+            ->get(route('admin.tamu.index'))
+            ->assertOk()
+            ->assertSee('Filter Status')
+            // Komponen custom (bukan <select> native) + label ringkas.
+            ->assertSee('print-status-dd', false)
+            ->assertSee('print-status-trigger', false)
+            ->assertSee('print-status-menu', false)
+            ->assertSee('role="listbox"', false)
+            ->assertSee('Semua Status')
+            ->assertSee('Disetujui')
+            ->assertSee('Menunggu Verifikasi')
+            ->assertSee('Ditolak')
+            ->assertSee('Cetak / Export')
+            ->getContent();
+
+        // Label lama yang panjang sudah tidak dipakai.
+        $this->assertStringNotContainsString('All (Semua Data)', $html);
+        $this->assertStringNotContainsString('Approved / Checked-out', $html);
+        $this->assertStringNotContainsString('(Pending)', $html);
+        $this->assertStringNotContainsString('(Rejected)', $html);
+
+        // Print form tetap mengirim status lewat hidden input.
+        $this->assertStringContainsString('name="status" id="printStatus"', $html);
+    }
+
+    public function test_print_status_verifikasi_tanpa_kolom_checkin_checkout(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $this->createTamu([
+            'nik' => '3201123456780151',
+            'nama' => 'Tamu Sudah Pulang',
+            'status_verifikasi' => Tamu::STATUS_DISETUJUI,
+            'checked_in_at' => now()->subHours(2),
+            'checked_out_at' => now()->subHour(),
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.tamu.print', ['style' => 'pdf']))
+            ->assertOk()
+            ->assertSee('Status Verifikasi')
+            ->assertSee('Disetujui')
+            ->assertDontSee('In: ')
+            ->assertDontSee('Out: ')
+            ->assertDontSee('Berkunjung')
+            ->assertDontSee('Selesai');
+    }
+
+    public function test_print_mengikuti_filter_status_yang_dipilih(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+
+        $this->createTamu([
+            'nik' => '3201123456780101', 'nama' => 'Tamu Disetujui',
+            'status_verifikasi' => Tamu::STATUS_DISETUJUI,
+        ]);
+        $this->createTamu([
+            'nik' => '3201123456780102', 'nama' => 'Tamu Menunggu',
+            'status_verifikasi' => Tamu::STATUS_MENUNGGU,
+        ]);
+        $this->createTamu([
+            'nik' => '3201123456780103', 'nama' => 'Tamu Ditolak',
+            'status_verifikasi' => Tamu::STATUS_DITOLAK,
+        ]);
+
+        $disetujui = $this->actingAs($admin)
+            ->get(route('admin.tamu.print', ['style' => 'pdf', 'status' => 'disetujui']))
+            ->assertOk()
+            ->assertSee('Tamu Disetujui')
+            ->assertSee('Status: Disetujui / Selesai')
+            ->assertDontSee('Tamu Menunggu')
+            ->assertDontSee('Tamu Ditolak')
+            ->getContent();
+
+        // Judul dokumen resmi tetap tampil pada hasil filter status.
+        $this->assertStringContainsString('LAPORAN BUKU REGISTRASI TAMU', $disetujui);
+
+        $this->actingAs($admin)
+            ->get(route('admin.tamu.print', ['style' => 'pdf', 'status' => 'menunggu']))
+            ->assertOk()
+            ->assertSee('Tamu Menunggu')
+            ->assertDontSee('Tamu Disetujui')
+            ->assertDontSee('Tamu Ditolak');
+
+        $this->actingAs($admin)
+            ->get(route('admin.tamu.print', ['style' => 'pdf', 'status' => 'ditolak']))
+            ->assertOk()
+            ->assertSee('Tamu Ditolak')
+            ->assertDontSee('Tamu Disetujui')
+            ->assertDontSee('Tamu Menunggu');
+    }
+
+    public function test_halaman_pass_tamu_sudah_dihapus(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $tamu = $this->createTamu([
+            'nik' => '3201123456780201',
+            'status_verifikasi' => Tamu::STATUS_DISETUJUI,
+        ]);
+
+        // Fitur pass individual dihapus: route-nya tidak terdaftar lagi dan
+        // URL lama (…/admin/tamu/{id}/pass) tidak menghasilkan dokumen apa pun.
+        $this->assertFalse(Route::has('admin.tamu.pass'));
+
+        $this->actingAs($admin)
+            ->get('/admin/tamu/' . $tamu->id . '/pass')
+            ->assertNotFound();
+    }
+
+    /* =========================================================
+       PRINT — HEADER/FOOTER BAWAAN BROWSER (URL, TANGGAL, JUDUL)
+       ========================================================= */
+
+    public function test_dokumen_cetak_memakai_page_margin_nol_agar_header_footer_browser_hilang(): void
+    {
+        // Chrome/Edge/Firefox hanya membuang header & footer bawaan (URL
+        // halaman, tanggal, judul) bila halaman cetak tidak menyisakan ruang
+        // margin. Karena itu margin @page WAJIB 0 dan jarak ke tepi kertas
+        // dipindah ke padding .paper — jangan dikembalikan ke 15mm.
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $tamu = $this->createTamu([
+            'nik' => '3201123456780601',
+            'nama' => 'Tamu Cetak Bersih',
+            'status_verifikasi' => Tamu::STATUS_DISETUJUI,
+        ]);
+
+        $dokumen = [
+            'laporan' => [$this->actingAs($admin)->get(route('admin.tamu.print', ['style' => 'pdf']))->assertOk()->getContent(), 'A4 landscape'],
+        ];
+
+        foreach ($dokumen as $label => [$html, $ukuran]) {
+            $this->assertSame(
+                1,
+                preg_match('/@page\s*\{[^}]*\}/', $html, $atPage),
+                "{$label}: aturan @page tidak ditemukan"
+            );
+
+            $aturanPage = $atPage[0];
+            $this->assertStringContainsString('margin: 0', $aturanPage, "{$label}: @page harus margin 0 agar URL browser tidak tercetak");
+            $this->assertStringContainsString("size: {$ukuran}", $aturanPage, "{$label}: orientasi kertas berubah");
+            $this->assertStringNotContainsString('15mm', $aturanPage, "{$label}: margin @page 15mm memunculkan header/footer browser");
+
+            // Jarak aman ke tepi kertas tetap ada lewat padding kertas.
+            $this->assertMatchesRegularExpression(
+                '/\.paper\s*\{[^}]*padding:\s*\d+mm/',
+                $html,
+                "{$label}: .paper kehilangan padding cetak"
+            );
+
+            // Elemen yang tidak boleh tercetak.
+            $this->assertMatchesRegularExpression(
+                '/\.no-print,[^{]*\.btn-print[^{]*\{[^}]*display:\s*none\s*!important/',
+                $html,
+                "{$label}: .btn-print belum disembunyikan saat cetak"
+            );
+            $this->assertMatchesRegularExpression(
+                '/\.no-print,[^{]*\bfooter\b[^{]*\{[^}]*display:\s*none\s*!important/',
+                $html,
+                "{$label}: elemen footer belum disembunyikan saat cetak"
+            );
+
+            // Warna latar (kop/kop-garis/header tabel) tetap tercetak.
+            $this->assertStringContainsString('print-color-adjust: exact', $html, "{$label}: print-color-adjust hilang");
+
+            // Body cetak tanpa padding layar (body punya padding di layar).
+            $this->assertMatchesRegularExpression(
+                '/@media print\s*\{[\s\S]*?\bbody\s*\{[^}]*padding:\s*0/',
+                $html,
+                "{$label}: body cetak masih membawa padding layar"
+            );
+        }
+    }
+
+    public function test_tombol_pass_sudah_dihapus_dari_tabel(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view', 'tamu.edit', 'tamu.checkout', 'tamu.delete']);
+
+        $disetujui = $this->createTamu([
+            'nik' => '3201123456780401',
+            'nama' => 'Tamu Lolos',
+            'status_verifikasi' => Tamu::STATUS_DISETUJUI,
+        ]);
+        $menunggu = $this->createTamu([
+            'nik' => '3201123456780402',
+            'nama' => 'Tamu Tunggu',
+            'status_verifikasi' => Tamu::STATUS_MENUNGGU,
+        ]);
+
+        $content = $this->actingAs($admin)
+            ->get(route('admin.tamu.index'))
+            ->assertOk()
+            ->getContent();
+
+        // Tombol (dan CSS-nya) yang membuka halaman pass sudah tidak ada,
+        // termasuk untuk tamu berstatus disetujui.
+        $this->assertStringNotContainsString('Cetak Pass Tamu / Surat Izin', $content);
+        $this->assertStringNotContainsString('tamu-action-btn pass', $content);
+        $this->assertStringNotContainsString('/admin/tamu/' . $disetujui->id . '/pass', $content);
+        $this->assertStringNotContainsString('/admin/tamu/' . $menunggu->id . '/pass', $content);
+    }
+
+    public function test_durasi_tidak_tampil_di_modal_detail_dan_laporan(): void
+    {
+        $admin = $this->adminWithPermissions(['tamu.view']);
+        $this->createTamu([
+            'nik' => '3201123456780501',
+            'checked_in_at' => now()->subHour(),
+            'checked_out_at' => now()->subMinutes(5),
+        ]);
+
+        // Modal detail (shell + template kartu check-in/out) tanpa kartu Durasi.
+        $this->actingAs($admin)
+            ->get(route('admin.tamu.index'))
+            ->assertOk()
+            ->assertDontSee('data-role="durasi"', false)
+            ->assertDontSee('>Durasi<', false);
+
+        // Laporan cetak juga tanpa kolom/nilai durasi.
+        $this->actingAs($admin)
+            ->get(route('admin.tamu.print', ['style' => 'pdf']))
+            ->assertOk()
+            ->assertDontSee('Durasi');
     }
 
     /* =========================================================

@@ -187,7 +187,7 @@
     .tamu-table th.col-jadwal    { width: 200px; }
     .tamu-table th.col-instansi  { width: auto; } /* sisa ruang -> instansi */
     .tamu-table th.col-status    { width: 285px; }
-    .tamu-table th.col-aksi      { width: 215px; } /* 5 tombol aksi sejajar */
+    .tamu-table th.col-aksi      { width: 250px; } /* 6 tombol aksi sejajar */
     html.theme-dark .tamu-table thead th { background: var(--panel); border-color: var(--line); }
     .tamu-table tbody td {
         padding: 0.75rem 0.9rem;
@@ -457,7 +457,6 @@
     }
     .tamu-action-btn.detail   { background: #eff6ff; color: #2563eb; }
     .tamu-action-btn.detail:hover { background: #dbeafe; }
-    
     .tamu-action-btn.delete   { background: #fef2f2; color: #dc2626; }
     .tamu-action-btn.delete:hover { background: #fee2e2; }
     .tamu-action-btn.setuju  { background: #dcfce7; color: #15803d; }
@@ -698,6 +697,8 @@
         border-radius: 10px;
         text-decoration: none;
         font-size: 0.8rem;
+        font-family: inherit;
+        cursor: pointer;
         transition: all 0.15s ease;
         border: 1px solid transparent;
     }
@@ -710,6 +711,142 @@
 
     .print-chip.pdf { background: #fdeaea; color: #b91c1c; border-color: #f5c6c6; }
     .print-chip.pdf:hover { background: #fbdcdc; }
+
+    /* Form cetak: dropdown filter status + tombol cetak */
+    .tamu-print-bar .print-form {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+    }
+    .print-status-field { display: flex; flex-direction: column; gap: 0.2rem; }
+    .print-status-field label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+    }
+    /* Custom dropdown filter status — menghindari <select> native
+       (menu OS biru/kaku) dan selaras dengan komponen modal/datepicker. */
+    .print-status-dd { position: relative; }
+    .print-status-trigger {
+        width: 100%;
+        min-width: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.62rem 1rem;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+        font-family: inherit;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        text-align: left;
+        cursor: pointer;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .print-status-trigger:hover { border-color: #d1d5db; }
+    .print-status-trigger:focus-visible,
+    .print-status-dd.open .print-status-trigger {
+        outline: none;
+        border-color: #06b6d4;
+        box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.14);
+    }
+    .print-status-chevron {
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
+        color: #9ca3af;
+        transition: transform 0.18s ease, color 0.18s ease;
+    }
+    .print-status-dd.open .print-status-chevron {
+        transform: rotate(180deg);
+        color: #06b6d4;
+    }
+    .print-status-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 1200;
+        padding: 0.375rem;
+        background: #fff;
+        border: 1px solid #f3f4f6;
+        border-radius: 12px;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-4px) scale(0.98);
+        transform-origin: top center;
+        pointer-events: none;
+        transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    }
+    .print-status-dd.open .print-status-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+    .print-status-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.5rem 0.875rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        cursor: pointer;
+        transition: background-color 0.14s ease, color 0.14s ease;
+    }
+    .print-status-option:hover,
+    .print-status-option:focus-visible {
+        outline: none;
+        background: #ecfeff;
+        color: #0e7490;
+    }
+    .print-status-option.selected {
+        background: #06b6d4;
+        color: #fff;
+        font-weight: 600;
+    }
+    .print-status-option.selected:hover,
+    .print-status-option.selected:focus-visible {
+        background: #0891b2;
+        color: #fff;
+    }
+    .print-status-option .print-status-check {
+        font-size: 0.7rem;
+        opacity: 0;
+        transition: opacity 0.14s ease;
+    }
+    .print-status-option.selected .print-status-check { opacity: 1; }
+
+    html.theme-dark .print-status-trigger {
+        background: var(--panel);
+        border-color: var(--line);
+        color: var(--ink);
+    }
+    html.theme-dark .print-status-menu {
+        background: var(--panel);
+        border-color: var(--line);
+    }
+    html.theme-dark .print-status-option { color: var(--ink-body); }
+    html.theme-dark .print-status-option:hover,
+    html.theme-dark .print-status-option:focus-visible {
+        background: rgba(6, 182, 212, 0.16);
+        color: #67e8f9;
+    }
+    html.theme-dark .print-status-option.selected {
+        background: #06b6d4;
+        color: #fff;
+    }
 
     /* ============================================================
        CUSTOM DROPDOWN DIVISI + INPUT TANGGAL — modal Tambah/Edit
@@ -1084,33 +1221,94 @@
 </div>
 
 {{-- ============================================
-     PRINT BAR — CETAK EXCEL / PDF
-     (di bawah tabel; mengikuti filter aktif,
-      mencetak semua baris hasil filter)
+     PRINT BAR — CETAK / EXPORT LAPORAN RESMI
+     (di bawah tabel; filter status dicetak,
+      seluruh baris hasil filter, bukan 1 halaman)
      ============================================ --}}
+@php
+    /* Status hasil filter daftar dipetakan ke opsi cetak. "Berkunjung"
+       & "Selesai" sama-sama kunjungan disetujui, jadi dibuka dengan
+       opsi "Disetujui / Selesai". */
+    $printStatus = (string) request('status');
+    $printStatus = match (true) {
+        in_array($printStatus, ['disetujui', 'menunggu', 'ditolak'], true) => $printStatus,
+        in_array($printStatus, ['berkunjung', 'selesai'], true) => 'disetujui',
+        default => '',
+    };
+
+    $printStatusLabel = match ($printStatus) {
+        'disetujui' => 'Disetujui',
+        'menunggu'  => 'Menunggu Verifikasi',
+        'ditolak'   => 'Ditolak',
+        default     => 'Semua Status',
+    };
+@endphp
 <div class="tamu-print-bar">
     <div class="print-info">
         <i class="fas fa-circle-info"></i>
-        Mencetak seluruh <b>{{ $tamus->total() }}</b> data tamu sesuai filter aktif (bukan hanya halaman ini).
+        Pilih status data, lalu cetak seluruh baris hasil filter (bukan hanya halaman ini).
     </div>
-    <div class="print-buttons">
-        <a href="{{ route('admin.tamu.print', array_merge(['style' => 'excel'], request()->only(['q', 'dari', 'sampai', 'status']))) }}"
-           target="_blank" class="print-chip excel" title="Cetak dengan tampilan spreadsheet (grid Excel)">
-            <i class="fas fa-file-excel"></i>
-            <span>
-                <b>Print Excel</b>
-                <small>Gaya spreadsheet</small>
-            </span>
-        </a>
-        <a href="{{ route('admin.tamu.print', array_merge(['style' => 'pdf'], request()->only(['q', 'dari', 'sampai', 'status']))) }}"
-           target="_blank" class="print-chip pdf" title="Cetak sebagai laporan formal siap tanda tangan">
+    <form class="print-form" method="GET"
+          action="{{ route('admin.tamu.print', ['style' => 'pdf']) }}"
+          target="_blank">
+        {{-- Filter pencarian & tanggal yang aktif ikut dipertahankan. --}}
+        @if (request('q'))<input type="hidden" name="q" value="{{ request('q') }}">@endif
+        @if (request('dari'))<input type="hidden" name="dari" value="{{ request('dari') }}">@endif
+        @if (request('sampai'))<input type="hidden" name="sampai" value="{{ request('sampai') }}">@endif
+
+        <div class="print-status-field">
+            <label id="printStatusLabel">Filter Status</label>
+            <div class="print-status-dd" id="printStatusDropdown">
+                <input type="hidden" name="status" id="printStatus" value="{{ $printStatus }}">
+
+                <button type="button" class="print-status-trigger" id="printStatusTrigger"
+                        aria-haspopup="listbox" aria-expanded="false"
+                        aria-labelledby="printStatusLabel">
+                    <span data-role="print-status-text">{{ $printStatusLabel }}</span>
+                    <svg class="print-status-chevron" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <div class="print-status-menu" role="listbox" aria-labelledby="printStatusLabel">
+                    <div class="print-status-option {{ $printStatus === '' ? 'selected' : '' }}"
+                         role="option" tabindex="-1" data-value=""
+                         aria-selected="{{ $printStatus === '' ? 'true' : 'false' }}">
+                        <span>Semua Status</span>
+                        <i class="fas fa-check print-status-check" aria-hidden="true"></i>
+                    </div>
+                    <div class="print-status-option {{ $printStatus === 'disetujui' ? 'selected' : '' }}"
+                         role="option" tabindex="-1" data-value="disetujui"
+                         aria-selected="{{ $printStatus === 'disetujui' ? 'true' : 'false' }}">
+                        <span>Disetujui</span>
+                        <i class="fas fa-check print-status-check" aria-hidden="true"></i>
+                    </div>
+                    <div class="print-status-option {{ $printStatus === 'menunggu' ? 'selected' : '' }}"
+                         role="option" tabindex="-1" data-value="menunggu"
+                         aria-selected="{{ $printStatus === 'menunggu' ? 'true' : 'false' }}">
+                        <span>Menunggu Verifikasi</span>
+                        <i class="fas fa-check print-status-check" aria-hidden="true"></i>
+                    </div>
+                    <div class="print-status-option {{ $printStatus === 'ditolak' ? 'selected' : '' }}"
+                         role="option" tabindex="-1" data-value="ditolak"
+                         aria-selected="{{ $printStatus === 'ditolak' ? 'true' : 'false' }}">
+                        <span>Ditolak</span>
+                        <i class="fas fa-check print-status-check" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="print-chip pdf" title="Cetak laporan resmi buku registrasi tamu">
             <i class="fas fa-file-pdf"></i>
             <span>
-                <b>Print PDF</b>
-                <small>Gaya laporan resmi</small>
+                <b>Cetak / Export</b>
+                <small>Dokumen resmi siap tanda tangan</small>
             </span>
-        </a>
-    </div>
+        </button>
+    </form>
 </div>
 
 {{-- ============================================
@@ -1168,23 +1366,7 @@
     // ter-render mode lengkap pakai tamu terakhir dalam loop.
     'tamu'        => null,
     'accentColor' => 'var(--pln-blue)',
-    'checkinUrl'  => route('admin.tamu.checkin', ':id'),
-    'checkoutUrl' => route('admin.tamu.checkout', ':id'),
 ])
-
-{{-- ============================================
-     TEMPLATE: KARTU CHECK-IN / CHECK-OUT (minimalis)
-     Di-clone JS ke dalam modal Detail — hanya dirender sekali,
-     tombol Check-Out aktif saat tamu sedang berkunjung dan jam
-     Check-Out ter-update real-time tanpa reload.
-     ============================================ --}}
-<div id="coTemplate" hidden>
-    @include('admin.tamu._checkinout', [
-        'co'          => null,
-        'checkinUrl'  => route('admin.tamu.checkin', ':id'),
-        'checkoutUrl' => route('admin.tamu.checkout', ':id'),
-    ])
-</div>
 
 {{-- ============================================
      MODAL: HAPUS TAMU
@@ -1688,8 +1870,7 @@
             ['Jumlah Tamu', (t.jumlah || 1) + ' orang'],
             ['Tanggal Kunjungan', t.tanggal || '-'],
             ['Waktu Pendaftaran', t.daftar || '-'],
-            // Baris Check-In / Check-Out / Status DIHAPUS — redundan,
-            // ketiganya pindah ke kartu dinamis di bawah (3 kondisi).
+            // Status kunjungan tampil di kartu tersendiri paling bawah.
         ];
 
         var body = document.getElementById('detailModalBody');
@@ -1706,16 +1887,8 @@
             info.innerHTML = infoHtml;
         }
 
-        // 2) Kartu LOG AKTIVITAS (pengganti halaman detail yang dihapus) —
-        //    siapa & kapan perubahan status terakhir, dari payload `log`.
-        var logCard = body.querySelector('[data-role="log"]');
-        if (logCard) {
-            var logText = body.querySelector('[data-role="log-text"]');
-            if (logText) {
-                logText.textContent = t.log || 'Belum ada perubahan status — kunjungan menunggu verifikasi.';
-            }
-            logCard.hidden = false;
-        }
+        // 2) Kartu STATUS KUNJUNGAN — badge verifikasi + info singkat.
+        renderStatusCard(t);
 
         // 3) Maksud & Keperluan
         var keperluanWrap = body.querySelector('[data-role="keperluan-wrap"]');
@@ -1740,45 +1913,31 @@
             }
         }
 
-        // 5) Card dinamis (badge + jam + aksi check-in/out) ke slot bawah
-        appendCoCard(t);
         openTamuModal('detailModal');
     }
 
-    /* ===== Kartu CHECK-IN / CHECK-OUT di modal Detail =====
-       Diklone dari #coTemplate lalu disinkronkan dengan state
-       kunjungan tamu (jam check-in/out, tombol aksi, badge). */
-    function appendCoCard(t) {
-        var tpl  = document.getElementById('coTemplate');
-        var card = tpl && tpl.querySelector('[data-co-card]');
-        if (!card || !t || !t.kunjungan || t.id == null || t.id === '') return;
+    /* ===== Kartu STATUS KUNJUNGAN di modal Detail =====
+       Badge verifikasi (Menunggu / Disetujui / Ditolak) + informasi
+       singkat verifikasi. Check-In / Check-Out tidak lagi ditampilkan. */
+    function renderStatusCard(t) {
+        var card = document.querySelector('#detailModalBody [data-role="status-card"]');
+        if (!card || !t) return;
 
-        var clone = card.cloneNode(true);
-        clone.hidden = false;
-        clone.dataset.id = String(t.id);
-        clone.dataset.checkinUrl  = String(card.dataset.checkinUrl  || '').replace(':id', t.id);
-        clone.dataset.checkoutUrl = String(card.dataset.checkoutUrl || '').replace(':id', t.id);
+        var labelMap = { menunggu: 'Menunggu', disetujui: 'Disetujui', ditolak: 'Ditolak' };
+        var status = labelMap[t.verifikasi] ? t.verifikasi : 'menunggu';
 
-        // URL pada tombol masih membawa placeholder ':id' dari template —
-        // ganti juga, supaya fetch tidak pernah mengirim '/tamu/:id/checkout'.
-        Array.prototype.forEach.call(clone.querySelectorAll('[data-url]'), function (el) {
-            el.dataset.url = String(el.dataset.url || '').replace(':id', t.id);
-        });
+        var badge = card.querySelector('[data-role="status-badge"]');
+        if (badge) { badge.className = 'dtm-status-chip ' + status; }
 
-        var msg = clone.querySelector('[data-role="msg"]');
-        if (msg) msg.hidden = true;
+        var label = card.querySelector('[data-role="status-label"]');
+        if (label) { label.textContent = labelMap[status]; }
 
-        var slot = document.querySelector('[data-role="co-slot"]');
-        if (slot) {
-            slot.innerHTML = '';              // buang kartu tamu sebelumnya
-            slot.appendChild(clone);
-        } else {
-            document.getElementById('detailModalBody').appendChild(clone);
+        var info = card.querySelector('[data-role="status-info"]');
+        if (info) {
+            info.textContent = t.log || 'Belum ada perubahan status — kunjungan menunggu verifikasi.';
         }
 
-        if (window.tamuCoSync) {
-            window.tamuCoSync(clone, Object.assign({}, t.kunjungan, { id: t.id }));
-        }
+        card.hidden = false;
     }
 
     /* ===== Modal Hapus ===== */
@@ -2428,6 +2587,85 @@
         if (!tamuFullData) return null;
         return tamuFullData.find(item => item.id === id);
     }
+
+    /* ============================================================
+       CUSTOM DROPDOWN FILTER STATUS CETAK
+       Menggantikan <select> native: popover custom (tidak memunculkan
+       menu biru OS), tutup saat klik di luar / Escape, navigasi
+       keyboard, dan nilai disimpan di hidden input agar form GET tetap
+       mengirim parameter `status`.
+       ============================================================ */
+    (function initPrintStatusDropdown() {
+        const dd = document.getElementById('printStatusDropdown');
+        if (!dd) return;
+
+        const trigger = dd.querySelector('.print-status-trigger');
+        const menu = dd.querySelector('.print-status-menu');
+        const hidden = dd.querySelector('input[name="status"]');
+        const labelText = dd.querySelector('[data-role="print-status-text"]');
+        const options = Array.prototype.slice.call(dd.querySelectorAll('.print-status-option'));
+
+        function setOpen(open) {
+            dd.classList.toggle('open', open);
+            trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+
+        function focusOption(index) {
+            if (!options.length) return;
+            options[(index + options.length) % options.length].focus();
+        }
+
+        function select(opt) {
+            if (!opt) return;
+            const value = opt.getAttribute('data-value') || '';
+
+            options.forEach(function (o) {
+                const aktif = o === opt;
+                o.classList.toggle('selected', aktif);
+                o.setAttribute('aria-selected', aktif ? 'true' : 'false');
+            });
+
+            hidden.value = value;
+            labelText.textContent = opt.querySelector('span')?.textContent.trim() || '';
+            setOpen(false);
+            trigger.focus();
+        }
+
+        trigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            setOpen(!dd.classList.contains('open'));
+        });
+
+        trigger.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { setOpen(false); return; }
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (!dd.classList.contains('open')) setOpen(true);
+                const selected = options.findIndex(function (o) { return o.classList.contains('selected'); });
+                focusOption(selected >= 0 ? selected : 0);
+            }
+        });
+
+        menu.addEventListener('click', function (e) {
+            const opt = e.target.closest('.print-status-option');
+            if (opt) select(opt);
+        });
+
+        options.forEach(function (opt, index) {
+            opt.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(opt); }
+                if (e.key === 'ArrowDown') { e.preventDefault(); focusOption(index + 1); }
+                if (e.key === 'ArrowUp') { e.preventDefault(); focusOption(index - 1); }
+                if (e.key === 'Escape') { e.preventDefault(); setOpen(false); trigger.focus(); }
+                if (e.key === 'Tab') { setOpen(false); }
+            });
+        });
+
+        // Klik di luar dropdown menutup menu dengan transisi CSS.
+        document.addEventListener('click', function (e) {
+            if (!dd.contains(e.target)) setOpen(false);
+        });
+    })();
 
 </script>
 @endpush

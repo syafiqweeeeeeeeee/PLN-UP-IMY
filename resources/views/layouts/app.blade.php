@@ -747,7 +747,10 @@
             })();
         </script>
 
-        <script src="{{ asset('js/i18n.js') }}"></script>
+        {{-- Kamus i18n: diberi ?v=filemtime agar perubahan terjemahan langsung
+             terpakai — tanpa ini browser memakai i18n.js lama dari cache dan
+             pemilihan bahasa tampak "tidak berfungsi". --}}
+        <script src="{{ asset('js/i18n.js') }}?v={{ @filemtime(public_path('js/i18n.js')) }}"></script>
 
         {{-- SweetAlert2 + helper notifikasi bersama: dialog pada halaman
              publik (mis. validasi unggah berkas) memakai pop-up yang sama

@@ -511,9 +511,9 @@
             <div class="pengumuman-breadcrumb">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Beranda</a></li>
-                        <li class="breadcrumb-item"><a href="#">Informasi</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Pengumuman</li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}" data-i18n="berita.bc_home">Beranda</a></li>
+                        <li class="breadcrumb-item"><a href="#" data-i18n="nav.information">Informasi</a></li>
+                        <li class="breadcrumb-item active" aria-current="page" data-i18n="png.bc_current">Pengumuman</li>
                     </ol>
                 </nav>
             </div>
@@ -522,8 +522,8 @@
                 <i class="fas fa-bolt"></i> PLN NUSANTARA POWER
             </div>
 
-            <h1>Pemberitahuan & <span class="accent">Pengumuman</span> Resmi</h1>
-            <p class="subtitle">
+            <h1 data-i18n="png.title">Pemberitahuan & <span class="accent">Pengumuman</span> Resmi</h1>
+            <p class="subtitle" data-i18n="png.subtitle">
                 Informasi resmi terkait operasional, kebijakan, rekrutmen, dan layanan publik
                 PT PLN Nusantara Power UP PLTU Indramayu.
             </p>
@@ -537,22 +537,22 @@
         <div class="container px-4 px-lg-5">
             <div class="filter-bar" id="filterBar">
                 <button class="filter-pill active" data-filter="semua">
-                    <i class="fas fa-layer-group"></i> Semua
+                    <i class="fas fa-layer-group"></i> <span data-i18n="png.filter_all">Semua</span>
                 </button>
                 <button class="filter-pill" data-filter="umum">
-                    <i class="fas fa-building"></i> Umum
+                    <i class="fas fa-building"></i> <span data-i18n="png.filter_umum">Umum</span>
                 </button>
                 <button class="filter-pill" data-filter="teknis">
-                    <i class="fas fa-cogs"></i> Teknis
+                    <i class="fas fa-cogs"></i> <span data-i18n="png.filter_teknis">Teknis</span>
                 </button>
                 <button class="filter-pill" data-filter="kepegawaian">
-                    <i class="fas fa-users"></i> Kepegawaian
+                    <i class="fas fa-users"></i> <span data-i18n="png.filter_kepegawaian">Kepegawaian</span>
                 </button>
                 <button class="filter-pill" data-filter="keuangan">
-                    <i class="fas fa-chart-line"></i> Keuangan
+                    <i class="fas fa-chart-line"></i> <span data-i18n="png.filter_keuangan">Keuangan</span>
                 </button>
                 <button class="filter-pill" data-filter="layanan">
-                    <i class="fas fa-concierge-bell"></i> Layanan
+                    <i class="fas fa-concierge-bell"></i> <span data-i18n="png.filter_layanan">Layanan</span>
                 </button>
             </div>
         </div>
@@ -571,7 +571,7 @@
             <div class="pengumuman-card" data-kategori="{{ $item->category }}">
                 <div class="date-box">
                     <span class="date-day">{{ $tgl->format('d') }}</span>
-                    <span class="date-month">{{ $tgl->translatedFormat('M') }}</span>
+                    <span class="date-month" data-month-short="{{ (int) $tgl->format('n') }}">{{ $tgl->translatedFormat('M') }}</span>
                     <span class="date-year">{{ $tgl->format('Y') }}</span>
                 </div>
                 <div class="pengumuman-content">
@@ -580,14 +580,14 @@
                     <p class="pengumuman-excerpt">{{ $item->excerpt }}</p>
                 </div>
                 <div class="pengumuman-action">
-                    <a href="{{ route('pengumuman.detail', $item->slug) }}" class="btn-detail">Lihat Detail <i class="fas fa-arrow-right"></i></a>
+                    <a href="{{ route('pengumuman.detail', $item->slug) }}" class="btn-detail"><span data-i18n="png.view_detail">Lihat Detail</span> <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             @empty
             <div class="empty-state">
                 <i class="fas fa-bullhorn"></i>
-                <h5>Belum ada pengumuman</h5>
-                <p>Pengumuman resmi akan ditampilkan di halaman ini.</p>
+                <h5 data-i18n="png.empty_title">Belum ada pengumuman</h5>
+                <p data-i18n="png.empty_text">Pengumuman resmi akan ditampilkan di halaman ini.</p>
             </div>
             @endforelse
 
@@ -600,7 +600,7 @@
     <section class="pengumuman-pagination">
         <div class="container px-4 px-lg-5">
             @if ($pengumuman->hasPages())
-            <nav aria-label="Navigasi pengumuman">
+            <nav aria-label="Navigasi pengumuman" data-i18n-aria-label="png.pagination_aria">
                 {{ $pengumuman->links() }}
             </nav>
             @endif

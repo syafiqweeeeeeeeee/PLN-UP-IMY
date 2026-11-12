@@ -387,15 +387,15 @@
             <div class="berita-breadcrumb">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Beranda</a></li>
-                        <li class="breadcrumb-item"><a href="#">Informasi</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Berita</li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}" data-i18n="berita.bc_home">Beranda</a></li>
+                        <li class="breadcrumb-item"><a href="#" data-i18n="berita.bc_info">Informasi</a></li>
+                        <li class="breadcrumb-item active" aria-current="page" data-i18n="berita.bc_current">Berita</li>
                     </ol>
                 </nav>
             </div>
 
-            <h1>Berita & <span class="accent">Informasi</span> Terkini</h1>
-            <p class="subtitle">
+            <h1 data-i18n="berita.title">Berita & <span class="accent">Informasi</span> Terkini</h1>
+            <p class="subtitle" data-i18n="berita.subtitle">
                 Ikuti perkembangan terbaru seputar operasional, program kerja, dan kegiatan PT PLN Nusantara Power UP PLTU Indramayu.
             </p>
         </div>
@@ -406,7 +406,7 @@
          ============================================ --}}
     <section class="berita-section-header" style="background: var(--pln-gray);">
         <div class="container px-4 px-lg-5">
-            <h2 style="color: var(--pln-blue);">Berita & Informasi Terkini</h2>
+            <h2 style="color: var(--pln-blue);" data-i18n="berita.section_title">Berita & Informasi Terkini</h2>
             <div class="divider"></div>
         </div>
     </section>
@@ -440,7 +440,7 @@
                             </div>
                             <h3 class="news-title">{{ $item->title }}</h3>
                             <p class="news-excerpt">{{ $item->excerpt }}</p>
-                            <a href="{{ route('berita.detail', $item->slug) }}" class="news-btn">Selengkapnya <i class="fas fa-arrow-right"></i></a>
+                            <a href="{{ route('berita.detail', $item->slug) }}" class="news-btn"><span data-i18n="berita.read_more">Selengkapnya</span> <i class="fas fa-arrow-right"></i></a>
                         </div>
                     </div>
                 </div>
@@ -449,8 +449,8 @@
             @else
             <div class="berita-empty">
                 <i class="fas fa-newspaper"></i>
-                <h5>Belum ada berita</h5>
-                <p>Berita akan segera tersedia. Silakan kunjungi kembali nanti.</p>
+                <h5 data-i18n="berita.empty_title">Belum ada berita</h5>
+                <p data-i18n="berita.empty_text">Berita akan segera tersedia. Silakan kunjungi kembali nanti.</p>
             </div>
             @endif
         </div>
@@ -462,7 +462,7 @@
     @if ($news->hasPages())
     <section class="berita-pagination" style="background: var(--pln-gray);">
         <div class="container px-4 px-lg-5">
-            <nav aria-label="Navigasi berita">
+            <nav aria-label="Navigasi berita" data-i18n-aria-label="berita.pagination_aria">
                 {{ $news->links() }}
             </nav>
         </div>

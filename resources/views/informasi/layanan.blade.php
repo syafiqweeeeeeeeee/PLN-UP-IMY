@@ -773,9 +773,9 @@
             <div class="spl-breadcrumb">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Beranda</a></li>
-                        <li class="breadcrumb-item"><a href="#" onclick="history.back(); return false;">Informasi</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Informasi Layanan</li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}" data-i18n="spl.bc_home">Beranda</a></li>
+                        <li class="breadcrumb-item"><a href="#" onclick="history.back(); return false;" data-i18n="nav.information">Informasi</a></li>
+                        <li class="breadcrumb-item active" aria-current="page" data-i18n="spl.bc_current">Informasi Layanan</li>
                     </ol>
                 </nav>
             </div>
@@ -784,9 +784,9 @@
                 <i class="fas fa-bolt"></i> PLN NUSANTARA POWER
             </div>
 
-            <h1>Informasi <span class="accent">Standar Pelayanan</span></h1>
+            <h1 data-i18n="spl.title">Informasi <span class="accent">Standar Pelayanan</span></h1>
 
-            <p class="subtitle">
+            <p class="subtitle" data-i18n="spl.subtitle">
                 Panduan resmi, persyaratan dokumen, standar waktu, dan prosedur pelayanan publik
                 PT PLN Nusantara Power UP PLTU Indramayu.
             </p>
@@ -803,27 +803,27 @@
             <div class="spl-card">
 
                 <div class="spl-card-header">
-                    <h2>Standar &amp; Prosedur Pelayanan</h2>
-                    <p>Pusat panduan, SOP, dan transparansi standar pelayanan publik</p>
+                    <h2 data-i18n="spl.card_title">Standar &amp; Prosedur Pelayanan</h2>
+                    <p data-i18n="spl.card_subtitle">Pusat panduan, SOP, dan transparansi standar pelayanan publik</p>
                 </div>
 
                 {{-- A. Filter Tab Kategori --}}
                 <div class="spl-tabs" role="tablist" aria-label="Kategori informasi layanan">
                     <button type="button" class="spl-tab active" role="tab" aria-selected="true"
                             data-tab="maklumat">
-                        <i class="fas fa-file-signature"></i> Maklumat Pelayanan
+                        <i class="fas fa-file-signature"></i> <span data-i18n="spl.tab_maklumat">Maklumat Pelayanan</span>
                     </button>
                     <button type="button" class="spl-tab" role="tab" aria-selected="false"
                             data-tab="prosedur">
-                        <i class="fas fa-list-check"></i> Syarat &amp; Prosedur Layanan
+                        <i class="fas fa-list-check"></i> <span data-i18n="spl.tab_prosedur">Syarat &amp; Prosedur Layanan</span>
                     </button>
                     <button type="button" class="spl-tab" role="tab" aria-selected="false"
                             data-tab="estimasi">
-                        <i class="fas fa-table-list"></i> Estimasi Waktu &amp; Biaya
+                        <i class="fas fa-table-list"></i> <span data-i18n="spl.tab_estimasi">Estimasi Waktu &amp; Biaya</span>
                     </button>
                     <button type="button" class="spl-tab" role="tab" aria-selected="false"
                             data-tab="dokumen">
-                        <i class="fas fa-file-arrow-down"></i> Unduh Dokumen &amp; SOP
+                        <i class="fas fa-file-arrow-down"></i> <span data-i18n="spl.tab_dokumen">Unduh Dokumen &amp; SOP</span>
                     </button>
                 </div>
 
@@ -835,31 +835,31 @@
                         <div class="spl-maklumat-head">
                             <div class="spl-maklumat-icon"><i class="fas fa-file-signature"></i></div>
                             <div>
-                                <h3>Maklumat Pelayanan Publik</h3>
-                                <span>Ditetapkan &amp; Ditandatangani Manajemen</span>
+                                <h3 data-i18n="spl.maklumat_title">Maklumat Pelayanan Publik</h3>
+                                <span data-i18n="spl.maklumat_badge">Ditetapkan &amp; Ditandatangani Manajemen</span>
                             </div>
                         </div>
 
-                        <blockquote>
+                        <blockquote data-i18n="spl.maklumat_quote">
                             &ldquo;Kami berkomitmen memberikan pelayanan publik yang transparan, akuntabel,
                             cepat, dan berorientasi pada kepuasan masyarakat, sesuai dengan peraturan
                             perundang-undangan tentang Pelayanan Publik.&rdquo;
                         </blockquote>
 
                         <ul class="spl-commitments">
-                            <li><i class="fas fa-circle-check"></i> Pelayanan dilakukan secara tertib, tepat waktu, dan sesuai standar.</li>
-                            <li><i class="fas fa-circle-check"></i> Biaya pelayanan sesuai ketentuan — tidak ada pungutan di luar ketentuan.</li>
-                            <li><i class="fas fa-circle-check"></i> Informasi pelayanan disediakan secara terbuka dan mudah diakses.</li>
-                            <li><i class="fas fa-circle-check"></i> Setiap pengaduan ditindaklanjuti secara cepat dan proporsional.</li>
+                            <li><i class="fas fa-circle-check"></i> <span data-i18n="spl.commit1">Pelayanan dilakukan secara tertib, tepat waktu, dan sesuai standar.</span></li>
+                            <li><i class="fas fa-circle-check"></i> <span data-i18n="spl.commit2">Biaya pelayanan sesuai ketentuan — tidak ada pungutan di luar ketentuan.</span></li>
+                            <li><i class="fas fa-circle-check"></i> <span data-i18n="spl.commit3">Informasi pelayanan disediakan secara terbuka dan mudah diakses.</span></li>
+                            <li><i class="fas fa-circle-check"></i> <span data-i18n="spl.commit4">Setiap pengaduan ditindaklanjuti secara cepat dan proporsional.</span></li>
                         </ul>
 
                         <div class="spl-signature">
                             <p>
-                                <strong>Manajemen PT PLN Nusantara Power UP PLTU Indramayu</strong><br>
-                                General Manager &mdash; UP PLTU Indramayu
+                                <strong data-i18n="spl.sign_org">Manajemen PT PLN Nusantara Power UP PLTU Indramayu</strong><br>
+                                <span data-i18n="spl.sign_role">General Manager &mdash; UP PLTU Indramayu</span>
                             </p>
                             <span class="spl-signature-note">
-                                <i class="fas fa-shield-halved"></i> Terverifikasi &mdash; Transparansi Publik
+                                <i class="fas fa-shield-halved"></i> <span data-i18n="spl.sign_note">Terverifikasi &mdash; Transparansi Publik</span>
                             </span>
                         </div>
                     </div>
@@ -874,31 +874,31 @@
                             <button class="spl-acc-head" type="button" id="spl-acc-h-1"
                                     aria-expanded="false" aria-controls="spl-acc-b-1">
                                 <span class="spl-acc-num">01</span>
-                                <span class="spl-acc-title">Standar Pelayanan Pemanfaatan FABA (Fly Ash &amp; Bottom Ash)</span>
+                                <span class="spl-acc-title" data-i18n="spl.acc1_title">Standar Pelayanan Pemanfaatan FABA (Fly Ash &amp; Bottom Ash)</span>
                                 <span class="spl-acc-icon"><i class="fas fa-chevron-down"></i></span>
                             </button>
                             <div class="spl-acc-body" id="spl-acc-b-1" role="region" aria-labelledby="spl-acc-h-1">
                                 <div class="spl-acc-body-inner">
                                     <div class="spl-req">
-                                        <h5><i class="fas fa-clipboard-check"></i> Persyaratan</h5>
+                                        <h5><i class="fas fa-clipboard-check"></i> <span data-i18n="spl.req_label">Persyaratan</span></h5>
                                         <ul>
-                                            <li>Surat permohonan resmi dari instansi/perusahaan</li>
-                                            <li>Dokumen legalitas usaha (NIB, akta, atau setara)</li>
-                                            <li>Profil rencana penggunaan material FABA</li>
+                                            <li data-i18n="spl.acc1_req1">Surat permohonan resmi dari instansi/perusahaan</li>
+                                            <li data-i18n="spl.acc1_req2">Dokumen legalitas usaha (NIB, akta, atau setara)</li>
+                                            <li data-i18n="spl.acc1_req3">Profil rencana penggunaan material FABA</li>
                                         </ul>
                                     </div>
                                     <div class="spl-flow-wrap">
                                         <h5 style="display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--spl-blue);margin-bottom:0.6rem;">
-                                            <i class="fas fa-diagram-project"></i> Alur Prosedur
+                                            <i class="fas fa-diagram-project"></i> <span data-i18n="spl.flow_label">Alur Prosedur</span>
                                         </h5>
                                         <div class="spl-flow">
-                                            <span class="spl-step"><i class="fas fa-envelope-open-text"></i> Pengajuan Proposal</span>
+                                            <span class="spl-step"><i class="fas fa-envelope-open-text"></i> <span data-i18n="spl.step_proposal">Pengajuan Proposal</span></span>
                                             <i class="fas fa-arrow-right spl-step-arrow"></i>
-                                            <span class="spl-step"><i class="fas fa-magnifying-gear"></i> Verifikasi Teknis</span>
+                                            <span class="spl-step"><i class="fas fa-magnifying-gear"></i> <span data-i18n="spl.step_verifikasi">Verifikasi Teknis</span></span>
                                             <i class="fas fa-arrow-right spl-step-arrow"></i>
-                                            <span class="spl-step"><i class="fas fa-file-signature"></i> Penandatanganan MoU</span>
+                                            <span class="spl-step"><i class="fas fa-file-signature"></i> <span data-i18n="spl.step_mou">Penandatanganan MoU</span></span>
                                             <i class="fas fa-arrow-right spl-step-arrow"></i>
-                                            <span class="spl-step"><i class="fas fa-truck-fast"></i> Pengambilan Material</span>
+                                            <span class="spl-step"><i class="fas fa-truck-fast"></i> <span data-i18n="spl.step_ambil">Pengambilan Material</span></span>
                                         </div>
                                     </div>
                                 </div>
@@ -910,31 +910,31 @@
                             <button class="spl-acc-head" type="button" id="spl-acc-h-2"
                                     aria-expanded="false" aria-controls="spl-acc-b-2">
                                 <span class="spl-acc-num">02</span>
-                                <span class="spl-acc-title">Standar Pelayanan Kunjungan Industri / Edukasi</span>
+                                <span class="spl-acc-title" data-i18n="spl.acc2_title">Standar Pelayanan Kunjungan Industri / Edukasi</span>
                                 <span class="spl-acc-icon"><i class="fas fa-chevron-down"></i></span>
                             </button>
                             <div class="spl-acc-body" id="spl-acc-b-2" role="region" aria-labelledby="spl-acc-h-2">
                                 <div class="spl-acc-body-inner">
                                     <div class="spl-req">
-                                        <h5><i class="fas fa-clipboard-check"></i> Persyaratan</h5>
+                                        <h5><i class="fas fa-clipboard-check"></i> <span data-i18n="spl.req_label">Persyaratan</span></h5>
                                         <ul>
-                                            <li>Surat resmi dari Kampus/Sekolah (minimal H-14 sebelum kunjungan)</li>
-                                            <li>Daftar peserta kunjungan</li>
-                                            <li>Sertifikat vaksin / dokumen K3 yang dipersyaratkan</li>
+                                            <li data-i18n="spl.acc2_req1">Surat resmi dari Kampus/Sekolah (minimal H-14 sebelum kunjungan)</li>
+                                            <li data-i18n="spl.acc2_req2">Daftar peserta kunjungan</li>
+                                            <li data-i18n="spl.acc2_req3">Sertifikat vaksin / dokumen K3 yang dipersyaratkan</li>
                                         </ul>
                                     </div>
                                     <div class="spl-flow-wrap">
                                         <h5 style="display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--spl-blue);margin-bottom:0.6rem;">
-                                            <i class="fas fa-diagram-project"></i> Alur Prosedur
+                                            <i class="fas fa-diagram-project"></i> <span data-i18n="spl.flow_label">Alur Prosedur</span>
                                         </h5>
                                         <div class="spl-flow">
-                                            <span class="spl-step"><i class="fas fa-envelope-open-text"></i> Pengajuan Surat</span>
+                                            <span class="spl-step"><i class="fas fa-envelope-open-text"></i> <span data-i18n="spl.step_surat">Pengajuan Surat</span></span>
                                             <i class="fas fa-arrow-right spl-step-arrow"></i>
-                                            <span class="spl-step"><i class="fas fa-calendar-check"></i> Konfirmasi Jadwal dari Humas</span>
+                                            <span class="spl-step"><i class="fas fa-calendar-check"></i> <span data-i18n="spl.step_jadwal">Konfirmasi Jadwal dari Humas</span></span>
                                             <i class="fas fa-arrow-right spl-step-arrow"></i>
-                                            <span class="spl-step"><i class="fas fa-helmet-safety"></i> Safety Indoktrinasi</span>
+                                            <span class="spl-step"><i class="fas fa-helmet-safety"></i> <span data-i18n="spl.step_safety">Safety Indoktrinasi</span></span>
                                             <i class="fas fa-arrow-right spl-step-arrow"></i>
-                                            <span class="spl-step"><i class="fas fa-person-walking"></i> Kunjungan Field</span>
+                                            <span class="spl-step"><i class="fas fa-person-walking"></i> <span data-i18n="spl.step_field">Kunjungan Field</span></span>
                                         </div>
                                     </div>
                                 </div>
@@ -946,31 +946,31 @@
                             <button class="spl-acc-head" type="button" id="spl-acc-h-3"
                                     aria-expanded="false" aria-controls="spl-acc-b-3">
                                 <span class="spl-acc-num">03</span>
-                                <span class="spl-acc-title">Standar Pelayanan Pengajuan CSR / TJSL</span>
+                                <span class="spl-acc-title" data-i18n="spl.acc3_title">Standar Pelayanan Pengajuan CSR / TJSL</span>
                                 <span class="spl-acc-icon"><i class="fas fa-chevron-down"></i></span>
                             </button>
                             <div class="spl-acc-body" id="spl-acc-b-3" role="region" aria-labelledby="spl-acc-h-3">
                                 <div class="spl-acc-body-inner">
                                     <div class="spl-req">
-                                        <h5><i class="fas fa-clipboard-check"></i> Persyaratan</h5>
+                                        <h5><i class="fas fa-clipboard-check"></i> <span data-i18n="spl.req_label">Persyaratan</span></h5>
                                         <ul>
-                                            <li>Proposal program pemberdayaan masyarakat</li>
-                                            <li>Profil instansi/komunitas pengusul</li>
-                                            <li>Rencana lokasi &amp; target penerima manfaat</li>
+                                            <li data-i18n="spl.acc3_req1">Proposal program pemberdayaan masyarakat</li>
+                                            <li data-i18n="spl.acc3_req2">Profil instansi/komunitas pengusul</li>
+                                            <li data-i18n="spl.acc3_req3">Rencana lokasi &amp; target penerima manfaat</li>
                                         </ul>
                                     </div>
                                     <div class="spl-flow-wrap">
                                         <h5 style="display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--spl-blue);margin-bottom:0.6rem;">
-                                            <i class="fas fa-diagram-project"></i> Alur Prosedur
+                                            <i class="fas fa-diagram-project"></i> <span data-i18n="spl.flow_label">Alur Prosedur</span>
                                         </h5>
                                         <div class="spl-flow">
-                                            <span class="spl-step"><i class="fas fa-file-lines"></i> Pengajuan Proposal</span>
+                                            <span class="spl-step"><i class="fas fa-file-lines"></i> <span data-i18n="spl.step_proposal">Pengajuan Proposal</span></span>
                                             <i class="fas fa-arrow-right spl-step-arrow"></i>
-                                            <span class="spl-step"><i class="fas fa-users-viewfinder"></i> Kajian &amp; Seleksi Program</span>
+                                            <span class="spl-step"><i class="fas fa-users-viewfinder"></i> <span data-i18n="spl.step_kajian">Kajian &amp; Seleksi Program</span></span>
                                             <i class="fas fa-arrow-right spl-step-arrow"></i>
-                                            <span class="spl-step"><i class="fas fa-file-signature"></i> Keputusan Manajemen</span>
+                                            <span class="spl-step"><i class="fas fa-file-signature"></i> <span data-i18n="spl.step_keputusan">Keputusan Manajemen</span></span>
                                             <i class="fas fa-arrow-right spl-step-arrow"></i>
-                                            <span class="spl-step"><i class="fas fa-handshake-angle"></i> Pelaksanaan Program</span>
+                                            <span class="spl-step"><i class="fas fa-handshake-angle"></i> <span data-i18n="spl.step_pelaksanaan">Pelaksanaan Program</span></span>
                                         </div>
                                     </div>
                                 </div>
@@ -987,30 +987,30 @@
                             <table class="spl-table">
                                 <thead>
                                     <tr>
-                                        <th>Jenis Layanan</th>
-                                        <th>Estimasi Waktu Proses</th>
-                                        <th>Biaya / Tarif</th>
-                                        <th>Output Layanan</th>
+                                        <th data-i18n="spl.th_service">Jenis Layanan</th>
+                                        <th data-i18n="spl.th_time">Estimasi Waktu Proses</th>
+                                        <th data-i18n="spl.th_cost">Biaya / Tarif</th>
+                                        <th data-i18n="spl.th_output">Output Layanan</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td><strong><i class="fas fa-recycle"></i> Permohonan FABA</strong></td>
-                                        <td>3 &ndash; 5 Hari Kerja</td>
-                                        <td><span class="spl-badge-free"><i class="fas fa-check"></i> Rp 0 (Gratis)</span></td>
-                                        <td>Surat Izin Pemanfaatan</td>
+                                        <td><strong><i class="fas fa-recycle"></i> <span data-i18n="spl.row1_service">Permohonan FABA</span></strong></td>
+                                        <td data-i18n="spl.row1_time">3 &ndash; 5 Hari Kerja</td>
+                                        <td><span class="spl-badge-free"><i class="fas fa-check"></i> <span data-i18n="spl.free">Rp 0 (Gratis)</span></span></td>
+                                        <td data-i18n="spl.row1_output">Surat Izin Pemanfaatan</td>
                                     </tr>
                                     <tr>
-                                        <td><strong><i class="fas fa-people-group"></i> Permohonan Kunjungan</strong></td>
-                                        <td>2 &ndash; 4 Hari Kerja</td>
-                                        <td><span class="spl-badge-free"><i class="fas fa-check"></i> Rp 0 (Gratis)</span></td>
-                                        <td>Surat Konfirmasi &amp; Jadwal</td>
+                                        <td><strong><i class="fas fa-people-group"></i> <span data-i18n="spl.row2_service">Permohonan Kunjungan</span></strong></td>
+                                        <td data-i18n="spl.row2_time">2 &ndash; 4 Hari Kerja</td>
+                                        <td><span class="spl-badge-free"><i class="fas fa-check"></i> <span data-i18n="spl.free">Rp 0 (Gratis)</span></span></td>
+                                        <td data-i18n="spl.row2_output">Surat Konfirmasi &amp; Jadwal</td>
                                     </tr>
                                     <tr>
-                                        <td><strong><i class="fas fa-hand-holding-heart"></i> Pengajuan CSR/TJSL</strong></td>
-                                        <td>7 &ndash; 14 Hari Kerja</td>
-                                        <td><span class="spl-badge-free"><i class="fas fa-check"></i> Rp 0 (Gratis)</span></td>
-                                        <td>Lembar Disposisi &amp; Realisasi</td>
+                                        <td><strong><i class="fas fa-hand-holding-heart"></i> <span data-i18n="spl.row3_service">Pengajuan CSR/TJSL</span></strong></td>
+                                        <td data-i18n="spl.row3_time">7 &ndash; 14 Hari Kerja</td>
+                                        <td><span class="spl-badge-free"><i class="fas fa-check"></i> <span data-i18n="spl.free">Rp 0 (Gratis)</span></span></td>
+                                        <td data-i18n="spl.row3_output">Lembar Disposisi &amp; Realisasi</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1019,8 +1019,7 @@
 
                     <p class="spl-table-note">
                         <i class="fas fa-circle-info"></i>
-                        Estimasi waktu dihitung sejak berkas permohonan dinyatakan lengkap secara administratif.
-                        Seluruh layanan di atas <strong>tidak dipungut biaya</strong> sesuai standar pelayanan publik.
+                        <span data-i18n="spl.table_note">Estimasi waktu dihitung sejak berkas permohonan dinyatakan lengkap secara administratif. Seluruh layanan di atas <strong>tidak dipungut biaya</strong> sesuai standar pelayanan publik.</span>
                     </p>
                 </div>
 
@@ -1031,8 +1030,8 @@
                         <a href="#" class="spl-dl">
                             <span class="spl-dl-icon"><i class="fas fa-file-pdf"></i></span>
                             <span class="spl-dl-text">
-                                <h5>Buku Standar Pelayanan Publik UP Indramayu</h5>
-                                <span><i class="fas fa-file-lines"></i> PDF &middot; Dokumen resmi standar pelayanan</span>
+                                <h5 data-i18n="spl.dl1_title">Buku Standar Pelayanan Publik UP Indramayu</h5>
+                                <span><i class="fas fa-file-lines"></i> <span data-i18n="spl.dl1_meta">PDF &middot; Dokumen resmi standar pelayanan</span></span>
                             </span>
                             <span class="spl-dl-btn"><i class="fas fa-download"></i> Download</span>
                         </a>
@@ -1040,8 +1039,8 @@
                         <a href="#" class="spl-dl">
                             <span class="spl-dl-icon"><i class="fas fa-file-pdf"></i></span>
                             <span class="spl-dl-text">
-                                <h5>Formulir Permohonan Kunjungan Industri</h5>
-                                <span><i class="fas fa-file-lines"></i> PDF &middot; Formulir pengajuan kunjungan</span>
+                                <h5 data-i18n="spl.dl2_title">Formulir Permohonan Kunjungan Industri</h5>
+                                <span><i class="fas fa-file-lines"></i> <span data-i18n="spl.dl2_meta">PDF &middot; Formulir pengajuan kunjungan</span></span>
                             </span>
                             <span class="spl-dl-btn"><i class="fas fa-download"></i> Download</span>
                         </a>
@@ -1049,8 +1048,8 @@
                         <a href="#" class="spl-dl">
                             <span class="spl-dl-icon"><i class="fas fa-file-pdf"></i></span>
                             <span class="spl-dl-text">
-                                <h5>SOP Kemitraan Pemanfaatan FABA</h5>
-                                <span><i class="fas fa-file-lines"></i> PDF &middot; Prosedur operasional kemitraan</span>
+                                <h5 data-i18n="spl.dl3_title">SOP Kemitraan Pemanfaatan FABA</h5>
+                                <span><i class="fas fa-file-lines"></i> <span data-i18n="spl.dl3_meta">PDF &middot; Prosedur operasional kemitraan</span></span>
                             </span>
                             <span class="spl-dl-btn"><i class="fas fa-download"></i> Download</span>
                         </a>
@@ -1061,8 +1060,8 @@
                 {{-- Footer Banner --}}
                 <div class="spl-contact">
                     <div class="spl-contact-text">
-                        <h3>Butuh bantuan lebih lanjut?</h3>
-                        <p>Silakan ajukan pertanyaan melalui saluran resmi PPID PT PLN Nusantara Power.</p>
+                        <h3 data-i18n="spl.contact_title">Butuh bantuan lebih lanjut?</h3>
+                        <p data-i18n="spl.contact_text">Silakan ajukan pertanyaan melalui saluran resmi PPID PT PLN Nusantara Power.</p>
                     </div>
                 </div>
                 </div>

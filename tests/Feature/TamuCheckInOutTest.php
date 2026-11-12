@@ -13,9 +13,11 @@ use Tests\TestCase;
  * ALUR CHECK-OUT TAMU — metode rekomendasi utama (TANPA foto check-out).
  *
  * - Check-in  : satpam menandai kedatangan (prasyarat status "Berkunjung").
- * - Check-out : SATU klik tombol pada kartu Detail/Modal -> kolom
- *               checked_out_at terisi timestamp & status menjadi "Selesai",
- *               jam langsung tampil di layar tanpa reload (respons JSON AJAX).
+ * - Check-out : kolom checked_out_at terisi timestamp & status menjadi
+ *               "Selesai" lewat endpoint JSON.
+ * - UI        : modal Detail Tamu kini HANYA menampilkan status verifikasi
+ *               + info singkat; box/jam & tombol check-in/out dihapus dari
+ *               modal (endpoint backend tetap tersedia).
  * - Guard     : kunjungan yang sudah check-out tidak bisa diklik ulang,
  *               dan check-out diblokir bila belum check-in.
  */
@@ -67,17 +69,6 @@ class TamuCheckInOutTest extends TestCase
             'verified_at'       => now()->subHour(),
             'verified_by'       => User::factory()->create()->id,
         ], $overrides));
-    }
-
-    /**
-     * Ambil tag pembuka elemen (button/span) berdasarkan atributnya,
-     * dipakai untuk memastikan tombol VISIBLE atau tersembunyi (hidden).
-     */
-    private function tagOf(string $html, string $attribute): string
-    {
-        $pattern = '/<(?:button|span)[^>]*\b' . preg_quote($attribute, '/') . '[^>]*>/';
-
-        return preg_match($pattern, $html, $m) ? $m[0] : '';
     }
 
     /* =========================================================
@@ -251,45 +242,22 @@ class TamuCheckInOutTest extends TestCase
 
         // Tidak ada field kosong / redundant pada state kunjungan
         $state = $fresh->kunjunganState();
-        foreach (['status', 'label', 'badge', 'badge_label', 'durasi_label'] as $kunci) {
+        foreach (['status', 'label', 'badge', 'badge_label'] as $kunci) {
             $this->assertNotEmpty($state[$kunci], "Kolom state '{$kunci}' tidak boleh kosong.");
         }
         $this->assertNotNull($state['checkin']);
         $this->assertNotNull($state['checkout']);
+
+        // Field durasi sudah dihapus dari payload UI (modal & laporan).
+        $this->assertArrayNotHasKey('durasi', $state);
+        $this->assertArrayNotHasKey('durasi_label', $state);
     }
 
     /* =========================================================
-       TAMPILAN MINIMALIS — kartu + tombol
+       MODAL DETAIL — kartu status kunjungan (tanpa check-in/out)
        ========================================================= */
 
-    public function test_detail_menampilkan_tombol_check_out_saat_sedang_berkunjung(): void
-    {
-        $satpam = $this->satpam();
-        $tamu   = $this->kunjungan(['checked_in_at' => now()->subHour()]);
-
-        $this->actingAs($satpam);
-
-        // Halaman detail sudah dihapus — state kartu kini dirender
-        // MODAL detail (mode lengkap) dari parsial bersama.
-        $html = view('admin.tamu.detail-tamu-modal', [
-            'tamu'        => $tamu,
-            'checkinUrl'  => route('admin.tamu.checkin', $tamu),
-            'checkoutUrl' => route('admin.tamu.checkout', $tamu),
-        ])->render();
-
-        $this->assertStringContainsString('Check-Out Tamu', $html);
-        $this->assertStringContainsString('Berkunjung', $html);
-
-        $tombol = $this->tagOf($html, 'data-action="checkout"');
-        $this->assertNotSame('', $tombol, 'Tombol check-out harus ada di modal detail.');
-        $this->assertStringNotContainsString('hidden', $tombol, 'Tombol check-out harus aktif saat tamu berkunjung.');
-
-        // Jam check-in ikut tampil; chip "Kunjungan selesai" masih tersembunyi
-        $this->assertStringContainsString('data-role="checkin"', $html);
-        $this->assertStringContainsString('hidden', $this->tagOf($html, 'data-role="done"'));
-    }
-
-    public function test_detail_menyembunyikan_tombol_check_out_setelah_selesai(): void
+    public function test_modal_detail_hanya_menampilkan_status_verifikasi(): void
     {
         $satpam = $this->satpam();
         $tamu   = $this->kunjungan([
@@ -299,25 +267,39 @@ class TamuCheckInOutTest extends TestCase
 
         $this->actingAs($satpam);
 
-        $html = view('admin.tamu.detail-tamu-modal', [
-            'tamu'        => $tamu,
-            'checkinUrl'  => route('admin.tamu.checkin', $tamu),
-            'checkoutUrl' => route('admin.tamu.checkout', $tamu),
-        ])->render();
+        $html = view('admin.tamu.detail-tamu-modal', ['tamu' => $tamu])->render();
 
-        $this->assertStringContainsString('Selesai', $html);
+        // Kartu bawah hanya berisi badge status verifikasi + info singkat.
+        $this->assertStringContainsString('dtm-status-card', $html);
+        $this->assertStringContainsString('Status Kunjungan', $html);
+        $this->assertStringContainsString('dtm-status-chip disetujui', $html);
+        $this->assertStringContainsString('Disetujui', $html);
 
-        $tombol = $this->tagOf($html, 'data-action="checkout"');
-        $this->assertNotSame('', $tombol);
-        $this->assertStringContainsString('hidden', $tombol, 'Tombol check-out disembunyikan setelah selesai.');
-
-        // Chip "Kunjungan selesai" tampil tanpa hidden
-        $chip = $this->tagOf($html, 'data-role="done"');
-        $this->assertNotSame('', $chip);
-        $this->assertStringNotContainsString('hidden', $chip);
+        // Box/jam & aksi check-in/check-out sudah dihapus dari modal.
+        $this->assertStringNotContainsString('Check-In Tamu', $html);
+        $this->assertStringNotContainsString('Check-Out Tamu', $html);
+        $this->assertStringNotContainsString('Kunjungan selesai', $html);
+        $this->assertStringNotContainsString('data-action="checkout"', $html);
+        $this->assertStringNotContainsString('data-role="checkin"', $html);
+        $this->assertStringNotContainsString('data-role="checkout"', $html);
+        $this->assertStringNotContainsString('>Selesai<', $html);
     }
 
-    public function test_index_menyediakan_kartu_checkinout_untuk_modal_detail(): void
+    public function test_modal_detail_menampilkan_info_verifikasi(): void
+    {
+        $satpam = $this->satpam();
+        $tamu   = $this->kunjungan(['checked_in_at' => now()->subHour()]);
+
+        $this->actingAs($satpam);
+
+        $html = view('admin.tamu.detail-tamu-modal', ['tamu' => $tamu])->render();
+
+        $this->assertStringContainsString('Terakhir diperbarui oleh', $html);
+        $this->assertStringContainsString($tamu->verifier_name, $html);
+        $this->assertStringContainsString('status verifikasi saat ini Disetujui', $html);
+    }
+
+    public function test_index_menyediakan_kartu_status_untuk_modal_detail(): void
     {
         $satpam = $this->satpam();
         $tamu   = $this->kunjungan();
@@ -325,17 +307,19 @@ class TamuCheckInOutTest extends TestCase
         $html = $this->actingAs($satpam)
             ->get(route('admin.tamu.index'))
             ->assertOk()
-            ->assertSee('id="coTemplate"', false)
             ->getContent();
 
-        // Template kartu tersedia & URL aksi memakai placeholder :id
-        $this->assertStringContainsString('data-co-card', $html);
-        $this->assertStringContainsString('tamu/:id/checkout', $html);
-        $this->assertStringContainsString('tamu/:id/checkin', $html);
+        // Slot kartu status tersedia di shell modal.
+        $this->assertStringContainsString('data-role="status-card"', $html);
+        $this->assertStringContainsString('data-role="status-badge"', $html);
+        $this->assertStringContainsString('data-role="status-info"', $html);
         $this->assertStringContainsString('data-tamu-id="' . $tamu->id . '"', $html);
 
-        // State kunjungan ikut dikirim ke JS agar modal menampilkan data terbaru
-        $this->assertStringContainsString('"kunjungan"', $html);
+        // Template check-in/out lama & payload state-nya sudah dihapus.
+        $this->assertStringNotContainsString('id="coTemplate"', $html);
+        $this->assertStringNotContainsString('data-role="co-slot"', $html);
+        $this->assertStringNotContainsString('"kunjungan":', $html);
+        $this->assertStringContainsString('"verifikasi":', $html);
     }
 
     /* =========================================================
@@ -376,14 +360,15 @@ class TamuCheckInOutTest extends TestCase
 
         $this->assertNotNull($tamu->fresh()->checked_out_at);
 
-        // Kartu check-in/out juga tersedia di modal detail portal karyawan
+        // Kartu status verifikasi juga tersedia di modal detail portal karyawan.
         $this->actingAs($karyawan)
             ->get(route('karyawan.tamu.index'))
             ->assertOk()
-            ->assertSee('id="coTemplate"', false)
-            // Modal Detail memakai parsial bersama (shell + slot dinamis)
+            // Modal Detail memakai parsial bersama (shell + slot dinamis).
             ->assertSee('data-role="info"', false)
-            ->assertSee('data-role="co-slot"', false)
+            ->assertSee('data-role="status-card"', false)
+            ->assertDontSee('id="coTemplate"', false)
+            ->assertDontSee('data-role="co-slot"', false)
             ->assertDontSee("['Check-In', t.checkin", false)
             ->assertDontSee("['Status', t.status", false);
     }
@@ -402,9 +387,9 @@ class TamuCheckInOutTest extends TestCase
             ->assertOk()
             ->getContent();
 
-        // Parsial baru dipakai (shell berisi slot info/keperluan/dokumen/kartu)
+        // Parsial baru dipakai (shell berisi info/keperluan/dokumen/kartu status).
         $this->assertStringContainsString('data-role="info"', $html);
-        $this->assertStringContainsString('data-role="co-slot"', $html);
+        $this->assertStringContainsString('data-role="status-card"', $html);
         $this->assertSame(1, substr_count($html, 'id="detailModal"'),
             'Modal Detail Tamu harus dirender tepat satu kali dari parsial bersama.');
 
@@ -429,26 +414,21 @@ class TamuCheckInOutTest extends TestCase
             'checked_out_at' => now()->subMinutes(10),
         ]);
 
-        $html = view('admin.tamu.detail-tamu-modal', [
-            'tamu'        => $tamu,
-            'checkinUrl'  => route('admin.tamu.checkin', $tamu),
-            'checkoutUrl' => route('admin.tamu.checkout', $tamu),
-        ])->render();
+        $html = view('admin.tamu.detail-tamu-modal', ['tamu' => $tamu])->render();
 
-        // Bagian atas: identitas + jadwal, tanpa 3 baris redundan
+        // Bagian atas: identitas + jadwal, tanpa 3 baris redundan.
         $this->assertStringContainsString('Jumlah Tamu', $html);
         $this->assertStringContainsString('Waktu Pendaftaran', $html);
         $this->assertStringNotContainsString('<dt>Check-In</dt>', $html);
         $this->assertStringNotContainsString('<dt>Check-Out</dt>', $html);
         $this->assertStringNotContainsString('<dt>Status</dt>', $html);
 
-        // Kartu LOG AKTIVITAS ikut terrender (pengganti halaman detail)
-        $this->assertStringContainsString('Log Aktivitas Status', $html);
-
-        // Kartu dinamis (kondisi selesai) ikut ter-render di bagian bawah
-        $this->assertStringContainsString('data-co-card', $html);
-        $this->assertStringContainsString('Kunjungan selesai', $html);
-        $this->assertStringContainsString(route('admin.tamu.checkout', $tamu), $html);
+        // Kartu status verifikasi ter-render di bagian bawah.
+        $this->assertStringContainsString('dtm-status-card', $html);
+        $this->assertStringContainsString('Status Kunjungan', $html);
+        $this->assertStringContainsString('dtm-status-chip disetujui', $html);
+        $this->assertStringNotContainsString('Kunjungan selesai', $html);
+        $this->assertStringNotContainsString(route('admin.tamu.checkout', $tamu), $html);
     }
 
     /* =========================================================
@@ -495,24 +475,5 @@ class TamuCheckInOutTest extends TestCase
             ->assertStatus(404)
             ->assertJsonPath('ok', false)
             ->assertJsonPath('message', 'Data tamu tidak ditemukan atau ID tidak valid.');
-    }
-
-    public function test_template_modal_menjajikan_placeholder_id_dan_script_menggantinya(): void
-    {
-        $satpam = $this->satpam();
-
-        $html = $this->actingAs($satpam)
-            ->get(route('admin.tamu.index'))
-            ->assertOk()
-            ->getContent();
-
-        // Tombol template masih memakai placeholder (di-replace saat clone)...
-        $tombol = $this->tagOf($html, 'data-action="checkout"');
-        $this->assertNotSame('', $tombol);
-        $this->assertStringContainsString('tamu/:id/checkout', $tombol);
-
-        // ...dan kartu/klik menjaganya: placeholder diganti sebelum fetch.
-        $this->assertStringContainsString("url.replace(':id', cid)", $html);
-        $this->assertStringContainsString("el.dataset.url = String(el.dataset.url || '').replace(':id', t.id)", $html);
     }
 }

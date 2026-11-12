@@ -25,8 +25,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *              prasyarat check-out agar status "Berkunjung" valid.
  * destroy()  : hapus data tamu beserta file dokumennya.
  * export()   : unduh CSV sesuai filter yang sedang aktif.
- * print()    : halaman cetak di bawah tabel (dua gaya: "excel" = look
- *              spreadsheet; "pdf" = laporan formal) via dialog print
+ * print()    : halaman cetak resmi "Laporan Buku Registrasi Tamu" (kop
+ *              surat, tabel 8 kolom, blok tanda tangan) via dialog print
  *              browser — mengikuti filter aktif, mengabaikan pagination.
  */
 class TamuController extends Controller
@@ -153,13 +153,7 @@ class TamuController extends Controller
             'jumlah'    => $t->jumlah_tamu,
             'tanggal'   => $t->tanggal_kunjungan?->format('Y-m-d H:i'),
             'daftar'    => $t->created_at->format('Y-m-d H:i'),
-            'checkin'   => $t->checked_in_at?->format('d M Y, H:i'),
-            'checkout'  => $t->checked_out_at?->format('d M Y, H:i'),
-            'status'    => $t->verifikasi_label === 'Disetujui'
-                ? ($t->checked_out_at ? 'Selesai' : ($t->checked_in_at ? 'Berkunjung' : 'Belum Check-In'))
-                : $t->verifikasi_label,
-            // State kunjungan lengkap utk kartu check-in/out di modal detail
-            'kunjungan' => $t->kunjunganState(),
+            // Status verifikasi utk badge kartu status di modal detail.
             'verifikasi' => $t->status_verifikasi,
             // Nilai mentah utk <input type="datetime-local"> pada modal edit
             'tanggal_input' => $t->tanggal_kunjungan?->format('Y-m-d\\TH:i'),
@@ -167,15 +161,15 @@ class TamuController extends Controller
             'dokumen'   => $this->dokumenUrl($t),
             // Untuk kompatibilitas dengan modal edit (JS mengakses model Carbon)
             'tanggal_kunjungan' => $t->tanggal_kunjungan,
-            // Kartu LOG AKTIVITAS di modal detail (pengganti halaman detail):
-            // siapa & kapan perubahan status terakhir, atau catatan "belum
-            // ada perubahan" untuk kunjungan yang masih menunggu.
+            // Info singkat pada kartu status kunjungan di modal detail:
+            // siapa & kapan verifikasi terakhir, atau catatan "belum ada
+            // perubahan" untuk kunjungan yang masih menunggu.
             'log' => ($t->verified_at && $t->verified_by)
                 ? 'Terakhir diperbarui oleh ' . $t->verifier_name
                     . ' (' . $t->verifier_role_label . ') pada '
                     . $t->verified_at->format('Y-m-d')
                     . ' jam ' . $t->verified_at->format('H.i')
-                    . ' — status saat ini ' . $t->kunjunganState()['badge_label'] . '.'
+                    . ' — status verifikasi saat ini ' . $t->verifikasi_label . '.'
                 : 'Belum ada perubahan status — kunjungan menunggu verifikasi.',
         ])->keyBy('id');
 
@@ -487,11 +481,11 @@ class TamuController extends Controller
     /*
      * CHECK-IN / CHECK-OUT — alur front office (satpam).
      *
-     * Keduanya satu gerbang permission (tamu.checkout) dan satu kartu UI
-     * minimalis (partial admin.tamu._checkinout): satu tombol, tanpa foto
-     * & tanpa halaman tambahan. Bila request datang dari AJAX (Accept:
-     * json) handler mengembalikan JSON berisi state terbaru sehingga jam
-     * check-in/out di layar langsung ter-update TANPA reload halaman.
+     * Keduanya satu gerbang permission (tamu.checkout). Modal Detail Tamu
+     * kini HANYA menampilkan status verifikasi + info singkat (tanpa box
+     * jam/aksi check-in/out), namun endpoint tetap tersedia untuk kebutuhan
+     * front office. Bila request datang dari AJAX (Accept: json) handler
+     * mengembalikan JSON berisi state terbaru.
      */
     public function checkin(Request $request, $id)
     {
@@ -640,9 +634,9 @@ class TamuController extends Controller
     }
 
     /**
-     * Halaman cetak daftar tamu (dibuka di tab baru, lalu memicu
-     * dialog print browser — bisa disimpan sebagai PDF). Dua gaya:
-     * "excel" (tampilan spreadsheet) dan "pdf" (laporan formal).
+     * Halaman cetak daftar tamu (dibuka di tab baru, lalu memicu dialog
+     * print browser — bisa disimpan sebagai PDF). Semua URL gaya cetak
+     * menghasilkan satu dokumen resmi "Laporan Buku Registrasi Tamu".
      */
     public function print(Request $request, string $style = 'excel')
     {

@@ -628,7 +628,7 @@
                     <div class="gallery-empty">
                         <div class="empty-icon"><i class="fas fa-images"></i></div>
                         <h6 data-i18n="galeri.empty">Belum ada foto pada kategori ini</h6>
-                        <p>Dokumentasi foto akan segera ditambahkan. Silakan kembali lagi nanti.</p>
+                        <p data-i18n="galeri.empty_desc">Dokumentasi foto akan segera ditambahkan. Silakan kembali lagi nanti.</p>
                     </div>
                 </div>
                 @endforelse
@@ -639,9 +639,9 @@
             <div class="gallery-empty d-none" id="filterEmpty">
                 <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
                 <h6 data-i18n="galeri.empty">Belum ada foto pada kategori ini</h6>
-                <p>Coba pilih kategori lain untuk melihat dokumentasi yang tersedia.</p>
+                <p data-i18n="galeri.filter_empty_desc">Coba pilih kategori lain untuk melihat dokumentasi yang tersedia.</p>
                 <button type="button" class="btn-reset-filter" id="resetFilterBtn">
-                    <i class="fas fa-rotate-left me-1"></i> Tampilkan Semua Foto
+                    <i class="fas fa-rotate-left me-1"></i> <span data-i18n="galeri.show_all">Tampilkan Semua Foto</span>
                 </button>
             </div>
         </div>
@@ -717,9 +717,19 @@
     const resetFilterBtn = document.getElementById('resetFilterBtn');
 
     function updateCount(n) {
-        if (countEl) countEl.textContent = n + ' foto ditampilkan';
+        if (countEl) {
+            var tpl = (window.PLNI18N && window.PLNI18N.t)
+                ? window.PLNI18N.t('galeri.count', '{n} foto ditampilkan')
+                : '{n} foto ditampilkan';
+            countEl.textContent = tpl.replace('{n}', n);
+        }
     }
     updateCount(filteredIndices.length);
+
+    /* Ganti bahasa → perbarui baris hitungan (dirakit JS). */
+    document.addEventListener('pln:languagechange', function () {
+        updateCount(filteredIndices.length);
+    });
 
     /* --- Filter kategori --- */
     filterChips.forEach(function(chip) {

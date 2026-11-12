@@ -37,9 +37,30 @@
 
     if (window.PLNDatePicker) { return; }
 
-    var BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    /* Label mengikuti bahasa aktif (kamus public/js/i18n.js). Fungsi dipakai
+       — bukan konstanta — supaya pemilihan English langsung terpakai. */
+    var BULAN_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    var HARI = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
+    var BULAN_EN = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
+    var HARI_ID = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
+    var HARI_EN = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+    function isEnglish() {
+        return !!(window.PLNI18N && window.PLNI18N.getLanguage && window.PLNI18N.getLanguage() === 'en');
+    }
+
+    function t(key, fallback) {
+        return (window.PLNI18N && window.PLNI18N.t) ? window.PLNI18N.t(key, fallback) : fallback;
+    }
+
+    function BULAN(month) {
+        return (isEnglish() ? BULAN_EN : BULAN_ID)[month];
+    }
+
+    function HARI(index) {
+        return (isEnglish() ? HARI_EN : HARI_ID)[index];
+    }
 
     var openInstance = null;
     var uid = 0;
@@ -152,43 +173,44 @@
         panel.hidden = true;
 
         var clearable = this.isOn('clearable');
-        var monthOptions = BULAN.map(function (nama, index) {
+        var monthNames = BULAN_ID.map(function (nama, index) { return BULAN(index); });
+        var monthOptions = monthNames.map(function (nama, index) {
             return '<option value="' + index + '">' + nama + '</option>';
         }).join('');
-        var monthMenuOptions = BULAN.map(function (nama, index) {
+        var monthMenuOptions = monthNames.map(function (nama, index) {
             return '<button type="button" class="pln-cal-month-option pln-cal-nav-option" role="option"'
                 + ' data-dp-month-option="' + index + '" aria-selected="false">' + nama + '</button>';
         }).join('');
         var html = ''
             + '<div class="pln-cal-head">'
-            + '  <button type="button" class="pln-cal-nav" data-dp-prev aria-label="Bulan sebelumnya">'
+            + '  <button type="button" class="pln-cal-nav" data-dp-prev aria-label="' + t('cal.prev_month', 'Bulan sebelumnya') + '">'
             + '    <i class="fas fa-chevron-left" aria-hidden="true"></i></button>'
             + '  <div class="pln-cal-title" data-dp-title aria-live="polite">'
             + '    <span class="pln-cal-picker pln-cal-month">'
-            + '      <select class="pln-cal-select" data-dp-month aria-label="Pilih bulan"'
+            + '      <select class="pln-cal-select" data-dp-month aria-label="' + t('cal.pick_month', 'Pilih bulan') + '"'
             + '              aria-haspopup="listbox" aria-expanded="false">' + monthOptions + '</select>'
             + '      <i class="fas fa-chevron-down pln-cal-picker-caret" aria-hidden="true"></i>'
             + '      <div class="pln-cal-nav-menu pln-cal-month-menu" data-dp-month-menu role="listbox"'
-            + '           aria-label="Daftar bulan" hidden>' + monthMenuOptions + '</div>'
+            + '           aria-label="' + t('cal.month_list', 'Daftar bulan') + '" hidden>' + monthMenuOptions + '</div>'
             + '    </span>'
             + '    <span class="pln-cal-picker pln-cal-year">'
-            + '      <select class="pln-cal-select pln-cal-select-year" data-dp-year aria-label="Pilih tahun"'
+            + '      <select class="pln-cal-select pln-cal-select-year" data-dp-year aria-label="' + t('cal.pick_year', 'Pilih tahun') + '"'
             + '              aria-haspopup="listbox" aria-expanded="false"></select>'
             + '      <i class="fas fa-chevron-down pln-cal-picker-caret" aria-hidden="true"></i>'
             + '      <div class="pln-cal-nav-menu pln-cal-year-menu" data-dp-year-menu role="listbox"'
-            + '           aria-label="Daftar tahun" hidden></div>'
+            + '           aria-label="' + t('cal.year_list', 'Daftar tahun') + '" hidden></div>'
             + '    </span>'
             + '  </div>'
-            + '  <button type="button" class="pln-cal-nav" data-dp-next aria-label="Bulan berikutnya">'
+            + '  <button type="button" class="pln-cal-nav" data-dp-next aria-label="' + t('cal.next_month', 'Bulan berikutnya') + '">'
             + '    <i class="fas fa-chevron-right" aria-hidden="true"></i></button>'
             + '</div>'
             + '<div class="pln-cal-grid pln-cal-dow" aria-hidden="true">'
-            + HARI.map(function (h) { return '<span>' + h + '</span>'; }).join('')
+            + HARI_ID.map(function (h, i) { return '<span>' + HARI(i) + '</span>'; }).join('')
             + '</div>'
             + '<div class="pln-cal-grid" data-dp-days></div>'
             + '<div class="pln-cal-foot">'
-            + (clearable ? '<button type="button" class="pln-cal-clear" data-dp-clear>Bersihkan</button>' : '')
-            + '  <button type="button" class="pln-cal-today" data-dp-today>Hari ini</button>'
+            + (clearable ? '<button type="button" class="pln-cal-clear" data-dp-clear>' + t('cal.clear', 'Bersihkan') + '</button>' : '')
+            + '  <button type="button" class="pln-cal-today" data-dp-today>' + t('cal.today', 'Hari ini') + '</button>'
             + '</div>';
 
         panel.innerHTML = html;
@@ -234,7 +256,7 @@
             this.input.setAttribute('autocomplete', 'off');
             this.input.setAttribute('inputmode', 'none');
             if (!this.input.hasAttribute('placeholder')) {
-                this.input.setAttribute('placeholder', 'Pilih tanggal');
+                this.input.setAttribute('placeholder', t('cal.pick_date', 'Pilih tanggal'));
             }
             this.input.addEventListener('click', this._onInputClick);
             this.input.addEventListener('keydown', this._onInputKeydown);
@@ -483,7 +505,7 @@
 
         this.syncNav();
         if (this.titleEl) {
-            this.titleEl.setAttribute('aria-label', BULAN[month] + ' ' + year);
+            this.titleEl.setAttribute('aria-label', BULAN(month) + ' ' + year);
         }
 
         var frag = document.createDocumentFragment();
@@ -518,30 +540,32 @@
             btn.dataset.tanggal = ymd;
             btn.textContent = day;
 
-            var label = day + ' ' + BULAN[month] + ' ' + year;
+            var label = day + ' ' + BULAN(month) + ' ' + year;
             if (status === 'blocked') {
                 btn.disabled = true;
                 var ket = this._blocked[ymd];
-                btn.title = ket ? ('Hari libur — ' + ket) : 'Hari libur / tanggal merah';
+                btn.title = ket
+                    ? t('cal.holiday_note', 'Hari libur') + ' — ' + ket
+                    : t('cal.holiday', 'Hari libur / tanggal merah');
                 btn.setAttribute('aria-disabled', 'true');
                 label += ' — ' + btn.title;
             } else if (status === 'locked') {
                 btn.disabled = true;
-                btn.title = 'Akhir pekan — kunjungan hanya pada hari kerja.';
+                btn.title = t('cal.weekend', 'Akhir pekan — kunjungan hanya pada hari kerja.');
                 btn.setAttribute('aria-disabled', 'true');
                 label += ' — akhir pekan';
             } else if (status === 'past') {
                 btn.disabled = true;
-                btn.title = 'Tanggal sudah lewat.';
+                btn.title = t('cal.past', 'Tanggal sudah lewat.');
                 btn.setAttribute('aria-disabled', 'true');
                 label += ' — tanggal sudah lewat';
             } else if (status === 'out') {
                 btn.disabled = true;
-                btn.title = 'Di luar rentang tanggal yang diizinkan.';
+                btn.title = t('cal.out_of_range', 'Di luar rentang tanggal yang diizinkan.');
                 btn.setAttribute('aria-disabled', 'true');
                 label += ' — di luar rentang';
             } else if (status === 'work') {
-                btn.title = 'Hari kerja khusus (override akhir pekan) — bisa dipilih.';
+                btn.title = t('cal.special_workday', 'Hari kerja khusus (override akhir pekan) — bisa dipilih.');
                 label += ' — hari kerja khusus';
             }
 
@@ -1012,6 +1036,12 @@
     document.addEventListener('pt:after-swap', function () {
         if (openInstance) { openInstance.close(); }
         scheduleScan();
+    });
+
+    /* Ganti bahasa (ID <-> EN): tutup kalender yang terbuka agar label
+       (nama bulan/hari, "Hari ini", tooltip) dibangun ulang dengan bahasa baru. */
+    document.addEventListener('pln:languagechange', function () {
+        if (openInstance) { openInstance.close(); }
     });
 
     if (document.readyState === 'loading') {

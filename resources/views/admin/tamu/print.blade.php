@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cetak Data Tamu ({{ $style === 'pdf' ? 'Laporan' : 'Spreadsheet' }})</title>
+<title>LAPORAN BUKU REGISTRASI TAMU — {{ now()->format('d-m-Y') }}</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 <style>
     :root {
@@ -14,45 +14,22 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-        font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10pt;
         background: #eef2f7;
-        color: #1e293b;
+        color: #000;
         padding: 1.5rem;
     }
 
     /* ================== TOOLBAR (tidak tercetak) ================== */
     .print-toolbar {
-        max-width: 1150px;
+        max-width: 1400px;
         margin: 0 auto 1rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
         flex-wrap: wrap;
-    }
-
-    .print-toolbar .switch {
-        display: inline-flex;
-        border: 1px solid #cbd5e1;
-        border-radius: 10px;
-        overflow: hidden;
-        background: #fff;
-    }
-
-    .print-toolbar .switch a {
-        padding: 0.55rem 1.1rem;
-        font-size: 0.83rem;
-        font-weight: 600;
-        color: #475569;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-    }
-
-    .print-toolbar .switch a.active {
-        background: var(--pln-blue);
-        color: #fff;
     }
 
     .print-toolbar .actions { display: flex; gap: 0.5rem; }
@@ -78,253 +55,191 @@
 
     /* ================== KERTAS ================== */
     .paper {
-        max-width: 1150px;
+        max-width: min(1400px, calc(100vw - 3rem));
         margin: 0 auto;
         background: #fff;
         border-radius: 12px;
         box-shadow: 0 10px 30px rgb(15 23 42 / 10%);
-        padding: 2rem 2.25rem;
+        padding: 2rem 2.5rem;
     }
 
-    /* 16 kolom butuh kertas lebih lebar di layar supaya setiap nilai
-       terbaca tanpa pecah per karakter. Toolbar & footnote ikut selebar
-       kertas agar tetap rata. Print tetap A4 landscape (lihat
-       @media print — max-width di-reset). */
-    @media screen {
-        .is-excel .print-toolbar,
-        .is-excel .paper,
-        .is-excel .print-footnote {
-            max-width: min(1720px, calc(100vw - 3rem));
-        }
-
-        /* Gaya Laporan: lebih lebar dari A4 di layar supaya tanggal tidak
-           terpecah jadi tiga baris. */
-        .is-report .print-toolbar,
-        .is-report .paper,
-        .is-report .print-footnote {
-            max-width: min(1400px, calc(100vw - 3rem));
-        }
-    }
-
-    /* ---------- Kop laporan (gaya pdf) ---------- */
+    /* ---------- Kop surat resmi ---------- */
     .kop {
         display: flex;
         align-items: center;
-        gap: 1.1rem;
-        border-bottom: 4px double #0f172a;
-        padding-bottom: 0.9rem;
-        margin-bottom: 1.1rem;
+        gap: 1rem;
     }
 
-    .kop-logo {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        background: var(--pln-blue);
-        color: var(--pln-yellow);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.7rem;
-        flex-shrink: 0;
+    .kop-logo,
+    .kop-spacer {
+        flex: 0 0 78px;
+        width: 78px;
     }
 
-    .kop-text { flex: 1; }
+    .kop-logo img {
+        display: block;
+        height: 72px;
+        width: auto;
+        max-width: 78px;
+        object-fit: contain;
+    }
 
-    .kop-text .instansi {
-        font-size: 0.78rem;
-        letter-spacing: 0.08em;
+    /* Logo kanan = cermin lebar logo kiri supaya teks kop tetap
+       center terhadap halaman. */
+    .kop-spacer { height: 1px; }
+
+    .kop-text { flex: 1; text-align: center; }
+
+    .kop-nama {
+        font-size: 1.35rem;
+        font-weight: 700;
+        line-height: 1.25;
+        letter-spacing: 0.02em;
         text-transform: uppercase;
-        color: #475569;
     }
 
-    .kop-text h1 { font-size: 1.12rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    .kop-unit {
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.3;
+        text-transform: uppercase;
+    }
 
-    .kop-text .sub { font-size: 0.8rem; color: #64748b; }
+    .kop-alamat {
+        font-size: 0.75rem;
+        line-height: 1.35;
+        margin-top: 0.15rem;
+    }
+
+    /* Garis tebal ganda pembatas kop surat. */
+    .kop-garis {
+        border-top: 3px solid #000;
+        border-bottom: 1px solid #000;
+        height: 5px;
+        margin: 0.55rem 0 1.15rem;
+    }
 
     /* ---------- Judul dokumen ---------- */
-    .doc-title { text-align: center; margin-bottom: 1.25rem; }
+    .doc-title { text-align: center; margin-bottom: 0.9rem; }
 
-    .doc-title h2 {
-        font-size: 1.05rem;
+    .doc-title h1 {
+        font-size: 14pt;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.04em;
     }
 
-    .doc-title p { font-size: 0.8rem; color: #64748b; margin-top: 0.2rem; }
-
-    /* ---------- Info filter / meta ---------- */
-    .meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem 1.5rem;
-        font-size: 0.78rem;
-        color: #475569;
-        margin-bottom: 0.9rem;
+    .doc-title p {
+        font-size: 10pt;
+        margin-top: 0.3rem;
     }
 
-    .meta b { color: #0f172a; }
-
-    /* ---------- Ringkasan (gaya pdf) ---------- */
-    .ringkasan {
-        display: flex;
-        gap: 0.6rem;
-        flex-wrap: wrap;
-        margin-bottom: 1rem;
+    .doc-meta {
+        text-align: center;
+        font-size: 9pt;
+        margin-top: 0.2rem;
     }
 
-    .ringkasan .chip {
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
-        border-radius: 999px;
-        padding: 0.3rem 0.85rem;
-        font-size: 0.75rem;
-        color: #334155;
-    }
-
-    .ringkasan .chip b { color: var(--pln-blue); }
-
-    /* ================== TABEL GAYA EXCEL ================== */
-    /* table-layout: fixed + <colgroup> → lebar kolom TETAP dan
-       proporsional (tidak dihitung dari isi), sehingga tidak ada
-       kolom yang menyusut sampai satu karakter per baris. */
-    .sheet table.grid {
-        border-collapse: collapse;
+    /* ================== TABEL LAPORAN ================== */
+    /* table-layout: fixed + <colgroup> -> lebar kolom tetap & proporsional,
+       total 100% sehingga tabel selalu muat di kertas A4 landscape. */
+    table.grid {
         width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
         table-layout: fixed;
     }
 
-    .sheet table.grid th,
-    .sheet table.grid td {
-        border: 1px solid #b6c2d2;
-        padding: 0.3rem 0.35rem;
-        font-size: 0.74rem;
+    table.grid th,
+    table.grid td {
+        border: 1px solid #333;
+        padding: 6px 8px;
+        font-size: 9pt;
         line-height: 1.35;
         vertical-align: top;
-        /* Pecah kata HANYA bila benar-benar tidak muat (mis. email
-           panjang). Jangan `anywhere`: itu membuat kata pendek pun
-           pecah per karakter. */
+        /* Teks panjang (keperluan, instansi, nama personil) turun baris,
+           tidak terpotong / tidak melebar keluar kolom. */
+        white-space: normal;
+        word-wrap: break-word;
         overflow-wrap: break-word;
         word-break: normal;
     }
 
-    /* Lebar kolom sheet sudah ditentukan <colgroup>; atribut width
-       inline pada <th> tidak boleh menimpanya (dipakai kedua gaya). */
-    .paper table.grid thead th { width: auto !important; }
-
-    /* Tanggal & jam ditumpuk dua baris agar tidak perlu kolom lebar. */
-    .paper .dt,
-    .paper .tm { display: block; }
-    .paper .tm { font-size: 0.94em; color: #64748b; }
-
-    .sheet table.grid thead th {
-        background: #dce6f1;
-        color: #1f2937;
+    table.grid th {
+        background: #f2f2f2;
+        text-align: center;
         font-weight: 700;
-        text-align: center;
-        position: sticky;
-        top: 0;
-    }
-
-    /* header kolom seperti "row header" Excel: abjad A, B, C ... */
-    .sheet table.grid thead th .col-id { display: block; font-size: 0.6rem; color: #64748b; font-weight: 600; }
-
-    .sheet table.grid tbody tr:nth-child(even) td { background: #f6f9fd; }
-
-    .sheet table.grid td.num { text-align: right; }
-    .sheet table.grid td.ctr { text-align: center; }
-
-    .sheet .rownum {
-        background: #eef2f7;
-        color: #64748b;
-        text-align: center;
-        font-size: 0.68rem;
-        font-weight: 600;
-    }
-
-    /* ================== TABEL GAYA PDF (laporan) ================== */
-    /* Kolom memakai <colgroup> yang sama dengan gaya Excel supaya tabel
-       tetap di dalam kartu (sebelumnya melebar keluar kertas karena
-       lebar kolom dihitung dari isi terpanjang). */
-    .report table.grid {
-        border-collapse: collapse;
-        width: 100%;
-        table-layout: fixed;
-    }
-
-    .report table.grid th {
-        background: var(--pln-blue);
-        color: #fff;
-        font-size: 0.72rem;
         text-transform: uppercase;
-        letter-spacing: 0;
-        line-height: 1.25;
-        padding: 0.5rem 0.3rem;
-        text-align: left;
+        /* Latar abu-abu header tetap tercetak. */
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 
-    /* Kolom sempit: tetap di tengah agar judul tidak menggantung. */
-    .report table.grid th:nth-child(1),
-    .report table.grid th:nth-child(12) { text-align: center; }
+    table.grid td.ctr { text-align: center; }
+    table.grid td.left { text-align: left; }
 
-    .report table.grid td {
-        border-bottom: 1px solid #e2e8f0;
-        padding: 0.45rem 0.32rem;
-        font-size: 0.76rem;
-        vertical-align: top;
-        /* Token panjang (NIK, email, instansi) dipecah hanya bila
-           tidak muat, supaya tabel tidak melebar keluar kartu. */
-        overflow-wrap: break-word;
-        word-break: normal;
+    .nama-tamu { display: block; font-weight: 700; }
+
+    .sub-line {
+        display: block;
+        font-size: 0.92em;
+        color: #333;
     }
 
-    .report table.grid tbody tr:nth-child(even) td { background: #f8fafc; }
+    .sub-line.label { font-weight: 600; }
 
-    .report table.grid td.num { text-align: right; }
-    .report table.grid td.ctr { text-align: center; }
-
-    .report .badge {
+    .status-badge {
         display: inline-block;
-        padding: 0.12rem 0.5rem;
+        padding: 0.1rem 0.45rem;
+        border: 1px solid #333;
         border-radius: 999px;
-        font-size: 0.68rem;
+        font-size: 0.88em;
         font-weight: 700;
         white-space: nowrap;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 
-    .report .badge.menunggu  { background: #fef3c7; color: #b45309; }
-    .report .badge.disetujui { background: #dcfce7; color: #15803d; }
-    .report .badge.berkunjung { background: #dbeafe; color: #1d4ed8; }
-    .report .badge.selesai { background: #f1f5f9; color: #64748b; }
-    .report .badge.ditolak { background: #fee2e2; color: #dc2626; }
-
-    /* ---------- Tanda tangan (gaya pdf) ---------- */
-    .ttd {
-        margin-top: 2.2rem;
-        margin-left: auto;
-        width: 280px;
-        text-align: center;
-        font-size: 0.8rem;
-        page-break-inside: avoid;
-    }
-
-    .ttd .tempat { margin-bottom: 2.6rem; }
-
-    .ttd .nama { font-weight: 700; text-decoration: underline; }
+    .status-badge.menunggu  { background: #fef3c7; color: #7c4a03; }
+    .status-badge.disetujui { background: #dcfce7; color: #14532d; }
+    .status-badge.berkunjung { background: #dbeafe; color: #1e3a8a; }
+    .status-badge.selesai   { background: #e5e7eb; color: #111827; }
+    .status-badge.ditolak   { background: #fee2e2; color: #7f1d1d; }
 
     /* ---------- Status kosong ---------- */
     .empty {
         text-align: center;
         padding: 2.5rem 1rem;
-        color: #64748b;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
+        color: #555;
     }
 
-    .empty i { font-size: 1.6rem; display: block; margin-bottom: 0.5rem; color: #cbd5e1; }
+    .empty i { font-size: 1.6rem; display: block; margin-bottom: 0.5rem; color: #999; }
+
+    /* ---------- Tanda tangan ---------- */
+    .ttd {
+        margin-top: 28px;
+        margin-left: auto;
+        width: 300px;
+        text-align: center;
+        font-size: 10pt;
+        page-break-inside: avoid;
+    }
+
+    .ttd .tempat { margin-bottom: 0.2rem; }
+
+    .ttd .jabatan { font-weight: 600; }
+
+    .ttd .ruang { height: 3.2rem; }
+
+    .ttd .nama {
+        font-weight: 700;
+        text-decoration: underline;
+    }
 
     /* ---------- Footer halaman web ---------- */
     .print-footnote {
-        max-width: 1150px;
+        max-width: min(1400px, calc(100vw - 3rem));
         margin: 0.8rem auto 0;
         font-size: 0.72rem;
         color: #94a3b8;
@@ -332,58 +247,87 @@
     }
 
     /* ================== PRINT CSS ================== */
-    @page { size: A4 landscape; margin: 12mm; }
+    /* @page margin HARUS 0: Chrome/Edge/Firefox hanya membuang header & footer
+       bawaan browser (judul halaman, tanggal, dan URL seperti
+       http://localhost:8000/admin/tamu/1/print) bila area margin halaman tidak
+       menyisakan ruang untuk menggambarnya. Jarak aman ke tepi kertas dibuat
+       lewat padding .paper di bawah, bukan lewat margin @page. */
+    @page { size: A4 landscape; margin: 0; }
 
     @media print {
-        body { background: #fff; padding: 0; }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+            color: #000;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
 
-        .print-toolbar, .print-footnote { display: none !important; }
+        /* Navigasi, catatan kaki web & tombol cetak tidak ikut tercetak. */
+        .no-print,
+        .print-toolbar,
+        .print-footnote,
+        .btn-print,
+        header,
+        footer,
+        nav,
+        aside {
+            display: none !important;
+        }
 
         .paper {
             max-width: none;
+            margin: 0;
+            /* Margin cetak pengganti @page margin: 0. Padding kiri/kanan
+               berlaku di semua halaman; header tabel yang berulang
+               (thead table-header-group) menjaga halaman lanjutan tetap
+               terbaca meski padding atas hanya di halaman pertama. */
+            padding: 10mm 12mm;
             border-radius: 0;
             box-shadow: none;
-            padding: 0;
         }
 
-        /* Gaya excel: header tabel berulang tiap halaman */
+        table.grid {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table.grid th,
+        table.grid td {
+            border: 1px solid #333 !important;
+            padding: 6px 8px;
+            font-size: 9pt;
+        }
+
+        table.grid th {
+            background-color: #f2f2f2 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            text-align: center;
+        }
+
+        /* Header tabel berulang di setiap halaman. */
         table.grid thead { display: table-header-group; }
-        tr { page-break-inside: avoid; }
+        table.grid tr { page-break-inside: avoid; }
 
-        .sheet table.grid thead th { position: static; }
-
-        /* A4 landscape: kolom memakai persentase (selalu muat), font
-           diperkecil agar isi tidak terpotong di kolom terakhir. */
-        .sheet table.grid th,
-        .sheet table.grid td { font-size: 0.6rem; padding: 0.16rem 0.22rem; }
-
-        .report table.grid th { font-size: 0.58rem; padding: 0.24rem 0.2rem; }
-        .report table.grid td { font-size: 0.6rem; padding: 0.2rem; }
-
-        /* Badge status ikut mengecil agar muat di kolom sempit A4. */
-        .report table.grid .badge { font-size: 0.55rem; padding: 0.1rem 0.26rem; }
-
-        /* Tanggal cetak kecil di bawah tabel */
-        .printed-at { margin-top: 0.8rem; font-size: 0.68rem; color: #64748b; }
+        /* Badge status dibuat hitam-putih agar tetap tegas saat dicetak. */
+        .status-badge {
+            background: transparent !important;
+            color: #000 !important;
+            border: 1px solid #333 !important;
+        }
     }
-
-    .printed-at { margin-top: 0.8rem; font-size: 0.7rem; color: #64748b; }
 </style>
 </head>
-<body class="{{ $style === 'excel' ? 'is-excel' : 'is-report' }}">
+<body class="is-report">
 
 {{-- Toolbar pengaturan (tidak ikut tercetak) --}}
-<div class="print-toolbar">
-    <div class="switch">
-        <a href="{{ route('admin.tamu.print', array_merge(['style' => 'excel'], request()->only(['q', 'dari', 'sampai', 'status']))) }}"
-           class="{{ $style === 'excel' ? 'active' : '' }}">
-            <i class="fas fa-table-cells-large"></i> Gaya Excel
-        </a>
-        <a href="{{ route('admin.tamu.print', array_merge(['style' => 'pdf'], request()->only(['q', 'dari', 'sampai', 'status']))) }}"
-           class="{{ $style === 'pdf' ? 'active' : '' }}">
-            <i class="fas fa-file-lines"></i> Gaya PDF / Laporan
-        </a>
-    </div>
+<div class="print-toolbar no-print">
     <div class="actions">
         <a href="{{ route('admin.tamu.index', request()->only(['q', 'dari', 'sampai', 'status'])) }}" class="print-btn soft">
             <i class="fas fa-arrow-left"></i> Kembali
@@ -394,256 +338,146 @@
     </div>
 </div>
 
-<div class="paper {{ $style === 'pdf' ? 'report' : 'sheet' }}">
+@php
+    /* Label status filter — dipakai baris meta judul. */
+    $labelStatus = [
+        'menunggu'   => 'Menunggu Verifikasi',
+        'disetujui'  => 'Disetujui / Selesai',
+        'ditolak'    => 'Ditolak',
+        'berkunjung' => 'Berkunjung',
+        'selesai'    => 'Selesai',
+    ];
 
-    @if ($style === 'pdf')
-        {{-- ================= KOP LAPORAN RESMI ================= --}}
-        <div class="kop">
-            <div class="kop-logo"><i class="fas fa-bolt"></i></div>
-            <div class="kop-text">
-                <div class="instansi">PT PLN Nusantara Power (Persero)</div>
-                <h1>UP PLTU Indramayu</h1>
-                <div class="sub">Buku Registrasi Pengunjung</div>
-            </div>
-            <div style="text-align:right; font-size:0.72rem; color:#64748b;">
-                No. Dok: BRT/{{ now()->format('Ym') }}/{{ str_pad((string) $tamus->count(), 4, '0', STR_PAD_LEFT) }}
-            </div>
+    /* Nama bulan Indonesia — tidak bergantung pada locale Carbon. */
+    $bulanId = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+    ];
+    $formatTanggal = static fn ($tanggal) => $tanggal->format('d')
+        . ' ' . $bulanId[(int) $tanggal->format('n')]
+        . ' ' . $tanggal->format('Y');
+
+    /* Periode cetak: mengikuti filter tanggal bila ada, selain itu
+       tanggal dokumen ini dicetak. */
+    $periodeCetak = collect([
+        $filter['dari'] ? $formatTanggal(\Illuminate\Support\Carbon::parse($filter['dari'])) : null,
+        $filter['sampai'] ? $formatTanggal(\Illuminate\Support\Carbon::parse($filter['sampai'])) : null,
+    ])->filter()->implode(' s/d ');
+
+    if ($periodeCetak === '') {
+        $periodeCetak = $formatTanggal(now());
+    }
+@endphp
+
+<div class="paper">
+
+    {{-- ================= KOP SURAT RESMI ================= --}}
+    <div class="kop">
+        <div class="kop-logo">
+            <img src="{{ asset('assets/images/logo-pln1.png') }}" alt="Logo PLN Nusantara Power">
         </div>
-    @endif
-
-    <div class="doc-title">
-        <h2>{{ $style === 'pdf' ? 'Laporan Daftar Tamu' : 'Data Tamu — Buku Registrasi' }}</h2>
-        <p>
-            @if ($filter['dari'] || $filter['sampai'])
-                Periode {{ $filter['dari'] ? \Illuminate\Support\Carbon::parse($filter['dari'])->format('Y-m-d') : 'awal' }}
-                s/d {{ $filter['sampai'] ? \Illuminate\Support\Carbon::parse($filter['sampai'])->format('Y-m-d') : 'sekarang' }}
-            @else
-                Seluruh periode
-            @endif
-            — dicetak {{ now()->format('Y-m-d H:i') }} WIB
-        </p>
+        <div class="kop-text">
+            <div class="kop-nama">PT PLN NUSANTARA POWER</div>
+            <div class="kop-unit">UNIT PEMBANGKITAN INDRAMAYU</div>
+            <div class="kop-alamat">Jl. Raya Preteg - Sumuradem, Kec. Sukra, Kab. Indramayu, Jawa Barat 45257</div>
+        </div>
+        <div class="kop-spacer" aria-hidden="true"></div>
     </div>
+    <div class="kop-garis"></div>
 
-    @php
-        /* Label status filter — dipakai chip filter & baris meta,
-           berlaku untuk kedua gaya cetak (pdf maupun excel). */
-        $labelStatus = [
-            'menunggu'   => 'Menunggu Verifikasi',
-            'disetujui'  => 'Disetujui',
-            'ditolak'    => 'Ditolak',
-            'berkunjung' => 'Berkunjung',
-            'selesai'    => 'Selesai',
-        ];
-    @endphp
-
-    @if ($style === 'pdf')
-        {{-- Ringkasan jumlah per status — alur verifikasi sama
-             dengan halaman Data Tamu: Menunggu -> Diizinkan/Ditolak,
-             setelahnya Berkunjung (check-in) -> Selesai (check-out). --}}
-        @php
-            $totalMenunggu  = $tamus->where('status_verifikasi', \App\Models\Tamu::STATUS_MENUNGGU)->count();
-            $totalDiizinkan = $tamus->where('status_verifikasi', \App\Models\Tamu::STATUS_DISETUJUI)->count();
-            $totalDitolak   = $tamus->where('status_verifikasi', \App\Models\Tamu::STATUS_DITOLAK)->count();
-        @endphp
-        <div class="ringkasan">
-            <span class="chip"><i class="fas fa-list" style="margin-right:0.35rem;"></i>Total: <b>{{ $tamus->count() }} tamu</b></span>
-            <span class="chip"><i class="fas fa-hourglass-half" style="margin-right:0.35rem;"></i>Menunggu: <b>{{ $totalMenunggu }}</b></span>
-            <span class="chip"><i class="fas fa-circle-check" style="margin-right:0.35rem;"></i>Diizinkan: <b>{{ $totalDiizinkan }}</b></span>
-            <span class="chip"><i class="fas fa-circle-xmark" style="margin-right:0.35rem;"></i>Ditolak: <b>{{ $totalDitolak }}</b></span>
-            @if ($filter['status'] && isset($labelStatus[$filter['status']]))
-                <span class="chip"><i class="fas fa-filter" style="margin-right:0.35rem;"></i>Filter status: <b>{{ $labelStatus[$filter['status']] }}</b></span>
-            @endif
-        </div>
-    @endif
-
-    @if ($filter['q'] || $filter['dari'] || $filter['sampai'] || $filter['status'])
-        <div class="meta">
-            @if ($filter['q'])<span>Pencarian: <b>{{ $filter['q'] }}</b></span>@endif
-            @if ($filter['status'] && isset($labelStatus[$filter['status']]))<span>Status: <b>{{ $labelStatus[$filter['status']] }}</b></span>@endif
-        </div>
-    @endif
+    {{-- ================= JUDUL & INFORMASI CETAK ================= --}}
+    <div class="doc-title">
+        <h1>LAPORAN BUKU REGISTRASI TAMU</h1>
+        <p>Periode Cetak: {{ $periodeCetak }} | Waktu Cetak: {{ now()->format('H:i') }} WIB</p>
+        @if ($filter['q'] || $filter['status'])
+            <p class="doc-meta">
+                @if ($filter['q'])Pencarian: {{ $filter['q'] }}@endif
+                @if ($filter['q'] && $filter['status']) | @endif
+                @if ($filter['status'] && isset($labelStatus[$filter['status']]))Status: {{ $labelStatus[$filter['status']] }}@endif
+            </p>
+        @endif
+    </div>
 
     {{-- ================= TABEL DATA ================= --}}
     <table class="grid">
-        {{-- Lebar kolom tetap (dipakai bersama table-layout: fixed pada
-             kedua gaya: Excel & Laporan). Total 100% → tabel selalu muat
-             di kertas, tidak ada kolom yang runtuh jadi satu karakter
-             per baris. --}}
+        {{-- Lebar kolom tetap; total 100% agar muat di A4 landscape. --}}
         <colgroup>
-            <col style="width:2.8%">{{-- No --}}
-            <col style="width:6.4%">{{-- Waktu Daftar --}}
-            <col style="width:6.4%">{{-- Tgl Kunjungan --}}
-            <col style="width:6.2%">{{-- Nama --}}
-            <col style="width:7%">{{-- NIK --}}
-            <col style="width:6.8%">{{-- No. HP --}}
-            <col style="width:9.2%">{{-- Email --}}
-            <col style="width:5.2%">{{-- Instansi --}}
-            <col style="width:6.4%">{{-- Bidang Ditemui --}}
-            <col style="width:6.4%">{{-- Jabatan Ditemui --}}
-            <col style="width:7.2%">{{-- Orang yang Ditemui --}}
-            <col style="width:2.8%">{{-- Jml --}}
-            <col style="width:8.6%">{{-- Keperluan --}}
-            <col style="width:6.4%">{{-- Check-In --}}
-            <col style="width:6.4%">{{-- Check-Out --}}
-            {{-- cukup lebar untuk badge status ("Menunggu") --}}
-            <col style="width:5.8%">{{-- Status --}}
+            <col style="width:4%">{{-- No --}}
+            <col style="width:11%">{{-- Waktu & Tanggal Kunjungan --}}
+            <col style="width:16%">{{-- Nama Tamu & Instansi --}}
+            <col style="width:13%">{{-- NIK & No. WhatsApp --}}
+            <col style="width:15%">{{-- Bidang & Jabatan Ditemui --}}
+            <col style="width:11%">{{-- Personil Ditemui --}}
+            <col style="width:17%">{{-- Keperluan --}}
+            <col style="width:13%">{{-- Status Verifikasi --}}
         </colgroup>
         <thead>
             <tr>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">A</span>@endif
-                    No
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">B</span>@endif
-                    Waktu Daftar
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">C</span>@endif
-                    Tgl Kunjungan
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">D</span>@endif
-                    Nama
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">E</span>@endif
-                    NIK
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">F</span>@endif
-                    No. HP
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">G</span>@endif
-                    Email
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">H</span>@endif
-                    Instansi
-                </th>
-                {{-- Label kolom mengikuti modal DETAIL TAMU (satu
-                     sumber istilah): "Bidang Ditemui" + "Jabatan
-                     Ditemui" + "Orang yang Ditemui". --}}
-                <th>
-                    @if ($style === 'excel')<span class="col-id">I</span>@endif
-                    Bidang Ditemui
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">J</span>@endif
-                    Jabatan Ditemui
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">K</span>@endif
-                    Orang yang Ditemui
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">L</span>@endif
-                    Jml
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">M</span>@endif
-                    Keperluan
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">N</span>@endif
-                    Check-In
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">O</span>@endif
-                    Check-Out
-                </th>
-                <th>
-                    @if ($style === 'excel')<span class="col-id">P</span>@endif
-                    Status
-                </th>
+                <th>No</th>
+                <th>Waktu &amp; Tanggal Kunjungan</th>
+                <th>Nama Tamu &amp; Instansi</th>
+                <th>NIK &amp; No. WhatsApp</th>
+                <th>Bidang &amp; Jabatan Ditemui</th>
+                <th>Personil Ditemui</th>
+                <th>Keperluan</th>
+                <th>Status Verifikasi</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($tamus as $tamu)
                 <tr>
-                    <td class="{{ $style === 'excel' ? 'rownum' : 'ctr' }}">{{ $loop->iteration }}</td>
-                    {{-- Tanggal & jam ditumpuk dua baris supaya kolom
-                         tanggal tidak perlu lebar (tetap rapi saat
-                         dicetak A4 landscape). --}}
-                    <td class="ctr">
-                        @if ($tamu->created_at)
-                            <span class="dt">{{ $tamu->created_at->format('Y-m-d') }}</span>
-                            <span class="tm">{{ $tamu->created_at->format('H:i') }}</span>
-                        @else
-                            —
-                        @endif
-                    </td>
+                    <td class="ctr">{{ $loop->iteration }}</td>
+
+                    {{-- Waktu & tanggal kunjungan --}}
                     <td class="ctr">
                         @if ($tamu->tanggal_kunjungan)
-                            <span class="dt">{{ $tamu->tanggal_kunjungan->format('Y-m-d') }}</span>
-                            <span class="tm">{{ $tamu->tanggal_kunjungan->format('H:i') }}</span>
+                            <span class="sub-line">{{ $tamu->tanggal_kunjungan->format('d/m/Y') }}</span>
+                            <span class="sub-line">{{ $tamu->tanggal_kunjungan->format('H:i') }} WIB</span>
                         @else
                             —
                         @endif
                     </td>
-                    <td><strong>{{ $tamu->nama }}</strong></td>
-                    <td class="ctr">{{ $tamu->nik }}</td>
-                    <td class="ctr">{{ $tamu->no_hp }}</td>
-                    {{-- Email: titik putus setelah "@" supaya bila tidak
-                         muat (gaya laporan/A4) pecahnya rapi menjadi
-                         "nama@" / "domain.com", bukan di tengah kata. --}}
-                    <td>
-                        @if ($tamu->email)
-                            {!! str_replace('@', '@<wbr>', e($tamu->email)) !!}
-                        @else
-                            —
-                        @endif
+
+                    {{-- Nama tamu & instansi --}}
+                    <td class="left">
+                        <span class="nama-tamu">{{ $tamu->nama }}</span>
+                        <span class="sub-line">{{ $tamu->instansi ?: '—' }}</span>
                     </td>
-                    <td>{{ $tamu->instansi ?? '—' }}</td>
-                    <td>{{ $tamu->tujuan_ditemui ?: '—' }}</td>
-                    {{-- Jabatan & orang yang ditemui ditampilkan sama seperti
-                         di modal Detail Tamu; data lama bisa NULL → "—". --}}
-                    <td>{{ $tamu->jabatan_ditemui ?: '—' }}</td>
-                    <td>{{ $tamu->orang_ditemui ?: '—' }}</td>
-                    <td class="num">{{ $tamu->jumlah_tamu }}</td>
-                    <td>{{ \Illuminate\Support\Str::limit($tamu->keperluan, 120) }}</td>
+
+                    {{-- NIK & No. WhatsApp --}}
                     <td class="ctr">
-                        @if ($tamu->checked_in_at)
-                            <span class="dt">{{ $tamu->checked_in_at->format('Y-m-d') }}</span>
-                            <span class="tm">{{ $tamu->checked_in_at->format('H:i') }}</span>
-                        @else
-                            —
-                        @endif
+                        <span class="sub-line">{{ $tamu->nik ?: '—' }}</span>
+                        <span class="sub-line">{{ $tamu->no_hp ?: '—' }}</span>
                     </td>
-                    <td class="ctr">
-                        @if ($tamu->checked_out_at)
-                            <span class="dt">{{ $tamu->checked_out_at->format('Y-m-d') }}</span>
-                            <span class="tm">{{ $tamu->checked_out_at->format('H:i') }}</span>
-                        @else
-                            —
-                        @endif
+
+                    {{-- Bidang & jabatan yang ditemui --}}
+                    <td class="left">
+                        <span class="sub-line">{{ $tamu->tujuan_ditemui ?: '—' }}</span>
+                        <span class="sub-line">{{ $tamu->jabatan_ditemui ?: '—' }}</span>
                     </td>
+
+                    {{-- Personil yang ditemui --}}
+                    <td class="left">{{ $tamu->orang_ditemui ?: '—' }}</td>
+
+                    {{-- Keperluan (teks penuh, tidak dipotong) --}}
+                    <td class="left">{{ $tamu->keperluan }}</td>
+
+                    {{-- Status verifikasi (tanpa jam check-in/check-out) --}}
                     <td class="ctr">
                         @php
-                            /* Alur sama dengan tabel index: Disetujui
-                               (diizinkan, belum check-in) -> Berkunjung
-                               (sudah check-in, belum check-out) ->
-                               Selesai (sudah check-out). */
-                            $statusLabel = match (true) {
-                                $tamu->status_verifikasi === \App\Models\Tamu::STATUS_DITOLAK => 'Ditolak',
-                                $tamu->status_verifikasi === \App\Models\Tamu::STATUS_MENUNGGU => 'Menunggu',
-                                $tamu->checked_out_at !== null => 'Selesai',
-                                $tamu->checked_in_at !== null  => 'Berkunjung',
-                                default => 'Disetujui',
+                            [$statusLabel, $statusClass] = match ($tamu->status_verifikasi) {
+                                \App\Models\Tamu::STATUS_DITOLAK   => ['Ditolak', 'ditolak'],
+                                \App\Models\Tamu::STATUS_MENUNGGU  => ['Menunggu Verifikasi', 'menunggu'],
+                                default                             => ['Disetujui', 'disetujui'],
                             };
-                            $statusClass = mb_strtolower($statusLabel);
                         @endphp
-                        @if ($style === 'pdf')
-                            <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
-                        @else
-                            {{ $statusLabel }}
-                        @endif
+                        <span class="status-badge {{ $statusClass }}">{{ $statusLabel }}</span>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="16">
+                    <td colspan="8">
                         <div class="empty">
                             <i class="fas fa-inbox"></i>
                             Tidak ada data tamu untuk kombinasi filter ini.
@@ -654,24 +488,18 @@
         </tbody>
     </table>
 
-    @if ($style === 'pdf' && $tamus->isNotEmpty())
-        {{-- Blok tanda tangan --}}
+    @if ($tamus->isNotEmpty())
+        {{-- ================= KOLOM PENGESAHAN ================= --}}
         <div class="ttd">
-            <div class="tempat">Indramayu, {{ now()->format('Y-m-d') }}</div>
-            <div style="margin-bottom:2.6rem;">Mengetahui,</div>
-            <div class="nama">( .................................... )</div>
-            <div style="font-size:0.72rem; color:#64748b;">Petugas Front Office</div>
+            <div class="tempat">Indramayu, {{ $formatTanggal(now()) }}</div>
+            <div class="jabatan">Petugas Security / Admin Services</div>
+            <div class="ruang"></div>
+            <div class="nama">( _______________________ )</div>
         </div>
     @endif
-
-    <div class="printed-at">
-        Dicetak dari {{ request()->getHost() }} — {{ now()->format('Y-m-d H:i:s') }} |
-        {{ $tamus->count() }} baris data
-        @if ($style === 'pdf')| No. Dok: BRT/{{ now()->format('Ym') }}/{{ str_pad((string) $tamus->count(), 4, '0', STR_PAD_LEFT) }}@endif
-    </div>
 </div>
 
-<div class="print-footnote">
+<div class="print-footnote no-print">
     Gunakan tombol <b>Cetak / Simpan PDF</b> — pada dialog cetak pilih tujuan "Save as PDF" untuk menyimpan sebagai berkas PDF.
 </div>
 

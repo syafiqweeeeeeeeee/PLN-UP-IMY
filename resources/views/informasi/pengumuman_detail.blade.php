@@ -385,14 +385,14 @@
         <div class="container px-4 px-lg-5">
             <nav class="breadcrumb-detail" aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Beranda</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('pengumuman') }}">Pengumuman</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}" data-i18n="berita.bc_home">Beranda</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('pengumuman') }}" data-i18n="png.bc_current">Pengumuman</a></li>
                     <li class="breadcrumb-item active" aria-current="page">{{ Str::limit($pengumuman->title, 35) }}</li>
                 </ol>
             </nav>
 
             <div class="pengumuman-detail-badge">
-                <i class="fas fa-bolt"></i> Pengumuman Resmi
+                <i class="fas fa-bolt"></i> <span data-i18n="png.detail_badge">Pengumuman Resmi</span>
             </div>
 
             <h1>{{ $pengumuman->title }}</h1>
@@ -404,7 +404,7 @@
     <section class="pengumuman-detail-container">
         <div class="container px-4 px-lg-5">
             <a href="{{ route('pengumuman') }}" class="back-link">
-                <i class="fas fa-arrow-left"></i> Kembali ke Daftar Pengumuman
+                <i class="fas fa-arrow-left"></i> <span data-i18n="png.back_link">Kembali ke Daftar Pengumuman</span>
             </a>
 
             <div class="pengumuman-detail-card">
@@ -415,7 +415,7 @@
 
                     <div class="pengumuman-detail-meta">
                         <span><i class="far fa-calendar-alt"></i> {{ ($pengumuman->published_at ?? $pengumuman->created_at)->format('Y-m-d') }}</span>
-                        <span><i class="far fa-clock"></i> {{ $pengumuman->created_at->diffForHumans() }}</span>
+                        <span><i class="far fa-clock"></i> <span data-rel-time="{{ $pengumuman->created_at->timestamp }}">{{ $pengumuman->created_at->diffForHumans() }}</span></span>
                         @if ($pengumuman->authorUser)
                         <span><i class="fas fa-user-pen"></i> {{ $pengumuman->authorUser->name }}</span>
                         @endif
@@ -430,11 +430,11 @@
                     @endif
 
                     <div class="pengumuman-info-box">
-                        <h4><i class="fas fa-circle-info me-1"></i> Informasi</h4>
+                        <h4><i class="fas fa-circle-info me-1"></i> <span data-i18n="png.info_title">Informasi</span></h4>
                         <p>
-                            Pengumuman ini diterbitkan oleh PT PLN Nusantara Power UP PLTU Indramayu
-                            pada {{ ($pengumuman->published_at ?? $pengumuman->created_at)->format('Y-m-d') }}.
-                            Untuk pertanyaan lebih lanjut, silakan hubungi kantor PPID.
+                            <span data-i18n="png.info_text_1">Pengumuman ini diterbitkan oleh PT PLN Nusantara Power UP PLTU Indramayu
+                            pada</span> {{ ($pengumuman->published_at ?? $pengumuman->created_at)->format('Y-m-d') }}.
+                            <span data-i18n="png.info_text_2">Untuk pertanyaan lebih lanjut, silakan hubungi kantor PPID.</span>
                         </p>
                     </div>
                 </div>
@@ -447,7 +447,7 @@
     @if ($related->isNotEmpty())
     <section class="pengumuman-detail-related">
         <div class="container px-4 px-lg-5">
-            <h3>Pengumuman Terkait</h3>
+            <h3 data-i18n="png.related_title">Pengumuman Terkait</h3>
             <div class="divider"></div>
 
             <div class="related-grid">

@@ -356,7 +356,6 @@ class Tamu extends Model
      * @return array{
      *   status: string, label: string, badge: string, badge_label: string,
      *   checkin: string|null, checkout: string|null,
-     *   durasi: int|null, durasi_label: string,
      *   can_checkin: bool, can_checkout: bool, selesai: bool
      * }
      */
@@ -385,14 +384,6 @@ class Tamu extends Model
             default                                             => $this->verifikasi_label,
         };
 
-        $durasi = $this->durasiKunjungan();
-
-        $durasiLabel = match (true) {
-            $durasi === null  => '—',
-            $durasi >= 60     => intdiv($durasi, 60) . ' jam ' . ($durasi % 60) . ' menit',
-            default           => $durasi . ' menit',
-        };
-
         return [
             'status'       => $status,
             'label'        => $label,
@@ -400,8 +391,6 @@ class Tamu extends Model
             'badge_label'  => $badgeLabel,
             'checkin'      => $this->checked_in_at?->format('d M Y, H:i'),
             'checkout'     => $this->checked_out_at?->format('d M Y, H:i'),
-            'durasi'       => $durasi,
-            'durasi_label' => $durasiLabel,
             'can_checkin'  => $this->canCheckin(),
             'can_checkout' => $this->canCheckout(),
             'selesai'      => $selesai,

@@ -1081,20 +1081,12 @@
         Mencetak seluruh <b>{{ $tamus->total() }}</b> data tamu sesuai filter aktif (bukan hanya halaman ini).
     </div>
     <div class="print-buttons">
-        <a href="{{ route('admin.tamu.print', array_merge(['style' => 'excel'], request()->only(['q', 'dari', 'sampai', 'status']))) }}"
-           target="_blank" class="print-chip excel" title="Cetak dengan tampilan spreadsheet (grid Excel)">
-            <i class="fas fa-file-excel"></i>
-            <span>
-                <b>Print Excel</b>
-                <small>Gaya spreadsheet</small>
-            </span>
-        </a>
         <a href="{{ route('admin.tamu.print', array_merge(['style' => 'pdf'], request()->only(['q', 'dari', 'sampai', 'status']))) }}"
-           target="_blank" class="print-chip pdf" title="Cetak sebagai laporan formal siap tanda tangan">
+           target="_blank" class="print-chip pdf" title="Cetak laporan resmi buku registrasi tamu">
             <i class="fas fa-file-pdf"></i>
             <span>
-                <b>Print PDF</b>
-                <small>Gaya laporan resmi</small>
+                <b>Cetak Laporan</b>
+                <small>Dokumen resmi siap tanda tangan</small>
             </span>
         </a>
     </div>
@@ -1149,7 +1141,7 @@
 {{-- ============================================
      MODAL: DETAIL TAMU — parsial bersama (shell, diisi JS openDetailModal)
      Halaman detail SUDAH DIHAPUS di kedua konteks (admin & karyawan):
-     modal ini satu-satunya tampilan detail, termasuk kartu log aktivitas.
+     modal ini satu-satunya tampilan detail, termasuk kartu status kunjungan.
      ============================================ --}}
 @include('admin.tamu.detail-tamu-modal', [
     // 'tamu' => NULL sengaja eksplisit: variabel $tamu dari @foreach
@@ -1157,23 +1149,7 @@
     // ter-render mode lengkap pakai tamu terakhir dalam loop.
     'tamu'        => null,
     'accentColor' => 'var(--kry-teal)',
-    'checkinUrl'  => route('karyawan.tamu.checkin', ':id'),
-    'checkoutUrl' => route('karyawan.tamu.checkout', ':id'),
 ])
-
-{{-- ============================================
-     TEMPLATE: KARTU CHECK-IN / CHECK-OUT (minimalis)
-     Di-clone JS ke dalam modal Detail — hanya dirender sekali,
-     tombol Check-Out aktif saat tamu sedang berkunjung dan jam
-     Check-Out ter-update real-time tanpa reload.
-     ============================================ --}}
-<div id="coTemplate" hidden>
-    @include('admin.tamu._checkinout', [
-        'co'          => null,
-        'checkinUrl'  => route('karyawan.tamu.checkin', ':id'),
-        'checkoutUrl' => route('karyawan.tamu.checkout', ':id'),
-    ])
-</div>
 
 {{-- ============================================
      MODAL: HAPUS TAMU
@@ -1622,8 +1598,7 @@
             ['Jumlah Tamu', (t.jumlah || 1) + ' orang'],
             ['Tanggal Kunjungan', t.tanggal || '-'],
             ['Waktu Pendaftaran', t.daftar || '-'],
-            // Baris Check-In / Check-Out / Status DIHAPUS — redundan,
-            // ketiganya pindah ke kartu dinamis di bawah (3 kondisi).
+            // Status kunjungan tampil di kartu tersendiri paling bawah.
         ];
 
         var body = document.getElementById('detailModalBody');
@@ -1640,15 +1615,8 @@
             info.innerHTML = infoHtml;
         }
 
-        // 2) Kartu LOG AKTIVITAS (pengganti halaman detail yang dihapus)
-        var logCard = body.querySelector('[data-role="log"]');
-        if (logCard) {
-            var logText = body.querySelector('[data-role="log-text"]');
-            if (logText) {
-                logText.textContent = t.log || 'Belum ada perubahan status — kunjungan menunggu verifikasi.';
-            }
-            logCard.hidden = false;
-        }
+        // 2) Kartu STATUS KUNJUNGAN — badge verifikasi + info singkat.
+        renderStatusCard(t);
 
         // 3) Maksud & Keperluan
         var keperluanWrap = body.querySelector('[data-role="keperluan-wrap"]');
@@ -1673,45 +1641,31 @@
             }
         }
 
-        // 5) Card dinamis (badge + jam + aksi check-in/out) ke slot bawah
-        appendCoCard(t);
         openTamuModal('detailModal');
     }
 
-    /* ===== Kartu CHECK-IN / CHECK-OUT di modal Detail =====
-       Diklone dari #coTemplate lalu disinkronkan dengan state
-       kunjungan tamu (jam check-in/out, tombol aksi, badge). */
-    function appendCoCard(t) {
-        var tpl  = document.getElementById('coTemplate');
-        var card = tpl && tpl.querySelector('[data-co-card]');
-        if (!card || !t || !t.kunjungan || t.id == null || t.id === '') return;
+    /* ===== Kartu STATUS KUNJUNGAN di modal Detail =====
+       Badge verifikasi (Menunggu / Disetujui / Ditolak) + informasi
+       singkat verifikasi. Check-In / Check-Out tidak lagi ditampilkan. */
+    function renderStatusCard(t) {
+        var card = document.querySelector('#detailModalBody [data-role="status-card"]');
+        if (!card || !t) return;
 
-        var clone = card.cloneNode(true);
-        clone.hidden = false;
-        clone.dataset.id = String(t.id);
-        clone.dataset.checkinUrl  = String(card.dataset.checkinUrl  || '').replace(':id', t.id);
-        clone.dataset.checkoutUrl = String(card.dataset.checkoutUrl || '').replace(':id', t.id);
+        var labelMap = { menunggu: 'Menunggu', disetujui: 'Disetujui', ditolak: 'Ditolak' };
+        var status = labelMap[t.verifikasi] ? t.verifikasi : 'menunggu';
 
-        // URL pada tombol masih membawa placeholder ':id' dari template —
-        // ganti juga, supaya fetch tidak pernah mengirim '/data-tamu/:id/checkout'.
-        Array.prototype.forEach.call(clone.querySelectorAll('[data-url]'), function (el) {
-            el.dataset.url = String(el.dataset.url || '').replace(':id', t.id);
-        });
+        var badge = card.querySelector('[data-role="status-badge"]');
+        if (badge) { badge.className = 'dtm-status-chip ' + status; }
 
-        var msg = clone.querySelector('[data-role="msg"]');
-        if (msg) msg.hidden = true;
+        var label = card.querySelector('[data-role="status-label"]');
+        if (label) { label.textContent = labelMap[status]; }
 
-        var slot = document.querySelector('[data-role="co-slot"]');
-        if (slot) {
-            slot.innerHTML = '';              // buang kartu tamu sebelumnya
-            slot.appendChild(clone);
-        } else {
-            document.getElementById('detailModalBody').appendChild(clone);
+        var info = card.querySelector('[data-role="status-info"]');
+        if (info) {
+            info.textContent = t.log || 'Belum ada perubahan status — kunjungan menunggu verifikasi.';
         }
 
-        if (window.tamuCoSync) {
-            window.tamuCoSync(clone, Object.assign({}, t.kunjungan, { id: t.id }));
-        }
+        card.hidden = false;
     }
 
     /* ===== Modal Hapus ===== */

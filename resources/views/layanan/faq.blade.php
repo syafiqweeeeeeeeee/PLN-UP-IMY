@@ -516,8 +516,8 @@
             <div class="faq-breadcrumb">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Beranda</a></li>
-                        <li class="breadcrumb-item"><span>Informasi</span></li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}" data-i18n="spl.bc_home">Beranda</a></li>
+                        <li class="breadcrumb-item"><span data-i18n="nav.information">Informasi</span></li>
                         <li class="breadcrumb-item active" aria-current="page">FAQ</li>
                     </ol>
                 </nav>
@@ -525,9 +525,9 @@
 
             <img src="{{ asset('assets/images/logo-pln.png') }}" alt="PLN Nusantara Power" class="faq-logo" />
 
-            <h1>Pertanyaan yang <span class="accent">Sering Diajukan</span> (FAQ)</h1>
+            <h1 data-i18n="faq.title">Pertanyaan yang <span class="accent">Sering Diajukan</span> (FAQ)</h1>
 
-            <p class="subtitle">
+            <p class="subtitle" data-i18n="faq.subtitle">
                 Temukan informasi dan jawaban cepat terkait operasional, layanan kelistrikan,
                 serta program keberlanjutan PT PLN Nusantara Power UP PLTU Indramayu.
             </p>
@@ -535,9 +535,12 @@
             <div class="faq-search" id="faqSearchWrap">
                 <input type="text" id="faqSearch" autocomplete="off"
                        placeholder="Cari pertanyaan&hellip; (mis. kunjungan industri, FABA)"
-                       aria-label="Cari pertanyaan">
+                       aria-label="Cari pertanyaan"
+                       data-i18n-placeholder="faq.search_ph"
+                       data-i18n-aria-label="faq.search_aria">
                 <i class="fas fa-search search-icon"></i>
-                <button type="button" class="search-clear" id="faqSearchClear" aria-label="Hapus pencarian">
+                <button type="button" class="search-clear" id="faqSearchClear" aria-label="Hapus pencarian"
+                        data-i18n-aria-label="faq.clear_aria">
                     <i class="fas fa-xmark"></i>
                 </button>
             </div>
@@ -554,17 +557,17 @@
             <div class="faq-card">
 
                 <div class="faq-card-header">
-                    <h2>Jelajahi Berdasarkan Kategori</h2>
-                    <p>Pilih kategori atau ketik kata kunci untuk menemukan jawaban dengan cepat</p>
+                    <h2 data-i18n="faq.card_title">Jelajahi Berdasarkan Kategori</h2>
+                    <p data-i18n="faq.card_subtitle">Pilih kategori atau ketik kata kunci untuk menemukan jawaban dengan cepat</p>
                 </div>
 
                 {{-- A. Filter Kategori --}}
                 <div class="faq-filters" role="group" aria-label="Filter kategori FAQ">
-                    <button type="button" class="faq-filter active" data-category="semua">Semua</button>
-                    <button type="button" class="faq-filter" data-category="operasional">Operasional &amp; Pembangkit</button>
-                    <button type="button" class="faq-filter" data-category="layanan">Layanan &amp; Kemitraan</button>
-                    <button type="button" class="faq-filter" data-category="k3l">Keselamatan &amp; Lingkungan (K3L)</button>
-                    <button type="button" class="faq-filter" data-category="karir">Karir &amp; Umum</button>
+                    <button type="button" class="faq-filter active" data-category="semua" data-i18n="faq.filter_all">Semua</button>
+                    <button type="button" class="faq-filter" data-category="operasional" data-i18n="faq.filter_operasional">Operasional &amp; Pembangkit</button>
+                    <button type="button" class="faq-filter" data-category="layanan" data-i18n="faq.filter_layanan">Layanan &amp; Kemitraan</button>
+                    <button type="button" class="faq-filter" data-category="k3l" data-i18n="faq.filter_k3l">Keselamatan &amp; Lingkungan (K3L)</button>
+                    <button type="button" class="faq-filter" data-category="karir" data-i18n="faq.filter_karir">Karir &amp; Umum</button>
                 </div>
 
                 <p class="faq-count" id="faqCount" aria-live="polite"></p>
@@ -576,12 +579,12 @@
                     <div class="faq-item" data-category="operasional">
                         <button class="faq-question" type="button" id="faq-q-1"
                                 aria-expanded="false" aria-controls="faq-a-1">
-                            <span class="faq-q-text">Apa peran utama PLTU Indramayu dalam sistem kelistrikan nasional?</span>
+                            <span class="faq-q-text" data-i18n="faq.q1">Apa peran utama PLTU Indramayu dalam sistem kelistrikan nasional?</span>
                             <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
                         </button>
                         <div class="faq-answer" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
                             <div class="faq-answer-inner">
-                                <p>PLTU UP Indramayu mengoperasikan 3 unit pembangkitan dengan total kapasitas
+                                <p data-i18n="faq.a1">PLTU UP Indramayu mengoperasikan 3 unit pembangkitan dengan total kapasitas
                                 3&nbsp;x&nbsp;330&nbsp;MW (990&nbsp;MW) yang menjadi penopang beban dasar (baseload)
                                 penting dalam sistem interkoneksi listrik Jawa-Madura-Bali (Jamali).</p>
                             </div>
@@ -592,12 +595,12 @@
                     <div class="faq-item" data-category="k3l">
                         <button class="faq-question" type="button" id="faq-q-2"
                                 aria-expanded="false" aria-controls="faq-a-2">
-                            <span class="faq-q-text">Bagaimana komitmen PLN Nusantara Power UP PLTU Indramayu terhadap lingkungan?</span>
+                            <span class="faq-q-text" data-i18n="faq.q2">Bagaimana komitmen PLN Nusantara Power UP PLTU Indramayu terhadap lingkungan?</span>
                             <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
                         </button>
                         <div class="faq-answer" id="faq-a-2" role="region" aria-labelledby="faq-q-2">
                             <div class="faq-answer-inner">
-                                <p>Kami menerapkan teknologi pengelolaan emisi modern, pemanfaatan FABA
+                                <p data-i18n="faq.a2">Kami menerapkan teknologi pengelolaan emisi modern, pemanfaatan FABA
                                 (Fly Ash &amp; Bottom Ash) secara berkelanjutan, program co-firing biomassa,
                                 serta pemantauan kualitas udara dan lingkungan sekitar secara berkala.</p>
                             </div>
@@ -608,12 +611,12 @@
                     <div class="faq-item" data-category="layanan">
                         <button class="faq-question" type="button" id="faq-q-3"
                                 aria-expanded="false" aria-controls="faq-a-3">
-                            <span class="faq-q-text">Apakah masyarakat dapat mengajukan permohonan kunjungan atau edukasi ke PLTU Indramayu?</span>
+                            <span class="faq-q-text" data-i18n="faq.q3">Apakah masyarakat dapat mengajukan permohonan kunjungan atau edukasi ke PLTU Indramayu?</span>
                             <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
                         </button>
                         <div class="faq-answer" id="faq-a-3" role="region" aria-labelledby="faq-q-3">
                             <div class="faq-answer-inner">
-                                <p>Ya, permohonan kunjungan industri atau edukasi dapat diajukan secara resmi
+                                <p data-i18n="faq.a3">Ya, permohonan kunjungan industri atau edukasi dapat diajukan secara resmi
                                 melalui menu Kontak atau Humas PT PLN Nusantara Power UP Indramayu dengan
                                 melampirkan surat permohonan instansi/kampus.</p>
                             </div>
@@ -624,12 +627,12 @@
                     <div class="faq-item" data-category="layanan">
                         <button class="faq-question" type="button" id="faq-q-4"
                                 aria-expanded="false" aria-controls="faq-a-4">
-                            <span class="faq-q-text">Di mana saya bisa melihat daftar layanan publik resmi dari PLTU Indramayu?</span>
+                            <span class="faq-q-text" data-i18n="faq.q4">Di mana saya bisa melihat daftar layanan publik resmi dari PLTU Indramayu?</span>
                             <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
                         </button>
                         <div class="faq-answer" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
                             <div class="faq-answer-inner">
-                                <p>Daftar layanan publik dapat diakses langsung melalui menu
+                                <p data-i18n="faq.a4">Daftar layanan publik dapat diakses langsung melalui menu
                                 &ldquo;Layanan&rdquo; pada bilah navigasi utama website ini.</p>
                             </div>
                         </div>
@@ -639,12 +642,12 @@
                     <div class="faq-item" data-category="layanan">
                         <button class="faq-question" type="button" id="faq-q-7"
                                 aria-expanded="false" aria-controls="faq-a-7">
-                            <span class="faq-q-text">Mengapa pengunjung wajib mengisi form registrasi tamu sebelum masuk?</span>
+                            <span class="faq-q-text" data-i18n="faq.q5">Mengapa pengunjung wajib mengisi form registrasi tamu sebelum masuk?</span>
                             <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
                         </button>
                         <div class="faq-answer" id="faq-a-7" role="region" aria-labelledby="faq-q-7">
                             <div class="faq-answer-inner">
-                                <p>Pengisian form registrasi tamu dilakukan untuk pendataan identitas, menjaga standar
+                                <p data-i18n="faq.a5">Pengisian form registrasi tamu dilakukan untuk pendataan identitas, menjaga standar
                                 keamanan dan K3L (Keselamatan dan Kesehatan Kerja Lingkungan) di area objek vital nasional,
                                 serta memastikan pejabat/divisi yang dituju siap menerima kunjungan Anda.</p>
                             </div>
@@ -655,12 +658,12 @@
                     <div class="faq-item" data-category="layanan">
                         <button class="faq-question" type="button" id="faq-q-8"
                                 aria-expanded="false" aria-controls="faq-a-8">
-                            <span class="faq-q-text">Dokumen apa saja yang wajib disiapkan saat mengisi form registrasi tamu?</span>
+                            <span class="faq-q-text" data-i18n="faq.q6">Dokumen apa saja yang wajib disiapkan saat mengisi form registrasi tamu?</span>
                             <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
                         </button>
                         <div class="faq-answer" id="faq-a-8" role="region" aria-labelledby="faq-q-8">
                             <div class="faq-answer-inner">
-                                <p>Anda perlu menyiapkan Nomor KTP/NIK, data diri (nama, instansi, nomor WhatsApp),
+                                <p data-i18n="faq.a6">Anda perlu menyiapkan Nomor KTP/NIK, data diri (nama, instansi, nomor WhatsApp),
                                 serta mengunggah foto/scan KTP asli yang jelas (format JPG/PNG, ukuran maks. 2MB).</p>
                             </div>
                         </div>
@@ -670,12 +673,12 @@
                     <div class="faq-item" data-category="layanan">
                         <button class="faq-question" type="button" id="faq-q-9"
                                 aria-expanded="false" aria-controls="faq-a-9">
-                            <span class="faq-q-text">Apa yang harus dilakukan setelah berhasil mengirim form pendaftaran tamu?</span>
+                            <span class="faq-q-text" data-i18n="faq.q7">Apa yang harus dilakukan setelah berhasil mengirim form pendaftaran tamu?</span>
                             <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
                         </button>
                         <div class="faq-answer" id="faq-a-9" role="region" aria-labelledby="faq-q-9">
                             <div class="faq-answer-inner">
-                                <p>Setibanya di lokasi, silakan tunjukkan bukti pendaftaran atau nama Anda kepada petugas
+                                <p data-i18n="faq.a7">Setibanya di lokasi, silakan tunjukkan bukti pendaftaran atau nama Anda kepada petugas
                                 keamanan (Security) atau Resepsionis di Lobi Utama untuk konfirmasi dan pengambilan
                                 Visitor Badge / Pass Tamu.</p>
                             </div>
@@ -686,12 +689,12 @@
                     <div class="faq-item" data-category="karir">
                         <button class="faq-question" type="button" id="faq-q-5"
                                 aria-expanded="false" aria-controls="faq-a-5">
-                            <span class="faq-q-text">Bagaimana cara mengajukan magang atau kerja praktik di PLTU Indramayu?</span>
+                            <span class="faq-q-text" data-i18n="faq.q8">Bagaimana cara mengajukan magang atau kerja praktik di PLTU Indramayu?</span>
                             <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
                         </button>
                         <div class="faq-answer" id="faq-a-5" role="region" aria-labelledby="faq-q-5">
                             <div class="faq-answer-inner">
-                                <p>Permohonan magang/kerja praktik diajukan melalui surat resmi dari kampus
+                                <p data-i18n="faq.a8">Permohonan magang/kerja praktik diajukan melalui surat resmi dari kampus
                                 atau instansi yang ditujukan kepada PT PLN Nusantara Power UP PLTU Indramayu,
                                 dengan mencantumkan data peserta, durasi, dan bidang pembimbingan yang diinginkan.</p>
                             </div>
@@ -702,12 +705,12 @@
                     <div class="faq-item" data-category="karir">
                         <button class="faq-question" type="button" id="faq-q-6"
                                 aria-expanded="false" aria-controls="faq-a-6">
-                            <span class="faq-q-text">Bagaimana cara mendapatkan informasi resmi tentang kegiatan dan program UP PLTU Indramayu?</span>
+                            <span class="faq-q-text" data-i18n="faq.q9">Bagaimana cara mendapatkan informasi resmi tentang kegiatan dan program UP PLTU Indramayu?</span>
                             <span class="faq-q-icon"><i class="fas fa-chevron-down"></i></span>
                         </button>
                         <div class="faq-answer" id="faq-a-6" role="region" aria-labelledby="faq-q-6">
                             <div class="faq-answer-inner">
-                                <p>Informasi resmi dapat diakses melalui menu Berita dan Pengumuman pada website
+                                <p data-i18n="faq.a9">Informasi resmi dapat diakses melalui menu Berita dan Pengumuman pada website
                                 ini, serta kanal sosial media resmi PT PLN Nusantara Power.</p>
                             </div>
                         </div>
@@ -718,18 +721,18 @@
                 {{-- Empty State --}}
                 <div class="faq-empty" id="faqEmpty">
                     <div class="faq-empty-icon"><i class="fas fa-search"></i></div>
-                    <h4>Tidak Ada Hasil Ditemukan</h4>
-                    <p>Coba gunakan kata kunci lain atau lihat semua pertanyaan.</p>
+                    <h4 data-i18n="faq.empty_title">Tidak Ada Hasil Ditemukan</h4>
+                    <p data-i18n="faq.empty_text">Coba gunakan kata kunci lain atau lihat semua pertanyaan.</p>
                     <button type="button" class="faq-empty-reset" id="faqReset">
-                        <i class="fas fa-rotate-left"></i> Reset Pencarian
+                        <i class="fas fa-rotate-left"></i> <span data-i18n="faq.empty_reset">Reset Pencarian</span>
                     </button>
                 </div>
 
                 {{-- Footer Banner: Bantuan Tambahan --}}
                 <div class="faq-contact">
                     <div class="faq-contact-text">
-                        <h3>Belum menemukan jawaban yang Anda cari?</h3>
-                        <p>Silakan ajukan pertanyaan melalui saluran resmi PPID PT PLN Nusantara Power.</p>
+                        <h3 data-i18n="faq.contact_title">Belum menemukan jawaban yang Anda cari?</h3>
+                        <p data-i18n="spl.contact_text">Silakan ajukan pertanyaan melalui saluran resmi PPID PT PLN Nusantara Power.</p>
                     </div>
                 </div>
                 </div>
@@ -786,9 +789,16 @@
                 if (show) visible++;
             });
 
-            countEl.textContent = 'Menampilkan ' + visible + ' dari ' + items.length + ' pertanyaan';
+            var tpl = (window.PLNI18N && window.PLNI18N.t)
+                ? window.PLNI18N.t('faq.count', 'Menampilkan {n} dari {total} pertanyaan')
+                : 'Menampilkan {n} dari {total} pertanyaan';
+            countEl.textContent = tpl.replace('{n}', visible).replace('{total}', items.length);
             emptyEl.classList.toggle('show', visible === 0);
         }
+
+        /* Ganti bahasa → perbarui baris hitungan (teksnya dirakit JS,
+           jadi tidak ikut data-i18n). */
+        document.addEventListener('pln:languagechange', applyFilter);
 
         filterBtns.forEach(function (btn) {
             btn.addEventListener('click', function () {

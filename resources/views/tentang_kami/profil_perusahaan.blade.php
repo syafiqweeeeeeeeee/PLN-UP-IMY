@@ -866,12 +866,12 @@
                         <i class="fas fa-bolt"></i>
                     </div>
                     <h3 data-i18n="profil.role1_title">Peran Strategis di Sistem Jawa-Bali</h3>
-                    <p>
+                    <p data-i18n="profil.role1_desc_1">
                         Sebagai salah satu unit pembangkitan <strong class="highlight">PLN Nusantara Power</strong>, 
                         UP Indramayu memiliki peran strategis dalam mendukung <strong>keandalan pasokan listrik</strong>, 
                         khususnya dalam sistem kelistrikan <strong>Jawa-Bali</strong>.
                     </p>
-                    <p style="margin-top: 0.75rem;">
+                    <p style="margin-top: 0.75rem;" data-i18n="profil.role1_desc_2">
                         Dengan kapasitas pembangkitan yang besar, UP Indramayu berkontribusi dalam memenuhi 
                         <strong>kebutuhan energi listrik masyarakat</strong> sekaligus mendukung berbagai aktivitas 
                         ekonomi dan pembangunan nasional.
@@ -885,15 +885,15 @@
                         <i class="fas fa-heart"></i>
                     </div>
                     <h3 data-i18n="profil.role2_title">Komitmen Operasional &amp; Lingkungan</h3>
-                    <p>
+                    <p data-i18n="profil.role2_desc">
                         Selain menjalankan fungsi pembangkitan, UP Indramayu berupaya memberikan dampak positif 
                         bagi lingkungan dan masyarakat sekitar melalui:
                     </p>
                     <ul style="margin: 0.75rem 0 0 0; padding-left: 1.25rem; color: #666; font-size: 0.9rem; line-height: 2;">
-                        <li><strong class="highlight">Pengelolaan lingkungan</strong> yang bertanggung jawab</li>
-                        <li>Peningkatan <strong>efisiensi operasional</strong> pembangkit</li>
-                        <li>Komitmen <strong>Keselamatan &amp; Kesehatan Kerja (K3)</strong></li>
-                        <li>Program <strong>tanggung jawab sosial &amp; pemberdayaan masyarakat</strong></li>
+                        <li data-i18n="profil.role2_li1"><strong class="highlight">Pengelolaan lingkungan</strong> yang bertanggung jawab</li>
+                        <li data-i18n="profil.role2_li2">Peningkatan <strong>efisiensi operasional</strong> pembangkit</li>
+                        <li data-i18n="profil.role2_li3">Komitmen <strong>Keselamatan &amp; Kesehatan Kerja (K3)</strong></li>
+                        <li data-i18n="profil.role2_li4">Program <strong>tanggung jawab sosial &amp; pemberdayaan masyarakat</strong></li>
                     </ul>
                 </div>
             </div>
@@ -1022,7 +1022,7 @@
                     <i class="fas fa-bolt"></i>
                 </div>
                 <h4 data-i18n="profil.contrib1_title">Pembangkitan Listrik</h4>
-                <p>
+                <p data-i18n="profil.contrib1_desc">
                     Mengoperasikan PLTU batubara dengan kapasitas 990 MW (3 unit x 330 MW) 
                     untuk memenuhi kebutuhan energi listrik sistem Jawa-Bali.
                 </p>
@@ -1033,7 +1033,7 @@
                     <i class="fas fa-leaf"></i>
                 </div>
                 <h4 data-i18n="profil.contrib2_title">Pengelolaan Lingkungan</h4>
-                <p>
+                <p data-i18n="profil.contrib2_desc">
                     Penerapan pengelolaan lingkungan yang bertanggung jawab 
                     sebagai bagian dari komitmen keberlanjutan operasional.
                 </p>
@@ -1044,7 +1044,7 @@
                     <i class="fas fa-shield-alt"></i>
                 </div>
                 <h4 data-i18n="profil.contrib3_title">Keselamatan &amp; K3</h4>
-                <p>
+                <p data-i18n="profil.contrib3_desc">
                     Prioritas utama dalam pengoperasian pembangkit — menjaga keselamatan, 
                     kesehatan kerja, dan efisiensi operasional secara optimal.
                 </p>
@@ -1055,7 +1055,7 @@
                     <i class="fas fa-hands-helping"></i>
                 </div>
                 <h4 data-i18n="profil.contrib4_title">CSR &amp; Pemberdayaan Masyarakat</h4>
-                <p>
+                <p data-i18n="profil.contrib4_desc">
                     Berbagai program tanggung jawab sosial dan pemberdayaan masyarakat 
                     sekitar untuk memberikan dampak positif bagi komunitas setempat.
                 </p>
@@ -1113,9 +1113,9 @@
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-card">
-                            <span class="timeline-year">Pendirian Unit</span>
-                            <h4>Berdirinya PLN UP Indramayu</h4>
-                            <p>
+                            <span class="timeline-year" data-i18n="profil.tl1_year">Pendirian Unit</span>
+                            <h4 data-i18n="profil.tl1_title">Berdirinya PLN UP Indramayu</h4>
+                            <p data-i18n="profil.tl1_desc">
                                 Unit pembangkitan didirikan sebagai bagian dari PT PLN Nusantara Power, 
                                 bergerak dalam bidang penyediaan tenaga listrik melalui pengoperasian PLTU.
                             </p>
@@ -1125,9 +1125,9 @@
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-card">
-                            <span class="timeline-year">Operasi Awal</span>
-                            <h4>Pengoperasian PLTU Batubara</h4>
-                            <p>
+                            <span class="timeline-year" data-i18n="profil.tl2_year">Operasi Awal</span>
+                            <h4 data-i18n="profil.tl2_title">Pengoperasian PLTU Batubara</h4>
+                            <p data-i18n="profil.tl2_desc">
                                 Pembangkit mulai beroperasi dengan menggunakan batubara sebagai bahan bakar utama, 
                                 memiliki kapasitas terpasang 990 MW (3 unit x 330 MW) di Sumuradem, Indramayu.
                             </p>
@@ -1137,9 +1137,9 @@
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-card">
-                            <span class="timeline-year">Pengembangan</span>
-                            <h4>Dukungan keandalan sistem Jawa-Bali</h4>
-                            <p>
+                            <span class="timeline-year" data-i18n="profil.tl3_year">Pengembangan</span>
+                            <h4 data-i18n="profil.tl3_title">Dukungan keandalan sistem Jawa-Bali</h4>
+                            <p data-i18n="profil.tl3_desc">
                                 UP Indramayu berkontribusi dalam memenuhi kebutuhan energi listrik masyarakat 
                                 sekaligus mendukung aktivitas ekonomi dan pembangunan melalui pasokan listrik yang andal.
                             </p>
@@ -1149,9 +1149,9 @@
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-card">
-                            <span class="timeline-year">Fokus Keberlanjutan</span>
-                            <h4>Pengelolaan Lingkungan &amp; CSR</h4>
-                            <p>
+                            <span class="timeline-year" data-i18n="profil.tl4_year">Fokus Keberlanjutan</span>
+                            <h4 data-i18n="profil.tl4_title">Pengelolaan Lingkungan &amp; CSR</h4>
+                            <p data-i18n="profil.tl4_desc">
                                 Unit terus berupaya memberikan dampak positif bagi lingkungan dan masyarakat melalui 
                                 pengelolaan lingkungan, efisiensi operasional, K3, serta program tanggung jawab sosial.
                             </p>
@@ -1174,13 +1174,13 @@
         <div class="cta-section reveal">
             <span class="cta-icon"><i class="fas fa-bolt"></i></span>
             <h3 data-i18n="profil.cta_title">Menyediakan Energi untuk Indonesia</h3>
-            <p>
+            <p data-i18n="profil.cta_desc">
                 PLN Nusantara Power Unit Pembangkitan Indramayu berkomitmen menjadi unit pembangkitan 
                 yang andal, profesional, dan bertanggung jawab — mendukung kebutuhan listrik 
                 sistem Jawa-Bali dengan tetap mengedepankan keselamatan, lingkungan, dan keberlanjutan.
             </p>
             <a href="{{ route('sejarah') }}" class="btn-cta">
-                <i class="fas fa-book me-2"></i>Lihat Sejarah Kami
+                <i class="fas fa-book me-2"></i><span data-i18n="profil.cta_btn">Lihat Sejarah Kami</span>
             </a>
         </div>
     </div>
