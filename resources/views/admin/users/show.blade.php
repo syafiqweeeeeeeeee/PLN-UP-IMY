@@ -656,8 +656,8 @@
                     <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="d-inline mb-0" onclick="event.stopPropagation();">
                         @csrf
                         @method('PATCH')
-                        <button type="submit" class="btn btn-sm btn-light border" style="cursor: pointer;" title="{{ $user->email_verified_at ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}">
-                            <i class="fas {{ $user->email_verified_at ? 'fa-toggle-on text-success' : 'fa-toggle-off text-secondary' }}"></i>
+                        <button type="submit" class="btn btn-sm btn-light border" style="cursor: pointer;" title="{{ $user->isActive() ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}">
+                            <i class="fas {{ $user->isActive() ? 'fa-toggle-on text-success' : 'fa-toggle-off text-secondary' }}"></i>
                         </button>
                     </form>
                 @endif
@@ -714,9 +714,9 @@
                     <div class="col-md-4">
                         <div class="detail-info-item">
                             <div class="detail-label">Status</div>
-                            <span class="status-badge-lg {{ $user->email_verified_at ? 'active' : 'inactive' }}">
+                            <span class="status-badge-lg {{ $user->isActive() ? 'active' : 'inactive' }}">
                                 <span class="status-dot"></span>
-                                {{ $user->email_verified_at ? 'Aktif' : 'Belum Verifikasi' }}
+                                {{ $user->isActive() ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
                     </div>

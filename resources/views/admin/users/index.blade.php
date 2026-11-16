@@ -355,12 +355,12 @@
         <div class="stat-chip">
             <span class="stat-dot green"></span>
             Aktif
-            <span class="stat-number">{{ $users->filter(fn ($u) => $u->email_verified_at)->count() }}</span>
+            <span class="stat-number">{{ $users->filter(fn ($u) => $u->isActive())->count() }}</span>
         </div>
         <div class="stat-chip">
             <span class="stat-dot amber"></span>
-            Belum Verifikasi
-            <span class="stat-number">{{ $users->filter(fn ($u) => !$u->email_verified_at)->count() }}</span>
+            Nonaktif
+            <span class="stat-number">{{ $users->filter(fn ($u) => ! $u->isActive())->count() }}</span>
         </div>
         @endif
     </div>
@@ -431,9 +431,9 @@
                     </td>
                     <td>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="user-status {{ $user->email_verified_at ? 'active' : 'inactive' }}"></span>
+                            <span class="user-status {{ $user->isActive() ? 'active' : 'inactive' }}"></span>
                             <span style="font-size: 0.85rem; color: var(--ink-muted);">
-                                {{ $user->email_verified_at ? 'Aktif' : 'Belum Verifikasi' }}
+                                {{ $user->isActive() ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
                     </td>
@@ -444,7 +444,6 @@
                         </span>
                     </td>
                     @php
-                        $isVerified = (bool) $user->email_verified_at;
                         $isSelf = auth()->id() === $user->id;
                         $au = auth()->user();
                         $roleRaw = ($au && $au->role) ? trim((string) $au->role) : '';

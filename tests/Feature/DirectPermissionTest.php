@@ -313,6 +313,39 @@ class DirectPermissionTest extends TestCase
         $this->assertTrue($user->hasDirectPermission('galleries.view'));
     }
 
+    /**
+     * REGRESI ESKALASI HAK AKSES: Admin Bidang yang mengedit akunnya
+     * sendiri tidak boleh menyelundupkan `permissions[]` untuk menambah
+     * direct permission (mis. tamu.delete). Cabang self-edit non-super
+     * harus mengabaikan matriks dari request dan mempertahankan yang lama.
+     */
+    public function test_self_edit_cannot_grant_direct_permissions(): void
+    {
+        $user = $this->adminBidangUser(['news.view']);
+
+        $deleteId = \App\Models\Permission::where('name', 'tamu.delete')->value('id');
+        $this->assertNotNull($deleteId);
+
+        $this->actingAs($user)
+            ->put(route('admin.users.update', $user), [
+                'name'                  => $user->name,
+                'email'                 => $user->email,
+                'password'              => '',
+                'password_confirmation' => '',
+                'role_id'               => $user->role_id,
+                'bidang_id'             => $this->operasiUnit()->id,
+                'no_hp'                 => $user->no_hp ?: '081234567890',
+                'alamat'                => $user->alamat ?: 'Indramayu',
+                'permissions'           => [$deleteId],
+            ])
+            ->assertRedirect(route('admin.users.index'));
+
+        $user->refresh();
+
+        $this->assertTrue($user->hasDirectPermission('news.view'));
+        $this->assertFalse($user->hasDirectPermission('tamu.delete'));
+    }
+
     public function test_update_password_optional(): void
     {
         $admin = $this->superAdmin();

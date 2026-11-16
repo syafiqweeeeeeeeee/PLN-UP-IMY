@@ -25,6 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
            dijaga: akun dengan penanda must_change_password diarahkan
            ke halaman ganti password sebelum boleh lanjut. */
         $middleware->web(append: [
+            // Akun nonaktif diputus lebih dulu; baru setelah itu aturan
+            // wajib-ganti-password berlaku.
+            \App\Http\Middleware\EnsureAccountActive::class,
             \App\Http\Middleware\MustChangePassword::class,
         ]);
 

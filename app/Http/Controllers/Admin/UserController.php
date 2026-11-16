@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
@@ -647,13 +648,14 @@ class UserController extends Controller
         $user->roles()->sync([$role->id]);
 
         // DIRECT PERMISSION — sinkronkan matriks hak akses per akun.
-        // Hanya Super Admin / Admin utama yang boleh ubah direct permission.
+        // HANYA Super Admin / Admin utama yang boleh mengubah direct
+        // permission. Self-edit oleh Admin Bidang/Karyawan TIDAK boleh
+        // menyinkronkan input `permissions[]` dari request: selain field
+        // role/unit, itu jalur eskalasi hak akses mandiri (mis. menambah
+        // tamu.delete ke akun sendiri). Permission lama dibiarkan apa
+        // adanya karena tidak ada perubahan yang diizinkan di cabang ini.
         if ($actorMayChangeRole) {
             $this->syncDirectPermissions($user, $request, $role->name);
-        } else {
-            // Pemilik biasa / Admin Bidang self-edit tidak boleh ubah hak akses.
-            // Pastikan tetap sinkron pada hak akses yang sudah ada.
-            $this->syncDirectPermissions($user, $request, $user->role);
         }
 
         ActivityLogger::log('update', null, [
@@ -673,8 +675,8 @@ class UserController extends Controller
 
     /**
      * Toggle status akun pengguna (Aktif ⇄ Nonaktif) — shortcut cepat
-     * dari Daftar Pengguna. Status dipetakan ke kolom email_verified_at:
-     * mengaktifkan = verifikasi email; menonaktifkan = batalkan verifikasi.
+     * dari Daftar Pengguna. Status memakai kolom `is_active` yang juga
+     * dibaca guard login & middleware sesi (bukan `email_verified_at`).
      *
      * Menerima fetch AJAX (JSON) maupun submit form biasa (redirect).
      */
@@ -691,8 +693,16 @@ class UserController extends Controller
             return redirect()->route('admin.users.index')->with('error', $message);
         }
 
-        $newStatus = ! $user->email_verified_at;
-        $user->update(['email_verified_at' => $newStatus ? now() : null]);
+        $newStatus = ! $user->isActive();
+        $user->update(['is_active' => $newStatus]);
+
+        // Sesi yang sudah berjalan tidak boleh bertahan setelah akun
+        // dinonaktifkan. Hapus seluruh sesi milik user ini; middleware
+        // EnsureAccountActive menjadi jaring pengaman bila tabel session
+        // memakai driver lain.
+        if (! $newStatus) {
+            DB::table('sessions')->where('user_id', $user->id)->delete();
+        }
 
         ActivityLogger::log('update', null, [
             'module'      => 'pengguna',

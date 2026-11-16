@@ -104,6 +104,15 @@ class User extends Authenticatable
         ],
     ];
 
+    /**
+     * Default atribut untuk instance BARU. Kolom database juga punya
+     * default true, tetapi model yang baru dibuat/di-actingAs-kan harus
+     * langsung membawa nilai yang sama sebelum di-refresh dari database.
+     */
+    protected $attributes = [
+        'is_active' => true,
+    ];
+
     protected $fillable = [
         'name',
         'email',
@@ -118,6 +127,7 @@ class User extends Authenticatable
         'bidang_id',
         'jabatan_id',
         'email_verified_at',
+        'is_active',
         'no_hp',
         'alamat',
         'last_seen_tamu_id',
@@ -226,6 +236,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_active' => 'boolean',
         'password' => 'hashed',
         'must_change_password' => 'boolean',
         'department_id' => 'integer',
@@ -339,6 +350,18 @@ class User extends Authenticatable
     // karyawan biasa yang tidak punya hak akses berita.
 
     /**
+     * Apakah akun boleh login / tetap memiliki sesi aktif?
+     *
+     * Satu sumber kebenaran adalah kolom `is_active` (bukan
+     * `email_verified_at`): toggle Aktif/Nonaktif di panel admin menulis
+     * kolom ini, dan guard login + middleware sesi membacanya.
+     */
+    public function isActive(): bool
+    {
+        return (bool) $this->is_active;
+    }
+
+    /**
      * Apakah akun ini Super Admin (Sekretariat / Humas)?
      * Super Admin = nama role persis 'Super Admin' ATAU role legacy
      * 'Administrator' (kompatibilitas akun existing).
@@ -390,14 +413,14 @@ class User extends Authenticatable
 
     /**
      * Jumlah akun KARYAWAN ber-Level Jabatan "Senior Manager" dengan
-     * status AKTIF (email terverifikasi) di database. Akun nonaktif tidak
+     * status AKTIF (kolom is_active) di database. Akun nonaktif tidak
      * dihitung sehingga slot kuota bebas saat akun dinonaktifkan.
      */
     public static function seniorManagerAccountCount(): int
     {
         return static::query()
             ->where('level_jabatan', 'senior_manager')
-            ->whereNotNull('email_verified_at')
+            ->where('is_active', true)
             ->count();
     }
 

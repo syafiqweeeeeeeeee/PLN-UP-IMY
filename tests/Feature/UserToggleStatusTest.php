@@ -13,7 +13,7 @@ use Tests\TestCase;
  * - REVISI ARSITEKTUR: route Edit Pengguna KEMBALI (dipakai untuk
  *   Direct Permission per akun) — toggle status tetap ada sebagai
  *   shortcut cepat dari Daftar Pengguna.
- * - UserController@toggleStatus mengubah email_verified_at (Aktif ⇄ Nonaktif).
+ * - UserController@toggleStatus mengubah kolom is_active (Aktif ⇄ Nonaktif).
  * - Proteksi: admin tidak bisa menonaktifkan akunnya sendiri.
  * - Feedback sukses: "Status pengguna berhasil diperbarui."
  */
@@ -49,10 +49,10 @@ class UserToggleStatusTest extends TestCase
             ->assertSee('Edit Pengguna');
     }
 
-    public function test_toggle_status_activates_unverified_account(): void
+    public function test_toggle_status_activates_inactive_account(): void
     {
         $admin  = $this->admin();
-        $target = User::factory()->unverified()->create();
+        $target = User::factory()->create(['is_active' => false]);
 
         // AJAX (Accept: application/json) → balasan JSON + toast.
         $this->actingAs($admin)
@@ -60,10 +60,10 @@ class UserToggleStatusTest extends TestCase
             ->assertOk()
             ->assertJson(['success' => true, 'message' => 'Status pengguna berhasil diperbarui.', 'status' => 'Aktif']);
 
-        $this->assertNotNull($target->fresh()->email_verified_at);
+        $this->assertTrue($target->fresh()->isActive());
     }
 
-    public function test_toggle_status_deactivates_verified_account(): void
+    public function test_toggle_status_deactivates_active_account(): void
     {
         $admin  = $this->admin();
         $target = User::factory()->create(); // verified by default
@@ -73,13 +73,13 @@ class UserToggleStatusTest extends TestCase
             ->assertOk()
             ->assertJson(['success' => true, 'status' => 'Nonaktif']);
 
-        $this->assertNull($target->fresh()->email_verified_at);
+        $this->assertFalse($target->fresh()->isActive());
     }
 
     public function test_toggle_status_without_ajax_redirects_with_flash(): void
     {
         $admin  = $this->admin();
-        $target = User::factory()->unverified()->create();
+        $target = User::factory()->create(['is_active' => false]);
 
         // Submit form biasa (tanpa Accept JSON) → redirect + flash message.
         $this->actingAs($admin)
@@ -87,7 +87,7 @@ class UserToggleStatusTest extends TestCase
             ->assertRedirect(route('admin.users.index'))
             ->assertSessionHas('success', 'Status pengguna berhasil diperbarui.');
 
-        $this->assertNotNull($target->fresh()->email_verified_at);
+        $this->assertTrue($target->fresh()->isActive());
     }
 
     public function test_toggle_status_requires_users_edit_permission(): void
@@ -109,13 +109,13 @@ class UserToggleStatusTest extends TestCase
             ->assertStatus(422)
             ->assertJson(['success' => false]);
 
-        $this->assertNotNull($admin->fresh()->email_verified_at);
+        $this->assertTrue($admin->fresh()->isActive());
     }
 
     public function test_toggle_status_is_logged(): void
     {
         $admin  = $this->admin();
-        $target = User::factory()->unverified()->create();
+        $target = User::factory()->create(['is_active' => false]);
 
         $this->actingAs($admin)
             ->patch(route('admin.users.toggle-status', $target), ['status' => 'active']);

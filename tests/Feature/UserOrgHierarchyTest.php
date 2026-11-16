@@ -204,7 +204,7 @@ class UserOrgHierarchyTest extends TestCase
             'role'              => 'Karyawan',
             'role_id'           => $this->role()->id,
             'level_jabatan'     => 'senior_manager',
-            'email_verified_at' => null,
+            'is_active'         => false,
         ]);
 
         $this->assertSame(0, User::seniorManagerAccountCount());

@@ -52,6 +52,17 @@ class LoginController extends Controller
                 ->withErrors(['email' => trans('auth.failed')]);
         }
 
+        // Akun NONAKTIF ditolak SEBELUM sesi dibuat. Pesannya sengaja
+        // sama dengan kredensial salah agar status akun tidak bocor ke
+        // penebak password; hit rate-limit tetap dihitung.
+        if (! $user->isActive()) {
+            RateLimiter::hit($throttleKey, self::DECAY_SECONDS);
+
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors(['email' => trans('auth.failed')]);
+        }
+
         // Login berhasil → hitungan percobaan gagal direset.
         RateLimiter::clear($throttleKey);
 
